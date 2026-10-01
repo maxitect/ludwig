@@ -16,7 +16,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T006](./T006-spike-cache-components.md) | Spike S2: Cache Components decision | T003 | | | todo |
 | [T007](./T007-design-tokens-fonts-textures.md) | Design tokens, themes, fonts and textures | T001 | | | todo |
 | [T008](./T008-auth-pages-proxy-rate-limit.md) | Auth pages, actions, `proxy.ts`, `getCurrentUser` and rate limiting | T003, T007 | | | todo |
-| [T009](./T009-spike-vercel-neon.md) | Spike S3: Vercel + Neon deployment | T005, T008 | | ✔ | todo |
+| [T009](./T009-spike-vercel-neon.md) | Spike S3: Vercel + Neon deployment | T005, T008 | | | todo |
 
 ## M1: Design system and puzzle framework
 
@@ -59,7 +59,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T034](./T034-gear-engine-core.md) | Gear engine core | T033 | | | todo |
 | [T035](./T035-gear-generators.md) | Gear generator and Fix the Diagram generator | T034 | | | todo |
 | [T036](./T036-gen-gears-script.md) | `puzzles:gen-gears` script and daily diagrams | T035 | | | todo |
-| [T037](./T037-gear-board-prototype.md) | SVG gear board and playtest prototype (checkpoint) | T034, T018 | | ✔ | todo |
+| [T037](./T037-gear-board-prototype.md) | SVG gear board, prototype and parameter evaluation | T034, T018 | | | todo |
 | [T038](./T038-gear-crank.md) | Crank interaction (drag, keyboard, ±) | T037 | | | todo |
 | [T039](./T039-gear-scrubber-animation.md) | Dance scrubber, animation and sightlines | T038 | | | todo |
 | [T040](./T040-gear-accuse-check.md) | Accuse flow and server check | T039 | | | todo |
@@ -102,4 +102,4 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | todo |
 | [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4 | | | todo |
 | [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067 | | | todo |
-| [T070](./T070-production-launch.md) | Production domain, final seed, launch | T068, T069 | | ✔ | todo |
+| [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |

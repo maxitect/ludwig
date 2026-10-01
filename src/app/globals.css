@@ -1,1 +1,178 @@
 @import "tailwindcss";
+
+@theme static {
+  --color-paper: #E9E4DE;
+  --color-paper-shade: #C2BABB;
+  --color-paper-deep: #B0A7A8;
+  --color-ink: #0A0B0D;
+  --color-ink-soft: #444549;
+  --color-ludwig-red: #C40C12;
+  --color-blood: #75171A;
+  --color-crayon: #8B2020;
+  --color-shadow: #1E2B3B;
+  --color-shadow-soft: #4C5462;
+  --color-grid-blue: #004060;
+  --color-book-blue: #3A7FB0;
+
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+
+  --font-signature: var(--font-yesteryear), cursive;
+  --font-display: var(--font-josefin), sans-serif;
+  --font-sans: var(--font-jost), sans-serif;
+  --font-band: var(--font-barlow), sans-serif;
+  --font-hand: var(--font-caveat), cursive;
+  --font-mono: var(--font-jetbrains), monospace;
+}
+
+:root,
+:root[data-theme="paper"] {
+  --radius: 0;
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-paper);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-paper);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-ludwig-red);
+  --primary-foreground: var(--color-paper);
+  --secondary: var(--color-ink);
+  --secondary-foreground: var(--color-paper);
+  --muted: var(--color-paper-shade);
+  --muted-foreground: var(--color-ink-soft);
+  --accent: var(--color-book-blue);
+  --accent-foreground: var(--color-ink);
+  --destructive: var(--color-blood);
+  --destructive-foreground: var(--color-paper);
+  --border: var(--color-ink);
+  --input: var(--color-ink);
+  --ring: var(--color-grid-blue);
+  --grain-blend: multiply;
+  --grain-invert: 0;
+}
+
+:root[data-theme="ink"] {
+  --background: var(--color-ink);
+  --foreground: var(--color-paper);
+  --card: var(--color-shadow);
+  --card-foreground: var(--color-paper);
+  --popover: var(--color-shadow);
+  --popover-foreground: var(--color-paper);
+  --primary: var(--color-ludwig-red);
+  --primary-foreground: var(--color-paper);
+  --secondary: var(--color-paper);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-shadow);
+  --muted-foreground: var(--color-paper-shade);
+  --accent: var(--color-book-blue);
+  --accent-foreground: var(--color-ink);
+  --destructive: var(--color-blood);
+  --destructive-foreground: var(--color-paper);
+  --border: color-mix(in srgb, var(--color-paper) 60%, transparent);
+  --input: color-mix(in srgb, var(--color-paper) 60%, transparent);
+  --ring: var(--color-book-blue);
+  --grain-blend: screen;
+  --grain-invert: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --background: var(--color-ink);
+    --foreground: var(--color-paper);
+    --card: var(--color-shadow);
+    --card-foreground: var(--color-paper);
+    --popover: var(--color-shadow);
+    --popover-foreground: var(--color-paper);
+    --primary: var(--color-ludwig-red);
+    --primary-foreground: var(--color-paper);
+    --secondary: var(--color-paper);
+    --secondary-foreground: var(--color-ink);
+    --muted: var(--color-shadow);
+    --muted-foreground: var(--color-paper-shade);
+    --accent: var(--color-book-blue);
+    --accent-foreground: var(--color-ink);
+    --destructive: var(--color-blood);
+    --destructive-foreground: var(--color-paper);
+    --border: color-mix(in srgb, var(--color-paper) 60%, transparent);
+    --input: color-mix(in srgb, var(--color-paper) 60%, transparent);
+    --ring: var(--color-book-blue);
+    --grain-blend: screen;
+    --grain-invert: 1;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    background-image: url("/textures/grain.png");
+    background-size: 512px 512px;
+    mix-blend-mode: var(--grain-blend);
+    filter: invert(var(--grain-invert));
+    opacity: 0.35;
+  }
+}
+
+@utility grid-paper {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--color-paper-deep);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 0h5M0 0h-5M0 0v5M0 0v-5M24 0h-5M24 0v5M0 24h5M0 24v-5M24 24h-5M24 24v-5' stroke='black'/%3E%3Ccircle cx='12' cy='12' r='1' fill='black'/%3E%3C/svg%3E");
+    mask-size: 24px 24px;
+  }
+}
+
+@utility raking {
+  background-image: repeating-linear-gradient(
+    115deg,
+    transparent 0,
+    transparent 96px,
+    color-mix(in srgb, var(--color-shadow) 12%, transparent) 96px,
+    color-mix(in srgb, var(--color-shadow) 12%, transparent) 192px
+  );
+}

@@ -114,7 +114,7 @@ There is one local Postgres container, from `compose.yaml` (created in T001). Ea
 | `BETTER_AUTH_URL` | `http://localhost:<port>` |
 | Verification artefacts | `.verification/<id>/`, which is git-ignored: screenshots, cookies, logs |
 
-Set up a fresh environment with `pnpm db:migrate && pnpm db:seed`. Never point at Neon or production; production migrations only run in the Vercel build.
+Set up a fresh environment with `pnpm db:migrate && pnpm db:seed`. `.env.neon.local` holds the Neon production credentials as a reference for the user. Never read, copy or source it. Never point at Neon or production; production migrations only run in the Vercel build.
 
 **Test users:**
 

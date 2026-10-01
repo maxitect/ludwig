@@ -13,7 +13,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T003](./T003-spike-drizzle-better-auth.md) | Spike S1: Drizzle 1.0 RC + Better Auth + auth schema | T001 | ✔ | | done |
 | [T004](./T004-core-schema.md) | Core schema: lookups, puzzles supertype, volumes, weekly, attempts, hints, settings | T003 | ✔ | | done |
 | [T005](./T005-generic-triggers-and-integrity-harness.md) | Generic triggers and the DB-integrity test harness | T004 | ✔ | | todo |
-| [T006](./T006-spike-cache-components.md) | Spike S2: Cache Components decision | T003 | | | todo |
+| [T006](./T006-spike-cache-components.md) | Spike S2: Cache Components decision | T003 | | | done |
 | [T007](./T007-design-tokens-fonts-textures.md) | Design tokens, themes, fonts and textures | T001 | | | done |
 | [T008](./T008-auth-pages-proxy-rate-limit.md) | Auth pages, actions, `proxy.ts`, `getCurrentUser` and rate limiting | T003, T007 | | | todo |
 | [T009](./T009-spike-vercel-neon.md) | Spike S3: Vercel + Neon deployment | T005, T008 | | | todo |

@@ -580,7 +580,7 @@ drizzle.config.ts
 
 **v1.1:** turn on password reset (`sendResetPassword`). It is config plus an email provider; the `verification` table already exists. Email verification is out of scope.
 
-**Cache Components:** if `cacheComponents` is enabled, user-dependent UI such as the nav user menu and the Casebook must sit behind `<Suspense>`. Puzzle payloads can be cached with `use cache` and `cacheTag("puzzle:"+id)`. See `node_modules/next/dist/docs/01-app/02-guides/authentication-with-cache-components.md`.
+**Cache Components:** **on** (T006 spike: session UI streams behind `<Suspense>` and `use cache` + `cacheTag` data caches and revalidates correctly, with a clean build and no runtime errors). User-dependent UI such as the nav user menu and the Casebook must sit behind `<Suspense>`. Puzzle payloads can be cached with `use cache` and `cacheTag("puzzle:"+id)`. See `node_modules/next/dist/docs/01-app/02-guides/authentication-with-cache-components.md`.
 
 ### 7.4 Data model (Drizzle, Postgres)
 

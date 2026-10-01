@@ -1,20 +1,25 @@
 ---
 id: T070
-title: Production domain, final seed, launch
+title: Production launch on the Vercel domain
 milestone: M5
 epic: E10
 depends_on: [T068, T069]
 migrations: false
-requires_human: true
+requires_human: false
 spec: ["SPEC §7.5", "SPEC §7.7", "SPEC §8", "PLAN §3 M5"]
 skills: []
 ---
 
-# T070: Production domain, final seed, launch
+# T070: Production launch on the Vercel domain
 
 ## Context
 
-The final launch (PLAN §3 M5). Repo-side preparation is done by the implementer. The account, domain and production database actions are done by the user (INSTRUCTIONS §1, step 3).
+The final launch (PLAN §3 M5). There's no human step:
+
+- Production is the project's `*.vercel.app` URL. A custom domain can be added later by the user.
+- The env vars are already set (T009).
+- Production is migrated and seeded by the Vercel build (SPEC §7.7).
+- Merging to `main` deploys to production.
 
 ## Scope
 
@@ -22,15 +27,8 @@ The final launch (PLAN §3 M5). Repo-side preparation is done by the implementer
 
 - A launch checklist in the report.
 - `trustedOrigins` and `BETTER_AUTH_URL` handling for the production domain.
-- A `pnpm smoke <url>` script: a Playwright run of end-to-end flows 1, 3 and 4 against a given base URL, using a throwaway account.
+- A `pnpm smoke <url>` script: a Playwright run of end-to-end flows 1, 3 and 4 against a given base URL. It uses one dedicated account, `smoke@test.local`, created on its first run and reused afterwards, so production collects at most one test user.
 - Confirm that `/dev/kitchen-sink` returns 404 in production.
-
-**In (human: the orchestrator pauses for these)**
-
-1. Choose the domain, add it to the Vercel project, and configure DNS.
-2. Set production env vars in Vercel: `BETTER_AUTH_SECRET` (new) and `BETTER_AUTH_URL` (the domain). The Neon integration supplies `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
-3. Approve and run `pnpm db:seed` against the Neon **production** branch. This is the only sanctioned production write.
-4. Promote the production deployment.
 
 **Out**
 
@@ -39,22 +37,23 @@ The final launch (PLAN §3 M5). Repo-side preparation is done by the implementer
 
 ## Notes
 
-- Never run the seed or migrations against production yourself. Prepare the exact command and hand it to the user.
+- Never run the seed or migrations against production yourself. They only run in the Vercel build.
+- Get the production URL from `gh api repos/maxitect/ludwig/deployments?environment=Production` (the latest status `environment_url`).
 
 ## Acceptance criteria
 
 - [ ] **AC1**: The production build is green on `main`, with migrations applied in the Vercel build.
-  - _Verify (cli):_ `vercel inspect <prod-url>` (or the dashboard output pasted by the user) shows the deployment as `READY`, and the build log contains the `db:migrate` success line.
-- [ ] **AC2**: The domain serves over HTTPS with a valid certificate.
-  - _Verify (api):_ `curl -sI https://<domain>/` returns `HTTP/2 200`, and `curl -vI` shows a valid certificate chain.
-- [ ] **AC3**: Production content is seeded.
-  - _Verify (api):_ `curl -s https://<domain>/puzzles` HTML lists every category, and `/gears` shows today's daily diagram.
+  - _Verify (cli):_ `gh api repos/maxitect/ludwig/deployments?environment=Production` shows that the latest deployment for the `main` HEAD sha has the status `success`.
+- [ ] **AC2**: The production URL serves over HTTPS with a valid certificate.
+  - _Verify (api):_ `curl -sI https://<prod-host>/` returns `HTTP/2 200`, and `curl -vI` shows a valid certificate chain.
+- [ ] **AC3**: Production content is seeded by the build.
+  - _Verify (api):_ `curl -s https://<prod-host>/puzzles` HTML lists every category, and `/gears` shows today's daily diagram.
 - [ ] **AC4**: The smoke test passes against production.
-  - _Verify (cli):_ `pnpm smoke https://<domain>` passes flows 1, 3 and 4.
+  - _Verify (cli):_ `pnpm smoke https://<prod-host>` passes flows 1, 3 and 4.
 - [ ] **AC5**: Auth works on the domain and preview origins are not trusted in production.
-  - _Verify (api):_ Sign up and sign in through `https://<domain>/api/auth/...` with curl, which returns 200 and sets a cookie. A request with `Origin: https://evil.example` is rejected.
+  - _Verify (api):_ Sign in as `smoke@test.local` through `https://<prod-host>/api/auth/sign-in/email` with curl, which returns 200 and sets a cookie. A request with `Origin: https://evil.example` is rejected.
 - [ ] **AC6**: The kitchen sink is hidden.
-  - _Verify (api):_ `curl -sI https://<domain>/dev/kitchen-sink` returns 404.
+  - _Verify (api):_ `curl -sI https://<prod-host>/dev/kitchen-sink` returns 404.
 - [ ] **AC7**: The footer shows the cburnett attribution and the not-affiliated note.
   - _Verify (browser):_ A production screenshot of the footer at 1280px and 390px.
 - [ ] **AC8**: The whole of SPEC §8 passes on production.

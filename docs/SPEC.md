@@ -105,10 +105,10 @@ The show never gives exact rules, so section 5.2 defines our own. They stay fait
 
 | Category | Type key | Notes |
 |---|---|---|
-| **Flagship** | `reverse-chess` | Three modes (section 5.1) |
+| **Flagship** | `reverse-chess` | Modes A and B (section 5.1) |
+| **Flagship** | `rota` | Reverse Chess Mode C. It is a separate type because it shares no data shape with chess, and it is presented inside the Reverse Chess hub (section 5.1) |
 | **Flagship** | `gears` | Engine-driven, generated plus curated (section 5.2) |
-| Word | `cryptic` | 13×13 or 15×15 grid, original clues, with checking and reveal |
-| Word | `quick-crossword` | 11×11 |
+| Word | `crossword` | One type with a `style` of `cryptic` (13×13 or 15×15) or `quick` (11×11). They share every table. Both have original clues, checking and reveal. The UI shows them as "Cryptic" and "Quick" shelves |
 | Word | `anagram` | Single words and phrase anagrams, letter-tile UI |
 | Word | `word-ladder` | Change one letter per rung |
 | Word | `acrostic` | Find the hidden message (S1E1) |
@@ -119,14 +119,14 @@ The show never gives exact rules, so section 5.2 defines our own. They stay fait
 | Logic | `futoshiki` | 5×5 with inequalities |
 | Logic | `odd-one-out` | Four or five items |
 | Spatial | `sightlines` | Grid with pillars and observers. Mark the blind spots (S1E3) |
-| Spatial | `cctv-maze` | Reach the exit without entering any camera's view cone (S2E3) |
+| Spatial | `cctv-maze` | Reach the exit without entering any camera's view cone (S2E3). Shares the `visibility.ts` engine (grid line of sight, view cones, obstacles) with `sightlines` |
 | Spatial | `spot-difference` | Two SVG scenes generated with N seeded differences (S1E2) |
 | Cipher | `book-cipher` | page:line:word references into a public-domain text in the app (S1E6) |
 | Cipher | `pictogram-cipher` | Stick-figure substitution alphabet (S2E6) |
-| Cipher | `acrostic` / `caesar` / `keyword` | Grouped under "James's Notebooks" |
+| Cipher | `caesar` / `keyword` | Grouped with the other ciphers under "James's Notebooks" |
 | Numbers | `napkin-maths` | Deduction from partial working (S2E5) |
 
-**Authoring rule (Mr Todd's principle).** Every puzzle has exactly one solution, verified by a solver at authoring time. Each one should be built "from the solution backwards, with false paths layered in".
+**Authoring rule (Mr Todd's principle).** Every puzzle has exactly one solution, verified by a solver at authoring time. The one exception is the word ladder (section 7.4.4). Each one should be built "from the solution backwards, with false paths layered in".
 
 ---
 
@@ -143,6 +143,7 @@ The show never gives exact rules, so section 5.2 defines our own. They stay fait
 /this-week                 "Two puzzles a week": the current weekly pair
 /casebook                  Progress: solved, times, streaks, per-category stats
 /settings                  Display name, theme (paper/ink), notation (algebraic/descriptive)
+/dev/kitchen-sink          Every design-system component in both themes (dev and preview builds only; 404 in production)
 ```
 
 Navigation is a slim top bar: the wordmark on the left, then Collection, Reverse Chess, Gears, This Week and Casebook, with the account menu on the right. On mobile it becomes a bottom sheet.
@@ -153,39 +154,42 @@ Navigation is a slim top bar: the wordmark on the left, then Collection, Reverse
 
 ### 4.1 Types
 
-Each puzzle type defines four parts:
-
-- a **Zod schema** for its public `payload`, which is sent to the client;
-- a Zod schema for its `solution`, which stays on the server only;
-- a pure `check(payload, solution, answer)` that returns `{ correct, cellsWrong? }`;
-- a client `<Solver>` component.
-
-TypeScript types come from `z.infer<…>`. There are no hand-written duplicates and no `any`. These jsonb shapes are the only hand-written Zod schemas; table rows and forms are generated with `drizzle-orm/zod` (section 7.4).
+Each puzzle type is a self-contained folder:
 
 ```
 src/puzzles/<type>/
-  schema.ts      // payloadSchema, solutionSchema, answerSchema, stateSchema
-  check.ts       // pure, server-side
-  solver.tsx     // "use client"
-  engine.ts      // flagship types only: pure simulation / generation
+  tables.ts         // Drizzle tables for this type: subtype, children, solution, attempt state (section 7.4.4)
+  schema.ts         // Zod, composed from drizzle-orm/zod: payloadSchema (play DTO, no solution), answerSchema,
+                    //   contentSchema (content files), attemptSchema
+  load.ts           // server-only: one RQBv2 query → payload DTO; never selects solution columns
+  load-solution.ts  // server-only: solution rows for check.ts
+  check.ts          // pure: check(payload, solution, answer) → { correct, cellsWrong? }
+  derive.ts         // pure: values derived instead of stored (e.g. clue numbers, ciphertext, tiles)
+  solver.tsx        // "use client"
+  engine.ts         // flagship and generated types only: simulation / generation / solving
 ```
 
-A `registry.ts` maps `type` to `{ schema, check, Solver, meta }`.
+- Types come from `z.infer<…>` on schemas composed from the generated table schemas. There are no hand-written duplicates and no `any`.
+- `registry.ts` maps each `type_key` to `{ schema, load, check, Solver, meta }`.
+- Shared pure engines live in `src/puzzles/_shared/`, for example `visibility.ts`, which is used by `sightlines`, `cctv-maze` and the gear occlusion rule.
 
 ### 4.2 Answer checking
 
 - Solutions never leave the server. Pages load the payload through a data-access function marked `import "server-only"`.
 - Players check answers through a **Server Action** `checkAnswer(puzzleId, answer)`. It validates `answer` with the type's `answerSchema` and runs `check`. If the answer is correct, it records completion.
-- Per-cell "check" and "reveal letter" go through the same action with `{ mode: "cell", index }`. Both increment `hintsUsed`.
+- Per-cell "check" and "reveal letter" go through the same action with `{ mode: "cell", index }`. Each use inserts an `attempt_hints` row, and the hint count is derived from those rows.
 
 ### 4.3 Progress state
 
-- In-progress state (grid letters, chess retro moves, gear crank values) autosaves through a debounced Server Action into `attempts.state` (jsonb, validated by `stateSchema`).
+- In-progress state autosaves through a debounced Server Action `saveState(attemptId, state)`.
+  - The state is validated by the type's `attemptSchema`.
+  - It is written as normalised rows into that type's `<type>_attempts` and `<type>_attempt_*` tables (section 7.4.4), replacing the previous rows in one transaction.
+  - Examples are crossword letters, chess retro plies and the gear crank setting.
 - Signed-out users can play. Their state is stored in `localStorage` and merged into the account on sign-up.
 
 ### 4.4 "This Week" cadence
 
-Every Monday two puzzles are published, nodding to the paper's "two puzzles a week" deal. Implementation is a `weekly_pairs` table. There is no cron in v1: an admin sets the pairs ahead of time with a seed script.
+Every Monday two puzzles are published, nodding to the paper's "two puzzles a week" deal. Implementation is a `weekly_puzzles` table keyed by `(week_start, slot)`. There is no cron in v1: an admin sets the pairs ahead of time with a seed script.
 
 ### 4.5 Solve-page chrome (all types)
 
@@ -193,6 +197,14 @@ Every Monday two puzzles are published, nodding to the paper's "two puzzles a we
 - **Timer:** monospaced and pausable. It pauses when the tab is hidden.
 - **Actions:** Check, Reveal (with a confirm dialog) and Reset.
 - **On completion:** a red handwritten "Solved." stamp in the hand font, the time, and a "Next in volume" link.
+
+### 4.6 Content as code
+
+- **Where puzzles live.** Curated puzzles are TypeScript files in `content/<type>/<slug>.ts`. Each one exports `{ meta, content }`, typed and validated by that type's `contentSchema`, which is composed from the insert schemas (section 7.4.6).
+- **Verification.** `pnpm puzzles:verify` runs in CI. For every file it parses the schema, runs `derive.ts`, and runs the type's solver or uniqueness check (the word ladder checks validity only).
+- **Seeding.** `pnpm db:seed` upserts by `(type_key, slug)`. Each puzzle's supertype, subtype and child rows are written in a single transaction, so the deferred subtype trigger (section 7.4.2) passes. Rows a file no longer contains are removed.
+- **Generated content.** Gears and spot-difference puzzles are produced by scripts and materialised through the same seeding path.
+- **What this gives us.** Reviewable diffs, git history and rollbacks for content. Every Neon preview branch also gets real content.
 
 ---
 
@@ -204,7 +216,7 @@ The tagline, from the show: _"Instead of having to work out what comes next, you
 
 #### Mode A: "The Last Move" (single retro move)
 
-**Prompt:** a position given as a FEN with side-to-move. The question is "What was the last move?"
+**Prompt:** a position with side-to-move. It is stored as one row per piece plus scalar castling and en passant columns, and the FEN for `chess.js` is derived in `derive.ts`. The question is "What was the last move?"
 
 **Answer:** the player drags a piece **backwards**, from its current square to its origin square. If the move was a capture, they choose the uncaptured piece (type plus colour, or "none") from a piece tray, and that piece is placed on the vacated square. Promotions are undone by turning the piece back into a pawn (there is a toggle). En passant and castling un-moves are supported.
 
@@ -252,7 +264,7 @@ This mode is non-chess retro deduction on an 8×8 site grid. The board is drawn 
 
 **UI:** drag two tokens to "unswap" them. Each unswap pushes a step onto a visible stack, drawn as a red pencil line between the cells. Undo pops a step.
 
-**Check:** the sequence, applied forwards from the intended rota, must yield the final state and satisfy every clue predicate. Clues are encoded as typed predicates in the solution schema, not free text, so the checker can evaluate them. The display text is stored alongside each predicate.
+**Check:** the sequence, applied forwards from the intended rota, must yield the final state and satisfy every clue predicate. Clues are stored as typed predicates: one subtype table per clue kind (section 7.4.4), not free text, so the checker can evaluate them. Each clue row also carries its display text.
 
 **Engine:** a pure `rota.ts` with `applySwaps`, `validateClues`, and a brute-force/BFS `solve` used by the verify script to prove uniqueness.
 
@@ -337,7 +349,7 @@ The search space is L × 8, at most lcm(8,12,16,24) × 8 = 384 cells, so brute-f
 4. For Fix the Diagram: start from an accepted diagram, apply K random swaps, and accept if the result has zero solutions **and** the inverse swap set is the unique repair.
 5. Use a seeded PRNG (mulberry32) so a daily diagram is reproducible from its date seed.
 
-Curated diagrams live in the DB like any other puzzle. Generated ones are materialised into the `puzzles` table by a script so that checking stays server-side.
+Curated diagrams live in the DB like any other puzzle. Generated ones are materialised into `puzzles`, `gear_puzzles` and their child tables by a script, so checking stays server-side.
 
 #### 5.2.4 Interaction
 
@@ -506,21 +518,29 @@ src/
   proxy.ts                          optimistic redirect via getSessionCookie() from better-auth/cookies
   db/
     index.ts                        pg Pool + drizzle (node-postgres); attachDatabasePool on Vercel
-    schema.ts                       app tables; re-exports auth-schema.ts
-    auth-schema.ts                  generated by the Better Auth CLI (user, session, account, verification)
+    schema/index.ts                 re-exports core, progress, auth and every src/puzzles/<type>/tables.ts
+    schema/core.ts, progress.ts     lookups, puzzles supertype, volumes, weekly_puzzles, attempts, hints
+    auth-schema.ts                  generated by the Better Auth CLI (user, session, account, verification, rate_limit)
     relations.ts                    defineRelations (RQBv2)
   lib/data/                         server-only data access (puzzles, attempts, user)
   lib/actions/                      server actions (checkAnswer, saveState, signUp, signIn)
-  puzzles/<type>/…                  per-type schema/check/solver/engine (section 4.1)
+  puzzles/<type>/…                  per-type tables/schema/load/check/derive/solver/engine (section 4.1)
+  puzzles/_shared/                  shared pure engines (visibility.ts) and solver parts (CellInput grid)
   puzzles/registry.ts
+  app/dev/kitchen-sink/page.tsx     design-system showcase; notFound() when VERCEL_ENV === "production"
   components/ui/                    shadcn (restyled)
   components/brand/                 Wordmark, Credit, InkSplat, Walker, Grain, SolvedStamp, BulletHole
   fonts/                            licensed fonts (optional, git-ignored if required)
+content/
+  <type>/<slug>.ts                  curated puzzles: { meta, content } typed by the type's contentSchema
+  weekly.ts                         weekly_puzzles schedule
+  lookups.ts                        puzzle_categories, puzzle_types, pictogram_glyphs
+  words.txt                         word-ladder dictionary (one word per line, seeded into words)
 scripts/
-  seed.ts                           curated puzzles and weekly pairs
+  seed.ts                           upserts lookups, then each content file (supertype + subtype + children in one transaction)
   verify-puzzles.ts                 uniqueness and solver checks (CI)
   generate-gears.ts                 materialise generated diagrams
-drizzle/                            migrations (v3 layout: one folder per migration)
+drizzle/                            migrations (v3 layout: one folder per migration; custom SQL migrations for triggers)
 drizzle.config.ts
 ```
 
@@ -560,44 +580,141 @@ drizzle.config.ts
 
 ### 7.4 Data model (Drizzle, Postgres)
 
-```ts
-// Auth: generated by the Better Auth CLI into src/db/auth-schema.ts. Do not hand-edit; regenerate.
-user             id uuid pk, name text not null, email text unique not null, email_verified bool,
-                 image text, created_at, updated_at
-session          id, user_id fk→user, token unique, expires_at, ip_address, user_agent, created_at, updated_at
-account          id, user_id fk→user, provider_id ('credential'), account_id, password (hash), …
-verification     id, identifier, value, expires_at   // unused until v1.1 password reset
-rate_limit       id, key, count, last_request        // rateLimit.storage = "database"
+#### 7.4.1 Rules (non-negotiable)
 
-user_settings    user_id pk fk→user, theme enum('paper','ink','system'),
-                 chess_notation enum('algebraic','descriptive'), reduce_motion bool
+1. **Third normal form.** Every non-key column depends on the key, the whole key and nothing but the key.
+   - **Anything derivable is not stored.** That covers crossword answers and clue numbers, sudoku and futoshiki solutions, acrostic messages, plaintexts, maze paths, blind spots, gear spin signs, hint counts and streaks. Derivations live in pure engine code. `puzzles:verify` proves each one exists and is unique.
+2. **Denormalisation is DB-enforced or absent.** Any redundant column is kept consistent by the database itself, through a composite foreign key and, where the value would otherwise come from the app, a `BEFORE INSERT` trigger that fills it. App code never writes or maintains a redundant value. Every such column is listed in section 7.4.5.
+3. **No polymorphic relationships.** Every foreign key points at exactly one table, and there are no `(target_type, target_id)` pairs.
+   - Puzzle types use **class-table inheritance**. Each type has its own subtype table whose PK is also an FK to `puzzles`.
+   - A generated constant `type_key` column plus a composite FK makes a subtype row for the wrong type impossible (section 7.4.2).
+4. **Atomic cells only.** There are no `jsonb`, `json`, array, or delimited or encoded text columns, so no FEN strings, no "4,3" enumerations, and no comma lists. Composite data becomes child rows.
+5. **Enums versus lookup tables versus checks:**
+   - A `pgEnum` is used for a fixed set of options that carry only a name.
+   - A **lookup table** is used only when options carry extra attributes or must be extensible without a migration. In v1 that means `puzzle_categories`, `puzzle_types`, `pictogram_glyphs` and `words`.
+   - A `CHECK` is used only where an enum is impossible, i.e. numeric domains such as `difficulty BETWEEN 1 AND 5`, ranks 1–8, digits 1–9 and tooth counts.
+6. **Third-party schema.** Better Auth's generated tables are used as generated. They contain no `jsonb` or array columns. `account.scope` is a delimited OAuth field but stays `NULL`, because we have no OAuth.
 
-// Content
-puzzle_type      pgEnum: 'reverse-chess','gears','cryptic','quick-crossword','anagram','word-ladder',
-                 'acrostic','word-search','logic-grid','knights-knaves','sudoku','futoshiki',
-                 'odd-one-out','sightlines','cctv-maze','spot-difference','book-cipher',
-                 'pictogram-cipher','caesar','keyword','napkin-maths'
+#### 7.4.2 Supertype/subtype pattern
 
-volumes          id, slug unique, title ("Pocket Puzzle Collection Vol. 1"), cover_colour, sort
-puzzles          id uuid pk, slug, type puzzle_type, volume_id fk nullable, title, difficulty smallint 1–5,
-                 payload jsonb not null,       // validated by type payloadSchema
-                 solution jsonb not null,      // NEVER selected by client-facing queries
-                 seed text nullable,           // for generated gears
-                 source_note text,             // e.g. "Inspired by S2E2"
-                 published_at timestamptz, created_at
-                 unique(type, slug)
-weekly_pairs     week_start date pk, puzzle_a fk, puzzle_b fk
-
-// Progress
-attempts         id, user_id fk, puzzle_id fk, state jsonb, hints_used int default 0,
-                 started_at, completed_at nullable, duration_ms int nullable,
-                 unique(user_id, puzzle_id)
+```sql
+puzzles       (id uuid pk, type_key text not null fk→puzzle_types, …, unique (id, type_key))
+gear_puzzles  (puzzle_id uuid pk,
+               type_key text generated always as ('gears') stored,
+               …,
+               foreign key (puzzle_id, type_key) references puzzles (id, type_key) on delete cascade)
 ```
 
-- **Schemas from tables:** row and form schemas come from the tables with `drizzle-orm/zod` (`createSelectSchema`, `createInsertSchema`, `createUpdateSchema`), and types come from those with `z.infer`. Examples: the sign-up form is `createInsertSchema(user, { email: (s) => s.email() }).pick({ email: true, name: true }).extend({ password: z.string().min(10) })`. The password is not a user column, because Better Auth stores it on `account`., and settings updates use `createUpdateSchema(userSettings)`. Plain row types without validation can use Drizzle's `$inferSelect`.
-- **jsonb columns are the exception:** the generated schemas can only give a generic JSON schema for `payload`, `solution` and `state`, because their shape depends on the puzzle type. Those stay hand-written per type (section 4.1). The column is typed with `.$type<…>()` using the union of the registry's inferred payload types. At runtime, the row is parsed with the generated select schema refined per type, i.e. `createSelectSchema(puzzles, { payload: registry[type].payloadSchema })`.
-- **Data access:** `getPuzzleForPlay()` selects every column except `solution`. Only `check.ts` callers read `solution`.
-- **Streaks and stats** in the Casebook are computed from `attempts.completed_at` in SQL. There are no denormalised counters in v1.
+- **Wrong type is impossible.** A `gear_puzzles` row can only attach to a puzzle whose `type_key` is `gears`.
+- **Type is immutable.** Changing a puzzle's `type_key` is rejected by the referencing FK, so no trigger is needed.
+- **Completeness is enforced.** The constraint trigger `puzzles_require_subtype` is `DEFERRABLE INITIALLY DEFERRED`, `AFTER INSERT` on `puzzles`. At commit it checks that a row exists in the subtype table named by `puzzle_types.subtype_table` for that type, using dynamic SQL with `format('%I')`. It rejects puzzles with no subtype. Seeding inserts the supertype and subtype in one transaction.
+- **Prototype tested.** The pattern was checked on Postgres 17: the wrong-type insert, the missing subtype and the type change each fail.
+- **Attempts use the same pattern.** `attempts` is the supertype, and each `<type>_attempts` row pins its `type_key` the same way.
+
+#### 7.4.3 Core tables
+
+```
+// Auth: generated by the Better Auth CLI into src/db/auth-schema.ts. Do not hand-edit; regenerate.
+user, session, account, verification, rate_limit
+
+// Enums
+theme                  ('paper','ink','system')
+chess_notation         ('algebraic','descriptive')
+book_cover             ('blue','red','ink')            // maps to design tokens
+weekly_slot            ('first','second')
+hint_kind              ('check_cell','reveal_cell','check_all','reveal_all')
+
+// Lookups
+puzzle_categories      key text pk, name, sort smallint
+puzzle_types           key text pk, category_key fk→puzzle_categories, name, description,
+                       subtype_table text unique, sort smallint
+
+// Settings
+user_settings          user_id pk fk→user, theme, chess_notation, reduce_motion bool
+
+// Content
+volumes                id uuid pk, slug unique, title, cover book_cover, sort smallint
+puzzles                id uuid pk, type_key fk→puzzle_types, slug, title,
+                       difficulty smallint check (1–5), volume_id fk→volumes null,
+                       source_note text null, published_at timestamptz null, created_at
+                       unique (type_key, slug), unique (id, type_key)
+weekly_puzzles         week_start date, slot weekly_slot, puzzle_id fk→puzzles
+                       pk (week_start, slot), unique (week_start, puzzle_id)
+
+// Progress
+attempts               id uuid pk, user_id fk→user, puzzle_id fk→puzzles,
+                       type_key text  (trigger-filled, see 7.4.5),
+                       started_at, completed_at null, duration_ms int null
+                       unique (user_id, puzzle_id), unique (id, puzzle_id, type_key),
+                       fk (puzzle_id, type_key) → puzzles (id, type_key)
+attempt_hints          id uuid pk, attempt_id fk→attempts, kind hint_kind,
+                       row smallint null, col smallint null, used_at
+```
+
+#### 7.4.4 Per-type tables
+
+The conventions:
+
+- Each `<type>_puzzles` table is the subtype (section 7.4.2). Child tables key on `puzzle_id` plus a position or coordinates.
+- Columns marked **(S)** are solution data. They are **never** selected by play queries (section 4.2).
+- Each `<type>_attempts` table is the 1:1 attempt subtype, pinned with a generated `type_key` and keyed by `attempt_id`, with optional `<type>_attempt_*` children.
+- Coordinates are `row`/`col smallint check (>= 0)`.
+- Shared enums: `compass8` ('n','ne','e','se','s','sw','w','nw') and `chess_colour` ('white','black').
+
+| Type | Content tables | Attempt-state tables |
+|---|---|---|
+| **reverse-chess** (Modes A and B) | `reverse_chess_puzzles`: mode `retro_mode`('last_move','unwind'), side_to_move, four castling-right bools, en_passant_file `chess_file` null, halfmove smallint, fullmove smallint, goal_text null, ply_count smallint<br>`reverse_chess_pieces`: (puzzle_id, file `chess_file`, rank 1–8) pk, colour, piece `chess_piece`<br>`reverse_chess_solution_plies` **(S)**: (puzzle_id, ply) pk, from_file, from_rank, to_file, to_rank, uncapture `chess_piece` null, unpromote bool, special `retro_special`('none','en_passant','castle') | `reverse_chess_attempt_plies`, mirroring the solution plies |
+| **rota** (Reverse Chess Mode C, its own type) | `rota_puzzles`<br>`rota_workers`: id, puzzle_id, name<br>`rota_worker_squares`: (worker_id, phase `rota_phase`('intended','final')) pk, file, rank<br>`rota_clues`: id, puzzle_id, position, kind `rota_clue_kind`, display_text<br>One subtype table per clue kind, pinned by a generated `kind` (e.g. `rota_clue_unpowered_square`(clue_id, file, rank), `rota_clue_never_in_rank`(clue_id, worker_id, rank), `rota_clue_max_swaps`(clue_id, max smallint))<br>`rota_solution_swaps` **(S)**: (puzzle_id, step) pk, worker_a_id, worker_b_id<br>`rota_solutions` **(S)**: puzzle_id pk, instigator_worker_id | `rota_attempt_swaps`, mirroring the solution swaps |
+| **gears** | `gear_puzzles`: slot_count, m_in, m_out, max_adjustments smallint (0 = normal), occlusion bool, generator_seed text null (provenance only)<br>`gear_puzzle_gears`: id, puzzle_id, label, teeth smallint check (8, 12, 16, 24), start_slot, initial_offset, half_width_deg, is_driver bool. Partial unique index on (puzzle_id) where is_driver, plus a deferred constraint trigger requiring exactly one driver<br>`gear_meshes`: (puzzle_id, gear_a_id, gear_b_id) pk, check (gear_a_id < gear_b_id), both FKs composite (puzzle_id, id)<br>`gear_solutions` **(S)**: puzzle_id pk, crank, convergence 1–8, killer_gear_id<br>`gear_solution_swaps` **(S)**: (puzzle_id, gear_a_id, gear_b_id)<br>`gear_daily`: date pk, puzzle_id unique | `gear_attempts`: crank, convergence null, accused_gear_id null<br>`gear_attempt_swaps` |
+| **crossword** (cryptic and quick merged, see section 2.3) | `crossword_puzzles`: style `crossword_style`('cryptic','quick'), rows, cols<br>`crossword_cells`: (puzzle_id, row, col) pk, letter char(1) **(S)**. Blocks are the absence of a row<br>`crossword_clues`: (puzzle_id, direction `clue_direction`('across','down'), row, col) pk, clue_text. FK to the start cell<br>`crossword_clue_segments`: (puzzle_id, direction, row, col, position) pk, length, which gives the "(4,3)" enumeration | `crossword_attempt_cells`: (attempt_id, row, col) pk, letter. FK to the puzzle cell, through the scoped key (section 7.4.5) |
+| **anagram** | `anagram_puzzles`: answer **(S)**, definition_hint null, scramble_seed. Tiles are derived from the answer and seed | `anagram_attempts`: answer text null |
+| **word-ladder** | `words`: word pk (dictionary lookup)<br>`word_ladder_puzzles`: start_word fk→words, end_word fk→words, rung_count<br>`word_ladder_solution_rungs` **(S)**: (puzzle_id, position) pk, word fk→words (a reference ladder) | `word_ladder_attempt_rungs` |
+| **acrostic** | `acrostic_puzzles`: rule `acrostic_rule`('first_letter_line','first_letter_word','last_letter_line')<br>`acrostic_lines`: (puzzle_id, position) pk, content | `acrostic_attempts`: answer null |
+| **word-search** | `word_search_puzzles`: rows, cols<br>`word_search_cells`: (puzzle_id, row, col) pk, letter<br>`word_search_words`: (puzzle_id, word) pk | `word_search_attempt_found`: (attempt_id, word) pk |
+| **logic-grid** | `logic_grid_puzzles`<br>`logic_grid_categories`: (puzzle_id, position) pk, name<br>`logic_grid_items`: id, puzzle_id, category_position, position, label<br>`logic_grid_clues`: (puzzle_id, position) pk, content, is_false bool **(S)**. The variant is derived as "any clue is false"<br>`logic_grid_solution_links` **(S)**: (puzzle_id, item_a_id, item_b_id) pk | `logic_grid_attempt_marks`: (attempt_id, item_a_id, item_b_id) pk, mark `grid_mark`('yes','no') |
+| **knights-knaves** | `knights_knaves_puzzles`: question_text<br>`knights_knaves_characters`: (puzzle_id, position) pk, name, role `kk_role`('knight','knave') **(S)**<br>`knights_knaves_statements`: (puzzle_id, character_position, position) pk, content | `knights_knaves_attempt_roles` |
+| **sudoku** | `sudoku_puzzles`<br>`sudoku_givens`: (puzzle_id, row, col) pk, digit 1–9 | `sudoku_attempt_cells`: (attempt_id, row, col) pk, digit, plus `sudoku_attempt_notes`: (attempt_id, row, col, digit) pk for pencil marks |
+| **futoshiki** | `futoshiki_puzzles`: size<br>`futoshiki_givens`<br>`futoshiki_inequalities`: (puzzle_id, row, col, direction `ineq_direction`('right','down')) pk, relation `ineq_relation`('lt','gt') | `futoshiki_attempt_cells`, `futoshiki_attempt_notes` |
+| **odd-one-out** | `odd_one_out_puzzles`: prompt_text<br>`odd_one_out_items`: (puzzle_id, position) pk, label<br>`odd_one_out_solutions` **(S)**: puzzle_id pk, item_position, explanation | `odd_one_out_attempts`: item_position null |
+| **sightlines** | `sightlines_puzzles`: rows, cols, target_row, target_col<br>`sightlines_obstacles`: (puzzle_id, row, col) pk<br>`sightlines_observers`: (puzzle_id, row, col) pk, facing compass8, fov_deg | `sightlines_attempt_marks`: (attempt_id, row, col) pk |
+| **cctv-maze** | `cctv_maze_puzzles`: rows, cols, start_row, start_col, exit_row, exit_col<br>`cctv_maze_walls`: (puzzle_id, row, col, side `wall_side`('north','west')) pk<br>`cctv_maze_cameras`: (puzzle_id, row, col) pk, facing compass8, fov_deg, range_cells | `cctv_maze_attempt_steps`: (attempt_id, step) pk, row, col |
+| **spot-difference** | `spot_difference_puzzles`: scene_seed, difference_count, generator_version smallint. The scenes and differences are derived from these | `spot_difference_attempt_found`: (attempt_id, difference_index) pk |
+| **book-cipher** | `book_texts`: id, slug, title, author<br>`book_text_lines`: (text_id, page, line) pk, content<br>`book_cipher_puzzles`: text_id fk<br>`book_cipher_refs`: (puzzle_id, position) pk, text_id (scoped), page, line, word_index | `book_cipher_attempts`: answer null |
+| **pictogram-cipher** | `pictogram_glyphs` (lookup): id pk, asset_key unique, letter char(1) unique **(S)**<br>`pictogram_cipher_puzzles`<br>`pictogram_cipher_symbols`: (puzzle_id, word_index, position) pk, glyph_id<br>`pictogram_cipher_given_glyphs`: (puzzle_id, glyph_id) pk | `pictogram_cipher_attempt_guesses`: (attempt_id, glyph_id) pk, letter |
+| **caesar** | `caesar_puzzles`: plaintext **(S)**, shift 1–25 **(S)**. The ciphertext is derived | `caesar_attempts`: answer null |
+| **keyword** | `keyword_puzzles`: plaintext **(S)**, keyword **(S)** | `keyword_attempts`: answer null |
+| **napkin-maths** | `napkin_maths_puzzles`: question_text, answer numeric **(S)**<br>`napkin_maths_lines`: (puzzle_id, position) pk, content | `napkin_maths_attempts`: answer numeric null |
+
+**Uniqueness exception.** A word ladder accepts **any** valid ladder of `rung_count` rungs that uses dictionary words. The stored ladder is only a reference. Every other type keeps the exactly-one-solution rule.
+
+#### 7.4.5 Controlled redundancy (complete list)
+
+| Column | Redundant with | Kept consistent by |
+|---|---|---|
+| `attempts.type_key` | `puzzles.type_key` through `puzzle_id` | Composite FK `(puzzle_id, type_key)` → `puzzles`, plus the `BEFORE INSERT` trigger `attempts_fill_type_key` |
+| `puzzle_id` on attempt child rows that reference puzzle children (e.g. `crossword_attempt_cells`, `gear_attempts.accused_gear_id`) | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `attempts (id, puzzle_id)`, plus a `BEFORE INSERT` fill trigger |
+| `book_cipher_refs.text_id` | `book_cipher_puzzles.text_id` | Composite FK `(puzzle_id, text_id)` → `book_cipher_puzzles`, plus a fill trigger |
+| Generated `type_key` / `kind` on subtype tables | The supertype row | `GENERATED ALWAYS AS (…) STORED` plus a composite FK |
+
+How this looks in code:
+
+- **Drizzle optional columns.** Trigger-filled columns are declared `.notNull().default(sql\`NULL\`)`, so Drizzle insert types treat them as optional and the trigger supplies the value before the `NOT NULL` check runs.
+- **Triggers in custom migrations.** Triggers and functions live in custom SQL migrations (`drizzle-kit generate --custom --name=<name>`), one per concern. Each comes with a Vitest integration test that proves the trigger fires and the FK rejects drift.
+
+#### 7.4.6 Code organisation and typing
+
+- **Schema files:** core tables live in `src/db/schema/{core,progress}.ts`. Each type's tables are colocated in `src/puzzles/<type>/tables.ts` and re-exported from `src/db/schema/index.ts`. Relations are in `src/db/relations.ts` (RQBv2 `defineRelations`, using `defineRelationsPart` per type if the file grows).
+- **Row schemas:** generated with `drizzle-orm/zod` (`createSelectSchema`, `createInsertSchema`, `createUpdateSchema`), and types come from those with `z.infer`. Nothing is hand-duplicated.
+  - **Sign-up form:** `createInsertSchema(user, { email: z.email() }).pick({ email: true, name: true }).extend({ password: z.string().min(10) })`. The password is not a user column, because Better Auth stores it on `account`.
+  - **Settings form:** `createUpdateSchema(userSettings)`.
+- **Play DTO:** each type's `load.ts` assembles the client payload with one RQBv2 query. Its `payloadSchema` is composed from the generated select schemas with solution columns omitted, e.g. `z.object({ ...createSelectSchema(crosswordPuzzles).shape, cells: z.array(createSelectSchema(crosswordCells).omit({ letter: true })) })`.
+- **Content and attempt schemas:** the `contentSchema` used to validate `content/` files is composed the same way from the insert schemas. Attempt state is the same again, from the `<type>_attempt*` insert schemas.
+- **Arrays exist only in transit.** They appear in DTOs and content files, never in a column.
+- **Data access:**
+  - Play queries name their columns explicitly and never use `select *` on tables that have **(S)** columns.
+  - Only `check.ts` and `load-solution.ts` (both `server-only`) read solution columns.
+  - A Vitest test asserts that every type's play payload, run through `payloadSchema.strict()`, contains no solution field.
+- **Stats:** streaks and stats are computed from `attempts.completed_at` in SQL views. There are no stored counters.
 
 ### 7.5 Environment
 
@@ -667,6 +784,13 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
   - Positions that would leave the non-moving side in check are rejected.
   - Every seeded puzzle has exactly one surviving retro move.
 - **Rota:** clue predicates, swap application, and a uniqueness BFS.
+- **Database integrity** (Vitest against local Postgres):
+  - inserting a wrong-type subtype row fails;
+  - a puzzle with no subtype fails at commit;
+  - a puzzle's type cannot change;
+  - every fill trigger in section 7.4.5 populates its column and its FK rejects drift;
+  - a gear puzzle needs exactly one driver;
+  - no play payload contains a solution field.
 - **Every other type:** `check()` accepts the solution and rejects single-cell perturbations.
 
 ### 8.2 End-to-end (Playwright)
@@ -695,10 +819,10 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 | Milestone | Contents |
 |---|---|
 | **M0 Foundations** | Tokens, fonts, textures and brand components. shadcn restyle. Drizzle schema and migrations. Better Auth email/password sign-up and sign-in, with the schema generated into Drizzle and a sign-up/sign-in end-to-end test. `proxy.ts`. Docker Postgres locally. Vercel project with Neon integration, preview branches and migrate-on-build. CI (typecheck, lint, test) |
-| **M1 Framework** | Registry, solve-page chrome, `checkAnswer`/`saveState` actions, localStorage merge, Casebook basics. First types: quick crossword, anagram, word ladder, sudoku |
+| **M1 Framework** | Registry, solve-page chrome, `checkAnswer`/`saveState` actions, localStorage merge, Casebook basics. First types: anagram and crossword (quick style), as in `PLAN.md` |
 | **M2 Reverse Chess** | Engine plus verify script. Modes A and B. Descriptive notation. Ten curated puzzles |
 | **M3 Gear Puzzle** | Engine, generator, SVG board, crank, scrubber, accuse. Fix the Diagram. Twelve curated diagrams plus a daily seed |
-| **M4 Library** | Cryptic, logic grid (with false-statement variant), knights and knaves, futoshiki, acrostic, ciphers, sightlines, CCTV maze, spot the difference, word search, odd-one-out, napkin maths. Reverse Chess Mode C (Rota) |
+| **M4 Library** | Cryptic crosswords (the `crossword` type's cryptic style), logic grid (with false-statement variant), knights and knaves, futoshiki, acrostic, ciphers, sightlines, CCTV maze, spot the difference, word search, odd-one-out, napkin maths. Reverse Chess Mode C (the `rota` type) |
 | **M5 Polish** | Bullet-hole transitions, landing title sequence (scroll-driven grid rooms, walker, toppled pieces), This Week, accessibility audit, performance pass |
 
 ---

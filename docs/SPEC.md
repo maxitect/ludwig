@@ -733,7 +733,7 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 
 ### 7.6 Scripts (package.json)
 
-`db:generate`, `db:migrate`, `db:studio`, `db:seed`, `puzzles:verify`, `puzzles:gen-gears`, `typecheck` (`tsc --noEmit`), `test`, `test:e2e`, `perf:lighthouse` (T069), `smoke` (T070).
+`db:generate`, `db:migrate`, `db:studio`, `db:seed`, `puzzles:verify`, `puzzles:gen-gears`, `typecheck` (`tsc --noEmit`), `test`, `test:e2e`, `perf:lighthouse` (T069), `smoke` (T070), `puzzles:gears-report` (T037).
 
 ---
 

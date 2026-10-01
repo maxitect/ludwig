@@ -271,7 +271,7 @@ Each epic below becomes a set of tickets. The candidate tickets are only a start
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
 | Drizzle 1.0 RC breaking changes or Better Auth adapter friction | Medium | High (blocks M0) | Spike S1 first, exact version pins, a documented fallback to 0.45 |
-| Gear puzzle feels arbitrary or unfun once playable | Medium | High (flagship) | Build a throwaway playable prototype straight after the engine core (M3 step 4–5) and playtest before polishing. Tune `m_in`/`m_out`, sector width and N, and keep the parameters in content rather than code |
+| Gear puzzle feels arbitrary or unfun once playable | Medium | High (flagship) | Build a throwaway playable prototype straight after the engine core (M3 step 4–5) and evaluate it before polishing, using the measurable fun criteria in T037. Tune `m_in`/`m_out`, sector width and N, and keep the parameters in content rather than code |
 | Retrograde uniqueness without full reachability lets illegal positions through | Medium | Medium | Manual legality review checklist per puzzle, conservative piece-count rules in the verifier, original positions only |
 | Writing original content (cryptic clues, retro positions) takes longer than code | High | Medium | Separate content tickets started in M1, low per-type launch counts, generators where possible (gears, sudoku, futoshiki, word ladder) |
 | Next 16 Cache Components complexity around auth | Low–Medium | Medium | Spike S2. If it fights us, turn it off for v1 (`instant = false` per route, or disable) and revisit |

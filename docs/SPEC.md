@@ -326,6 +326,10 @@ State at convergence f (1..8):
   bearing_g(f) = angle from pos_g(f) to O          // = slot angle + 180°
   sees_g(f)    = angularDistance(facing_g(f), bearing_g(f)) ≤ h_g
 
+Angle convention:
+  slot s sits at s * 360/S degrees, and a +1 tooth rotation increases the facing angle
+  the boundary is inclusive (≤)
+
 Win condition:
   exists (c, f) such that |{ g : sees_g(f) }| = 1
   answer = (c, f, killer g)

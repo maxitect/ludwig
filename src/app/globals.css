@@ -176,3 +176,55 @@
     color-mix(in srgb, var(--color-shadow) 12%, transparent) 192px
   );
 }
+
+@keyframes walker-cross {
+  from {
+    left: 0;
+  }
+  to {
+    left: calc(100% - 1.5rem);
+  }
+}
+
+@keyframes walker-step-a {
+  0%,
+  100% {
+    transform: rotate(-22deg);
+  }
+  50% {
+    transform: rotate(22deg);
+  }
+}
+
+@keyframes walker-step-b {
+  0%,
+  100% {
+    transform: rotate(22deg);
+  }
+  50% {
+    transform: rotate(-22deg);
+  }
+}
+
+.walker-figure {
+  animation: walker-cross 3s linear infinite;
+}
+
+.walker-leg {
+  transform-origin: 12px 30px;
+}
+
+.walker-leg-a {
+  animation: walker-step-a 0.6s ease-in-out infinite;
+}
+
+.walker-leg-b {
+  animation: walker-step-b 0.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walker-figure,
+  .walker-leg {
+    animation: none;
+  }
+}

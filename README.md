@@ -11,7 +11,11 @@ An unofficial, non-commercial fan site: a puzzle app styled after the BBC One dr
 
 ## Local setup
 
-The local setup arrives with ticket T001.
+1. Install dependencies: `pnpm install`.
+2. Start Postgres 17: `docker compose up -d`.
+3. Copy the env template: `cp .env.example .env.local`, then set `BETTER_AUTH_SECRET` to a random string of 32 or more characters.
+4. Start the dev server: `pnpm dev`.
+5. Install the browser for end-to-end tests once: `pnpm exec playwright install chromium`.
 
 ## Deployment
 

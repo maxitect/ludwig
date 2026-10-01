@@ -22,7 +22,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
-| [T010](./T010-brand-components.md) | Brand components | T007 | | | todo |
+| [T010](./T010-brand-components.md) | Brand components | T007 | | | done |
 | [T011](./T011-shadcn-group-a.md) | shadcn restyle A: button, input, label, card, badge, separator, skeleton | T007 | | | done |
 | [T012](./T012-shadcn-group-b.md) | shadcn restyle B: dialog, alert-dialog, sheet, dropdown-menu, tooltip, sonner | T011 | | | todo |
 | [T013](./T013-shadcn-group-c.md) | shadcn restyle C: tabs, toggle-group, slider, progress, form | T011 | | | todo |

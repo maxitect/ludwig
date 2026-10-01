@@ -760,10 +760,10 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 **Migrations:**
 
 - `drizzle.config.ts` reads `DATABASE_URL_UNPOOLED`, because DDL should not go through PgBouncer.
-- The Vercel build command is `pnpm db:migrate && pnpm build`. Production deploys migrate the production branch, and previews migrate their own Neon branch.
+- The Vercel build command is `pnpm db:migrate && pnpm db:seed && pnpm build`. Production deploys migrate and seed the production branch, and previews migrate and seed their own Neon branch.
 - Migrations must be backward-compatible with the previous deploy (add columns, then backfill, then remove later), because the old version keeps serving until the new one is live.
 
-**Seeding:** `pnpm db:seed` is run manually against production after puzzle content changes. Preview branches inherit the seeded content from their parent.
+**Seeding:** `pnpm db:seed` runs in every Vercel build. It is an idempotent upsert of `content/` (SPEC §4.6), so content changes ship with the deploy that contains them, and nobody writes to production by hand.
 
 **Auth on Vercel:**
 

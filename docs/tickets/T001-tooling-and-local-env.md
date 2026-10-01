@@ -27,6 +27,7 @@ This is the first ticket. It sets up the local toolchain that every later ticket
   - a named volume;
   - a `pg_isready` healthcheck.
 - `.env.example` listing the variables in SPEC §7.5 with local values. `.env*` stays git-ignored, except `!.env.example`.
+- The repo root already has a `.env.local`: local Docker URLs plus a generated `BETTER_AUTH_SECRET`. Keep it and don't regenerate the secret. Only add any variables that `.env.example` has and it lacks.
 - `.gitignore` additions: `.verification/`, `/test-results/`, `/playwright-report/`, `!.env.example`.
 - `src/env.ts`:
   - Zod 4 validation of `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `BETTER_AUTH_SECRET` (at least 32 characters) and `BETTER_AUTH_URL` (URL);

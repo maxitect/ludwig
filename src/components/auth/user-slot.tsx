@@ -1,28 +1,25 @@
-import Link from "next/link";
-import { getCurrentUser } from "@/lib/data/user";
-import { SignOutButton } from "./sign-out-button";
+import { AccountMenu } from "@/components/shell/account-menu";
+import { GuestMenu } from "@/components/shell/guest-menu";
+import { ThemeSync } from "@/components/shell/theme-sync";
+import { getCurrentUser, getUserTheme } from "@/lib/data/user";
 
 export async function UserSlot() {
   const user = await getCurrentUser();
 
   if (!user) {
     return (
-      <div className="flex items-center gap-4">
-        <span>Signed out</span>
-        <Link href="/sign-in" className="underline underline-offset-4">
-          Sign in
-        </Link>
-        <Link href="/sign-up" className="underline underline-offset-4">
-          Sign up
-        </Link>
-      </div>
+      <>
+        <ThemeSync />
+        <GuestMenu />
+      </>
     );
   }
 
+  const theme = await getUserTheme(user.id);
   return (
-    <div className="flex items-center gap-4">
-      <span>{user.email}</span>
-      <SignOutButton />
-    </div>
+    <>
+      <ThemeSync theme={theme} />
+      <AccountMenu name={user.name} theme={theme} />
+    </>
   );
 }

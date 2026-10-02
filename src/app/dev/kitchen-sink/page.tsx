@@ -36,7 +36,6 @@ import { ThemeToggle } from "./theme-toggle";
 
 export const metadata: Metadata = {
   title: "Kitchen sink",
-  icons: { icon: "data:," },
 };
 
 const TOKENS = [

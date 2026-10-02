@@ -31,7 +31,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T016](./T016-registry-and-content-pipeline.md) | Puzzle registry, type contract, content pipeline (seed + verify) | T005 | | | done |
 | [T017](./T017-attempts-actions-data-access.md) | Attempts data access and `checkAnswer`/`saveState`/hint actions | T016, T008 | | | done |
 | [T018](./T018-solve-page-chrome-and-routes.md) | Collection, category and solve routes, plus solve-page chrome | T015, T017 | | | done |
-| [T019](./T019-type-anagram.md) | Puzzle type: anagram (pilot) | T018 | ✔ | | in-progress |
+| [T019](./T019-type-anagram.md) | Puzzle type: anagram (pilot) | T018 | ✔ | | todo |
 | [T020](./T020-local-progress-merge.md) | Signed-out progress in `localStorage` and merge on sign-up | T019 | | | todo |
 | [T021](./T021-shared-cell-input-grid.md) | Shared `CellInput` grid | T018 | | | todo |
 | [T022](./T022-type-crossword-quick.md) | Puzzle type: crossword (quick style) | T019, T021 | ✔ | | todo |

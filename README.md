@@ -19,4 +19,9 @@ An unofficial, non-commercial fan site: a puzzle app styled after the BBC One dr
 
 ## Deployment
 
-Vercel, with Neon Postgres. Details arrive with ticket T009 (see [`docs/SPEC.md`](docs/SPEC.md) §7.7).
+Vercel (Fluid compute, `lhr1`) with Neon Postgres from the Marketplace integration. Full details: [`docs/SPEC.md`](docs/SPEC.md) §7.7.
+
+- `vercel.json` sets the region and the build command `pnpm db:migrate && pnpm db:seed && pnpm build`, so every deploy migrates and seeds its own Neon branch.
+- Each preview gets its own Neon branch, deleted with the git branch.
+- Production needs `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`. Previews need only the secret, because the origin comes from `VERCEL_URL`.
+- Never run migrations or seed against Neon from a local machine.

@@ -22,6 +22,28 @@ describe("parseEnv", () => {
     expect(parsed.VERCEL_ENV).toBe("preview");
   });
 
+  it("allows a missing BETTER_AUTH_URL on Vercel previews", () => {
+    const parsed = parseEnv({
+      ...validEnv,
+      BETTER_AUTH_URL: undefined,
+      VERCEL_ENV: "preview",
+    });
+    expect(parsed.BETTER_AUTH_URL).toBeUndefined();
+  });
+
+  it("requires BETTER_AUTH_URL outside previews", () => {
+    expect(() =>
+      parseEnv({ ...validEnv, BETTER_AUTH_URL: undefined }),
+    ).toThrow(/BETTER_AUTH_URL/);
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        BETTER_AUTH_URL: undefined,
+        VERCEL_ENV: "production",
+      }),
+    ).toThrow(/BETTER_AUTH_URL/);
+  });
+
   it("rejects a missing DATABASE_URL and names it", () => {
     expect(() => parseEnv({ ...validEnv, DATABASE_URL: undefined })).toThrow(
       /DATABASE_URL:/,

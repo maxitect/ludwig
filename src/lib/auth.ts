@@ -5,8 +5,16 @@ import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { env } from "@/env";
 
+const previewURL =
+  env.VERCEL_ENV === "preview" && env.VERCEL_URL
+    ? `https://${env.VERCEL_URL}`
+    : undefined;
+
 export const auth = betterAuth({
-  baseURL: env.BETTER_AUTH_URL,
+  baseURL: env.BETTER_AUTH_URL ?? previewURL,
+  trustedOrigins: [env.BETTER_AUTH_URL, previewURL].filter(
+    (origin) => origin !== undefined,
+  ),
   secret: env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, { provider: "pg", schema }),
   emailAndPassword: {

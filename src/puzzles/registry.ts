@@ -34,6 +34,12 @@ export type PuzzleTypeModule<
     puzzleId: string,
     content: z.infer<S["contentSchema"]>,
   ): Promise<void>;
+  /** Replaces the `<type>_attempt*` rows of an attempt with `state`. Runs inside the caller's transaction. */
+  replaceAttemptState(
+    tx: Tx,
+    attemptId: string,
+    state: z.infer<S["attemptSchema"]>,
+  ): Promise<void>;
   /** Throws if the content is not uniquely solvable. */
   verify?(content: z.infer<S["contentSchema"]>): void;
 };

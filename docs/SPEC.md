@@ -176,12 +176,12 @@ src/puzzles/<type>/
 ### 4.2 Answer checking
 
 - Solutions never leave the server. Pages load the payload through a data-access function marked `import "server-only"`.
-- Players check answers through a **Server Action** `checkAnswer(puzzleId, answer)`. It validates `answer` with the type's `answerSchema` and runs `check`. If the answer is correct, it records completion.
-- Per-cell "check" and "reveal letter" go through the same action with `{ mode: "cell", index }`. Each use inserts an `attempt_hints` row, and the hint count is derived from those rows.
+- Players check answers through a **Server Action** `checkAnswer(puzzleId, answer, options)`, where `options` is `{ mode: "full", durationMs }` or `{ mode: "cell", row, col }`. It validates `answer` with the type's `answerSchema` and runs `check`. If the answer is correct, it records completion.
+- Per-cell "check" and "reveal letter" go through the same action with `{ mode: "cell", row, col }`. Each use inserts an `attempt_hints` row, and the hint count is derived from those rows.
 
 ### 4.3 Progress state
 
-- In-progress state autosaves through a debounced Server Action `saveState(attemptId, state)`.
+- In-progress state autosaves through a debounced Server Action `saveState(puzzleId, state)` (the attempt is resolved from the signed-in user and the puzzle).
   - The state is validated by the type's `attemptSchema`.
   - It is written as normalised rows into that type's `<type>_attempts` and `<type>_attempt_*` tables (section 7.4.4), replacing the previous rows in one transaction.
   - Examples are crossword letters, chess retro plies and the gear crank setting.

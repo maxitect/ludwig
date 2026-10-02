@@ -21,6 +21,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    fileParallelism: false,
     globalSetup: ["src/db/integrity/global-setup.ts"],
     include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     env: {

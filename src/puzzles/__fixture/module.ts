@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
 import * as schema from "./schema";
-import { fixtureItems, fixturePuzzles } from "./tables";
+import { fixtureAttemptRows, fixtureItems, fixturePuzzles } from "./tables";
 
 export const fixtureModule = {
   schema,
@@ -32,6 +32,15 @@ export const fixtureModule = {
     await tx
       .insert(fixtureItems)
       .values(content.items.map((item) => ({ ...item, puzzleId })));
+  },
+  async replaceAttemptState(tx, attemptId, state) {
+    await tx
+      .delete(fixtureAttemptRows)
+      .where(eq(fixtureAttemptRows.attemptId, attemptId));
+    if (!state.rows.length) return;
+    await tx
+      .insert(fixtureAttemptRows)
+      .values(state.rows.map((row) => ({ ...row, attemptId })));
   },
   verify(content) {
     const labels = content.items.map((item) => item.label);

@@ -12,4 +12,10 @@ export const fixtureDdl = [
     label text not null,
     primary key (puzzle_id, position)
   )`,
+  `create table if not exists "__fixture_attempt_rows" (
+    attempt_id uuid not null references attempts (id) on delete cascade,
+    position smallint not null,
+    value text not null,
+    primary key (attempt_id, position)
+  )`,
 ];

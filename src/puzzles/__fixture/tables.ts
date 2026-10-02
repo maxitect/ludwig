@@ -16,3 +16,13 @@ export const fixtureItems = pgTable(
   },
   (table) => [primaryKey({ columns: [table.puzzleId, table.position] })],
 );
+
+export const fixtureAttemptRows = pgTable(
+  "__fixture_attempt_rows",
+  {
+    attemptId: uuid("attempt_id").notNull(),
+    position: smallint("position").notNull(),
+    value: text("value").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.attemptId, table.position] })],
+);

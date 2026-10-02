@@ -365,6 +365,8 @@ Layout: gears sit on distinct slots; the spin sign is the slot parity, so every 
 
 Curated diagrams live in the DB like any other puzzle. Generated ones are materialised into `puzzles`, `gear_puzzles` and their child tables by a script, so checking stays server-side.
 
+**Daily diagrams (T036).** `pnpm puzzles:gen-gears --from YYYY-MM-DD --days N [--difficulty-cycle easy,medium,hard,expert]` generates with `seed = date`, writes slug `daily-<date>` through the seed module's per-puzzle transaction (`upsertPuzzle`) and links it in `gear_daily`. Daily puzzles belong to no volume, have `published_at` at the start of that date in `Europe/London` (future dailies stay hidden), and their difficulty column is the preset index plus 2 (easy 2 to expert 5). `db:seed` never removes slugs starting `daily-`. A date that already has a `gear_daily` row is skipped, because rewriting it would delete the puzzle's saved attempts. `puzzles:verify` also re-solves every `gear_daily` puzzle in the database and compares it with its stored solution.
+
 **Preset evaluation (T037).** `pnpm puzzles:gears-report` measures every preset over 500 seeds (`playtest-0` to `playtest-499`) and exits non-zero if any threshold fails:
 
 | Measure | Definition | Accept |

@@ -365,6 +365,26 @@ Layout: gears sit on distinct slots; the spin sign is the slot parity, so every 
 
 Curated diagrams live in the DB like any other puzzle. Generated ones are materialised into `puzzles`, `gear_puzzles` and their child tables by a script, so checking stays server-side.
 
+**Preset evaluation (T037).** `pnpm puzzles:gears-report` measures every preset over 500 seeds (`playtest-0` to `playtest-499`) and exits non-zero if any threshold fails:
+
+| Measure | Definition | Accept |
+|---|---|---|
+| Near misses | mean number of (c, f) cells where exactly 0 or exactly 2 gears see the victim | >= 3 |
+| Solution spread | largest share of solutions at one convergence f | <= 25% |
+| Untouched dial | share of solutions with c = 0 | < 5% |
+| Churn | mean number of gears whose `sees` flips between consecutive convergences, at the solution crank | >= 1 |
+| Acceptance | accepted diagrams over plant-and-cover draws | >= 2% |
+| Generation time | mean `generateDiagram` wall time | < 50 ms |
+
+Tuning result: gear counts (7, 9, 9, 11), half-widths (45, 45, 30, 30), 12 slots and teeth 8 and 16 in `presets.ts` already met every threshold, so they are unchanged. The one lever that needed tuning was `m_in` and `m_out`: they only relabel the crank, so the generator redraws them until the answer is not crank 0, which would hand the player the crank step (about 6% of solutions at L = 16 otherwise).
+
+| Preset | Near misses | Max f share | c = 0 | Churn | Acceptance | Mean ms |
+|---|---|---|---|---|---|---|
+| easy | 84.6 | 19.0% | 0.0% | 3.25 | 22.8% | 0.47 |
+| medium | 73.6 | 16.8% | 0.0% | 3.73 | 51.6% | 0.24 |
+| hard | 92.8 | 15.6% | 0.0% | 2.77 | 40.0% | 0.31 |
+| expert | 83.7 | 16.2% | 0.0% | 3.26 | 60.7% | 0.24 |
+
 #### 5.2.4 Interaction
 
 **Board.** An SVG floor of textured paper with two faint concentric rings and slot ticks. Gears are drawn as ink-outlined cogs with their tooth count visible. Each field-of-vision wedge is drawn as a fan of small red Xs, as described in the show.

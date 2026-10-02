@@ -33,7 +33,13 @@
  * Seeds are strings such as '2026-11-01'; `hashSeed` turns them into a uint32 for mulberry32.
  */
 import { hashSeed, mulberry32 } from "../_shared/prng";
-import { type Diagram, lcmTeeth, solveAll, spinSigns } from "./engine";
+import {
+  type Diagram,
+  lcmTeeth,
+  solveAll,
+  spinSigns,
+  type Win,
+} from "./engine";
 import {
   countBits,
   loneBits,
@@ -325,6 +331,13 @@ function meshPairs(slots: number[], slotCount: number, rand: Rand) {
   return new Set(slots.map((_, i) => root(i))).size === 1 ? pairs : null;
 }
 
+function drawDance(rand: Rand, preset: Preset) {
+  const mIn = between(rand, preset.mIn);
+  let mOut = between(rand, preset.mOut);
+  while (mOut === mIn) mOut = between(rand, preset.mOut);
+  return { mIn, mOut };
+}
+
 function labelled(
   rand: Rand,
   preset: Preset,
@@ -341,13 +354,9 @@ function labelled(
   const label = (i: number) => String.fromCharCode(65 + i);
   const evens = sorted.flatMap((d, i) => (d.startSlot % 2 === 0 ? [i] : []));
   const driver = pick(rand, evens);
-  const mIn = between(rand, preset.mIn);
-  let mOut = between(rand, preset.mOut);
-  while (mOut === mIn) mOut = between(rand, preset.mOut);
   return {
     slotCount: preset.slotCount,
-    mIn,
-    mOut,
+    ...drawDance(rand, preset),
     maxAdjustments: 0,
     occlusion: false,
     generatorSeed: seed,
@@ -365,7 +374,30 @@ function labelled(
   };
 }
 
-function drawUnique(rand: Rand, preset: Preset, seed: string): Content {
+/**
+ * m_in and m_out only relabel the crank of the win, so they are redrawn until the answer is not
+ * the untouched dial (crank 0), which would hand the player the crank step for free.
+ */
+function awayFromZero(
+  rand: Rand,
+  preset: Preset,
+  content: Omit<Content, "solution">,
+  win: Win,
+) {
+  let dance = { mIn: content.mIn, mOut: content.mOut };
+  let current = win;
+  while (current.crank === 0) {
+    dance = drawDance(rand, preset);
+    [current] = solveAll(diagramOf({ ...content, ...dance }));
+  }
+  return { ...current!, dance };
+}
+
+function drawUnique(
+  rand: Rand,
+  preset: Preset,
+  seed: string,
+): { content: Content; attempts: number } {
   const shape = shapeOf(preset);
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const count = between(rand, preset.gears);
@@ -375,23 +407,35 @@ function drawUnique(rand: Rand, preset: Preset, seed: string): Content {
     if (!content) continue;
     const wins = solveAll(diagramOf(content));
     if (wins.length !== 1) continue;
-    const [win] = wins;
+    const win = awayFromZero(rand, preset, content, wins[0]!);
     return {
-      ...content,
-      solution: {
-        crank: win!.crank,
-        convergence: win!.convergence,
-        killerLabel: win!.killerId,
-        swaps: [],
+      attempts: attempt + 1,
+      content: {
+        ...content,
+        ...win.dance,
+        solution: {
+          crank: win.crank,
+          convergence: win.convergence,
+          killerLabel: win.killerId,
+          swaps: [],
+        },
       },
     };
   }
   throw new Error(`No unique diagram found for seed ${seed}`);
 }
 
-export function generateDiagram(seed: string, difficulty: Difficulty): Content {
+/** `attempts` counts every plant-and-cover draw up to and including the accepted one. */
+export function generateDiagramWithAttempts(
+  seed: string,
+  difficulty: Difficulty,
+) {
   const rand = mulberry32(hashSeed(`${seed}:${difficulty}`));
   return drawUnique(rand, presets[difficulty], seed);
+}
+
+export function generateDiagram(seed: string, difficulty: Difficulty): Content {
+  return generateDiagramWithAttempts(seed, difficulty).content;
 }
 
 type SwapIndexes = [number, number][];
@@ -477,7 +521,7 @@ export function generateFixVariant(
   const preset = presets[difficulty];
   const rand = mulberry32(hashSeed(`${seed}:${difficulty}:fix${K}`));
   for (let drawn = 0; drawn < MAX_VARIANT_DIAGRAMS; drawn++) {
-    const solved = drawUnique(rand, preset, seed);
+    const { content: solved } = drawUnique(rand, preset, seed);
     const solvedDiagram = diagramOf(solved);
     const scan = swapScanner(solvedDiagram);
     const candidates = shuffle(

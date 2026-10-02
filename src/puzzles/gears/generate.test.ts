@@ -41,6 +41,12 @@ describe("generateDiagram", () => {
     });
   });
 
+  it("never answers with the untouched dial (crank 0)", () => {
+    generated.forEach((content) => {
+      expect(content.solution.crank).not.toBe(0);
+    });
+  });
+
   it("AC3: meshes are bipartite, connected, ring-plus-chords and singly driven", () => {
     generated.forEach((content) => {
       const diagram = diagramOf(content);

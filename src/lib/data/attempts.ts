@@ -39,6 +39,20 @@ export async function replaceAttemptState(attemptId: string, state: unknown) {
   });
 }
 
+/** The signed-in user's saved state for a puzzle, parsed by the type's `attemptSchema`, or null when there is none. */
+export async function getAttemptState(
+  userId: string,
+  puzzleId: string,
+  typeKey: string,
+) {
+  const attempt = await db.query.attempts.findFirst({
+    where: { userId, puzzleId },
+    columns: { id: true },
+  });
+  if (!attempt) return null;
+  return getPuzzleModule(typeKey).loadAttemptState(attempt.id);
+}
+
 export async function recordHint(
   attemptId: string,
   kind: HintKind,

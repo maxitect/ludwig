@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
@@ -66,5 +67,13 @@ export const gearsModule = {
         attemptId,
       })),
     );
+  },
+  async loadAttemptState(attemptId) {
+    const attempt = await db.query.gearAttempts.findFirst({
+      where: { attemptId },
+      columns: { crank: true, convergence: true, accusedGearId: true },
+      with: { swaps: { columns: { gearAId: true, gearBId: true } } },
+    });
+    return attempt ? schema.attemptSchema.parse(attempt) : null;
   },
 } satisfies PuzzleTypeModule<typeof schema, schema.Solution>;

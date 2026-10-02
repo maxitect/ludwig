@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
@@ -46,5 +47,26 @@ export const reverseChessModule = {
     await tx.insert(reverseChessAttemptPlies).values(
       plies.map((ply, index) => ({ ...ply, attemptId, ply: index + 1 })),
     );
+  },
+  async loadAttemptState(attemptId) {
+    const attempt = await db.query.reverseChessAttempts.findFirst({
+      where: { attemptId },
+      columns: {},
+      with: {
+        plies: {
+          columns: {
+            fromFile: true,
+            fromRank: true,
+            toFile: true,
+            toRank: true,
+            uncapture: true,
+            unpromote: true,
+            special: true,
+          },
+          orderBy: { ply: "asc" },
+        },
+      },
+    });
+    return attempt ? schema.attemptSchema.parse(attempt) : null;
   },
 } satisfies PuzzleTypeModule<typeof schema, schema.SolutionPly[]>;

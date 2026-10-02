@@ -41,6 +41,17 @@ export const fixtureModule = {
       .insert(fixtureAttemptRows)
       .values(state.rows.map((row) => ({ ...row, attemptId })));
   },
+  async loadAttemptState(attemptId) {
+    const rows = await db
+      .select({
+        position: fixtureAttemptRows.position,
+        value: fixtureAttemptRows.value,
+      })
+      .from(fixtureAttemptRows)
+      .where(eq(fixtureAttemptRows.attemptId, attemptId))
+      .orderBy(fixtureAttemptRows.position);
+    return rows.length ? { rows } : null;
+  },
   verify(content) {
     const labels = content.items.map((item) => item.label);
     if (new Set(labels).size !== labels.length) {

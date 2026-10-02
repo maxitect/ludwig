@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
+import { anagramModule } from "./anagram/module";
 import { gearsModule } from "./gears/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
@@ -56,6 +57,10 @@ export type PuzzleTypeModule<
     attemptId: string,
     state: z.infer<S["attemptSchema"]>,
   ): Promise<void>;
+  /** Reads back what `replaceAttemptState` wrote, or null when the attempt has no saved state. */
+  loadAttemptState(
+    attemptId: string,
+  ): Promise<z.infer<S["attemptSchema"]> | null>;
   /** Throws if the content is not uniquely solvable. */
   verify?(content: z.infer<S["contentSchema"]>): void;
 };
@@ -63,6 +68,7 @@ export type PuzzleTypeModule<
 export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 
 export const registry: PuzzleRegistry = {
+  [anagramModule.meta.key]: anagramModule,
   [gearsModule.meta.key]: gearsModule,
   [reverseChessModule.meta.key]: reverseChessModule,
   [rotaModule.meta.key]: rotaModule,

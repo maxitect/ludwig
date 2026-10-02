@@ -8,6 +8,7 @@ import {
   getPuzzleStaticParams,
   getPuzzleSummary,
 } from "@/lib/data/catalogue";
+import { getAttemptState } from "@/lib/data/attempts";
 import { getPuzzleForPlay } from "@/lib/data/puzzles";
 import { getCurrentUser } from "@/lib/data/user";
 import { getPuzzleModule } from "@/puzzles/registry";
@@ -60,6 +61,9 @@ async function Solve({
   ]);
   if (!play) notFound();
   const { Solver } = getPuzzleModule(typeKey);
+  const initialState = user
+    ? await getAttemptState(user.id, play.puzzle.id, typeKey)
+    : null;
 
   if (!Solver) {
     return (
@@ -83,6 +87,7 @@ async function Solve({
       title={summary.title}
       difficulty={summary.difficulty}
       payload={play.payload}
+      initialState={initialState}
       Solver={Solver}
       signedIn={user !== null}
       signInHref={`/sign-in?next=${encodeURIComponent(`/puzzles/${typeKey}/${slug}`)}`}

@@ -47,6 +47,7 @@ type SolveChromeProps = {
   title: string;
   difficulty: number;
   payload: SolverProps["payload"];
+  initialState: SolverProps["initialState"];
   Solver: SolverComponent;
   signedIn: boolean;
   signInHref: string;
@@ -59,6 +60,7 @@ export function SolveChrome({
   title,
   difficulty,
   payload,
+  initialState,
   Solver,
   signedIn,
   signInHref,
@@ -146,10 +148,18 @@ export function SolveChrome({
         </div>
       </header>
 
-      <div key={attempt}>
+      <div
+        key={attempt}
+        onKeyDown={(event) => {
+          const target = event.target as HTMLElement;
+          if (event.key === "Enter" && !target.closest("button, a, input, textarea")) {
+            check();
+          }
+        }}
+      >
         <Solver
           payload={payload}
-          initialState={null}
+          initialState={attempt === 0 ? initialState : null}
           onStateChange={onStateChange}
           registerCheck={registerCheck}
         />

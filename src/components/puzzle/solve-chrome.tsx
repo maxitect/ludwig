@@ -139,12 +139,10 @@ export function SolveChrome({
         />
         <div className="flex items-center gap-4">
           <Badge variant="difficulty" level={difficulty} />
-          <span
-            aria-label="Elapsed time"
-            className="font-mono text-lg tabular-nums"
-          >
+          <p className="font-mono text-lg tabular-nums">
+            <span className="sr-only">Elapsed time </span>
             {formatDuration(solved ? solvedMs : timer.displayMs)}
-          </span>
+          </p>
         </div>
       </header>
 

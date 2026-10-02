@@ -33,7 +33,7 @@ export function usePuzzleTimer(running: boolean) {
 
   const reset = useCallback(() => {
     elapsed.current = 0;
-    markedAt.current = null;
+    markedAt.current = document.hidden ? null : performance.now();
     setDisplayMs(0);
   }, []);
 

@@ -650,6 +650,7 @@ attempts               id uuid pk, user_id fk→user, puzzle_id fk→puzzles,
                        type_key text  (trigger-filled, see 7.4.5),
                        started_at, completed_at null, duration_ms int null
                        unique (user_id, puzzle_id), unique (id, puzzle_id, type_key),
+                       unique (id, type_key) (target of the `<type>_attempts` FK),
                        fk (puzzle_id, type_key) → puzzles (id, type_key)
 attempt_hints          id uuid pk, attempt_id fk→attempts, kind hint_kind,
                        row smallint null, col smallint null, used_at

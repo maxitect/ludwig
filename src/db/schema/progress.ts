@@ -45,6 +45,7 @@ export const attempts = pgTable(
       table.userId,
       table.puzzleId,
     ),
+    unique("attempts_id_type_key_unique").on(table.id, table.typeKey),
     unique("attempts_id_puzzle_id_type_key_unique").on(
       table.id,
       table.puzzleId,

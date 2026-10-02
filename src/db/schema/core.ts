@@ -22,6 +22,25 @@ export const chessNotationEnum = pgEnum("chess_notation", [
 ]);
 export const bookCoverEnum = pgEnum("book_cover", ["blue", "red", "ink"]);
 export const weeklySlotEnum = pgEnum("weekly_slot", ["first", "second"]);
+export const chessFileEnum = pgEnum("chess_file", [
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+]);
+export const chessPieceEnum = pgEnum("chess_piece", [
+  "pawn",
+  "knight",
+  "bishop",
+  "rook",
+  "queen",
+  "king",
+]);
+export const chessColourEnum = pgEnum("chess_colour", ["white", "black"]);
 
 export const puzzleCategories = pgTable("puzzle_categories", {
   key: text("key").primaryKey(),

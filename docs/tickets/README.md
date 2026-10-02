@@ -30,7 +30,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T015](./T015-app-shell.md) | App shell: layout, nav, footer, theme switching, landing placeholder | T008, T010, T011 | | | done |
 | [T016](./T016-registry-and-content-pipeline.md) | Puzzle registry, type contract, content pipeline (seed + verify) | T005 | | | done |
 | [T017](./T017-attempts-actions-data-access.md) | Attempts data access and `checkAnswer`/`saveState`/hint actions | T016, T008 | | | done |
-| [T018](./T018-solve-page-chrome-and-routes.md) | Collection, category and solve routes, plus solve-page chrome | T015, T017 | | | todo |
+| [T018](./T018-solve-page-chrome-and-routes.md) | Collection, category and solve routes, plus solve-page chrome | T015, T017 | | | in-progress |
 | [T019](./T019-type-anagram.md) | Puzzle type: anagram (pilot) | T018 | ✔ | | todo |
 | [T020](./T020-local-progress-merge.md) | Signed-out progress in `localStorage` and merge on sign-up | T019 | | | todo |
 | [T021](./T021-shared-cell-input-grid.md) | Shared `CellInput` grid | T018 | | | todo |
@@ -56,7 +56,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
 | [T033](./T033-gear-tables.md) | Gear tables, driver constraint trigger, `gear_daily` | T016 | ✔ | | done |
-| [T034](./T034-gear-engine-core.md) | Gear engine core | T033 | | | todo |
+| [T034](./T034-gear-engine-core.md) | Gear engine core | T033 | | | in-progress |
 | [T035](./T035-gear-generators.md) | Gear generator and Fix the Diagram generator | T034 | | | todo |
 | [T036](./T036-gen-gears-script.md) | `puzzles:gen-gears` script and daily diagrams | T035 | | | todo |
 | [T037](./T037-gear-board-prototype.md) | SVG gear board, prototype and parameter evaluation | T034, T018 | | | todo |
@@ -89,7 +89,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | todo |
 | [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | todo |
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | todo |
-| [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | todo |
+| [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | in-progress |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | todo |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | todo |
 

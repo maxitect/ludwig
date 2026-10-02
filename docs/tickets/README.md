@@ -28,7 +28,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T013](./T013-shadcn-group-c.md) | shadcn restyle C: tabs, toggle-group, slider, progress, form | T011 | | | done |
 | [T014](./T014-kitchen-sink.md) | `/dev/kitchen-sink` route | T010, T012, T013 | | | todo |
 | [T015](./T015-app-shell.md) | App shell: layout, nav, footer, theme switching, landing placeholder | T008, T010, T011 | | | todo |
-| [T016](./T016-registry-and-content-pipeline.md) | Puzzle registry, type contract, content pipeline (seed + verify) | T005 | | | todo |
+| [T016](./T016-registry-and-content-pipeline.md) | Puzzle registry, type contract, content pipeline (seed + verify) | T005 | | | done |
 | [T017](./T017-attempts-actions-data-access.md) | Attempts data access and `checkAnswer`/`saveState`/hint actions | T016, T008 | | | todo |
 | [T018](./T018-solve-page-chrome-and-routes.md) | Collection, category and solve routes, plus solve-page chrome | T015, T017 | | | todo |
 | [T019](./T019-type-anagram.md) | Puzzle type: anagram (pilot) | T018 | ✔ | | todo |

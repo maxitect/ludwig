@@ -1,19 +1,18 @@
-import Link from "next/link";
-import { Credit, Wordmark } from "@/components/brand";
-import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import { Walker } from "@/components/brand";
+import { getCurrentUser } from "@/lib/data/user";
+import { Desk } from "./_components/desk";
+import { TitleSequence } from "./_components/title-sequence";
+
+async function Landing() {
+  const user = await getCurrentUser();
+  return user ? <Desk name={user.name} /> : <TitleSequence />;
+}
 
 export default function Home() {
   return (
-    <main className="grid-paper mx-auto flex max-w-3xl flex-col items-start gap-8 px-4 py-12 sm:px-8">
-      <Wordmark variant="ink-splat" className="w-full max-w-md" />
-      <Credit level={1} top="A fan-made puzzle collection" bottom="Solve it" />
-      <p className="max-w-prose text-lg">
-        Reverse chess, gear puzzles, ciphers and crosswords, in the style of
-        the BBC One drama Ludwig.
-      </p>
-      <Button asChild size="lg">
-        <Link href="/puzzles">Enter the Collection</Link>
-      </Button>
-    </main>
+    <Suspense fallback={<Walker className="mx-auto my-24" />}>
+      <Landing />
+    </Suspense>
   );
 }

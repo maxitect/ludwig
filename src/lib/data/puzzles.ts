@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { puzzles } from "@/db/schema";
 import { getPuzzleModule } from "@/puzzles/registry";
 
-const published = and(
+export const published = and(
   isNotNull(puzzles.publishedAt),
   lte(puzzles.publishedAt, sql`now()`),
 );

@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
+import { Solver } from "./solver";
 import * as schema from "./schema";
 import { fixtureAttemptRows, fixtureItems, fixturePuzzles } from "./tables";
 
@@ -24,9 +25,7 @@ export const fixtureModule = {
   check(_payload, solution, answer) {
     return { correct: answer.label === solution };
   },
-  Solver() {
-    return null;
-  },
+  Solver,
   async insertContent(tx, puzzleId, content) {
     await tx.insert(fixturePuzzles).values({ puzzleId, note: content.note });
     await tx

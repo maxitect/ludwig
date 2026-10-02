@@ -39,7 +39,6 @@ jobs:
           node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec next typegen
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm db:migrate

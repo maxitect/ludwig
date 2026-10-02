@@ -47,6 +47,16 @@ Some scripts are added during M0 and M1 (see `docs/PLAN.md`). If one is missing,
 - After any schema change, run `pnpm db:generate`, then `pnpm db:migrate`, then `pnpm test`.
 - After any content change, run `pnpm puzzles:verify`.
 
+## Platform tools (Vercel and Neon)
+
+The Vercel and Neon MCP plugins and CLIs (`vercel`, `neonctl`) are installed and authenticated. **Use them**: go to the source rather than guessing about deployments or the hosted database, and don't ask the user for logs or dashboard checks you can do yourself.
+
+- **Vercel:** build logs (`vercel inspect <url> --logs`), runtime logs (Vercel MCP `get_runtime_logs`), deployment state, env var names, and protected previews (`vercel curl --yes --deployment <url> <path> -- <curl args>`, or a `get_access_to_vercel_url` share link for a browser).
+- **Neon:** branches and read-only SQL on any branch (Neon MCP `run_sql`/`list_branches`, or `neonctl --project-id bold-term-80947033`). Each preview deployment has its own branch, `preview/<git-branch>`; `main` is production.
+- **Approval needed:** writes or schema changes on production `main`, destructive Neon operations, and Vercel setting changes all need the user's approval first. Never print or decrypt secrets.
+
+IDs, the full rules and which method to verify with are in `docs/tickets/INSTRUCTIONS.md` §3.1.
+
 ## Next.js 16
 
 This is not the Next.js in your training data. Read the guide in `node_modules/next/dist/docs/` before writing framework code.

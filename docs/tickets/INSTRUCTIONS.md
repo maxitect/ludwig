@@ -25,6 +25,7 @@ The ticket index and dependency order are in `README.md`, in this folder.
 4. **Review the report** (section 4):
    - Reject any report where an AC lacks reproducible evidence, or where an AC is marked PASS on the strength of unit tests alone when it specifies another method.
    - **Spot-check.** Re-run at least one AC verification yourself, plus any you doubt.
+   - **Deployed behaviour.** For tickets that touch auth, env, config, routing, caching, migrations or content, also check the PR's preview deployment and its Neon branch with the platform tools (section 3.1). After merging, check production's build and runtime logs.
    - If anything fails, send the ticket back to the implementer with the failing evidence.
 5. **Merge.**
    - Squash-merge the ticket branch into `main` with a Conventional Commit title that includes the ticket ID.
@@ -39,6 +40,8 @@ The ticket index and dependency order are in `README.md`, in this folder.
    - contradicts `SPEC.md`;
    - or needs a decision that isn't in the docs.
 
+   Before escalating anything about Vercel or Neon (failed builds, env vars, previews, database state), investigate it yourself with the platform tools (section 3.1). Only bring the user what needs their approval or access.
+
 ---
 
 ## 2. Implementer (Sonnet)
@@ -50,6 +53,7 @@ The ticket index and dependency order are in `README.md`, in this folder.
 - Read 2–3 existing files of the same kind before creating a new one, and match their patterns.
 - Work only on your branch, `ticket/<id>-<slug>`.
 - Stay strictly within the ticket's **In scope**. If something out of scope is needed, stop and report it; don't do it.
+- Use the Vercel and Neon tools (section 3.1) whenever the ticket touches deployment, env, auth origins, migrations or seeding, or whenever you need to know how the hosted app or database actually behaves. Don't assume, and don't report BLOCKED on something these tools could tell you.
 
 ### 2.2 Implementation loop
 
@@ -86,6 +90,7 @@ Each AC names one or more methods. Each method has a set of tools you must use; 
 | `next` | Next devtools MCP: `nextjs_index` and `nextjs_call` to inspect routes, build and runtime errors | The tool output excerpt |
 | `unit` | Vitest. The named test file must exist and pass | The test names and the pass output |
 | `cli` | Run the named script or command | The command plus its output and exit code |
+| `deploy` | Platform tools (section 3.1) against the PR's preview, or production after merge: `vercel inspect --logs`, Vercel MCP `get_runtime_logs`, `vercel curl`, a share link plus a headless browser, and Neon MCP `run_sql` on the deployment's branch | The command or tool call plus its output, including the deployment URL and Neon branch name |
 | `code` | Static check of the source with `grep` or by reading files, for structural rules such as "no `jsonb` columns" or "no solution columns selected in `load.ts`" | The command plus its output |
 
 General rules:
@@ -118,12 +123,13 @@ Set up a fresh environment with `pnpm db:migrate && pnpm db:seed`. `.env.neon.lo
 
 ### 3.1 Vercel and Neon tools
 
-The orchestrator and implementers have direct access to the hosted platform. Use these instead of asking the user for logs or dashboard checks.
+The Vercel and Neon MCP plugins and CLIs are installed and authenticated for the orchestrator and every implementer. You **should** use them: they are the default way to learn anything about deployments and the hosted database. Never ask the user for logs, env var names, deployment status or database state that these tools can fetch.
 
 | Tool | What it's for |
 |---|---|
 | Vercel MCP (`mcp__plugin_vercel_vercel__*`) | Projects, deployments, build and runtime logs (`get_runtime_logs`), env var names, share links for protected previews (`get_access_to_vercel_url`). Team `team_711GDPInJ7HPDPbaBtUXNPZh` (`maxitects-projects`), project `prj_LjiTaW3OEqx9y01sCWPpXeBUM86I` (`ludwig`) |
 | Vercel CLI (`vercel`, authenticated) | `vercel inspect <url> --logs` for build logs; `vercel curl --yes --deployment <url> <path> -- <curl args>` to call a protected preview; `vercel env ls --project ludwig` (names only) |
+| Neon CLI (`neonctl`, authenticated) | `neonctl branches list --project-id bold-term-80947033`, `neonctl connection-string <branch> --project-id ...` (never print or commit it), and branch inspection |
 | Neon MCP (`mcp__plugin_neon_neon__*`) | Org `org-muddy-term-88500580` (Vercel-managed), project `bold-term-80947033` (`ludwig-db`, eu-west-2). `main` is production; each preview deployment gets its own branch, named `preview/<git-branch>` |
 
 Rules:

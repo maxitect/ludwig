@@ -10,12 +10,20 @@ import {
   gearSolutions,
 } from "./tables";
 
-const puzzleSelect = createSelectSchema(gearPuzzles).omit({
+const slotCount = z
+  .number()
+  .int()
+  .min(4)
+  .refine((n) => n % 4 === 0, "slotCount must be a multiple of 4");
+
+const puzzleSelect = createSelectSchema(gearPuzzles, { slotCount }).omit({
   puzzleId: true,
   typeKey: true,
   generatorSeed: true,
 });
-const puzzleInsert = createInsertSchema(gearPuzzles).omit({ puzzleId: true });
+const puzzleInsert = createInsertSchema(gearPuzzles, { slotCount }).omit({
+  puzzleId: true,
+});
 const gearSelect = createSelectSchema(gearPuzzleGears).omit({
   puzzleId: true,
 });

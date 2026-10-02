@@ -79,7 +79,7 @@ function geometry(
   crank: number,
   f: number,
 ) {
-  const slot = mod(gear.startSlot + (f - 1) * (slotCount / 2), slotCount);
+  const slot = mod(gear.startSlot + (f - 1) * (slotCount / 2 + 1), slotCount);
   const facingTeeth = mod(
     gear.initialOffset + sign * (crank + mIn + (f - 1) * (mIn - mOut)),
     gear.teeth,

@@ -281,7 +281,7 @@ This mode is non-chess retro deduction on an 8×8 site grid. The board is drawn 
 
 #### 5.2.1 Concept
 
-A diagram of **dancer-gears** on a circular floor, with the **victim** at the centre. Gears mesh with their neighbours, so turning one turns them all ("all of which move in conjunction with each other"). The dance runs **8 figures**. In each figure every gear travels **in** to the centre ring while turning, then travels **out** to the **opposite** side, turning in the reverse direction. Each gear carries a **field of vision**, a wedge marked with small Xs. The player must find the crank setting, and the one convergence of the eight, at which **every gear faces away from the victim except one**, and then name that one: the killer.
+A diagram of **dancer-gears** on a circular floor, with the **victim** at the centre. Gears mesh with their neighbours, so turning one turns them all ("all of which move in conjunction with each other"). The dance runs **8 figures**. In each figure every gear travels **in** to the centre ring while turning, then travels **out** to the **opposite** side, **one slot further round the floor**, turning in the reverse direction. Over the eight figures the gears therefore progress round the floor, and no two convergences share a floor arrangement. Each gear carries a **field of vision**, a wedge marked with small Xs. The player must find the crank setting, and the one convergence of the eight, at which **every gear faces away from the victim except one**, and then name that one: the killer.
 
 The **"Fix the Diagram"** variant reproduces the episode's twist. The diagram as printed has **no** solution, and the player may **swap up to K starting slots** (K = 1–2) to make it solvable. This variant needs a stated uniqueness rule, given below.
 
@@ -291,7 +291,8 @@ All arithmetic is integer, in **teeth** and **slot** units, so solutions are exa
 
 ```
 Floor:
-  S          number of slots on each ring (even; default 8, so slot angle = 360/S)
+  S          number of slots on each ring (a multiple of 4; default 8, so slot angle = 360/S)
+             S/2 + 1 is then odd and coprime to S, so for S >= 8 the 8 convergences all have different floor arrangements
   outer ring (start/rest positions), inner ring (convergence positions)
   victim at the centre O
 
@@ -320,7 +321,7 @@ Player input:
              where L = lcm(T_g over all g)
 
 State at convergence f (1..8):
-  slot_g(f)    = (s_g + (f-1) * S/2) mod S         // alternating sides each figure
+  slot_g(f)    = (s_g + (f-1) * (S/2 + 1)) mod S   // opposite side AND one slot further each figure
   pos_g(f)     = inner-ring point at angle slot_g(f) * 360/S
   teeth_g(f)   = o_g + d_g * (c + m_in + (f-1) * Δ)
   facing_g(f)  = (teeth_g(f) mod T_g) * 360 / T_g

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgres://ludwig:ludwig@localhost:5432/ludwig
+      DATABASE_URL_UNPOOLED: postgres://ludwig:ludwig@localhost:5432/ludwig
+      BETTER_AUTH_SECRET: ci-dummy-secret-0123456789abcdef0123456789
+      BETTER_AUTH_URL: http://localhost:3000
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ludwig
+          POSTGRES_PASSWORD: ludwig
+          POSTGRES_DB: ludwig
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ludwig -d ludwig"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm db:migrate
+      - run: pnpm test
+      - run: pnpm puzzles:verify
+      - run: pnpm build

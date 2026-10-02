@@ -43,7 +43,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
 | [T025](./T025-reverse-chess-tables-fen.md) | Reverse Chess tables and FEN derivation | T016 | ✔ | | done |
-| [T026](./T026-retro-move-engine.md) | Retro-move engine | T025 | | | todo |
+| [T026](./T026-retro-move-engine.md) | Retro-move engine | T025 | | | done |
 | [T027](./T027-retro-verifier.md) | Retro enumerator and uniqueness verifier | T026 | | | todo |
 | [T028](./T028-chess-board-component.md) | Chess board component (react-chessboard v5, cburnett, arrow, tray) | T010, T025 | | | todo |
 | [T029](./T029-reverse-chess-mode-a.md) | Mode A "The Last Move": UI and check | T026, T028, T018 | | | todo |

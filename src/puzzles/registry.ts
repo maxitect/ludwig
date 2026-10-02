@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
+import { gearsModule } from "./gears/module";
 import { reverseChessModule } from "./reverse-chess/module";
 
 export type Tx = Parameters<Parameters<(typeof db)["transaction"]>[0]>[0];
@@ -47,6 +48,7 @@ export type PuzzleTypeModule<
 export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 
 export const registry: PuzzleRegistry = {
+  [gearsModule.meta.key]: gearsModule,
   [reverseChessModule.meta.key]: reverseChessModule,
 };
 

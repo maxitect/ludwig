@@ -698,6 +698,8 @@ The conventions:
 |---|---|---|
 | `attempts.type_key` | `puzzles.type_key` through `puzzle_id` | Composite FK `(puzzle_id, type_key)` → `puzzles`, plus the `BEFORE INSERT OR UPDATE OF puzzle_id` trigger `attempts_fill_type_key` |
 | `puzzle_id` on attempt child rows that reference puzzle children (e.g. `crossword_attempt_cells`, `gear_attempts.accused_gear_id`) | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `attempts (id, puzzle_id)`, plus a `BEFORE INSERT` fill trigger |
+| `gear_attempts.puzzle_id` | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id, type_key)` → `attempts (id, puzzle_id, type_key)`, where `type_key` is generated as `'gears'`, plus the `BEFORE INSERT` trigger `gear_attempts_fill_puzzle_id`. The trigger fills only a NULL, so an explicit mismatch reaches the FK and fails |
+| `gear_attempt_swaps.puzzle_id` | `gear_attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `gear_attempts (attempt_id, puzzle_id)`, plus the `BEFORE INSERT` trigger `gear_attempt_swaps_fill_puzzle_id`. Both gears are then scoped to the puzzle by `(puzzle_id, gear_*_id)` → `gear_puzzle_gears (puzzle_id, id)` |
 | `book_cipher_refs.text_id` | `book_cipher_puzzles.text_id` | Composite FK `(puzzle_id, text_id)` → `book_cipher_puzzles`, plus a fill trigger |
 | Generated `type_key` / `kind` on subtype tables | The supertype row | `GENERATED ALWAYS AS (…) STORED` plus a composite FK |
 

@@ -83,6 +83,24 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.gearSolutionSwaps.puzzleId,
     }),
   },
+  reverseChessAttempts: {
+    plies: r.many.reverseChessAttemptPlies({
+      from: r.reverseChessAttempts.attemptId,
+      to: r.reverseChessAttemptPlies.attemptId,
+    }),
+  },
+  gearAttempts: {
+    swaps: r.many.gearAttemptSwaps({
+      from: r.gearAttempts.attemptId,
+      to: r.gearAttemptSwaps.attemptId,
+    }),
+  },
+  rotaAttempts: {
+    swaps: r.many.rotaAttemptSwaps({
+      from: r.rotaAttempts.attemptId,
+      to: r.rotaAttemptSwaps.attemptId,
+    }),
+  },
   rotaPuzzles: {
     workers: r.many.rotaWorkers({
       from: r.rotaPuzzles.puzzleId,

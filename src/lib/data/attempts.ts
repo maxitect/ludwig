@@ -39,6 +39,26 @@ export async function replaceAttemptState(attemptId: string, state: unknown) {
   });
 }
 
+async function findAttempt(userId: string, puzzleId: string) {
+  return db.query.attempts.findFirst({
+    where: { userId, puzzleId },
+    columns: { id: true, typeKey: true },
+  });
+}
+
+/** The user's saved state for a puzzle, parsed by the type's `attemptSchema`, or null when there is none. */
+export async function getAttemptState(userId: string, puzzleId: string) {
+  const attempt = await findAttempt(userId, puzzleId);
+  if (!attempt) return null;
+  return getPuzzleModule(attempt.typeKey).loadAttemptState(attempt.id);
+}
+
+export async function clearAttemptState(userId: string, puzzleId: string) {
+  const attempt = await findAttempt(userId, puzzleId);
+  if (!attempt) return;
+  await getPuzzleModule(attempt.typeKey).clearAttemptState(attempt.id);
+}
+
 export async function recordHint(
   attemptId: string,
   kind: HintKind,

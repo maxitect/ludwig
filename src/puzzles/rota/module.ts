@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
 import { check } from "./check";
 import { load } from "./load";
@@ -102,5 +103,21 @@ export const rotaModule = {
       .values(
         swaps.map((swap, index) => ({ ...swap, attemptId, step: index + 1 })),
       );
+  },
+  async clearAttemptState(attemptId) {
+    await db.delete(rotaAttempts).where(eq(rotaAttempts.attemptId, attemptId));
+  },
+  async loadAttemptState(attemptId) {
+    const attempt = await db.query.rotaAttempts.findFirst({
+      where: { attemptId },
+      columns: { instigatorWorkerId: true },
+      with: {
+        swaps: {
+          columns: { workerAId: true, workerBId: true },
+          orderBy: { step: "asc" },
+        },
+      },
+    });
+    return attempt ? schema.attemptSchema.parse(attempt) : null;
   },
 } satisfies PuzzleTypeModule<typeof schema, schema.Solution>;

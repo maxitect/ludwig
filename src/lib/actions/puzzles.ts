@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import {
+  clearAttemptState,
   completeAttempt,
   getOrCreateAttempt,
   recordHint,
@@ -40,6 +41,15 @@ export async function saveState(
   if (!parsed.success) return invalid;
   const attempt = await getOrCreateAttempt(user.id, puzzleId);
   await replaceAttemptState(attempt.id, parsed.data);
+  return { ok: true };
+}
+
+export async function clearState(
+  puzzleId: string,
+): Promise<{ ok: true } | ActionError> {
+  const user = await requireUser();
+  if (!puzzleIdSchema.safeParse(puzzleId).success) return invalid;
+  await clearAttemptState(user.id, puzzleId);
   return { ok: true };
 }
 

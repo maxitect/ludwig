@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Credit, Raking, Walker, Wordmark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { PieceGlyph } from "@/puzzles/_shared/chess-board/pieces";
+import type { PieceKind } from "@/puzzles/_shared/chess-board/squares";
 import { MirroredSudoku } from "./mirrored-sudoku";
 import "./title-sequence.css";
 
@@ -12,7 +13,7 @@ function ToppledPiece({
   piece,
 }: {
   className: string;
-  piece: Parameters<typeof PieceGlyph>[0]["piece"];
+  piece: PieceKind;
 }) {
   return (
     <div aria-hidden="true" className={`seq-piece ${className}`}>
@@ -37,7 +38,7 @@ export function TitleSequence() {
               <div className="seq-plane seq-wall seq-wall-grid" />
               <div className="seq-plane seq-wall seq-wall-board" />
               <div className="seq-plane seq-wall seq-wall-mirror">
-                <MirroredSudoku className="seq-mirror-digits size-full" />
+                <MirroredSudoku className="size-full" />
               </div>
             </div>
           </div>

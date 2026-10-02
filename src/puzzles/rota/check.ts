@@ -9,11 +9,13 @@ import type { Answer, Payload, Solution } from "./schema";
 
 export function check(payload: Payload, solution: Solution, answer: Answer) {
   const known = new Set(payload.workers.map((worker) => worker.id));
-  const gambit = openingGambit(answer.swaps);
   if (
-    !gambit ||
+    !openingGambit(answer) ||
+    answer.instigatorWorkerId !== solution.instigatorWorkerId ||
+    answer.swaps.length !== solution.swaps.length ||
     !answer.swaps.every(
-      ({ workerAId, workerBId }) => known.has(workerAId) && known.has(workerBId),
+      ({ workerAId, workerBId }) =>
+        workerAId !== workerBId && known.has(workerAId) && known.has(workerBId),
     )
   ) {
     return { correct: false };
@@ -21,9 +23,6 @@ export function check(payload: Payload, solution: Solution, answer: Answer) {
   const intended = placementFor(payload.workers, "intended");
   const final = placementFor(payload.workers, "final");
   const correct =
-    answer.instigatorWorkerId === solution.instigatorWorkerId &&
-    (gambit.swap.workerAId === answer.instigatorWorkerId ||
-      gambit.swap.workerBId === answer.instigatorWorkerId) &&
     samePlacement(applySwaps(intended, answer.swaps), final) &&
     validateClues(intended, answer.swaps, payload.clues);
   return { correct };

@@ -5,7 +5,6 @@ export type Square = Pick<Worker["squares"][number], "file" | "rank">;
 export type Phase = Worker["squares"][number]["phase"];
 /** Worker id to the square the worker stands on. */
 export type Placement = Readonly<Record<string, Square>>;
-/** `workerAId` is the instigator when the swap opens a sequence. */
 export type Swap = Answer["swaps"][number];
 
 type Step = { swap: Swap; squareA: Square; squareB: Square };
@@ -111,45 +110,70 @@ export function validateClues(
 }
 
 /**
- * Breadth-first search for swap sequences from `intended` to `final` that satisfy every clue.
- * Every clue is checkable on a prefix, so invalid prefixes are pruned. Stops once `cap` sequences are found.
+ * Breadth-first search for the shortest swap sequences from `intended` to `final` that satisfy every clue,
+ * returning at most `cap` of them. Every clue depends only on the current placement and the step count, so
+ * sequences meeting in one placement are merged and a placement already reached at a shallower depth is dropped.
  */
 export function solve(
   intended: Placement,
   final: Placement,
   clues: ClueParams[],
-  { maxSteps = Object.keys(intended).length, cap = 2 } = {},
+  { cap = 2 } = {},
 ) {
+  if (!validateClues(intended, [], clues)) return [];
   const workerIds = Object.keys(intended).sort();
-  const found: Swap[][] = [];
-  let frontier: { placement: Placement; swaps: Swap[] }[] = [
-    { placement: intended, swaps: [] },
-  ];
-  for (let depth = 0; depth <= maxSteps && frontier.length; depth++) {
-    const next: typeof frontier = [];
-    for (const { placement, swaps } of frontier) {
-      if (samePlacement(placement, final)) {
-        found.push(swaps);
-        if (found.length >= cap) return found;
-      }
-      if (depth === maxSteps) continue;
+  const keyOf = (placement: Placement) =>
+    workerIds
+      .map((id) => {
+        const { file, rank } = squareOf(placement, id);
+        return `${file}${rank}`;
+      })
+      .join();
+  const target = keyOf(final);
+  const seen = new Set([keyOf(intended)]);
+  let frontier = new Map([
+    [keyOf(intended), { placement: intended, sequences: [[]] as Swap[][] }],
+  ]);
+  while (frontier.size) {
+    const reached = frontier.get(target);
+    if (reached) return reached.sequences;
+    const next: typeof frontier = new Map();
+    for (const { placement, sequences } of frontier.values()) {
       for (let i = 0; i < workerIds.length; i++) {
         for (let j = i + 1; j < workerIds.length; j++) {
           const swap = { workerAId: workerIds[i], workerBId: workerIds[j] };
-          const extended = [...swaps, swap];
-          if (!validateClues(intended, extended, clues)) continue;
-          next.push({ placement: swapOnce(placement, swap), swaps: extended });
+          if (!validateClues(intended, [...sequences[0], swap], clues)) {
+            continue;
+          }
+          const moved = swapOnce(placement, swap);
+          const key = keyOf(moved);
+          if (seen.has(key)) continue;
+          const entry = next.get(key) ?? { placement: moved, sequences: [] };
+          const room = cap - entry.sequences.length;
+          for (const sequence of sequences.slice(0, room)) {
+            entry.sequences.push([...sequence, swap]);
+          }
+          next.set(key, entry);
         }
       }
     }
+    for (const key of next.keys()) seen.add(key);
     frontier = next;
   }
-  return found;
+  return [];
 }
 
-/** The first swap of a sequence and the worker who instigated it, by convention `workerAId`. */
-export function openingGambit(sequence: Swap[]) {
-  const [swap] = sequence;
-  if (!swap) return undefined;
-  return { swap, instigator: swap.workerAId };
+/** The first swap of a sequence with its authored instigator, or undefined when the instigator is not in that swap. */
+export function openingGambit({
+  swaps: [swap],
+  instigatorWorkerId,
+}: Pick<Answer, "swaps" | "instigatorWorkerId">) {
+  if (
+    !swap ||
+    (swap.workerAId !== instigatorWorkerId &&
+      swap.workerBId !== instigatorWorkerId)
+  ) {
+    return undefined;
+  }
+  return { swap, instigator: instigatorWorkerId };
 }

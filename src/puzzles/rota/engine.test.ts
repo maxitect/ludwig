@@ -124,6 +124,15 @@ describe("solve", () => {
     ]);
   });
 
+  it("counts only the shortest sequences, so undo pairs need no max_swaps clue", () => {
+    expect(solve(intended, final, [adjacentOnly])).toEqual(
+      solve(intended, final, clues),
+    );
+    expect(solve(intended, final, [adjacentOnly], { cap: 50 })).toHaveLength(
+      1,
+    );
+  });
+
   it("finds two (the cap) when a clue is removed", () => {
     const found = solve(intended, final, [maxThree]);
     expect(found).toHaveLength(2);
@@ -143,15 +152,22 @@ describe("solve", () => {
 });
 
 describe("openingGambit", () => {
-  it("returns the first swap and its instigator", () => {
-    expect(openingGambit(chain)).toEqual({
-      swap: chain[0],
-      instigator: "Marty",
-    });
+  it("returns the first swap and its authored instigator", () => {
+    expect(
+      openingGambit({ swaps: chain, instigatorWorkerId: "Gary" }),
+    ).toEqual({ swap: chain[0], instigator: "Gary" });
+  });
+
+  it("is undefined when the instigator is not in the first swap", () => {
+    expect(
+      openingGambit({ swaps: chain, instigatorWorkerId: "Ojay" }),
+    ).toBeUndefined();
   });
 
   it("is undefined for an empty sequence", () => {
-    expect(openingGambit([])).toBeUndefined();
+    expect(
+      openingGambit({ swaps: [], instigatorWorkerId: "Marty" }),
+    ).toBeUndefined();
   });
 });
 

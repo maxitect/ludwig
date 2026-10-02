@@ -44,4 +44,5 @@ jobs:
       - run: pnpm db:migrate
       - run: pnpm test
       - run: pnpm puzzles:verify
+      - run: pnpm db:seed
       - run: pnpm build

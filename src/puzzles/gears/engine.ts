@@ -1,4 +1,4 @@
-import type { Payload } from "./schema";
+import type { Payload, Solution } from "./schema";
 
 export type Diagram = Pick<
   Payload,
@@ -20,7 +20,9 @@ export type GearState = {
   sees: boolean;
 };
 
-export type Win = { crank: number; convergence: number; killerId: string };
+export type Win = Pick<Solution, "crank" | "convergence"> & {
+  killerId: Solution["killerGearId"];
+};
 
 const FIGURES = 8;
 

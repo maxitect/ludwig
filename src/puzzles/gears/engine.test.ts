@@ -200,11 +200,11 @@ function randomDiagram(rand: () => number): Diagram {
     );
     meshes.push(mesh(`g${pick(parents)}`, `g${i}`));
   }
-  const mIn = 1 + Math.floor(rand() * 7);
+  const mIn = 1 + Math.floor(rand() * 8);
   return {
     slotCount,
     mIn,
-    mOut: mIn + 1 + Math.floor(rand() * 3),
+    mOut: 1 + ((mIn + Math.floor(rand() * 7)) % 8),
     gears,
     meshes,
   };

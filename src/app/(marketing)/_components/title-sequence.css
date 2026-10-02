@@ -1,0 +1,523 @@
+.title-sequence {
+  --seq-cell: 80px;
+  --seq-line: var(--border);
+  --seq-ink: color-mix(in srgb, var(--foreground) 88%, transparent);
+  --seq-tile: color-mix(in srgb, var(--color-shadow) 70%, transparent);
+}
+
+.seq-stage {
+  position: relative;
+  min-height: 46rem;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--background);
+}
+
+.seq-scene {
+  position: absolute;
+  inset: 0;
+  perspective: 900px;
+  perspective-origin: 50% 40%;
+}
+
+.seq-world {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50% -300px;
+  transform: rotateY(-16deg);
+}
+
+.seq-plane {
+  position: absolute;
+  backface-visibility: hidden;
+  background-color: var(--background);
+}
+
+.seq-floor {
+  left: -50%;
+  top: 75%;
+  width: 200%;
+  height: 1400px;
+  transform-origin: 50% 0;
+  transform: translateZ(-600px) rotateX(90deg);
+  background-image: conic-gradient(
+    var(--seq-tile) 25%,
+    transparent 0 50%,
+    var(--seq-tile) 0 75%,
+    transparent 0
+  );
+  background-size: calc(var(--seq-cell) * 2) calc(var(--seq-cell) * 2);
+  border-top: 2px solid var(--seq-line);
+}
+
+.seq-wall {
+  left: 15%;
+  top: 10%;
+  width: 70%;
+  height: 65%;
+  transform: translateZ(-600px);
+  border: 2px solid var(--seq-line);
+}
+
+.seq-wall-grid {
+  background-image:
+    linear-gradient(var(--seq-ink), var(--seq-ink)),
+    linear-gradient(var(--seq-ink), var(--seq-ink)),
+    linear-gradient(var(--seq-ink), var(--seq-ink)),
+    linear-gradient(var(--seq-ink), var(--seq-ink)),
+    linear-gradient(var(--seq-line) 2px, transparent 2px),
+    linear-gradient(90deg, var(--seq-line) 2px, transparent 2px);
+  background-position:
+    var(--seq-cell) var(--seq-cell),
+    calc(var(--seq-cell) * 4) 0,
+    calc(var(--seq-cell) * 2) calc(var(--seq-cell) * 3),
+    calc(var(--seq-cell) * 6) calc(var(--seq-cell) * 2),
+    0 0,
+    0 0;
+  background-size:
+    var(--seq-cell) var(--seq-cell),
+    var(--seq-cell) var(--seq-cell),
+    var(--seq-cell) var(--seq-cell),
+    var(--seq-cell) var(--seq-cell),
+    var(--seq-cell) var(--seq-cell),
+    var(--seq-cell) var(--seq-cell);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat;
+}
+
+.seq-wall-board {
+  opacity: 0;
+  background-image: conic-gradient(
+    var(--seq-ink) 25%,
+    transparent 0 50%,
+    var(--seq-ink) 0 75%,
+    transparent 0
+  );
+  background-size: calc(var(--seq-cell) * 2) calc(var(--seq-cell) * 2);
+}
+
+.seq-wall-mirror {
+  opacity: 0;
+  font-size: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.seq-wall-left,
+.seq-wall-right {
+  top: 10%;
+  width: 1200px;
+  height: 65%;
+  background-size: var(--seq-cell) var(--seq-cell);
+  border-block: 2px solid var(--seq-line);
+}
+
+.seq-wall-left {
+  left: 15%;
+  transform-origin: 0 50%;
+  transform: translateZ(-600px) rotateY(-90deg);
+  background-image: conic-gradient(
+    var(--seq-tile) 25%,
+    transparent 0 50%,
+    var(--seq-tile) 0 75%,
+    transparent 0
+  );
+  background-size: calc(var(--seq-cell) * 2) calc(var(--seq-cell) * 2);
+}
+
+.seq-wall-right {
+  right: 15%;
+  transform-origin: 100% 50%;
+  transform: translateZ(-600px) rotateY(90deg);
+  background-image:
+    linear-gradient(var(--seq-line) 2px, transparent 2px),
+    linear-gradient(90deg, var(--seq-line) 2px, transparent 2px);
+}
+
+.seq-raking {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 1;
+}
+
+:root[data-theme="ink"] .seq-raking {
+  filter: brightness(2.4);
+}
+
+.seq-piece {
+  position: absolute;
+  width: clamp(6.5rem, 15vw, 13rem);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.seq-piece-body {
+  position: absolute;
+  inset: 0;
+  transform-origin: 20% 90%;
+}
+
+.seq-cast {
+  position: absolute;
+  left: 10%;
+  bottom: 6%;
+  width: 210%;
+  height: 34%;
+  background: linear-gradient(
+    90deg,
+    var(--color-shadow),
+    color-mix(in srgb, var(--color-shadow) 0%, transparent)
+  );
+  clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 100%);
+  opacity: 0.65;
+}
+
+.seq-piece-a {
+  left: 2%;
+  bottom: 12rem;
+}
+
+.seq-piece-a .seq-piece-body {
+  transform: rotate(82deg);
+}
+
+.seq-piece-b {
+  right: 18%;
+  bottom: 11rem;
+}
+
+.seq-piece-b .seq-piece-body {
+  transform: rotate(-76deg);
+  transform-origin: 80% 90%;
+}
+
+.seq-piece-b .seq-cast {
+  left: auto;
+  right: 10%;
+  transform: scaleX(-1);
+}
+
+.seq-piece-c {
+  left: 42%;
+  bottom: 10.5rem;
+  width: clamp(4rem, 9vw, 8rem);
+}
+
+.seq-piece-c .seq-piece-body {
+  transform: rotate(68deg);
+}
+
+.seq-hero {
+  position: absolute;
+  top: 1.5rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 4;
+  display: flex;
+  max-width: 28rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  border: 2px solid var(--border);
+  background: var(--background);
+  padding: 1rem;
+}
+
+.seq-walker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5rem;
+  z-index: 3;
+  width: auto;
+}
+
+.seq-captions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.25rem;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.seq-caption {
+  background: var(--background);
+  padding: 0.25rem 0.5rem;
+}
+
+.seq-finale {
+  position: relative;
+  display: grid;
+  min-height: 32rem;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 4rem 1rem;
+}
+
+.seq-finale-digits {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  width: min(48rem, 140%);
+  translate: -50% -50%;
+  opacity: 0.2;
+  font-size: clamp(1.5rem, 5vw, 4rem);
+}
+
+.seq-finale-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  border: 2px solid var(--border);
+  background: var(--background);
+  padding: 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .seq-hero {
+    left: 3rem;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .seq-piece-a {
+    left: -1rem;
+  }
+
+  .seq-piece-b {
+    right: 0;
+  }
+
+  .seq-captions {
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+  }
+}
+
+@keyframes seq-world {
+  from {
+    transform: rotateY(-16deg) translateZ(0);
+  }
+  50% {
+    transform: rotateY(22deg) rotateX(4deg) translateZ(260px);
+  }
+  to {
+    transform: rotateY(-6deg) rotateX(-6deg) translateZ(520px);
+  }
+}
+
+@keyframes seq-hero-out {
+  0%,
+  12% {
+    opacity: 1;
+    visibility: visible;
+  }
+  28%,
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes seq-wall-grid {
+  0%,
+  28% {
+    opacity: 1;
+  }
+  38%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes seq-wall-board {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  38%,
+  60% {
+    opacity: 1;
+  }
+  70%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes seq-wall-mirror {
+  0%,
+  60% {
+    opacity: 0;
+  }
+  70%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes seq-caption-1 {
+  0%,
+  26% {
+    opacity: 1;
+  }
+  34%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes seq-caption-2 {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  38%,
+  58% {
+    opacity: 1;
+  }
+  66%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes seq-caption-3 {
+  0%,
+  60% {
+    opacity: 0;
+  }
+  70%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes seq-walk {
+  from {
+    left: 0;
+  }
+  to {
+    left: calc(100% - 1.5rem);
+  }
+}
+
+@keyframes seq-piece-a {
+  to {
+    translate: 18vw -6rem;
+  }
+}
+
+@keyframes seq-piece-b {
+  to {
+    translate: -22vw -3rem;
+  }
+}
+
+@keyframes seq-piece-c {
+  to {
+    translate: 8vw -9rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .seq-track {
+      height: 400dvh;
+      view-timeline: --seq block;
+    }
+
+    .seq-stage {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      min-height: 0;
+    }
+
+    .seq-world,
+    .seq-hero,
+    .seq-wall-grid,
+    .seq-wall-board,
+    .seq-wall-mirror,
+    .seq-caption,
+    .seq-walker .walker-figure,
+    .seq-piece {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --seq;
+      animation-range: entry 100% exit 0%;
+    }
+
+    .seq-world {
+      animation-name: seq-world;
+    }
+
+    .seq-hero {
+      animation-name: seq-hero-out;
+    }
+
+    .seq-wall-grid {
+      animation-name: seq-wall-grid;
+    }
+
+    .seq-wall-board {
+      animation-name: seq-wall-board;
+    }
+
+    .seq-wall-mirror {
+      animation-name: seq-wall-mirror;
+    }
+
+    .seq-captions {
+      height: 2rem;
+    }
+
+    .seq-caption {
+      position: absolute;
+      left: 50%;
+      translate: -50% 0;
+      white-space: nowrap;
+    }
+
+    .seq-caption-1 {
+      animation-name: seq-caption-1;
+    }
+
+    .seq-caption-2 {
+      animation-name: seq-caption-2;
+    }
+
+    .seq-caption-3 {
+      animation-name: seq-caption-3;
+    }
+
+    .seq-walker .walker-figure {
+      animation-name: seq-walk;
+      animation-duration: auto;
+      animation-iteration-count: 1;
+    }
+
+    .seq-piece-a {
+      animation-name: seq-piece-a;
+    }
+
+    .seq-piece-b {
+      animation-name: seq-piece-b;
+    }
+
+    .seq-piece-c {
+      animation-name: seq-piece-c;
+    }
+  }
+}

@@ -305,6 +305,7 @@ Gear g:
 Mesh graph M:
   undirected edges between gears that touch on the diagram
   must be bipartite (else the train locks); d_g = +1 / -1 by 2-colouring from the driver gear D
+  must be connected: every gear is reachable from D (an unmeshed gear would not turn); generators and puzzles:verify reject disconnected diagrams
   meshed gears share linear tooth travel, so turning the train by k teeth turns EVERY gear
   by exactly k teeth: Δangle_g = d_g * k * 360/T_g
 

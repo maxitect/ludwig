@@ -42,7 +42,7 @@
   --radius-lg: var(--radius);
   --radius-xl: var(--radius);
 
-  --font-signature: var(--font-yesteryear), cursive;
+  --font-signature: var(--font-dancing-script), cursive;
   --font-display: var(--font-josefin), sans-serif;
   --font-sans: var(--font-jost), sans-serif;
   --font-band: var(--font-barlow), sans-serif;

@@ -379,7 +379,7 @@ Curated diagrams live in the DB like any other puzzle. Generated ones are materi
 
 | Role | Show typeface | v1 web font (free, OFL) | Exact-match upgrade |
 |---|---|---|---|
-| Wordmark / signature | Hummingbird Bold (Laura Worthington) | **Yesteryear** (chosen over Norican: heavier brush strokes sit closer to Hummingbird Bold) | Hummingbird through an Adobe Fonts kit or a purchased webfont licence |
+| Wordmark / signature | Hummingbird Bold (Laura Worthington) | **Dancing Script** Bold 700 (user decision, 2026-10-02) | Hummingbird through an Adobe Fonts kit or a purchased webfont licence |
 | Headings, credits, UI labels | Gravesend Sans (Rian Hughes, Device) | **Josefin Sans** (600/700 for surnames, 300 for first words) | Gravesend Sans through Adobe Fonts |
 | Body / long text, grid numerals | — | **Jost** (Futura-like, good small sizes and tabular numerals) | — |
 | Puzzle-book cover band | Unidentified condensed caps | **Barlow Semi Condensed** 600 | — |

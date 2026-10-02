@@ -1,16 +1,16 @@
 import {
   Barlow_Semi_Condensed,
   Caveat_Brush,
+  Dancing_Script,
   Jost,
   JetBrains_Mono,
   Josefin_Sans,
-  Yesteryear,
 } from "next/font/google";
 
-const signature = Yesteryear({
+const signature = Dancing_Script({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-yesteryear",
+  weight: "700",
+  variable: "--font-dancing-script",
 });
 
 const display = Josefin_Sans({

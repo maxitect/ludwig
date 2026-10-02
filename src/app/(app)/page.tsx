@@ -27,7 +27,7 @@ const semantics = [
 ];
 
 const fonts = [
-  { label: "Signature (Yesteryear)", className: "font-signature text-5xl", sample: "Ludwig." },
+  { label: "Signature (Dancing Script)", className: "font-signature text-5xl", sample: "Ludwig." },
   { label: "Display light (Josefin Sans 300)", className: "font-display font-light text-3xl uppercase tracking-[0.04em]", sample: "The Gear Puzzle" },
   { label: "Display semibold (Josefin Sans 600)", className: "font-display font-semibold text-3xl uppercase tracking-[0.04em]", sample: "The Gear Puzzle" },
   { label: "Display bold (Josefin Sans 700)", className: "font-display font-bold text-3xl uppercase tracking-[0.04em]", sample: "The Gear Puzzle" },

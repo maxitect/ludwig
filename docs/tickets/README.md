@@ -30,7 +30,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T015](./T015-app-shell.md) | App shell: layout, nav, footer, theme switching, landing placeholder | T008, T010, T011 | | | done |
 | [T016](./T016-registry-and-content-pipeline.md) | Puzzle registry, type contract, content pipeline (seed + verify) | T005 | | | done |
 | [T017](./T017-attempts-actions-data-access.md) | Attempts data access and `checkAnswer`/`saveState`/hint actions | T016, T008 | | | done |
-| [T018](./T018-solve-page-chrome-and-routes.md) | Collection, category and solve routes, plus solve-page chrome | T015, T017 | | | in-progress |
+| [T018](./T018-solve-page-chrome-and-routes.md) | Collection, category and solve routes, plus solve-page chrome | T015, T017 | | | review |
 | [T019](./T019-type-anagram.md) | Puzzle type: anagram (pilot) | T018 | ✔ | | todo |
 | [T020](./T020-local-progress-merge.md) | Signed-out progress in `localStorage` and merge on sign-up | T019 | | | todo |
 | [T021](./T021-shared-cell-input-grid.md) | Shared `CellInput` grid | T018 | | | todo |
@@ -57,7 +57,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 |---|---|---|---|---|---|
 | [T033](./T033-gear-tables.md) | Gear tables, driver constraint trigger, `gear_daily` | T016 | ✔ | | done |
 | [T034](./T034-gear-engine-core.md) | Gear engine core | T033 | | | done |
-| [T035](./T035-gear-generators.md) | Gear generator and Fix the Diagram generator | T034 | | | todo |
+| [T035](./T035-gear-generators.md) | Gear generator and Fix the Diagram generator | T034 | | | in-progress |
 | [T036](./T036-gen-gears-script.md) | `puzzles:gen-gears` script and daily diagrams | T035 | | | todo |
 | [T037](./T037-gear-board-prototype.md) | SVG gear board, prototype and parameter evaluation | T034, T018 | | | todo |
 | [T038](./T038-gear-crank.md) | Crank interaction (drag, keyboard, ±) | T037 | | | todo |
@@ -99,7 +99,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 |---|---|---|---|---|---|
 | [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | todo |
 | [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | todo |
-| [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | in-progress |
+| [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | review |
 | [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4 | | | todo |
 | [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067 | | | todo |
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |

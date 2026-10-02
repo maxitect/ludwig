@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { generateDiagram } from "@/puzzles/gears/generate";
+import { diagramOf, generateDiagram } from "@/puzzles/gears/generate";
 import { type Difficulty, difficulties } from "@/puzzles/gears/presets";
 import type { Content, Payload } from "@/puzzles/gears/schema";
 import { Solver } from "@/puzzles/gears/solver";
@@ -39,13 +39,9 @@ const F3: Content = {
   solution: { crank: 4, convergence: 5, killerLabel: "A", swaps: [] },
 };
 
-function payloadOf({ gears, meshes, solution, ...rest }: Content): Payload {
+function payloadOf({ solution, ...content }: Content): Payload {
   void solution;
-  return {
-    ...rest,
-    gears: gears.map((g) => ({ ...g, id: g.label })),
-    meshes: meshes.map(({ a, b }) => ({ gearAId: a, gearBId: b })),
-  };
+  return { ...content, ...diagramOf(content) };
 }
 
 type Source = Difficulty | typeof F3_LABEL;

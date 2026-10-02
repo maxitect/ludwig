@@ -2,7 +2,7 @@ import { type Diagram, stateAt } from "./engine";
 
 type Gear = Diagram["gears"][number];
 
-const RING_IN = 48;
+const RING_IN = 60;
 const RING_OUT = 84;
 const VICTIM_RADIUS = 5;
 const TOOTH_DEPTH = 2.2;
@@ -10,7 +10,7 @@ const X_SPACING = 6;
 const X_ROWS = [5, 11, 17];
 const X_HALF = 1.4;
 
-const radiusOf = (teeth: number) => teeth * 0.9;
+const MAX_TOOTH_SCALE = 0.9;
 const toRad = (deg: number) => (deg * Math.PI) / 180;
 /** Rounded so the server and the browser print the same trig results and hydration matches. */
 const round = (n: number) => Math.round(n * 100) / 100 || 0;
@@ -48,6 +48,12 @@ function visionXs(radius: number, facingDeg: number, halfWidthDeg: number) {
 
 const slotAngle = (slot: number, slotCount: number) => (slot * 360) / slotCount;
 
+/** Cog radius per tooth, shrunk so the largest cogs on neighbouring inner-ring slots never overlap. */
+function toothScale({ gears, slotCount }: Diagram) {
+  const halfGap = RING_IN * Math.sin(Math.PI / slotCount) - TOOTH_DEPTH;
+  return Math.min(MAX_TOOTH_SCALE, halfGap / Math.max(...gears.map((g) => g.teeth)));
+}
+
 export function GearBoard({
   diagram,
   crank,
@@ -58,6 +64,7 @@ export function GearBoard({
   convergence: number;
 }) {
   const states = stateAt(diagram, crank, convergence);
+  const scale = toothScale(diagram);
   const centres = new Map(
     diagram.gears.map((gear) => [
       gear.id,
@@ -117,6 +124,7 @@ export function GearBoard({
           gear={gear}
           state={states[gear.id]!}
           centre={centres.get(gear.id)!}
+          radius={gear.teeth * scale}
         />
       ))}
 
@@ -126,7 +134,7 @@ export function GearBoard({
           const [cx, cy] = centres.get(gear.id)!;
           const length = Math.sqrt(cx * cx + cy * cy);
           const [ux, uy] = [cx / length, cy / length];
-          const start = radiusOf(gear.teeth) + TOOTH_DEPTH;
+          const start = gear.teeth * scale + TOOTH_DEPTH;
           return (
             <line
               key={gear.id}
@@ -148,12 +156,13 @@ function GearGlyph({
   gear,
   state,
   centre: [cx, cy],
+  radius,
 }: {
   gear: Gear;
   state: ReturnType<typeof stateAt>[string];
   centre: readonly [number, number];
+  radius: number;
 }) {
-  const radius = radiusOf(gear.teeth);
   return (
     <g
       transform={`translate(${cx.toFixed(2)} ${cy.toFixed(2)})`}

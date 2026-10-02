@@ -1,16 +1,10 @@
-import { headers } from "next/headers";
 import { Suspense } from "react";
-import { auth } from "@/lib/auth";
-
-async function UserSlot() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  return <p>{session?.user.email ?? "Signed out"}</p>;
-}
+import { UserSlot } from "@/components/auth/user-slot";
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <>
-      <header>
+      <header className="flex justify-end px-4 py-3">
         <Suspense fallback={<p>Loading user</p>}>
           <UserSlot />
         </Suspense>

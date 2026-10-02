@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { env } from "@/env";
+import { CellGridDemo } from "./cell-grid-demo";
 import { ChessBoardDemo } from "./chess-board-demo";
 import { FormDemo } from "./form-demo";
 import { OverlayDemos } from "./overlay-demos";
@@ -334,6 +335,10 @@ export default function KitchenSinkPage() {
 
       <Section title="Chess board">
         <ChessBoardDemo />
+      </Section>
+
+      <Section title="Cell grid">
+        <CellGridDemo />
       </Section>
 
       <Section title="Overlays">

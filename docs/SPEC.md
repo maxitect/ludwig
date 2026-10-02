@@ -347,13 +347,18 @@ The search space is L × 8, at most lcm(8,12,16,24) × 8 = 384 cells, so brute-f
 
 #### 5.2.3 Generator
 
-`engine/gears/generate.ts(seed, difficulty)`:
+`src/puzzles/gears/generate.ts`: `generateDiagram(seed, difficulty)`, `generateFixVariant(seed, difficulty, K)` and `repairsOf(diagram, K)`.
 
-1. Lay out N gears (6 on easy to 12 on expert) on S slots and build a bipartite mesh graph. A planar ring-plus-chords layout makes the meshing look physically plausible.
-2. Randomise T_g, o_g, h_g, m_in and m_out.
-3. Brute force (c, f) and accept only if there is exactly one solution.
-4. For Fix the Diagram: start from an accepted diagram, apply K random swaps, and accept if the result has zero solutions **and** the inverse swap set is the unique repair.
-5. Use a seeded PRNG (mulberry32) so a daily diagram is reproducible from its date seed.
+Randomising and accepting does not work: a random diagram has a win (exactly one gear sees) at about a third of its (c, f) cells, so a unique diagram is essentially never drawn. The generator therefore **plants and covers**:
+
+1. **Plant.** Draw the killer and one moment (c, f) where it sees the victim.
+2. **Cover.** Split the other gears into twin groups of 2 or 3. Twins share teeth, spin sign (slot parity) and offsets aligned to their slot difference, so they see at exactly the same moments (every bearing shifts identically each figure, so twins stay in sync). A group is never alone, so the only possible win is the killer seeing while no group does. Choose groups greedily to cover every moment where the killer sees, never the planted one.
+3. **Local search.** While moments remain uncovered, re-draw one group at a time and keep the change if it uncovers fewer moments.
+4. **Gate.** Accept only if brute-force `solveAll` finds exactly one win.
+5. **Fix the Diagram.** Take a unique diagram, swap the starting slots of K disjoint gear pairs, and accept if the printed diagram has zero solutions **and** that swap set is the only set of at most K disjoint swaps (`repairsOf`) giving exactly one solution.
+6. Seed with mulberry32 over a string hash of the seed, so a daily diagram is reproducible from its date seed.
+
+Layout: gears sit on distinct slots; the spin sign is the slot parity, so every mesh joins slots an odd number apart. Meshes are ring edges (adjacent slots) plus the fewest, shortest, non-crossing chords that connect the gears. Presets (`presets.ts`) use 12 slots and the teeth 8 and 16 with an odd gear count, the sizes that the covering step was measured to handle; see the ticket report.
 
 Curated diagrams live in the DB like any other puzzle. Generated ones are materialised into `puzzles`, `gear_puzzles` and their child tables by a script, so checking stays server-side.
 

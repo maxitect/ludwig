@@ -63,7 +63,7 @@ export function seesMask(
   return mask;
 }
 
-export function popcount(v: number) {
+function popcount(v: number) {
   let x = v - ((v >>> 1) & 0x55555555);
   x = (x & 0x33333333) + ((x >>> 2) & 0x33333333);
   return (((x + (x >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24;
@@ -88,12 +88,4 @@ export function countBits(bits: Mask) {
   let n = 0;
   for (const word of bits) n += popcount(word);
   return n;
-}
-
-export function firstBit(bits: Mask) {
-  for (let w = 0; w < bits.length; w++) {
-    const word = bits[w]!;
-    if (word !== 0) return w * 32 + (31 - Math.clz32(word & -word));
-  }
-  return -1;
 }

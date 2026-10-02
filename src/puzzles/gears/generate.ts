@@ -73,7 +73,9 @@ function shuffle<T>(rand: Rand, items: T[]) {
 }
 
 /** The diagram the engine and the checkers see: gear ids are the content labels. */
-export function diagramOf(content: Content): Diagram {
+export function diagramOf(
+  content: Pick<Content, "slotCount" | "mIn" | "mOut" | "gears" | "meshes">,
+): Diagram {
   return {
     slotCount: content.slotCount,
     mIn: content.mIn,
@@ -328,7 +330,7 @@ function labelled(
   preset: Preset,
   drafts: Draft[],
   seed: string,
-): Content | null {
+): Omit<Content, "solution"> | null {
   const sorted = [...drafts].sort((a, b) => a.startSlot - b.startSlot);
   const pairs = meshPairs(
     sorted.map((d) => d.startSlot),
@@ -359,12 +361,11 @@ function labelled(
     })),
     meshes: pairs
       .map(([i, j]) => ({ a: label(i), b: label(j) }))
-      .sort((p, q) => (p.a + p.b).localeCompare(q.a + q.b)),
-    solution: { crank: 0, convergence: 1, killerLabel: "A", swaps: [] },
+      .sort((p, q) => (p.a + p.b < q.a + q.b ? -1 : 1)),
   };
 }
 
-function drawUnique(rand: Rand, preset: Preset, seed: string) {
+function drawUnique(rand: Rand, preset: Preset, seed: string): Content {
   const shape = shapeOf(preset);
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const count = between(rand, preset.gears);

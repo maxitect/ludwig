@@ -99,7 +99,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 |---|---|---|---|---|---|
 | [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | todo |
 | [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | todo |
-| [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | review |
+| [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
 | [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4 | | | todo |
 | [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067 | | | todo |
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |

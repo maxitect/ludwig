@@ -83,6 +83,42 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.gearSolutionSwaps.puzzleId,
     }),
   },
+  rotaPuzzles: {
+    workers: r.many.rotaWorkers({
+      from: r.rotaPuzzles.puzzleId,
+      to: r.rotaWorkers.puzzleId,
+    }),
+    clues: r.many.rotaClues({
+      from: r.rotaPuzzles.puzzleId,
+      to: r.rotaClues.puzzleId,
+    }),
+  },
+  rotaWorkers: {
+    squares: r.many.rotaWorkerSquares({
+      from: [r.rotaWorkers.puzzleId, r.rotaWorkers.id],
+      to: [r.rotaWorkerSquares.puzzleId, r.rotaWorkerSquares.workerId],
+    }),
+  },
+  rotaClues: {
+    unpoweredSquare: r.one.rotaClueUnpoweredSquare({
+      from: r.rotaClues.id,
+      to: r.rotaClueUnpoweredSquare.clueId,
+    }),
+    neverInRank: r.one.rotaClueNeverInRank({
+      from: r.rotaClues.id,
+      to: r.rotaClueNeverInRank.clueId,
+    }),
+    maxSwaps: r.one.rotaClueMaxSwaps({
+      from: r.rotaClues.id,
+      to: r.rotaClueMaxSwaps.clueId,
+    }),
+  },
+  rotaSolutions: {
+    swaps: r.many.rotaSolutionSwaps({
+      from: r.rotaSolutions.puzzleId,
+      to: r.rotaSolutionSwaps.puzzleId,
+    }),
+  },
   weeklyPuzzles: {
     puzzle: r.one.puzzles({
       from: r.weeklyPuzzles.puzzleId,

@@ -85,7 +85,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T055](./T055-type-knights-knaves.md) | Puzzle type: knights and knaves | T019 | ✔ | | todo |
 | [T056](./T056-type-odd-one-out.md) | Puzzle type: odd one out | T019 | ✔ | | todo |
 | [T057](./T057-type-napkin-maths.md) | Puzzle type: napkin maths | T019 | ✔ | | todo |
-| [T058](./T058-shared-visibility-engine.md) | Shared `visibility.ts` engine | T016 | | | todo |
+| [T058](./T058-shared-visibility-engine.md) | Shared `visibility.ts` engine | T016 | | | done |
 | [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | todo |
 | [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | todo |
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | todo |

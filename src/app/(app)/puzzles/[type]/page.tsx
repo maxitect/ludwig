@@ -21,6 +21,9 @@ const difficultySchema = z.coerce
 
 export const generateStaticParams = getTypeStaticParams;
 
+/** Unknown params must 404 with a real status, so the page resolves them before streaming. */
+export const instant = false;
+
 export async function generateMetadata({
   params,
 }: PageProps<"/puzzles/[type]">): Promise<Metadata> {

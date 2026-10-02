@@ -14,6 +14,9 @@ import { getPuzzleModule } from "@/puzzles/registry";
 
 export const generateStaticParams = getPuzzleStaticParams;
 
+/** Unknown params must 404 with a real status, so the page resolves them before streaming. */
+export const instant = false;
+
 export async function generateMetadata({
   params,
 }: PageProps<"/puzzles/[type]/[slug]">): Promise<Metadata> {

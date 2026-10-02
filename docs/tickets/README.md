@@ -9,7 +9,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
 | [T001](./T001-tooling-and-local-env.md) | Tooling, scripts, env validation and local Postgres | — | | | done |
-| [T002](./T002-ci-pipeline.md) | GitHub Actions CI pipeline | T001 | | | blocked |
+| [T002](./T002-ci-pipeline.md) | GitHub Actions CI pipeline | T001 | | | done |
 | [T003](./T003-spike-drizzle-better-auth.md) | Spike S1: Drizzle 1.0 RC + Better Auth + auth schema | T001 | ✔ | | done |
 | [T004](./T004-core-schema.md) | Core schema: lookups, puzzles supertype, volumes, weekly, attempts, hints, settings | T003 | ✔ | | done |
 | [T005](./T005-generic-triggers-and-integrity-harness.md) | Generic triggers and the DB-integrity test harness | T004 | ✔ | | done |

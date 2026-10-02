@@ -695,7 +695,7 @@ The conventions:
 
 | Column | Redundant with | Kept consistent by |
 |---|---|---|
-| `attempts.type_key` | `puzzles.type_key` through `puzzle_id` | Composite FK `(puzzle_id, type_key)` → `puzzles`, plus the `BEFORE INSERT` trigger `attempts_fill_type_key` |
+| `attempts.type_key` | `puzzles.type_key` through `puzzle_id` | Composite FK `(puzzle_id, type_key)` → `puzzles`, plus the `BEFORE INSERT OR UPDATE OF puzzle_id` trigger `attempts_fill_type_key` |
 | `puzzle_id` on attempt child rows that reference puzzle children (e.g. `crossword_attempt_cells`, `gear_attempts.accused_gear_id`) | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `attempts (id, puzzle_id)`, plus a `BEFORE INSERT` fill trigger |
 | `book_cipher_refs.text_id` | `book_cipher_puzzles.text_id` | Composite FK `(puzzle_id, text_id)` → `book_cipher_puzzles`, plus a fill trigger |
 | Generated `type_key` / `kind` on subtype tables | The supertype row | `GENERATED ALWAYS AS (…) STORED` plus a composite FK |

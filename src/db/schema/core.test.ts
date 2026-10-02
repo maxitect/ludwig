@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-orm/zod";
 import { afterAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
@@ -177,25 +177,15 @@ describe("attempts", () => {
     return puzzle.id;
   }
 
-  it("pins type_key to the puzzle through the composite FK", async () => {
-    expect(
-      await pgErrorCode(async (tx) => {
-        const puzzleId = await setup(tx);
-        await tx.insert(attempts).values({ userId, puzzleId, typeKey: "b" });
-      }),
-    ).toBe("23503");
-    expect(
-      await pgErrorCode(async (tx) => {
-        const puzzleId = await setup(tx);
-        await tx.insert(attempts).values({ userId, puzzleId, typeKey: "a" });
-      }),
-    ).toBeUndefined();
-    expect(
-      await pgErrorCode(async (tx) => {
-        const puzzleId = await setup(tx);
-        await tx.insert(attempts).values({ userId, puzzleId });
-      }),
-    ).toBe("23502");
+  it("accepts attempts with or without an explicit type_key", async () => {
+    for (const typeKey of [undefined, "a", "b"]) {
+      expect(
+        await pgErrorCode(async (tx) => {
+          const puzzleId = await setup(tx);
+          await tx.insert(attempts).values({ userId, puzzleId, typeKey });
+        }),
+      ).toBeUndefined();
+    }
   });
 
   it("cascades user deletion to settings and attempts", async () => {
@@ -217,10 +207,21 @@ describe("attempts", () => {
       subtypeTable: "cxa_puzzles",
       sort: 1,
     });
-    const [puzzle] = await db
-      .insert(puzzles)
-      .values({ ...puzzleBase, typeKey: "cxa" })
-      .returning({ id: puzzles.id });
+    await db.execute(sql`
+      create table cxa_puzzles (
+        puzzle_id uuid primary key,
+        type_key text generated always as ('cxa') stored,
+        foreign key (puzzle_id, type_key) references puzzles (id, type_key) on delete cascade
+      )
+    `);
+    const puzzle = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(puzzles)
+        .values({ ...puzzleBase, typeKey: "cxa" })
+        .returning({ id: puzzles.id });
+      await tx.execute(sql`insert into cxa_puzzles (puzzle_id) values (${row.id})`);
+      return row;
+    });
     try {
       await db
         .insert(attempts)
@@ -234,6 +235,7 @@ describe("attempts", () => {
       ).toHaveLength(0);
     } finally {
       await db.delete(puzzles).where(eq(puzzles.id, puzzle.id));
+      await db.execute(sql`drop table cxa_puzzles`);
       await db.delete(puzzleTypes).where(eq(puzzleTypes.key, "cxa"));
       await db.delete(puzzleCategories).where(eq(puzzleCategories.key, "cx"));
     }

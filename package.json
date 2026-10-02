@@ -16,7 +16,7 @@
     "db:seed": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/seed.ts",
     "puzzles:verify": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/verify-puzzles.ts",
     "puzzles:gears-report": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/gears-playtest-report.ts",
-    "puzzles:gen-gears": "echo \"puzzles:gen-gears: not implemented until T036\" && exit 0"
+    "puzzles:gen-gears": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-gears.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

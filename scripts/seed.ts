@@ -1,10 +1,11 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { and, eq, notInArray, sql } from "drizzle-orm";
+import { and, eq, like, not, notInArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
 import type { db as appDb } from "../src/db";
+import { GENERATED_SLUG_PREFIX } from "../src/config/generated-puzzles";
 import { relations } from "../src/db/relations";
 import {
   puzzleCategories,
@@ -15,6 +16,7 @@ import {
 import type { PuzzleRegistry } from "../src/puzzles/registry";
 import {
   type ContentFailure,
+  type ContentMeta,
   loadContentFiles,
   resolveCliOptions,
 } from "./content-files";
@@ -77,8 +79,64 @@ async function seedLookups(db: Db, lookups: Lookups) {
 }
 
 /**
+ * Writes one puzzle (supertype, subtype and children) in a single transaction, replacing the
+ * subtype rows of an existing `(type_key, slug)`. Returns whether the puzzle was newly inserted.
+ */
+export async function upsertPuzzle(
+  db: Db,
+  registry: PuzzleRegistry,
+  {
+    typeKey,
+    meta: { volume, ...columns },
+    content,
+  }: { typeKey: string; meta: ContentMeta; content: unknown },
+) {
+  return db.transaction(async (tx) => {
+    const volumeId = volume
+      ? (
+          await tx
+            .select({ id: volumes.id })
+            .from(volumes)
+            .where(eq(volumes.slug, volume))
+        )[0]?.id
+      : null;
+    if (volume && !volumeId) throw new Error(`unknown volume "${volume}"`);
+
+    const [type] = await tx
+      .select({ subtypeTable: puzzleTypes.subtypeTable })
+      .from(puzzleTypes)
+      .where(eq(puzzleTypes.key, typeKey));
+    if (!type) throw new Error(`no puzzle_types row for "${typeKey}"`);
+
+    const values = { ...columns, volumeId };
+    const [existing] = await tx
+      .select({ id: puzzles.id })
+      .from(puzzles)
+      .where(and(eq(puzzles.typeKey, typeKey), eq(puzzles.slug, columns.slug)));
+
+    let puzzleId: string;
+    if (existing) {
+      puzzleId = existing.id;
+      await tx.update(puzzles).set(values).where(eq(puzzles.id, puzzleId));
+      await tx.execute(
+        sql`delete from ${sql.identifier(type.subtypeTable)} where puzzle_id = ${puzzleId}`,
+      );
+    } else {
+      [{ id: puzzleId }] = await tx
+        .insert(puzzles)
+        .values({ ...values, typeKey })
+        .returning({ id: puzzles.id });
+    }
+
+    await registry[typeKey].insertContent(tx, puzzleId, content);
+    return !existing;
+  });
+}
+
+/**
  * Upserts lookups, then every valid content file (supertype, subtype and children in one
  * transaction per puzzle), then removes puzzles of registered types that no longer have a file.
+ * Generated puzzles (slug prefix `daily-`) have no file and are never removed.
  */
 export async function seed({
   db,
@@ -105,47 +163,11 @@ export async function seed({
   );
 
   for (const { typeKey, slug, file, meta, content } of files) {
-    const { volume, ...columns } = meta;
     try {
-      const wasInserted = await db.transaction(async (tx) => {
-        const volumeId = volume
-          ? (
-              await tx
-                .select({ id: volumes.id })
-                .from(volumes)
-                .where(eq(volumes.slug, volume))
-            )[0]?.id
-          : null;
-        if (volume && !volumeId) throw new Error(`unknown volume "${volume}"`);
-
-        const [type] = await tx
-          .select({ subtypeTable: puzzleTypes.subtypeTable })
-          .from(puzzleTypes)
-          .where(eq(puzzleTypes.key, typeKey));
-        if (!type) throw new Error(`no puzzle_types row for "${typeKey}"`);
-
-        const values = { ...columns, volumeId };
-        const [existing] = await tx
-          .select({ id: puzzles.id })
-          .from(puzzles)
-          .where(and(eq(puzzles.typeKey, typeKey), eq(puzzles.slug, slug)));
-
-        let puzzleId: string;
-        if (existing) {
-          puzzleId = existing.id;
-          await tx.update(puzzles).set(values).where(eq(puzzles.id, puzzleId));
-          await tx.execute(
-            sql`delete from ${sql.identifier(type.subtypeTable)} where puzzle_id = ${puzzleId}`,
-          );
-        } else {
-          [{ id: puzzleId }] = await tx
-            .insert(puzzles)
-            .values({ ...values, typeKey })
-            .returning({ id: puzzles.id });
-        }
-
-        await registry[typeKey].insertContent(tx, puzzleId, content);
-        return !existing;
+      const wasInserted = await upsertPuzzle(db, registry, {
+        typeKey,
+        meta,
+        content,
       });
       types[typeKey][wasInserted ? "inserted" : "updated"] += 1;
     } catch (error) {
@@ -170,6 +192,7 @@ export async function seed({
       .where(
         and(
           eq(puzzles.typeKey, typeKey),
+          not(like(puzzles.slug, `${GENERATED_SLUG_PREFIX}%`)),
           slugs.length ? notInArray(puzzles.slug, slugs) : undefined,
         ),
       )

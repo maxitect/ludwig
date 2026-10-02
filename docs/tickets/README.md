@@ -25,7 +25,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T010](./T010-brand-components.md) | Brand components | T007 | | | done |
 | [T011](./T011-shadcn-group-a.md) | shadcn restyle A: button, input, label, card, badge, separator, skeleton | T007 | | | done |
 | [T012](./T012-shadcn-group-b.md) | shadcn restyle B: dialog, alert-dialog, sheet, dropdown-menu, tooltip, sonner | T011 | | | done |
-| [T013](./T013-shadcn-group-c.md) | shadcn restyle C: tabs, toggle-group, slider, progress, form | T011 | | | todo |
+| [T013](./T013-shadcn-group-c.md) | shadcn restyle C: tabs, toggle-group, slider, progress, form | T011 | | | done |
 | [T014](./T014-kitchen-sink.md) | `/dev/kitchen-sink` route | T010, T012, T013 | | | todo |
 | [T015](./T015-app-shell.md) | App shell: layout, nav, footer, theme switching, landing placeholder | T008, T010, T011 | | | todo |
 | [T016](./T016-registry-and-content-pipeline.md) | Puzzle registry, type contract, content pipeline (seed + verify) | T005 | | | todo |

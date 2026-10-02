@@ -13,6 +13,8 @@ import {
   rotaWorkers,
 } from "./tables";
 
+const rank = (schema: z.ZodNumber) => schema.min(1).max(8);
+
 const clueSelect = createSelectSchema(rotaClues).pick({
   position: true,
   displayText: true,
@@ -23,12 +25,12 @@ const workerSelect = createSelectSchema(rotaWorkers).pick({
   name: true,
 });
 const workerInsert = createInsertSchema(rotaWorkers).pick({ name: true });
-const squareSelect = createSelectSchema(rotaWorkerSquares).pick({
+const squareSelect = createSelectSchema(rotaWorkerSquares, { rank }).pick({
   phase: true,
   file: true,
   rank: true,
 });
-const squareInsert = createInsertSchema(rotaWorkerSquares).pick({
+const squareInsert = createInsertSchema(rotaWorkerSquares, { rank }).pick({
   file: true,
   rank: true,
 });
@@ -49,12 +51,15 @@ const attemptSelect = createSelectSchema(rotaAttempts).pick({
 
 const unpoweredSquare = createSelectSchema(rotaClueUnpoweredSquare, {
   kind: z.literal("unpowered_square"),
+  rank,
 }).pick({ kind: true, file: true, rank: true });
 const neverInRank = createSelectSchema(rotaClueNeverInRank, {
   kind: z.literal("never_in_rank"),
+  rank,
 }).pick({ kind: true, workerId: true, rank: true });
 const maxSwaps = createSelectSchema(rotaClueMaxSwaps, {
   kind: z.literal("max_swaps"),
+  maxSwaps: (schema) => schema.min(1),
 }).pick({ kind: true, maxSwaps: true });
 const adjacentOnly = z.strictObject({ kind: z.literal("adjacent_only") });
 

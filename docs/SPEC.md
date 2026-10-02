@@ -281,7 +281,7 @@ This mode is non-chess retro deduction on an 8×8 site grid. The board is drawn 
 
 #### 5.2.1 Concept
 
-A diagram of **dancer-gears** on a circular floor, with the **victim** at the centre. Gears mesh with their neighbours, so turning one turns them all ("all of which move in conjunction with each other"). The dance runs **8 figures**. In each figure every gear travels **in** to the centre ring while turning, then travels **out** to the **opposite** side, turning in the reverse direction. Each gear carries a **field of vision**, a wedge marked with small Xs. The player must find the crank setting, and the one convergence of the eight, at which **every gear faces away from the victim except one**, and then name that one: the killer.
+A diagram of **dancer-gears** on a circular floor, with the **victim** at the centre. Gears mesh with their neighbours, so turning one turns them all ("all of which move in conjunction with each other"). The dance runs **8 figures**. In each figure every gear travels **in** to the centre ring while turning, then travels **out** to the **opposite** side, **one slot further round the floor**, turning in the reverse direction. Over the eight figures the gears therefore progress round the floor, and no two convergences share a floor arrangement. Each gear carries a **field of vision**, a wedge marked with small Xs. The player must find the crank setting, and the one convergence of the eight, at which **every gear faces away from the victim except one**, and then name that one: the killer.
 
 The **"Fix the Diagram"** variant reproduces the episode's twist. The diagram as printed has **no** solution, and the player may **swap up to K starting slots** (K = 1–2) to make it solvable. This variant needs a stated uniqueness rule, given below.
 
@@ -291,7 +291,11 @@ All arithmetic is integer, in **teeth** and **slot** units, so solutions are exa
 
 ```
 Floor:
-  S          number of slots on each ring (even; default 8, so slot angle = 360/S)
+  S          number of slots on each ring (a multiple of 4; default 12, so slot angle = 360/S)
+             S/2 + 1 is then odd and coprime to S, so for S >= 8 the 8 convergences all have different floor arrangements
+             one symmetry remains when S/2 < 8: figure f + S/2 is figure f turned half a turn. If every T_g has the
+             same power of 2 (all 8, or {8, 24}, ...), a crank shift δ with δ ≡ T_g/2 (mod T_g) for every g maps
+             each win at f to one at f + S/2, so such diagrams are never unique at S = 8, and at S = 12 only with the win at f = 3..6
   outer ring (start/rest positions), inner ring (convergence positions)
   victim at the centre O
 
@@ -320,7 +324,7 @@ Player input:
              where L = lcm(T_g over all g)
 
 State at convergence f (1..8):
-  slot_g(f)    = (s_g + (f-1) * S/2) mod S         // alternating sides each figure
+  slot_g(f)    = (s_g + (f-1) * (S/2 + 1)) mod S   // opposite side AND one slot further each figure
   pos_g(f)     = inner-ring point at angle slot_g(f) * 360/S
   teeth_g(f)   = o_g + d_g * (c + m_in + (f-1) * Δ)
   facing_g(f)  = (teeth_g(f) mod T_g) * 360 / T_g
@@ -336,23 +340,28 @@ Win condition:
   answer = (c, f, killer g)
 ```
 
-**Uniqueness requirement (verified at generation):** exactly one pair (c mod L, f) satisfies the win condition.
+**Uniqueness requirement (verified at generation):** exactly one pair (c mod L, f) satisfies the win condition. m_in and m_out never change the number of wins: for each f, c ↦ c + m_in + (f-1)Δ is a bijection mod L, so they only shift the crank of each win.
 
 The search space is L × 8, at most lcm(8,12,16,24) × 8 = 384 cells, so brute-force verification is instant and can also run on the client for a live "sightline preview".
 
-**Fix the Diagram:** the printed diagram has zero solutions. The player may swap the starting slots of up to K pairs of gears. Uniqueness here means exactly one swap set (of size ≤ K) yields a diagram with exactly one (c, f) solution. Search size is C(N,2)^K × L × 8, which stays under about 10⁶ for N ≤ 12 and K ≤ 2. It runs in the generator only, never on page load.
+**Fix the Diagram:** the printed diagram has zero solutions. The player may swap the starting slots of up to K pairwise-disjoint pairs of gears (an unordered set, so each gear moves at most once). Uniqueness here means exactly one such swap set (of size ≤ K) yields a diagram with exactly one (c, f) solution. Search size is C(N,2)^K × L × 8, which stays under about 10⁶ for N ≤ 12 and K ≤ 2. It runs in the generator only, never on page load.
 
 **Expert rule (optional flag `occlusion: true`):** a gear's line of sight to O is blocked if the segment pos_g(f) to O passes through another gear's disc at that convergence. This nods to the S1E3 "perceptual puzzle".
 
 #### 5.2.3 Generator
 
-`engine/gears/generate.ts(seed, difficulty)`:
+`src/puzzles/gears/generate.ts`: `generateDiagram(seed, difficulty)`, `generateFixVariant(seed, difficulty, K)` and `repairsOf(diagram, K)`.
 
-1. Lay out N gears (6 on easy to 12 on expert) on S slots and build a bipartite mesh graph. A planar ring-plus-chords layout makes the meshing look physically plausible.
-2. Randomise T_g, o_g, h_g, m_in and m_out.
-3. Brute force (c, f) and accept only if there is exactly one solution.
-4. For Fix the Diagram: start from an accepted diagram, apply K random swaps, and accept if the result has zero solutions **and** the inverse swap set is the unique repair.
-5. Use a seeded PRNG (mulberry32) so a daily diagram is reproducible from its date seed.
+Randomising and accepting does not work: a random diagram has a win (exactly one gear sees) at about a third of its (c, f) cells, so a unique diagram is essentially never drawn. The generator therefore **plants and covers**:
+
+1. **Plant.** Draw the killer and one moment (c, f) where it sees the victim.
+2. **Cover.** Split the other gears into twin groups of 2 or 3. Twins share teeth, spin sign (slot parity) and offsets aligned to their slot difference, so they see at exactly the same moments (every bearing shifts identically each figure, so twins stay in sync). A group is never alone, so the only possible win is the killer seeing while no group does. Choose groups greedily to cover every moment where the killer sees, never the planted one.
+3. **Local search.** While moments remain uncovered, re-draw one group at a time and keep the change if it uncovers fewer moments.
+4. **Gate.** Accept only if brute-force `solveAll` finds exactly one win.
+5. **Fix the Diagram.** Take a unique diagram, swap the starting slots of K disjoint gear pairs, and accept if the printed diagram has zero solutions **and** that swap set is the only set of at most K disjoint swaps (`repairsOf`) giving exactly one solution.
+6. Seed with mulberry32 over a string hash of the seed, so a daily diagram is reproducible from its date seed.
+
+Layout: gears sit on distinct slots; the spin sign is the slot parity, so every mesh joins slots an odd number apart. Meshes are ring edges (adjacent slots) plus the fewest, shortest, non-crossing chords that connect the gears. Presets (`presets.ts`) use 12 slots and the teeth 8 and 16 with an odd gear count, the sizes that the covering step was measured to handle; see the ticket report.
 
 Curated diagrams live in the DB like any other puzzle. Generated ones are materialised into `puzzles`, `gear_puzzles` and their child tables by a script, so checking stays server-side.
 

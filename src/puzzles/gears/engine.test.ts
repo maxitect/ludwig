@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { mulberry32 } from "../_shared/prng";
 import {
   type Diagram,
   lcmTeeth,
@@ -80,27 +81,27 @@ describe("stateAt", () => {
     expect(seeingCount(F3, 4, 1)).toBe(0);
   });
 
-  it("AC4: convergence 2 at crank 4, boundary inclusive", () => {
+  it("AC4: convergence 2 at crank 4", () => {
     expect(snapshot(4, 2)).toEqual({
-      A: [45, 4, 0, true],
-      B: [90, 5, 45, true],
-      C: [202.5, 6, 90, false],
+      A: [45, 5, 45, true],
+      B: [90, 6, 90, true],
+      C: [202.5, 7, 135, false],
     });
     expect(seeingCount(F3, 4, 2)).toBe(2);
   });
 
-  it("AC5: convergences 3 to 5 at crank 4", () => {
+  it("AC5: convergences 3 to 5 at crank 4, boundary inclusive", () => {
     expect(snapshot(4, 3)).toMatchObject({
-      A: [135, 0, 180, true],
-      B: [30, 1, 225, false],
-      C: [247.5, 2, 270, true],
+      A: [135, 2, 270, false],
+      B: [30, 3, 315, false],
+      C: [247.5, 4, 0, false],
     });
-    expect(seeingCount(F3, 4, 3)).toBe(2);
+    expect(seeingCount(F3, 4, 3)).toBe(0);
     expect(seeingCount(F3, 4, 4)).toBe(0);
     expect(snapshot(4, 5)).toMatchObject({
-      A: [315, 0, 180, false],
-      B: [270, 1, 225, true],
-      C: [337.5, 2, 270, false],
+      A: [315, 4, 0, true],
+      B: [270, 5, 45, false],
+      C: [337.5, 6, 90, false],
     });
     expect(seeingCount(F3, 4, 5)).toBe(1);
   });
@@ -117,22 +118,12 @@ describe("stateAt", () => {
 describe("solveAll", () => {
   it("AC6: contains the known win and every entry has one seer", () => {
     const wins = solveAll(F3);
-    expect(wins).toContainEqual({ crank: 4, convergence: 5, killerId: "B" });
+    expect(wins).toContainEqual({ crank: 4, convergence: 5, killerId: "A" });
     for (const win of wins) {
       expect(seeingCount(F3, win.crank, win.convergence)).toBe(1);
     }
   });
 });
-
-function mulberry32(seed: number) {
-  let a = seed;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /** Floating-point degrees, written from SPEC 5.2.2 without the engine. */
 function naiveSolve(diagram: Diagram) {
@@ -168,7 +159,7 @@ function naiveSolve(diagram: Diagram) {
     for (let f = 1; f <= 8; f++) {
       const seers: string[] = [];
       for (const g of gears) {
-        const slot = (((g.startSlot + (f - 1) * (S / 2)) % S) + S) % S;
+        const slot = (((g.startSlot + (f - 1) * (S / 2 + 1)) % S) + S) % S;
         const turned =
           g.initialOffset +
           spin.get(g.id)! * (c + mIn + (f - 1) * (mIn - mOut));
@@ -190,7 +181,7 @@ const key = (w: { crank: number; convergence: number; killerId: string }) =>
 
 function randomDiagram(rand: () => number): Diagram {
   const pick = <T>(xs: readonly T[]) => xs[Math.floor(rand() * xs.length)]!;
-  const slotCount = pick([4, 6, 8, 12]);
+  const slotCount = pick([4, 8, 12]);
   const n = 3 + Math.floor(rand() * 6);
   const gears = Array.from({ length: n }, (_, i) => {
     const teeth = pick([8, 12, 16, 24]);
@@ -250,5 +241,36 @@ describe("performance", () => {
     const start = performance.now();
     for (let i = 0; i < runs; i++) solveAll(diagram);
     expect((performance.now() - start) / runs).toBeLessThan(5);
+  });
+});
+
+describe("slot progression", () => {
+  it("has diagrams with exactly one win, which the old half-turn model could not", () => {
+    const diagram: Diagram = {
+      slotCount: 12,
+      mIn: 1,
+      mOut: 4,
+      gears: [
+        gear("A", 8, 0, 6),
+        gear("B", 16, 1, 9),
+        gear("C", 8, 3, 2),
+        gear("D", 8, 4, 1, true),
+        gear("E", 8, 6, 2),
+        gear("F", 16, 7, 1),
+        gear("G", 8, 9, 6),
+      ],
+      meshes: [
+        mesh("A", "B"),
+        mesh("A", "C"),
+        mesh("C", "D"),
+        mesh("C", "E"),
+        mesh("E", "F"),
+        mesh("E", "G"),
+      ],
+    };
+    expect(solveAll(diagram)).toEqual([
+      { crank: 11, convergence: 3, killerId: "D" },
+    ]);
+    expect(solveAll(diagram).map(key).sort()).toEqual(naiveSolve(diagram));
   });
 });

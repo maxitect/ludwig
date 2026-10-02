@@ -203,7 +203,7 @@ describe("anagram module", () => {
     );
   });
 
-  it("replaces and reads back the attempt state", async () => {
+  it("replaces, reads back and clears the attempt state", async () => {
     const [attempt] = await db
       .insert(attempts)
       .values({ userId, puzzleId })
@@ -226,5 +226,8 @@ describe("anagram module", () => {
     expect(await anagramModule.loadAttemptState(attempt.id)).toEqual({
       answer: null,
     });
+
+    await anagramModule.clearAttemptState(attempt.id);
+    expect(await anagramModule.loadAttemptState(attempt.id)).toBeNull();
   });
 });

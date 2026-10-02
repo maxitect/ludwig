@@ -48,6 +48,11 @@ export const reverseChessModule = {
       plies.map((ply, index) => ({ ...ply, attemptId, ply: index + 1 })),
     );
   },
+  async clearAttemptState(attemptId) {
+    await db
+      .delete(reverseChessAttempts)
+      .where(eq(reverseChessAttempts.attemptId, attemptId));
+  },
   async loadAttemptState(attemptId) {
     const attempt = await db.query.reverseChessAttempts.findFirst({
       where: { attemptId },

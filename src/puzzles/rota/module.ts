@@ -104,6 +104,9 @@ export const rotaModule = {
         swaps.map((swap, index) => ({ ...swap, attemptId, step: index + 1 })),
       );
   },
+  async clearAttemptState(attemptId) {
+    await db.delete(rotaAttempts).where(eq(rotaAttempts.attemptId, attemptId));
+  },
   async loadAttemptState(attemptId) {
     const attempt = await db.query.rotaAttempts.findFirst({
       where: { attemptId },

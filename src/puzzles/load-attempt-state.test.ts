@@ -125,7 +125,7 @@ describe("reverse-chess loadAttemptState", () => {
       special: "none",
     }) as const;
 
-  it("is null without saved state and returns the plies in order", async () => {
+  it("is null without saved state and returns the plies in order until cleared", async () => {
     const attemptId = await attemptFor(ids["reverse-chess"]);
     expect(await reverseChessModule.loadAttemptState(attemptId)).toBeNull();
     const state = { plies: [ply("h"), ply("a")] };
@@ -133,11 +133,13 @@ describe("reverse-chess loadAttemptState", () => {
       reverseChessModule.replaceAttemptState(tx, attemptId, state),
     );
     expect(await reverseChessModule.loadAttemptState(attemptId)).toEqual(state);
+    await reverseChessModule.clearAttemptState(attemptId);
+    expect(await reverseChessModule.loadAttemptState(attemptId)).toBeNull();
   });
 });
 
 describe("gears loadAttemptState", () => {
-  it("is null without saved state and returns the attempt row", async () => {
+  it("is null without saved state and returns the attempt row until cleared", async () => {
     const attemptId = await attemptFor(ids.gears);
     expect(await gearsModule.loadAttemptState(attemptId)).toBeNull();
     const state = {
@@ -150,11 +152,13 @@ describe("gears loadAttemptState", () => {
       gearsModule.replaceAttemptState(tx, attemptId, state),
     );
     expect(await gearsModule.loadAttemptState(attemptId)).toEqual(state);
+    await gearsModule.clearAttemptState(attemptId);
+    expect(await gearsModule.loadAttemptState(attemptId)).toBeNull();
   });
 });
 
 describe("rota loadAttemptState", () => {
-  it("is null without saved state and returns the attempt row", async () => {
+  it("is null without saved state and returns the attempt row until cleared", async () => {
     const attemptId = await attemptFor(ids.rota);
     expect(await rotaModule.loadAttemptState(attemptId)).toBeNull();
     const state = { instigatorWorkerId: null, swaps: [] };
@@ -162,5 +166,7 @@ describe("rota loadAttemptState", () => {
       rotaModule.replaceAttemptState(tx, attemptId, state),
     );
     expect(await rotaModule.loadAttemptState(attemptId)).toEqual(state);
+    await rotaModule.clearAttemptState(attemptId);
+    expect(await rotaModule.loadAttemptState(attemptId)).toBeNull();
   });
 });

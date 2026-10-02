@@ -61,6 +61,8 @@ export type PuzzleTypeModule<
   loadAttemptState(
     attemptId: string,
   ): Promise<z.infer<S["attemptSchema"]> | null>;
+  /** Deletes the attempt's saved state, so a reset survives a reload. */
+  clearAttemptState(attemptId: string): Promise<void>;
   /** Throws if the content is not uniquely solvable. */
   verify?(content: z.infer<S["contentSchema"]>): void;
 };

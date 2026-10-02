@@ -26,6 +26,9 @@ export const anagramModule = {
       .where(eq(anagramAttempts.attemptId, attemptId));
     await tx.insert(anagramAttempts).values({ attemptId, answer });
   },
+  async clearAttemptState(attemptId) {
+    await db.delete(anagramAttempts).where(eq(anagramAttempts.attemptId, attemptId));
+  },
   async loadAttemptState(attemptId) {
     const attempt = await db.query.anagramAttempts.findFirst({
       where: { attemptId },

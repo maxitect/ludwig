@@ -62,7 +62,7 @@ async function Solve({
   if (!play) notFound();
   const { Solver } = getPuzzleModule(typeKey);
   const initialState = user
-    ? await getAttemptState(user.id, play.puzzle.id, typeKey)
+    ? await getAttemptState(user.id, play.puzzle.id)
     : null;
 
   if (!Solver) {

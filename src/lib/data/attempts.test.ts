@@ -73,7 +73,7 @@ const { completeAttempt, getAttemptState, getOrCreateAttempt } = await import(
 const { getPublishedTypeKey, getPuzzleForPlay } = await import(
   "@/lib/data/puzzles"
 );
-const { checkAnswer, revealCell, saveState } = await import(
+const { checkAnswer, clearState, revealCell, saveState } = await import(
   "@/lib/actions/puzzles"
 );
 
@@ -195,15 +195,21 @@ describe("getAttemptState", () => {
   const state = { rows: [{ position: 0, value: "saved" }] };
 
   it("is null before anything is saved and returns the saved state after", async () => {
-    expect(await getAttemptState(userId, puzzleId, "__fixture")).toBeNull();
+    expect(await getAttemptState(userId, puzzleId)).toBeNull();
     await saveState(puzzleId, state);
-    expect(await getAttemptState(userId, puzzleId, "__fixture")).toEqual(state);
+    expect(await getAttemptState(userId, puzzleId)).toEqual(state);
   });
 
   it("never returns another user's state", async () => {
     await saveState(puzzleId, state);
     const otherId = await createTestUser("t019");
-    expect(await getAttemptState(otherId, puzzleId, "__fixture")).toBeNull();
+    expect(await getAttemptState(otherId, puzzleId)).toBeNull();
+  });
+
+  it("is null again after clearState", async () => {
+    await saveState(puzzleId, state);
+    expect(await clearState(puzzleId)).toEqual({ ok: true });
+    expect(await getAttemptState(userId, puzzleId)).toBeNull();
   });
 });
 

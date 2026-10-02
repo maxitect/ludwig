@@ -68,6 +68,9 @@ export const gearsModule = {
       })),
     );
   },
+  async clearAttemptState(attemptId) {
+    await db.delete(gearAttempts).where(eq(gearAttempts.attemptId, attemptId));
+  },
   async loadAttemptState(attemptId) {
     const attempt = await db.query.gearAttempts.findFirst({
       where: { attemptId },

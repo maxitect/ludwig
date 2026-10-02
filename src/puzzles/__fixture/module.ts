@@ -41,6 +41,11 @@ export const fixtureModule = {
       .insert(fixtureAttemptRows)
       .values(state.rows.map((row) => ({ ...row, attemptId })));
   },
+  async clearAttemptState(attemptId) {
+    await db
+      .delete(fixtureAttemptRows)
+      .where(eq(fixtureAttemptRows.attemptId, attemptId));
+  },
   async loadAttemptState(attemptId) {
     const rows = await db
       .select({

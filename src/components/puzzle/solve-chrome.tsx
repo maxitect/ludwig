@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { checkAnswer, saveState } from "@/lib/actions/puzzles";
+import { checkAnswer, clearState, saveState } from "@/lib/actions/puzzles";
 import type { SolverComponent, SolverProps } from "@/puzzles/registry";
 import { formatDuration } from "@/utils/format-duration";
 import { usePuzzleTimer } from "./use-puzzle-timer";
@@ -98,6 +98,7 @@ export function SolveChrome({
   );
 
   function check() {
+    if (pending || solved) return;
     if (!signedIn) return setNotice("sign-in");
     const answer = readAnswer.current?.();
     if (answer === null || answer === undefined) return setNotice("incomplete");
@@ -128,6 +129,15 @@ export function SolveChrome({
     setSolvedMs(null);
     setAttempt((value) => value + 1);
     timer.reset();
+    if (!signedIn) return;
+    startTransition(async () => {
+      try {
+        const result = await clearState(puzzleId);
+        if (!result.ok) setNotice("not-saved");
+      } catch {
+        setNotice("not-saved");
+      }
+    });
   }
 
   return (
@@ -151,8 +161,12 @@ export function SolveChrome({
       <div
         key={attempt}
         onKeyDown={(event) => {
-          const target = event.target as HTMLElement;
-          if (event.key === "Enter" && !target.closest("button, a, input, textarea")) {
+          if (
+            event.key === "Enter" &&
+            !event.defaultPrevented &&
+            event.target instanceof Element &&
+            !event.target.closest("button, a, input, textarea, select")
+          ) {
             check();
           }
         }}

@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Client } from "pg";
+import { fixtureDdl } from "../../puzzles/__fixture/ddl";
 import { testDatabaseUrl } from "./test-database";
 
 /** Creates `<admin db>_test` if missing and migrates it once per run. */
@@ -27,6 +28,7 @@ export default async function setup() {
   await client.connect();
   try {
     await migrate(drizzle({ client }), { migrationsFolder: "drizzle" });
+    for (const statement of fixtureDdl) await client.query(statement);
   } finally {
     await client.end();
   }

@@ -238,7 +238,7 @@ graph LR
 
 ### 5.4 Content authoring
 
-- Every curated puzzle is a file in `content/<type>/<slug>.ts` exporting `{ meta, payload, solution }`, typed by the registry.
+- Every curated puzzle is a file in `content/<type>/<slug>.ts` exporting `{ meta, content }` (SPEC §4.6), typed by the registry.
 - Authors follow Mr Todd's principle: start from the solution, then layer in false paths. The verifier proves uniqueness.
 - Launch volume targets: Reverse Chess 10, Gears 12 curated plus daily seeds, M4 types 5 each (cryptic 3).
 - Content tickets are separate from feature tickets, so engine and UI work never waits on writing clues.

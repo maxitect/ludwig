@@ -1,6 +1,5 @@
 export {
   CellGrid,
-  cellRotation,
   type CellAnnotation,
   type CellGridProps,
 } from "./cell-grid";

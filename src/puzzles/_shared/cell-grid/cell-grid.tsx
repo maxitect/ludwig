@@ -41,7 +41,7 @@ export type CellGridProps = {
   label: string;
 };
 
-const ARROWS: Record<string, CellPosition> = {
+const ARROWS: Partial<Record<string, CellPosition>> = {
   ArrowUp: { row: -1, col: 0 },
   ArrowDown: { row: 1, col: 0 },
   ArrowLeft: { row: 0, col: -1 },
@@ -119,7 +119,10 @@ export function CellGrid({
       if (next) setActive(next);
     } else if (event.key === "Tab") {
       const next = adjacentEntry(bounds, words, active, event.shiftKey ? -1 : 1);
-      if (!next) return;
+      if (!next) {
+        cellRefs.current.get(cellKey(active.row, active.col))?.focus();
+        return;
+      }
       event.preventDefault();
       setActive(next);
     } else if (event.key === " ") {

@@ -4,7 +4,12 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { CellGrid, cellRotation } from "./cell-grid";
-import { cellKey, type CellPosition, type Direction } from "./navigation";
+import {
+  cellKey,
+  type CellKey,
+  type CellPosition,
+  type Direction,
+} from "./navigation";
 
 afterEach(cleanup);
 
@@ -12,7 +17,7 @@ const LETTER = (char: string) => /^[A-Z]$/.test(char);
 const DIGIT = (char: string) => /^[1-9]$/.test(char);
 
 function allCellsExcept(rows: number, cols: number, blocks: CellPosition[]) {
-  const cells = new Set<ReturnType<typeof cellKey>>();
+  const cells = new Set<CellKey>();
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       if (!blocks.some((b) => b.row === r && b.col === c)) {
@@ -146,6 +151,19 @@ describe("CellGrid keyboard", () => {
     expect(cell(3, 1).textContent).toBe("Q");
     await user.keyboard("{Shift>}{Tab}{/Shift}r");
     expect(cell(1, 1).textContent).toBe("R");
+  });
+
+  it("leaves the grid with one Shift+Tab from the first entry", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <button type="button">before</button>
+        <Harness />
+      </>,
+    );
+    await user.click(cell(1, 1));
+    await user.keyboard("{Shift>}{Tab}{/Shift}");
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "before" }));
   });
 
   it("moves focus between cells with a roving tabindex", async () => {

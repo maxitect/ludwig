@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import {
@@ -320,6 +320,105 @@ describe("cross-puzzle worker references", () => {
         });
       }),
     ).toBe("23503");
+  });
+});
+
+describe("trg_rota_instigator_in_first_swap", () => {
+  async function withSolution(tx: Tx, instigator: "marty" | "gary" | "zara") {
+    const ids = await withPuzzle(tx);
+    const zara = await insertWorker(tx, ids.puzzleId, "Zara");
+    const workers = { marty: ids.marty, gary: ids.gary, zara };
+    await tx.insert(rotaSolutions).values({
+      puzzleId: ids.puzzleId,
+      instigatorWorkerId: workers[instigator],
+    });
+    await tx.insert(rotaSolutionSwaps).values([
+      {
+        puzzleId: ids.puzzleId,
+        step: 1,
+        workerAId: ids.marty,
+        workerBId: ids.gary,
+      },
+      { puzzleId: ids.puzzleId, step: 2, workerAId: ids.gary, workerBId: zara },
+    ]);
+    return { ...ids, zara };
+  }
+
+  it("accepts either worker of the first swap as instigator", async () => {
+    for (const instigator of ["marty", "gary"] as const) {
+      expect(
+        await pgError(async (tx) => {
+          await withSolution(tx, instigator);
+          await forceDeferred(tx);
+        }),
+      ).toBeUndefined();
+    }
+  });
+
+  it("rejects an instigator outside the first swap at commit", async () => {
+    const error = await pgError(async (tx) => {
+      await withSolution(tx, "zara");
+      await forceDeferred(tx);
+    });
+    expect(error?.code).toBe("23000");
+    expect(error?.message).toContain("instigator is not in the first swap");
+  });
+
+  it("rejects a solution without a first swap", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const { puzzleId, marty } = await withPuzzle(tx);
+        await tx
+          .insert(rotaSolutions)
+          .values({ puzzleId, instigatorWorkerId: marty });
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
+  it("rejects deleting or rewriting the first swap away from the instigator", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const { puzzleId } = await withSolution(tx, "marty");
+        await forceDeferred(tx);
+        await tx
+          .delete(rotaSolutionSwaps)
+          .where(
+            and(
+              eq(rotaSolutionSwaps.puzzleId, puzzleId),
+              eq(rotaSolutionSwaps.step, 1),
+            ),
+          );
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+    expect(
+      await pgErrorCode(async (tx) => {
+        const { puzzleId, zara } = await withSolution(tx, "marty");
+        await forceDeferred(tx);
+        await tx
+          .update(rotaSolutionSwaps)
+          .set({ workerAId: zara })
+          .where(
+            and(
+              eq(rotaSolutionSwaps.puzzleId, puzzleId),
+              eq(rotaSolutionSwaps.step, 1),
+            ),
+          );
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
+  it("allows deleting the whole puzzle", async () => {
+    expect(
+      await pgError(async (tx) => {
+        const { puzzleId } = await withSolution(tx, "gary");
+        await forceDeferred(tx);
+        await tx.delete(puzzles).where(eq(puzzles.id, puzzleId));
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
   });
 });
 

@@ -53,7 +53,7 @@ type Swaps = Solution["swaps"];
 const MAX_ATTEMPTS = 2000;
 const CANDIDATES_PER_GROUP = 12;
 const POLISH_ROUNDS = 24;
-const MAX_VARIANT_DIAGRAMS = 400;
+const MAX_VARIANT_DIAGRAMS = 5000;
 
 const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
 const lcm = (a: number, b: number) => (a * b) / gcd(a, b);

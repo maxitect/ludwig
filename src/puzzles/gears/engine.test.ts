@@ -243,3 +243,34 @@ describe("performance", () => {
     expect((performance.now() - start) / runs).toBeLessThan(5);
   });
 });
+
+describe("slot progression", () => {
+  it("has diagrams with exactly one win, which the old half-turn model could not", () => {
+    const diagram: Diagram = {
+      slotCount: 12,
+      mIn: 1,
+      mOut: 4,
+      gears: [
+        gear("A", 8, 0, 6),
+        gear("B", 16, 1, 9),
+        gear("C", 8, 3, 2),
+        gear("D", 8, 4, 1, true),
+        gear("E", 8, 6, 2),
+        gear("F", 16, 7, 1),
+        gear("G", 8, 9, 6),
+      ],
+      meshes: [
+        mesh("A", "B"),
+        mesh("A", "C"),
+        mesh("C", "D"),
+        mesh("C", "E"),
+        mesh("E", "F"),
+        mesh("E", "G"),
+      ],
+    };
+    expect(solveAll(diagram)).toEqual([
+      { crank: 11, convergence: 3, killerId: "D" },
+    ]);
+    expect(solveAll(diagram).map(key).sort()).toEqual(naiveSolve(diagram));
+  });
+});

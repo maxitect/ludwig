@@ -21,6 +21,7 @@
     "@hookform/resolvers": "^5.9.1",
     "@vercel/functions": "3.9.9",
     "better-auth": "1.7.6",
+    "chess.js": "1.4.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "1.0.0-rc.4",

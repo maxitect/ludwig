@@ -55,7 +55,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
-| [T033](./T033-gear-tables.md) | Gear tables, driver constraint trigger, `gear_daily` | T016 | ✔ | | todo |
+| [T033](./T033-gear-tables.md) | Gear tables, driver constraint trigger, `gear_daily` | T016 | ✔ | | done |
 | [T034](./T034-gear-engine-core.md) | Gear engine core | T033 | | | todo |
 | [T035](./T035-gear-generators.md) | Gear generator and Fix the Diagram generator | T034 | | | todo |
 | [T036](./T036-gen-gears-script.md) | `puzzles:gen-gears` script and daily diagrams | T035 | | | todo |

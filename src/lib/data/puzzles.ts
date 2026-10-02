@@ -1,13 +1,14 @@
 import "server-only";
-import { and, eq, isNotNull, lte, sql } from "drizzle-orm";
+import { and, eq, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { puzzles } from "@/db/schema";
 import { getPuzzleModule } from "@/puzzles/registry";
 
-const published = and(
-  isNotNull(puzzles.publishedAt),
-  lte(puzzles.publishedAt, sql`now()`),
-);
+/** A null `published_at` never compares true, so drafts are excluded too. */
+export const isPublished = (table: typeof puzzles) =>
+  lte(table.publishedAt, sql`now()`);
+
+const published = isPublished(puzzles);
 
 export async function getPuzzleForPlay(typeKey: string, slug: string) {
   const [puzzle] = await db

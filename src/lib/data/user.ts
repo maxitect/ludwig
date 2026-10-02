@@ -1,10 +1,12 @@
 import "server-only";
 import { headers } from "next/headers";
+import { connection } from "next/server";
 import { db } from "@/db";
 import { userSettings } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 export async function getCurrentUser() {
+  await connection();
   const session = await auth.api.getSession({ headers: await headers() });
   return session?.user ?? null;
 }

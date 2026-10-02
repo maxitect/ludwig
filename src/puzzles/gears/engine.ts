@@ -11,7 +11,8 @@ type Spin = 1 | -1;
 type Signs = Record<string, Spin>;
 
 export type SpinResult =
-  { ok: true; signs: Signs } | { ok: false; error: "not_bipartite" };
+  | { ok: true; signs: Signs }
+  | { ok: false; error: "not_bipartite" | "disconnected" };
 
 export type GearState = {
   slot: number;
@@ -29,7 +30,7 @@ const FIGURES = 8;
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
 
-/** 2-colours the mesh graph from the driver; components the driver cannot reach start at +1. */
+/** 2-colours the mesh graph from the driver; every gear must be reachable from it. */
 export function spinSigns(
   gears: Gear[],
   meshes: Mesh[],
@@ -40,23 +41,21 @@ export function spinSigns(
     neighbours.get(gearAId)?.push(gearBId);
     neighbours.get(gearBId)?.push(gearAId);
   }
-  const signs: Signs = {};
-  const roots = [driverId, ...gears.map((g) => g.id)];
-  for (const root of roots) {
-    if (root in signs) continue;
-    signs[root] = 1;
-    const queue = [root];
-    for (const current of queue) {
-      const next: Spin = signs[current] === 1 ? -1 : 1;
-      for (const other of neighbours.get(current) ?? []) {
-        if (!(other in signs)) {
-          signs[other] = next;
-          queue.push(other);
-        } else if (signs[other] !== next) {
-          return { ok: false, error: "not_bipartite" };
-        }
+  const signs: Signs = { [driverId]: 1 };
+  const queue = [driverId];
+  for (const current of queue) {
+    const next: Spin = signs[current] === 1 ? -1 : 1;
+    for (const other of neighbours.get(current) ?? []) {
+      if (!(other in signs)) {
+        signs[other] = next;
+        queue.push(other);
+      } else if (signs[other] !== next) {
+        return { ok: false, error: "not_bipartite" };
       }
     }
+  }
+  if (gears.some((g) => !(g.id in signs))) {
+    return { ok: false, error: "disconnected" };
   }
   return { ok: true, signs };
 }

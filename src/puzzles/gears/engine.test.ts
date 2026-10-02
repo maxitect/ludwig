@@ -58,6 +58,16 @@ describe("spinSigns and lcmTeeth", () => {
     const result = spinSigns(F3.gears, [...F3.meshes, mesh("A", "C")], "A");
     expect(result).toEqual({ ok: false, error: "not_bipartite" });
   });
+
+  it("rejects a gear unreachable from the driver", () => {
+    const gears = [...F3.gears.slice(0, 2), gear("X", 16, 2)];
+    const meshes = [mesh("A", "B")];
+    expect(spinSigns(gears, meshes, "A")).toEqual({
+      ok: false,
+      error: "disconnected",
+    });
+    expect(() => solveAll({ ...F3, gears, meshes })).toThrow("disconnected");
+  });
 });
 
 describe("stateAt", () => {

@@ -33,7 +33,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T018](./T018-solve-page-chrome-and-routes.md) | Collection, category and solve routes, plus solve-page chrome | T015, T017 | | | done |
 | [T019](./T019-type-anagram.md) | Puzzle type: anagram (pilot) | T018 | ✔ | | in-progress |
 | [T020](./T020-local-progress-merge.md) | Signed-out progress in `localStorage` and merge on sign-up | T019 | | | todo |
-| [T021](./T021-shared-cell-input-grid.md) | Shared `CellInput` grid | T018 | | | in-progress |
+| [T021](./T021-shared-cell-input-grid.md) | Shared `CellInput` grid | T018 | | | done |
 | [T022](./T022-type-crossword-quick.md) | Puzzle type: crossword (quick style) | T019, T021 | ✔ | | todo |
 | [T023](./T023-casebook-v1.md) | Casebook v1 (stats views, progress page) | T019 | ✔ | | todo |
 | [T024](./T024-e2e-flows-1-2.md) | Playwright end-to-end flows 1 and 2 | T002, T009, T020, T022, T023 | | | todo |
@@ -58,8 +58,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T033](./T033-gear-tables.md) | Gear tables, driver constraint trigger, `gear_daily` | T016 | ✔ | | done |
 | [T034](./T034-gear-engine-core.md) | Gear engine core | T033 | | | done |
 | [T035](./T035-gear-generators.md) | Gear generator and Fix the Diagram generator | T034 | | | done |
-| [T036](./T036-gen-gears-script.md) | `puzzles:gen-gears` script and daily diagrams | T035 | | | todo |
-| [T037](./T037-gear-board-prototype.md) | SVG gear board, prototype and parameter evaluation | T034, T018 | | | in-progress |
+| [T036](./T036-gen-gears-script.md) | `puzzles:gen-gears` script and daily diagrams | T035 | | | in-progress |
+| [T037](./T037-gear-board-prototype.md) | SVG gear board, prototype and parameter evaluation | T034, T018 | | | done |
 | [T038](./T038-gear-crank.md) | Crank interaction (drag, keyboard, ±) | T037 | | | todo |
 | [T039](./T039-gear-scrubber-animation.md) | Dance scrubber, animation and sightlines | T038 | | | todo |
 | [T040](./T040-gear-accuse-check.md) | Accuse flow and server check | T039 | | | todo |

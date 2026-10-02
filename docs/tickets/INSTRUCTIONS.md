@@ -81,7 +81,7 @@ Each AC names one or more methods. Each method has a set of tools you must use; 
 | Method | How to verify | Evidence to capture |
 |---|---|---|
 | `db` | Query the local database directly: `psql "$DATABASE_URL" -c "…"`. Use transactions for negative tests (`BEGIN; … ; ROLLBACK;`) | The exact SQL plus its output, including error messages for expected failures |
-| `api` | Run the dev server (section 3) and call it with `curl -i`. For Better Auth, use `POST /api/auth/sign-up/email` and `/sign-in/email` with JSON, keep cookies with `-c/-b cookies.txt`, and post Server Actions through the page (a browser test) rather than by hand-crafting action IDs | The command plus the status line and relevant headers and body |
+| `api` | Run the dev server (section 3) and call it with `curl -i`. For a deployed preview, use `vercel curl` (section 3.1). For Better Auth, use `POST /api/auth/sign-up/email` and `/sign-in/email` with JSON, keep cookies with `-c/-b cookies.txt`, and post Server Actions through the page (a browser test) rather than by hand-crafting action IDs | The command plus the status line and relevant headers and body |
 | `browser` | Use the Playwright MCP against the dev server: `browser_navigate`, `browser_snapshot` before interacting, then `browser_click`/`browser_type`, and `browser_console_messages` to check for errors. Take a `browser_take_screenshot` for anything visual | The snapshot excerpt or screenshot path, and console errors (must be none unless the AC allows them) |
 | `next` | Next devtools MCP: `nextjs_index` and `nextjs_call` to inspect routes, build and runtime errors | The tool output excerpt |
 | `unit` | Vitest. The named test file must exist and pass | The test names and the pass output |
@@ -114,7 +114,25 @@ There is one local Postgres container, from `compose.yaml` (created in T001). Ea
 | `BETTER_AUTH_URL` | `http://localhost:<port>` |
 | Verification artefacts | `.verification/<id>/`, which is git-ignored: screenshots, cookies, logs |
 
-Set up a fresh environment with `pnpm db:migrate && pnpm db:seed`. `.env.neon.local` holds the Neon production credentials as a reference for the user. Never read, copy or source it. Never point at Neon or production; production migrations only run in the Vercel build.
+Set up a fresh environment with `pnpm db:migrate && pnpm db:seed`. `.env.neon.local` holds the Neon production credentials as a reference for the user. Never read, copy or source it. The local app and tests always run against local Postgres, never Neon; production migrations only run in the Vercel build.
+
+### 3.1 Vercel and Neon tools
+
+The orchestrator and implementers have direct access to the hosted platform. Use these instead of asking the user for logs or dashboard checks.
+
+| Tool | What it's for |
+|---|---|
+| Vercel MCP (`mcp__plugin_vercel_vercel__*`) | Projects, deployments, build and runtime logs (`get_runtime_logs`), env var names, share links for protected previews (`get_access_to_vercel_url`). Team `team_711GDPInJ7HPDPbaBtUXNPZh` (`maxitects-projects`), project `prj_LjiTaW3OEqx9y01sCWPpXeBUM86I` (`ludwig`) |
+| Vercel CLI (`vercel`, authenticated) | `vercel inspect <url> --logs` for build logs; `vercel curl --yes --deployment <url> <path> -- <curl args>` to call a protected preview; `vercel env ls --project ludwig` (names only) |
+| Neon MCP (`mcp__plugin_neon_neon__*`) | Org `org-muddy-term-88500580` (Vercel-managed), project `bold-term-80947033` (`ludwig-db`, eu-west-2). `main` is production; each preview deployment gets its own branch, named `preview/<git-branch>` |
+
+Rules:
+
+- **Previews:** every pushed PR branch gets a preview deployment and its own Neon branch. Verify deployed ACs there: `vercel curl` for API checks, a `get_access_to_vercel_url` share link for browser checks. Sign up test users on previews only.
+- **Neon reads:** read-only SQL (`run_sql` with `SELECT`) on any branch, including production `main`, is allowed for verification. Pass `branch_id` for preview branches.
+- **Neon writes:** writing SQL is allowed on preview branches. On production `main`, any write, delete or schema change, and every destructive Neon operation (deleting branches, resetting, dropping), needs the user's explicit approval first. Implementers ask the orchestrator, and the orchestrator asks the user.
+- **Vercel changes:** reads are always fine. Changing project settings, env vars, protection or domains needs the user's approval, except that the orchestrator may add a missing per-environment secret generated with `openssl rand` and piped straight in, without printing it.
+- **Secrets:** never print secret values, never decrypt env vars, and never copy credentials into the repo.
 
 **Test users:**
 

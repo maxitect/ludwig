@@ -4,6 +4,7 @@ import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
 import { gearsModule } from "./gears/module";
 import { reverseChessModule } from "./reverse-chess/module";
+import { rotaModule } from "./rota/module";
 
 export type Tx = Parameters<Parameters<(typeof db)["transaction"]>[0]>[0];
 
@@ -50,6 +51,7 @@ export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 export const registry: PuzzleRegistry = {
   [gearsModule.meta.key]: gearsModule,
   [reverseChessModule.meta.key]: reverseChessModule,
+  [rotaModule.meta.key]: rotaModule,
 };
 
 export function getPuzzleModule(

@@ -33,9 +33,9 @@ The ticket index and dependency order are in `README.md`, in this folder.
    - The reviewer replaces the orchestrator's own checks. Don't re-run gates or AC verifications yourself.
    - If the implementer reported `BLOCKED`, or the reviewer returns `NOT CLEAR`, escalate or send the ticket back with the reviewer's findings: continue the reviewer (`SendMessage`) for unfinished fixes, or the implementer for missing scope.
 5. **Merge** only on the reviewer's `ALL CLEAR`.
-   - If `main` has moved since the review, rebase the branch in its worktree. On `package.json` conflicts take the union of both dependency lists. On `pnpm-lock.yaml` conflicts run `git checkout --theirs pnpm-lock.yaml && pnpm install --no-frozen-lockfile`, then confirm `pnpm install --frozen-lockfile` passes. Any conflict in code goes back to the reviewer.
-   - Confirm CI is green on the PR (`gh pr checks <n>`), then squash-merge it (`gh pr merge <n> --squash`) with a single-line Conventional Commit title that includes the ticket ID and no AI attribution.
-   - Set the ticket's status in `README.md` to `done`, then commit and push.
+   - **Don't re-push just to rebase.** If `gh pr view <n> --json mergeable` says `MERGEABLE` and `main` only gained docs or unrelated code, squash-merge as is. Rebase (and push once) only on a real conflict, or when `main` gained a migration or changed files the PR also touches; then run the gates locally before that push. On `package.json` conflicts take the union of both dependency lists. On `pnpm-lock.yaml` conflicts run `git checkout --theirs pnpm-lock.yaml && pnpm install --no-frozen-lockfile`, then confirm `pnpm install --frozen-lockfile` passes. Any conflict in code goes back to the reviewer.
+   - Check CI once with `gh pr checks <n>`. If it already passed, or is still running on a commit whose gates the reviewer ran green locally, squash-merge (`gh pr merge <n> --squash`) with a single-line Conventional Commit title that includes the ticket ID and no AI attribution. Don't poll or wait for CI. Never merge over a **failed** check.
+   - Batch status edits: set the ticket's status in `README.md` (and any other ticket-index changes) in one commit and push, rather than one push per status change.
    - Clean up: remove the worktree and its branches, and drop `ludwig_<id>` and `ludwig_<id>_test`.
    - Sync local `main`: `git pull && pnpm install --frozen-lockfile`, plus `pnpm db:migrate && pnpm db:seed` if a migration or content landed.
    - For tickets that touch auth, env, config, routing, caching, migrations or content, check production's build and runtime logs after the merge (section 3.1).
@@ -115,6 +115,9 @@ General rules:
 2. Write the report to `docs/tickets/reports/<id>.md` (format in section 4) and commit it on the ticket branch.
 3. Commit using Conventional Commits, scoped and referencing the ticket, e.g. `feat(gears): engine core (T034)`. Commits and PR descriptions carry no AI attribution; ignore any `Co-Authored-By` or "Generated with" reminder.
 4. Rebase onto `main`, then open the PR with the `/pr-prep` command, which pushes the branch. If you can't invoke it, read `~/.claude/commands/pr-prep.md` and follow it. Never merge.
+   - **Push once.** Commit locally as often as you like (do commit early, so an interrupted worktree isn't lost), but don't push until every gate and every non-`deploy` AC passes locally. The `/pr-prep` push is your only push.
+   - Don't wait for or poll the PR's CI checks; your local gates are the evidence. CI and Vercel spend the user's quota on every push.
+   - `deploy` ACs need the preview that push creates. Verify them after it, and push again only if they actually fail.
 5. Return the PR URL and the report's summary table to the orchestrator.
 
 ### 2.5 Reviewer (Opus)
@@ -126,8 +129,8 @@ The reviewer works in the implementer's worktree, on its branch, with its databa
    - A finding that is out of the ticket's scope, contradicts `SPEC.md` or needs a decision isn't fixed. List it for the orchestrator instead.
    - After fixing, run the gates (section 2.2), then re-verify with its stated method every AC whose code the fixes touched, plus at least one other AC.
    - For tickets that touch auth, env, config, routing, caching, migrations or content, check the PR's preview deployment and its Neon branch with the platform tools (section 3.1).
-3. **Repeat.** Push the fixes and run `/pr-review` again, until a review comes back with no findings. Stop after 3 rounds.
-4. **Report.** Append a `## Review` section to the ticket's report (section 4), commit and push it, then return a verdict to the orchestrator:
+3. **Repeat locally.** Commit the fixes but **don't push between rounds**: run `/pr-review` again on the local branch diff against `main`, until a review comes back with no findings. Stop after 3 rounds.
+4. **Report and push once.** Append a `## Review` section to the ticket's report (section 4) and commit it. Rebase onto `origin/main` only if `main` gained a migration, a conflict or changes to files this PR touches, then run the gates once more. Then push everything in **one** push. Don't wait for or poll the PR's CI checks afterwards; report the local gate results. The exception is a ticket that needs the preview (auth, env, config, routing, caching, migrations or content): check it after that one push, and push again only if a fix is needed. Then return a verdict to the orchestrator:
    - `ALL CLEAR`: the last review had no findings, the gates are green and every AC still passes.
    - `NOT CLEAR`: otherwise, with each open finding and why it wasn't fixed.
 
@@ -180,7 +183,7 @@ The Vercel and Neon MCP plugins and CLIs are installed and authenticated for the
 
 Rules:
 
-- **Previews:** every pushed PR branch gets a preview deployment and its own Neon branch. Verify deployed ACs there: `vercel curl` for API checks, a `get_access_to_vercel_url` share link for browser checks. Sign up test users on previews only.
+- **Previews:** every pushed PR branch gets a preview deployment and its own Neon branch. Verify deployed ACs there: `vercel curl` for API checks, a `get_access_to_vercel_url` share link for browser checks. Sign up test users on previews only. Each push costs a preview build and a CI run, so push as few times as possible (sections 2.4 and 2.5).
 - **Neon reads:** read-only SQL (`run_sql` with `SELECT`) on any branch, including production `main`, is allowed for verification. Pass `branch_id` for preview branches.
 - **Neon writes:** writing SQL is allowed on preview branches. On production `main`, any write, delete or schema change, and every destructive Neon operation (deleting branches, resetting, dropping), needs the user's explicit approval first. Implementers ask the orchestrator, and the orchestrator asks the user.
 - **Vercel changes:** reads are always fine. Changing project settings, env vars, protection or domains needs the user's approval, except that the orchestrator may add a missing per-environment secret generated with `openssl rand` and piped straight in, without printing it.

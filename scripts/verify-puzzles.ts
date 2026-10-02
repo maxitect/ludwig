@@ -7,6 +7,11 @@ import {
   resolveCliOptions,
 } from "./content-files";
 
+const MANUAL_REVIEW: Readonly<Record<string, string>> = {
+  "reverse-chess":
+    "manual legality review required (reachability from the start position is not computed)",
+};
+
 /** Parses every content file with its `contentSchema`, then runs the module's `verify` hook. */
 export async function verifyPuzzles(
   registry: PuzzleRegistry,
@@ -34,8 +39,13 @@ async function main() {
   const { checked, failures } = await verifyPuzzles(registry, contentDir);
   for (const failure of failures) {
     console.error(
-      `FAIL ${path.relative(process.cwd(), failure.file)}: ${failure.error}`,
+      `FAIL ${failure.typeKey}/${failure.slug} (${path.relative(process.cwd(), failure.file)}): ${failure.error}`,
     );
+  }
+  const { files } = await loadContentFiles(registry, contentDir);
+  for (const { typeKey, slug } of files) {
+    const reminder = MANUAL_REVIEW[typeKey];
+    if (reminder) console.log(`${typeKey}/${slug}: ${reminder}`);
   }
   console.log(`puzzles:verify: ${checked - failures.length}/${checked} files ok`);
   process.exitCode = failures.length ? 1 : 0;

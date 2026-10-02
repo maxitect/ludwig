@@ -10,6 +10,7 @@ import {
   reverseChessPuzzles,
   reverseChessSolutionPlies,
 } from "./tables";
+import { verifyReverseChess } from "./verify";
 
 export const reverseChessModule = {
   schema,
@@ -19,6 +20,7 @@ export const reverseChessModule = {
   check() {
     throw new Error("Reverse Chess checking is implemented in T029");
   },
+  verify: verifyReverseChess,
   Solver() {
     return null;
   },

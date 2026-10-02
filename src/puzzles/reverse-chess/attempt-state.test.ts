@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
-import { content } from "../../../content/reverse-chess/dev-rook-check";
+import { content } from "./fixtures/content/reverse-chess/dev-rook-check";
 import {
   createTestUser,
   deleteTestUsers,

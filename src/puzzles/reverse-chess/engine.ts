@@ -1,6 +1,7 @@
 import { Chess } from "chess.js";
 import type { Color, PieceSymbol, Square } from "chess.js";
-import type { SolutionPly } from "./schema";
+import { LETTER_BY_PIECE } from "./derive";
+import type { Content, SolutionPly } from "./schema";
 
 export type Retro = {
   from: Square;
@@ -163,4 +164,214 @@ export function applyRetro(
     return { ok: false, reason: "replay_mismatch" };
   }
   return built;
+}
+
+const FILES = "abcdefgh";
+const UNCAPTURE_CHOICES = ["q", "r", "b", "n", "p"] as const;
+const KNIGHT_STEPS = [
+  [1, 2],
+  [2, 1],
+  [2, -1],
+  [1, -2],
+  [-1, -2],
+  [-2, -1],
+  [-2, 1],
+  [-1, 2],
+] as const;
+const ROOK_STEPS = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+] as const;
+const BISHOP_STEPS = [
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1],
+] as const;
+const MAX_PAWNS = 8;
+
+type Steps = readonly (readonly [number, number])[];
+type Origin = { from: Square; uncapture: "optional" | "required" | "never" };
+
+const squareAt = (file: number, rank: number) =>
+  file >= 0 && file < 8 && rank >= 1 && rank <= 8
+    ? (`${FILES[file]}${rank}` as Square)
+    : null;
+
+/** Maps a DB-shaped solution ply to a `Retro`. This is the only place the two shapes meet. */
+export function toRetro(ply: Content["solutionPlies"][number]): Retro {
+  return {
+    from: `${ply.fromFile}${ply.fromRank}` as Square,
+    to: `${ply.toFile}${ply.toRank}` as Square,
+    ...(ply.uncapture && { uncapture: LETTER_BY_PIECE[ply.uncapture] }),
+    ...(ply.unpromote && { unpromote: true }),
+    ...(ply.special !== "none" && { special: ply.special }),
+  };
+}
+
+export const retroKey = ({ from, to, uncapture, unpromote, special }: Retro) =>
+  [from, to, uncapture ?? "", unpromote ? "u" : "", special ?? ""].join(":");
+
+function pawnOrigins(chess: Chess, to: Square, mover: Color): Origin[] {
+  const forward = mover === "w" ? 1 : -1;
+  const file = FILES.indexOf(to[0]);
+  const rank = Number(to[1]);
+  const origins: Origin[] = [];
+
+  const back = squareAt(file, rank - forward);
+  if (back && !chess.get(back)) {
+    origins.push({ from: back, uncapture: "never" });
+    const start = squareAt(file, rank - 2 * forward);
+    if (rank === (mover === "w" ? 4 : 5) && start && !chess.get(start)) {
+      origins.push({ from: start, uncapture: "never" });
+    }
+  }
+  for (const side of [-1, 1]) {
+    const diagonal = squareAt(file + side, rank - forward);
+    if (diagonal && !chess.get(diagonal)) {
+      origins.push({ from: diagonal, uncapture: "required" });
+    }
+  }
+  return origins;
+}
+
+function steppedOrigins(
+  chess: Chess,
+  to: Square,
+  steps: Steps,
+  slide: boolean,
+): Origin[] {
+  const origins: Origin[] = [];
+  const file = FILES.indexOf(to[0]);
+  const rank = Number(to[1]);
+  for (const [df, dr] of steps) {
+    for (let n = 1; n < 8; n += 1) {
+      const from = squareAt(file + df * n, rank + dr * n);
+      if (!from || chess.get(from)) break;
+      origins.push({ from, uncapture: "optional" });
+      if (!slide) break;
+    }
+  }
+  return origins;
+}
+
+function originsFor(chess: Chess, to: Square, type: PieceSymbol, mover: Color) {
+  if (type === "n") return steppedOrigins(chess, to, KNIGHT_STEPS, false);
+  if (type === "k") {
+    return steppedOrigins(chess, to, [...ROOK_STEPS, ...BISHOP_STEPS], false);
+  }
+  if (type === "r") return steppedOrigins(chess, to, ROOK_STEPS, true);
+  if (type === "b") return steppedOrigins(chess, to, BISHOP_STEPS, true);
+  if (type === "q") {
+    return steppedOrigins(chess, to, [...ROOK_STEPS, ...BISHOP_STEPS], true);
+  }
+  return pawnOrigins(chess, to, mover);
+}
+
+/**
+ * Pawn count, back-rank pawns and promotion budget (bishop colour included) of `prior`.
+ * Full reachability is not computed.
+ */
+function hasPlausibleMaterial(prior: string) {
+  const chess = load(prior);
+  if (!chess) return false;
+
+  for (const colour of ["w", "b"] as const) {
+    const count = { p: 0, n: 0, b: 0, r: 0, q: 0, k: 0 };
+    const bishops = { light: 0, dark: 0 };
+    for (const row of chess.board()) {
+      for (const cell of row) {
+        if (cell?.color !== colour) continue;
+        count[cell.type] += 1;
+        const { square } = cell;
+        if (cell.type === "p" && (square[1] === "1" || square[1] === "8")) {
+          return false;
+        }
+        if (cell.type === "b") {
+          const parity = (FILES.indexOf(square[0]) + Number(square[1])) % 2;
+          bishops[parity ? "light" : "dark"] += 1;
+        }
+      }
+    }
+    const promotions =
+      Math.max(0, count.q - 1) +
+      Math.max(0, count.r - 2) +
+      Math.max(0, count.n - 2) +
+      Math.max(0, bishops.light - 1) +
+      Math.max(0, bishops.dark - 1);
+    if (count.p > MAX_PAWNS || count.p + promotions > MAX_PAWNS) return false;
+  }
+  return true;
+}
+
+/** Every retro move that `applyRetro` accepts for `position` and whose prior position passes the material rules. */
+export function enumerateRetro(position: string): Retro[] {
+  const chess = load(position);
+  if (!chess) return [];
+
+  const mover = other(chess.turn());
+  const promotionRank = backRank(other(mover));
+  const enPassantRank = mover === "w" ? "6" : "3";
+  const candidates: Retro[] = [];
+
+  for (const row of chess.board()) {
+    for (const cell of row) {
+      if (cell?.color !== mover) continue;
+      const { square: to, type } = cell;
+      const shapes: { unpromote: boolean; type: PieceSymbol }[] = [
+        { unpromote: false, type },
+      ];
+      if (type !== "p" && type !== "k" && to[1] === promotionRank) {
+        shapes.push({ unpromote: true, type: "p" });
+      }
+
+      for (const shape of shapes) {
+        for (const { from, uncapture } of originsFor(
+          chess,
+          to,
+          shape.type,
+          mover,
+        )) {
+          const unpromote = shape.unpromote || undefined;
+          const choices =
+            uncapture === "never"
+              ? [undefined]
+              : uncapture === "required"
+                ? UNCAPTURE_CHOICES
+                : [undefined, ...UNCAPTURE_CHOICES];
+          for (const choice of choices) {
+            candidates.push({ from, to, uncapture: choice, unpromote });
+          }
+          if (
+            shape.type === "p" &&
+            !shape.unpromote &&
+            uncapture === "required" &&
+            to[1] === enPassantRank
+          ) {
+            candidates.push({ from, to, special: "en_passant" });
+          }
+        }
+      }
+
+      const rank = backRank(mover);
+      if (type === "k" && (to === `g${rank}` || to === `c${rank}`)) {
+        candidates.push({ from: `e${rank}` as Square, to, special: "castle" });
+      }
+    }
+  }
+
+  return candidates
+    .filter((retro) => {
+      const result = applyRetro(position, retro);
+      return result.ok && hasPlausibleMaterial(result.prior);
+    })
+    .map(({ from, to, uncapture, unpromote, special }) => ({
+      from,
+      to,
+      ...(uncapture && { uncapture }),
+      ...(unpromote && { unpromote }),
+      ...(special && { special }),
+    }));
 }

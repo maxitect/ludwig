@@ -1,5 +1,5 @@
-import type { ContentMeta } from "../../scripts/content-files";
-import type { Content } from "../../src/puzzles/reverse-chess/schema";
+import type { ContentMeta } from "../../../../../../scripts/content-files";
+import type { Content } from "../../../schema";
 
 export const meta = {
   slug: "dev-rook-check",

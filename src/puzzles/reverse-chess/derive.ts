@@ -17,7 +17,7 @@ type Piece = Payload["pieces"][number];
 
 const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
 
-const LETTER_BY_PIECE = {
+export const LETTER_BY_PIECE = {
   pawn: "p",
   knight: "n",
   bishop: "b",

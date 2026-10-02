@@ -5,8 +5,7 @@ import { parseSetCookieHeader, toCookieOptions } from "better-auth/cookies";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { env } from "@/env";
-import { auth } from "@/lib/auth";
+import { auth, authBaseURL } from "@/lib/auth";
 import { signInSchema, signUpSchema } from "@/lib/forms/auth";
 import { safeRedirectPath } from "@/utils/safe-redirect-path";
 
@@ -71,7 +70,7 @@ export async function signIn(
   // auth.handler, not auth.api, so the rate limit applies; nextCookies skips
   // handler calls, so the session cookie is copied over below
   const response = await auth.handler(
-    new Request(`${env.BETTER_AUTH_URL}/api/auth/sign-in/email`, {
+    new Request(`${authBaseURL}/api/auth/sign-in/email`, {
       method: "POST",
       headers: requestHeaders,
       body: JSON.stringify(parsed.data),

@@ -291,8 +291,11 @@ All arithmetic is integer, in **teeth** and **slot** units, so solutions are exa
 
 ```
 Floor:
-  S          number of slots on each ring (a multiple of 4; default 8, so slot angle = 360/S)
+  S          number of slots on each ring (a multiple of 4; default 12, so slot angle = 360/S)
              S/2 + 1 is then odd and coprime to S, so for S >= 8 the 8 convergences all have different floor arrangements
+             one symmetry remains when S/2 < 8: figure f + S/2 is figure f turned half a turn. If every T_g has the
+             same power of 2 (all 8, or {8, 24}, ...), a crank shift of T_g/2 mod every T_g maps each win at f to
+             one at f + S/2, so such diagrams are never unique at S = 8, and at S = 12 only with the win at f = 3..6
   outer ring (start/rest positions), inner ring (convergence positions)
   victim at the centre O
 
@@ -337,11 +340,11 @@ Win condition:
   answer = (c, f, killer g)
 ```
 
-**Uniqueness requirement (verified at generation):** exactly one pair (c mod L, f) satisfies the win condition.
+**Uniqueness requirement (verified at generation):** exactly one pair (c mod L, f) satisfies the win condition. m_in and m_out never change the number of wins: for each f, c ↦ c + m_in + (f-1)Δ is a bijection mod L, so they only shift the crank of each win.
 
 The search space is L × 8, at most lcm(8,12,16,24) × 8 = 384 cells, so brute-force verification is instant and can also run on the client for a live "sightline preview".
 
-**Fix the Diagram:** the printed diagram has zero solutions. The player may swap the starting slots of up to K pairs of gears. Uniqueness here means exactly one swap set (of size ≤ K) yields a diagram with exactly one (c, f) solution. Search size is C(N,2)^K × L × 8, which stays under about 10⁶ for N ≤ 12 and K ≤ 2. It runs in the generator only, never on page load.
+**Fix the Diagram:** the printed diagram has zero solutions. The player may swap the starting slots of up to K pairwise-disjoint pairs of gears (an unordered set, so each gear moves at most once). Uniqueness here means exactly one such swap set (of size ≤ K) yields a diagram with exactly one (c, f) solution. Search size is C(N,2)^K × L × 8, which stays under about 10⁶ for N ≤ 12 and K ≤ 2. It runs in the generator only, never on page load.
 
 **Expert rule (optional flag `occlusion: true`):** a gear's line of sight to O is blocked if the segment pos_g(f) to O passes through another gear's disc at that convergence. This nods to the S1E3 "perceptual puzzle".
 

@@ -294,8 +294,8 @@ Floor:
   S          number of slots on each ring (a multiple of 4; default 12, so slot angle = 360/S)
              S/2 + 1 is then odd and coprime to S, so for S >= 8 the 8 convergences all have different floor arrangements
              one symmetry remains when S/2 < 8: figure f + S/2 is figure f turned half a turn. If every T_g has the
-             same power of 2 (all 8, or {8, 24}, ...), a crank shift of T_g/2 mod every T_g maps each win at f to
-             one at f + S/2, so such diagrams are never unique at S = 8, and at S = 12 only with the win at f = 3..6
+             same power of 2 (all 8, or {8, 24}, ...), a crank shift δ with δ ≡ T_g/2 (mod T_g) for every g maps
+             each win at f to one at f + S/2, so such diagrams are never unique at S = 8, and at S = 12 only with the win at f = 3..6
   outer ring (start/rest positions), inner ring (convergence positions)
   victim at the centre O
 

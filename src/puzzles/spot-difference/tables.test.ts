@@ -245,19 +245,19 @@ describe("spot-difference module", () => {
     expect(await spotDifferenceModule.loadAttemptState(attempt.id)).toBeNull();
   });
 
-  it("rejects a found difference beyond the puzzle's count", async () => {
-    await expect(
-      rolledBack(async (tx) => {
-        await tx.delete(attempts).where(eq(attempts.userId, userId));
-        const [attempt] = await tx
-          .insert(attempts)
-          .values({ userId, puzzleId })
-          .returning({ id: attempts.id });
-        await spotDifferenceModule.replaceAttemptState(tx, attempt.id, {
-          found: [content.differenceCount],
-        });
-      }),
-    ).rejects.toThrow(/beyond the puzzle's count/);
+  it("rejects a saved found difference beyond the puzzle's count", async () => {
+    const error = await pgError(async (tx) => {
+      await tx.delete(attempts).where(eq(attempts.userId, userId));
+      const [attempt] = await tx
+        .insert(attempts)
+        .values({ userId, puzzleId })
+        .returning({ id: attempts.id });
+      await spotDifferenceModule.replaceAttemptState(tx, attempt.id, {
+        found: [content.differenceCount],
+      });
+    });
+    expect(error?.code).toBe("23000");
+    expect(error?.message).toMatch(/beyond the puzzle's count/);
   });
 
   describe("attempt tables", () => {
@@ -291,6 +291,55 @@ describe("spot-difference module", () => {
             ]);
         }),
       ).toBe("23505");
+    });
+
+    it("accepts the last index and rejects one at the puzzle's count", async () => {
+      expect(
+        await pgErrorCode(async (tx) => {
+          const attemptId = await startAttempt(tx);
+          await tx.insert(spotDifferenceAttemptFound).values({
+            attemptId,
+            differenceIndex: content.differenceCount - 1,
+          });
+        }),
+      ).toBeUndefined();
+      expect(
+        await pgErrorCode(async (tx) => {
+          const attemptId = await startAttempt(tx);
+          await tx.insert(spotDifferenceAttemptFound).values({
+            attemptId,
+            differenceIndex: content.differenceCount,
+          });
+        }),
+      ).toBe("23000");
+      expect(
+        await pgErrorCode(async (tx) => {
+          const attemptId = await startAttempt(tx);
+          await tx
+            .insert(spotDifferenceAttemptFound)
+            .values({ attemptId, differenceIndex: 0 });
+          await tx
+            .update(spotDifferenceAttemptFound)
+            .set({ differenceIndex: content.differenceCount })
+            .where(eq(spotDifferenceAttemptFound.attemptId, attemptId));
+        }),
+      ).toBe("23000");
+    });
+
+    it("rejects lowering a puzzle's count below a found difference, and allows it above", async () => {
+      const lowerTo = async (differenceCount: number) =>
+        pgErrorCode(async (tx) => {
+          const attemptId = await startAttempt(tx);
+          await tx
+            .insert(spotDifferenceAttemptFound)
+            .values({ attemptId, differenceIndex: 3 });
+          await tx
+            .update(spotDifferencePuzzles)
+            .set({ differenceCount })
+            .where(eq(spotDifferencePuzzles.puzzleId, puzzleId));
+        });
+      expect(await lowerTo(3)).toBe("23000");
+      expect(await lowerTo(4)).toBeUndefined();
     });
 
     it("rejects a found row with no attempt row", async () => {

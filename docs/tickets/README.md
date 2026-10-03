@@ -36,7 +36,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T021](./T021-shared-cell-input-grid.md) | Shared `CellInput` grid | T018 | | | done |
 | [T022](./T022-type-crossword-quick.md) | Puzzle type: crossword (quick style) | T019, T021 | ✔ | | done |
 | [T023](./T023-casebook-v1.md) | Casebook v1 (stats views, progress page) | T019 | ✔ | | done |
-| [T024](./T024-e2e-flows-1-2.md) | Playwright end-to-end flows 1 and 2 | T002, T009, T020, T022, T023 | | | todo |
+| [T024](./T024-e2e-flows-1-2.md) | Playwright end-to-end flows 1 and 2 | T002, T009, T020, T022, T023 | | | done |
 | [T071](./T071-split-solver-registry.md) | Split client solvers out of the server puzzle registry | T019 | | | done |
 | [T072](./T072-seed-update-in-place.md) | Seed updates content in place and never touches attempt data | T016, T022 | | | done |
 
@@ -48,7 +48,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T026](./T026-retro-move-engine.md) | Retro-move engine | T025 | | | done |
 | [T027](./T027-retro-verifier.md) | Retro enumerator and uniqueness verifier | T026 | | | done |
 | [T028](./T028-chess-board-component.md) | Chess board component (react-chessboard v5, cburnett, arrow, tray) | T010, T025 | | | done |
-| [T029](./T029-reverse-chess-mode-a.md) | Mode A "The Last Move": UI and check | T026, T028, T018, T071 | | | todo |
+| [T029](./T029-reverse-chess-mode-a.md) | Mode A "The Last Move": UI and check | T026, T028, T018, T071 | | | review |
 | [T030](./T030-reverse-chess-mode-b-notation.md) | Mode B "Unwind" plus descriptive notation | T029 | | | todo |
 | [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | todo |
 | [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031 | | | todo |
@@ -62,7 +62,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T035](./T035-gear-generators.md) | Gear generator and Fix the Diagram generator | T034 | | | done |
 | [T036](./T036-gen-gears-script.md) | `puzzles:gen-gears` script and daily diagrams | T035 | | | done |
 | [T037](./T037-gear-board-prototype.md) | SVG gear board, prototype and parameter evaluation | T034, T018 | | | done |
-| [T038](./T038-gear-crank.md) | Crank interaction (drag, keyboard, ±) | T037 | | | todo |
+| [T038](./T038-gear-crank.md) | Crank interaction (drag, keyboard, ±) | T037 | | | done |
 | [T039](./T039-gear-scrubber-animation.md) | Dance scrubber, animation and sightlines | T038 | | | todo |
 | [T040](./T040-gear-accuse-check.md) | Accuse flow and server check | T039 | | | todo |
 | [T041](./T041-gear-fix-the-diagram-ui.md) | Fix the Diagram UI | T040, T035 | | | todo |
@@ -90,7 +90,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T058](./T058-shared-visibility-engine.md) | Shared `visibility.ts` engine | T016 | | | done |
 | [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | todo |
 | [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | todo |
-| [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | todo |
+| [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | in-progress |
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | done |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | todo |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |

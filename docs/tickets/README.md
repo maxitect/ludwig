@@ -32,12 +32,13 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T017](./T017-attempts-actions-data-access.md) | Attempts data access and `checkAnswer`/`saveState`/hint actions | T016, T008 | | | done |
 | [T018](./T018-solve-page-chrome-and-routes.md) | Collection, category and solve routes, plus solve-page chrome | T015, T017 | | | done |
 | [T019](./T019-type-anagram.md) | Puzzle type: anagram (pilot) | T018 | ✔ | | done |
-| [T020](./T020-local-progress-merge.md) | Signed-out progress in `localStorage` and merge on sign-up | T019 | | | todo |
+| [T020](./T020-local-progress-merge.md) | Signed-out progress in `localStorage` and merge on sign-up | T019 | | | done |
 | [T021](./T021-shared-cell-input-grid.md) | Shared `CellInput` grid | T018 | | | done |
 | [T022](./T022-type-crossword-quick.md) | Puzzle type: crossword (quick style) | T019, T021 | ✔ | | done |
-| [T023](./T023-casebook-v1.md) | Casebook v1 (stats views, progress page) | T019 | ✔ | | todo |
+| [T023](./T023-casebook-v1.md) | Casebook v1 (stats views, progress page) | T019 | ✔ | | done |
 | [T024](./T024-e2e-flows-1-2.md) | Playwright end-to-end flows 1 and 2 | T002, T009, T020, T022, T023 | | | todo |
 | [T071](./T071-split-solver-registry.md) | Split client solvers out of the server puzzle registry | T019 | | | done |
+| [T072](./T072-seed-update-in-place.md) | Seed updates content in place and never touches attempt data | T016, T022 | | | done |
 
 ## M2: Reverse Chess
 
@@ -92,7 +93,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | todo |
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | done |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | todo |
-| [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | todo |
+| [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
 
 ## M5: Polish and launch
 

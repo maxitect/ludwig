@@ -23,7 +23,7 @@ import {
   puzzles,
 } from "@/db/schema";
 import { check } from "./check";
-import { fixture } from "./fixture";
+import { crypticFixture, fixture } from "./fixture";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
 import { crosswordModule } from "./module";
@@ -201,6 +201,31 @@ describe("crossword module", () => {
     expect(payload.clues).toHaveLength(fixture.clues.length);
     expect(JSON.stringify(payload)).not.toMatch(/"letter"/);
     expect(JSON.stringify(payload.cells)).not.toMatch(/[A-Z]/);
+  });
+
+  it("loads a cryptic payload with no letters and its multi-segment enumeration", async () => {
+    const id = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(puzzles)
+        .values({
+          typeKey: "crossword",
+          slug: "t022-cryptic",
+          title: "c",
+          difficulty: 1,
+        })
+        .returning({ id: puzzles.id });
+      await crosswordModule.upsertContent(tx, row.id, crypticFixture);
+      return row.id;
+    });
+    const payload = await load(id);
+    expect(payloadSchema.strict().parse(payload)).toEqual(payload);
+    expect(payload).toMatchObject({ style: "cryptic", rows: 15, cols: 15 });
+    expect(JSON.stringify(payload)).not.toMatch(/"letter"/);
+    expect(JSON.stringify(payload.cells)).not.toMatch(/[A-Z]/);
+    expect(
+      payload.clues.find((c) => c.direction === "across" && c.row === 0 && c.col === 0)
+        ?.segments,
+    ).toEqual([4, 3]);
   });
 
   it("round-trips segments in position order", async () => {

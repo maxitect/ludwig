@@ -2,7 +2,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fixture } from "./fixture";
+import { crypticFixture, fixture } from "./fixture";
 import type { Payload } from "./schema";
 import { Solver } from "./solver";
 
@@ -39,13 +39,14 @@ describe("crossword Solver", () => {
     renderSolver();
     expect(cell(1, 1).getAttribute("aria-label")).toMatch(/clue 1/);
     expect(cell(1, 3).getAttribute("aria-label")).toMatch(/clue 2/);
-    const across = screen.getByRole("region", { name: "across clues" });
+    const across = screen.getByRole("tabpanel", { name: "across" });
     expect(across.textContent).toContain("Remains of a fire (5)");
   });
 
   it("focuses a clue's first cell and types down its run", async () => {
     const user = userEvent.setup();
     const { onStateChange } = renderSolver();
+    await user.click(screen.getByRole("tab", { name: "down" }));
     await user.click(screen.getByRole("button", { name: /Unlikely sequence of letters/ }));
     await user.keyboard("ARH");
     expect(cell(1, 3).textContent).toContain("A");
@@ -63,6 +64,7 @@ describe("crossword Solver", () => {
   it("highlights the active clue and marks it current", async () => {
     const user = userEvent.setup();
     renderSolver();
+    await user.click(screen.getByRole("tab", { name: "down" }));
     await user.click(screen.getByRole("button", { name: /Grip tightly/ }));
     expect(
       screen.getByRole("button", { name: /Grip tightly/ }).getAttribute("aria-current"),
@@ -71,6 +73,38 @@ describe("crossword Solver", () => {
       .getAllByRole("gridcell")
       .filter((node) => node.className.includes("bg-paper-deep"));
     expect(highlighted).toHaveLength(5);
+  });
+
+  it("shows one direction's clues at a time and follows the active direction", async () => {
+    const user = userEvent.setup();
+    renderSolver();
+    expect(screen.queryByRole("tabpanel", { name: "down" })).toBeNull();
+    await user.click(screen.getByRole("tab", { name: "down" }));
+    expect(screen.getByRole("tabpanel", { name: "down" }).textContent).toContain(
+      "Grip tightly (5)",
+    );
+    expect(screen.queryByRole("tabpanel", { name: "across" })).toBeNull();
+    await user.click(cell(1, 1));
+    await user.keyboard(" ");
+    expect(
+      screen.getByRole("tab", { name: "across" }).getAttribute("aria-selected"),
+    ).toBe("true");
+  });
+
+  it("lists a multi-segment enumeration on a 15x15 grid", () => {
+    renderSolver({
+      payload: {
+        style: crypticFixture.style,
+        rows: crypticFixture.rows,
+        cols: crypticFixture.cols,
+        cells: crypticFixture.cells.map(({ row, col }) => ({ row, col })),
+        clues: crypticFixture.clues,
+      },
+    });
+    expect(screen.getAllByRole("gridcell")).toHaveLength(15 * 15);
+    expect(
+      screen.getByRole("tabpanel", { name: "across" }).textContent,
+    ).toContain("Puzzle with hidden meanings, in the main (4,3)");
   });
 
   it("offers an answer only once every cell is filled", async () => {

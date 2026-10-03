@@ -40,12 +40,19 @@ export async function getTypeCatalogue(typeKey: string) {
         columns: { slug: true, title: true, difficulty: true },
         where: { RAW: isPublished },
         orderBy: { title: "asc" },
-        with: { volume: { columns: { id: true, title: true, sort: true } } },
+        with: {
+          volume: { columns: { id: true, title: true, sort: true } },
+          crossword: { columns: { style: true } },
+        },
       },
     },
   });
   if (!type) return null;
-  const { puzzles, ...rest } = type;
+  const { puzzles: rows, ...rest } = type;
+  const puzzles = rows.map(({ crossword, ...puzzle }) => ({
+    ...puzzle,
+    style: crossword?.style ?? null,
+  }));
   const volumes = new Map(
     puzzles.flatMap(({ volume }) => (volume ? [[volume.id, volume]] : [])),
   );

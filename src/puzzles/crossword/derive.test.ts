@@ -8,7 +8,7 @@ import {
   deriveRuns,
   deriveWords,
 } from "./derive";
-import { cells, clues } from "./fixture";
+import { cells, clues, crypticCells, crypticClues } from "./fixture";
 
 const positions = cells.map(({ row, col }) => ({ row, col }));
 
@@ -113,5 +113,44 @@ describe("deriveAnswer", () => {
     expect(deriveAnswer(cells, run("down", 0, 0))).toBe("CLASP");
     expect(deriveAnswer(cells, run("down", 0, 2))).toBe("ARHPA");
     expect(deriveAnswer(cells, run("down", 0, 4))).toBe("EVSEN");
+  });
+});
+
+describe("a 15x15 cryptic grid", () => {
+  const crypticPositions = crypticCells.map(({ row, col }) => ({ row, col }));
+  const entries = deriveEntries({ cells: crypticPositions, clues: crypticClues });
+
+  it("numbers every start cell once, in reading order", () => {
+    expect([...deriveNumbers(deriveRuns(crypticPositions))]).toEqual([
+      [cellKey(0, 0), 1],
+      [cellKey(0, 2), 2],
+      [cellKey(0, 4), 3],
+      [cellKey(0, 6), 4],
+      [cellKey(0, 8), 5],
+      [cellKey(0, 10), 6],
+      [cellKey(0, 12), 7],
+      [cellKey(0, 14), 8],
+      [cellKey(2, 0), 9],
+      [cellKey(2, 8), 10],
+    ]);
+  });
+
+  it("derives the multi-segment enumeration from the segment lengths", () => {
+    const first = entries.find((e) => e.number === 1 && e.direction === "across");
+    expect(first?.enumeration).toBe("(4,3)");
+    expect(first?.cells).toHaveLength(7);
+    expect(entries.find((e) => e.number === 5 && e.direction === "across")?.enumeration).toBe(
+      "(7)",
+    );
+  });
+
+  it("derives the Tab word map for each direction", () => {
+    expect(deriveWords(entries, "across").map((word) => word[0])).toEqual([
+      { row: 0, col: 0 },
+      { row: 0, col: 8 },
+      { row: 2, col: 0 },
+      { row: 2, col: 8 },
+    ]);
+    expect(deriveWords(entries, "down")).toHaveLength(8);
   });
 });

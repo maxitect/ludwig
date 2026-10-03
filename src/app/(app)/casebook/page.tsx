@@ -35,7 +35,7 @@ export default function CasebookPage() {
 async function Casebook() {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in?next=/casebook");
-  const casebook = await getCasebook(user.id);
+  const casebook = await getCasebook();
 
   if (casebook.recent.length === 0) {
     return (

@@ -1,5 +1,13 @@
 import { eq, sql } from "drizzle-orm";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { db } from "@/db";
 import { createTestUser, deleteTestUsers } from "@/db/integrity/harness";
 import {
@@ -14,7 +22,25 @@ import {
 } from "@/db/schema";
 import { fixtureModule } from "@/puzzles/__fixture/module";
 import { londonMidnight } from "@/utils/london-time";
-import { getCasebook } from "./casebook";
+
+const session = vi.hoisted(() => ({ userId: null as string | null }));
+vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/server")>()),
+  connection: async () => {},
+}));
+vi.mock("@/lib/auth", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/auth")>();
+  const api = Object.create(original.auth.api, {
+    getSession: {
+      value: async () =>
+        session.userId ? { user: { id: session.userId } } : null,
+    },
+  });
+  return { ...original, auth: { ...original.auth, api } };
+});
+
+const { getCasebook } = await import("./casebook");
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -195,8 +221,17 @@ describe("user_category_stats", () => {
 });
 
 describe("getCasebook", () => {
+  beforeEach(() => {
+    session.userId = userId;
+  });
+
+  it("throws without a session", async () => {
+    session.userId = null;
+    await expect(getCasebook()).rejects.toThrow("Unauthorised");
+  });
+
   it("is empty for a user without solves", async () => {
-    expect(await getCasebook(userId)).toEqual({
+    expect(await getCasebook()).toEqual({
       currentStreak: 0,
       longestStreak: 0,
       categories: [],
@@ -207,7 +242,7 @@ describe("getCasebook", () => {
   it("returns streaks, category stats and the latest solves first", async () => {
     await solve(0, await londonDayOffset(-1), 5000);
     await solve(1, await londonDayOffset(0), 7000);
-    const casebook = await getCasebook(userId);
+    const casebook = await getCasebook();
     expect(casebook.currentStreak).toBe(2);
     expect(casebook.categories.map(({ solves }) => solves)).toEqual([2]);
     expect(casebook.recent.map(({ puzzleSlug }) => puzzleSlug)).toEqual([

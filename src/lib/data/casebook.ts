@@ -2,10 +2,12 @@ import "server-only";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { userCategoryStats, userSolves, userStreaks } from "@/db/schema";
+import { requireUser } from "@/lib/data/user";
 
 const RECENT_SOLVES = 10;
 
-export async function getCasebook(userId: string) {
+export async function getCasebook() {
+  const { id: userId } = await requireUser();
   const [streaks, categories, recent] = await Promise.all([
     db
       .select({

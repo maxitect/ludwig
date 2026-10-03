@@ -46,6 +46,7 @@ This is the second type. It forces child tables, derived clue numbers, the `Cell
 
 - Clue numbers are derived (SPEC §7.4.4). Don't add a `number` column.
 - Blocks are the absence of a `crossword_cells` row. Don't add an `is_block` column.
+- **Per-cell hooks (user decision, 2026-10-03).** Add optional `checkCell(payload, solution, row, col, value) → { correct }` and `revealCell(solution, row, col) → value` members to `PuzzleTypeModule`, implemented by crossword first. `checkAnswer` in cell mode and `revealCell` return that one cell's result through them, and still record the hint. Whole-grid `check` stays `{ correct }`; `cellsWrong` stays undecided. Record the contract change in SPEC §4.1 and the `/new-puzzle-type` skill.
 
 ## Acceptance criteria
 

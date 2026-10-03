@@ -4,6 +4,7 @@ import { and, eq, notInArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
+import { weekly } from "../content/weekly";
 import type { db as appDb } from "../src/db";
 import { relations } from "../src/db/relations";
 import {
@@ -20,6 +21,7 @@ import {
   loadContentFiles,
   resolveCliOptions,
 } from "./content-files";
+import { seedWeekly } from "./seed-weekly";
 
 type Db = typeof appDb;
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
@@ -226,7 +228,13 @@ async function main() {
         `FAIL ${path.relative(process.cwd(), failure.file)}: ${failure.error}`,
       );
     }
-    process.exitCode = summary.failures.length ? 1 : 0;
+    const weeklySummary = await seedWeekly(db, weekly);
+    console.log(`weekly: ${weeklySummary.weeks} weeks`);
+    for (const failure of weeklySummary.failures) {
+      console.error(`FAIL content/weekly.ts: ${failure}`);
+    }
+    process.exitCode =
+      summary.failures.length || weeklySummary.failures.length ? 1 : 0;
   } finally {
     await pool.end();
   }

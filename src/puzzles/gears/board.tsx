@@ -172,14 +172,15 @@ function GearGlyph({
   return (
     <g
       transform={`translate(${cx.toFixed(2)} ${cy.toFixed(2)})`}
-      role="img"
-      aria-label={`Gear ${gear.label}, ${gear.teeth} teeth`}
       className={
         crankProps
           ? "group cursor-grab outline-none active:cursor-grabbing"
           : undefined
       }
-      {...crankProps}
+      {...(crankProps ?? {
+        role: "img",
+        "aria-label": `Gear ${gear.label}, ${gear.teeth} teeth`,
+      })}
       data-gear={gear.label}
       data-slot={state.slot}
       data-facing-deg={state.facingDeg}

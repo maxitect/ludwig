@@ -2,11 +2,13 @@
 
 import {
   useEffect,
+  useImperativeHandle,
   useRef,
   useState,
   type InputEvent,
   type KeyboardEvent,
   type ReactNode,
+  type Ref,
 } from "react";
 import { mulberry32 } from "@/puzzles/_shared/prng";
 import { cn } from "@/utils/cn";
@@ -39,7 +41,13 @@ export type CellGridProps = {
   /** When supplied, Tab and Shift+Tab move between the first cells of these words. */
   words?: ReadonlyArray<ReadonlyArray<CellPosition>>;
   label: string;
+  /** Controls the active cell; the grid tracks it itself when omitted. */
+  active?: CellPosition;
+  onActiveChange?: (position: CellPosition) => void;
+  ref?: Ref<CellGridHandle>;
 };
+
+export type CellGridHandle = { focus: () => void };
 
 const ARROWS: Partial<Record<string, CellPosition>> = {
   ArrowUp: { row: -1, col: 0 },
@@ -66,15 +74,25 @@ export function CellGrid({
   annotation,
   words,
   label,
+  active: controlledActive,
+  onActiveChange,
+  ref,
 }: CellGridProps) {
   const bounds = { rows, cols, cells };
-  const [active, setActive] = useState<CellPosition>(
+  const [ownActive, setOwnActive] = useState<CellPosition>(
     () => readingOrder(bounds)[0] ?? { row: 0, col: 0 },
   );
+  const active = controlledActive ?? ownActive;
+  const setActive = (position: CellPosition) => {
+    setOwnActive(position);
+    onActiveChange?.(position);
+  };
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const cellRefs = useRef(new Map<CellKey, HTMLDivElement>());
+
+  useImperativeHandle(ref, () => ({ focus: () => inputRef.current?.focus() }));
 
   useEffect(() => {
     const focused = document.activeElement;
@@ -85,7 +103,7 @@ export function CellGrid({
     ) {
       cellRefs.current.get(cellKey(active.row, active.col))?.focus();
     }
-  }, [active]);
+  }, [active.row, active.col]);
 
   const toggleDirection = () =>
     onDirectionChange(direction === "across" ? "down" : "across");

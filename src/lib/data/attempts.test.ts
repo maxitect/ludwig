@@ -216,9 +216,18 @@ describe("getAttemptState", () => {
 describe("hints", () => {
   it("inserts check_cell and reveal_cell rows without completing", async () => {
     const cell = { mode: "cell" as const, row: 0, col: 1 };
-    await checkAnswer(puzzleId, { label: "alpha" }, cell);
-    await checkAnswer(puzzleId, { label: "wrong" }, cell);
-    await revealCell(puzzleId, 2, 3);
+    expect(await checkAnswer(puzzleId, null, { ...cell, value: "alpha" })).toEqual({
+      ok: true,
+      result: { correct: true },
+    });
+    expect(await checkAnswer(puzzleId, null, { ...cell, value: "wrong" })).toEqual({
+      ok: true,
+      result: { correct: false },
+    });
+    expect(await revealCell(puzzleId, 2, 3)).toEqual({
+      ok: true,
+      value: "alpha",
+    });
     const { id, completedAt } = await attemptRow();
     expect(await hintCounts(id)).toEqual({ check_cell: 2, reveal_cell: 1 });
     expect(completedAt).toBeNull();
@@ -285,7 +294,7 @@ describe("unauthenticated", () => {
       checkAnswer(
         puzzleId,
         { label: "alpha" },
-        { mode: "cell", row: 0, col: 0 },
+        { mode: "cell", row: 0, col: 0, value: "alpha" },
       ),
     ).rejects.toThrow("Unauthorised");
     await expect(revealCell(puzzleId, 0, 0)).rejects.toThrow("Unauthorised");
@@ -301,7 +310,7 @@ describe("validation", () => {
       await checkAnswer(
         puzzleId,
         { label: "a" },
-        { mode: "cell", row: -1, col: 0 },
+        { mode: "cell", row: -1, col: 0, value: "alpha" },
       ),
       await checkAnswer(
         puzzleId,

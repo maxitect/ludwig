@@ -1,0 +1,5740 @@
+{
+  "version": "8",
+  "dialect": "postgres",
+  "id": "75f879f9-b599-403b-ba07-f27134be00df",
+  "prevIds": [
+    "ac36f443-bf29-401c-b625-33a815dde4d5"
+  ],
+  "ddl": [
+    {
+      "values": [
+        "blue",
+        "red",
+        "ink"
+      ],
+      "name": "book_cover",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "white",
+        "black"
+      ],
+      "name": "chess_colour",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h"
+      ],
+      "name": "chess_file",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "algebraic",
+        "descriptive"
+      ],
+      "name": "chess_notation",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "pawn",
+        "knight",
+        "bishop",
+        "rook",
+        "queen",
+        "king"
+      ],
+      "name": "chess_piece",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "paper",
+        "ink",
+        "system"
+      ],
+      "name": "theme",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "first",
+        "second"
+      ],
+      "name": "weekly_slot",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "check_cell",
+        "reveal_cell",
+        "check_all",
+        "reveal_all"
+      ],
+      "name": "hint_kind",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "last_move",
+        "unwind"
+      ],
+      "name": "retro_mode",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "none",
+        "en_passant",
+        "castle"
+      ],
+      "name": "retro_special",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "unpowered_square",
+        "adjacent_only",
+        "never_in_rank",
+        "max_swaps"
+      ],
+      "name": "rota_clue_kind",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "intended",
+        "final"
+      ],
+      "name": "rota_phase",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "across",
+        "down"
+      ],
+      "name": "clue_direction",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "cryptic",
+        "quick"
+      ],
+      "name": "crossword_style",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "account",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rate_limit",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "session",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "user",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "verification",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "puzzle_categories",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "puzzle_types",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "user_settings",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "volumes",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "weekly_puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "attempt_hints",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "attempts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "reverse_chess_attempt_plies",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "reverse_chess_attempts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "reverse_chess_pieces",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "reverse_chess_puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "reverse_chess_solution_plies",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "gear_attempt_swaps",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "gear_attempts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "gear_daily",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "gear_meshes",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "gear_puzzle_gears",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "gear_puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "gear_solution_swaps",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "gear_solutions",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_attempt_swaps",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_attempts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_clue_max_swaps",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_clue_never_in_rank",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_clue_unpowered_square",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_clues",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_solution_swaps",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_solutions",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_worker_squares",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "rota_workers",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "anagram_attempts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "anagram_puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "crossword_attempt_cells",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "crossword_attempts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "crossword_cells",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "crossword_clue_segments",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "crossword_clues",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "crossword_puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "account_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "provider_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "access_token",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "refresh_token",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id_token",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "access_token_expires_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "refresh_token_expires_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "scope",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "password",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rate_limit"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rate_limit"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rate_limit"
+    },
+    {
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "last_request",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rate_limit"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "expires_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "token",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ip_address",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_agent",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "email",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "email_verified",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "image",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "identifier",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "value",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "expires_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "verification"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_categories"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_categories"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "sort",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_categories"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_types"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "category_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_types"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_types"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_types"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "subtype_table",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_types"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "sort",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzle_types"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "slug",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "title",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "difficulty",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "volume_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_note",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "published_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user_settings"
+    },
+    {
+      "type": "theme",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'system'",
+      "generated": null,
+      "identity": null,
+      "name": "theme",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user_settings"
+    },
+    {
+      "type": "chess_notation",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'algebraic'",
+      "generated": null,
+      "identity": null,
+      "name": "chess_notation",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user_settings"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "reduce_motion",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user_settings"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "volumes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "slug",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "volumes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "title",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "volumes"
+    },
+    {
+      "type": "book_cover",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "cover",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "volumes"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "sort",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "volumes"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "week_start",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "weekly_puzzles"
+    },
+    {
+      "type": "weekly_slot",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "slot",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "weekly_puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "weekly_puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "type": "hint_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "used_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "NULL",
+      "generated": null,
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "started_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "completed_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "duration_ms",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ply",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "chess_file",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "from_file",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "from_rank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "chess_file",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "to_file",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "to_rank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "chess_piece",
+      "typeSchema": "public",
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "uncapture",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "unpromote",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "retro_special",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "special",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'reverse-chess'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_pieces"
+    },
+    {
+      "type": "chess_file",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "file",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_pieces"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "rank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_pieces"
+    },
+    {
+      "type": "chess_colour",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "colour",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_pieces"
+    },
+    {
+      "type": "chess_piece",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "piece",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_pieces"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'reverse-chess'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "retro_mode",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "mode",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "chess_colour",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "side_to_move",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "white_kingside",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "white_queenside",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "black_kingside",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "black_queenside",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "chess_file",
+      "typeSchema": "public",
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "en_passant_file",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "halfmove",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "fullmove",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "goal_text",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ply_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "ply",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "chess_file",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "from_file",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "from_rank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "chess_file",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "to_file",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "to_rank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "chess_piece",
+      "typeSchema": "public",
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "uncapture",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "unpromote",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "retro_special",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "special",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "NULL",
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gear_a_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gear_b_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'gears'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "NULL",
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "crank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "convergence",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "accused_gear_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "date",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_daily"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_daily"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_meshes"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gear_a_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_meshes"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gear_b_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_meshes"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "label",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "teeth",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "start_slot",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "initial_offset",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "half_width_deg",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "is_driver",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'gears'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "slot_count",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "m_in",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "m_out",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "max_adjustments",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "occlusion",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "generator_seed",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_solution_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gear_a_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_solution_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gear_b_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_solution_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_solutions"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "crank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_solutions"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "convergence",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_solutions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "killer_gear_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gear_solutions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "NULL",
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "step",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "worker_a_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "worker_b_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'rota'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "NULL",
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "instigator_worker_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "clue_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_max_swaps"
+    },
+    {
+      "type": "rota_clue_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'max_swaps'::rota_clue_kind",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_max_swaps"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "max_swaps",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_max_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "clue_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "type": "rota_clue_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'never_in_rank'::rota_clue_kind",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "NULL",
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "worker_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "rank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "clue_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_unpowered_square"
+    },
+    {
+      "type": "rota_clue_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'unpowered_square'::rota_clue_kind",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_unpowered_square"
+    },
+    {
+      "type": "chess_file",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "file",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_unpowered_square"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "rank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clue_unpowered_square"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "position",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "type": "rota_clue_kind",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "kind",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "display_text",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'rota'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "step",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "worker_a_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "worker_b_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_solutions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "instigator_worker_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_solutions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "worker_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "type": "rota_phase",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "phase",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "type": "chess_file",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "file",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "rank",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "pg_catalog.gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_workers"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_workers"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "rota_workers"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "anagram_attempts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'anagram'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "anagram_attempts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "answer",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "anagram_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "anagram_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'anagram'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "anagram_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "answer",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "anagram_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "definition_hint",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "anagram_puzzles"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "scramble_seed",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "anagram_puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "NULL",
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "type": "char(1)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "letter",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_attempts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'crossword'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "NULL",
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "type": "char(1)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "letter",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "type": "clue_direction",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "direction",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "position",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "length",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clues"
+    },
+    {
+      "type": "clue_direction",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "direction",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clues"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clues"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clues"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "clue_text",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_clues"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'crossword'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_puzzles"
+    },
+    {
+      "type": "crossword_style",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "style",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "rows",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "cols",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "crossword_puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "account_userId_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "session_userId_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "identifier",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "verification_identifier_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "verification"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "puzzle_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": "\"is_driver\"",
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "gear_puzzle_gears_one_driver_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "user",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "account_user_id_user_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "account"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "user",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "session_user_id_user_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "category_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzle_categories",
+      "columnsTo": [
+        "key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "puzzle_types_category_key_puzzle_categories_key_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "puzzle_types"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzle_types",
+      "columnsTo": [
+        "key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "puzzles_type_key_puzzle_types_key_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "volume_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "volumes",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "puzzles_volume_id_volumes_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "user",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "user_settings_user_id_user_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "user_settings"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzles",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "weekly_puzzles_puzzle_id_puzzles_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "weekly_puzzles"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "attempt_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "attempts",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "attempt_hints_attempt_id_attempts_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "user",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "attempts_user_id_user_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzles",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "attempts_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "reverse_chess_attempts",
+      "columnsTo": [
+        "attempt_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "reverse_chess_attempt_plies_attempt_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "attempts",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "reverse_chess_attempts_attempt_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "reverse_chess_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "reverse_chess_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "reverse_chess_pieces_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "reverse_chess_pieces"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzles",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "reverse_chess_puzzles_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "reverse_chess_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "reverse_chess_solution_plies_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_attempts",
+      "columnsTo": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_attempt_swaps_attempt_id_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "gear_a_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzle_gears",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "gear_attempt_swaps_gear_a_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "gear_b_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzle_gears",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "gear_attempt_swaps_gear_b_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "attempts",
+      "columnsTo": [
+        "id",
+        "puzzle_id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_attempts_attempt_id_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "accused_gear_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzle_gears",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "gear_attempts_accused_gear_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_daily_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_daily"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "gear_a_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzle_gears",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_meshes_gear_a_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_meshes"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "gear_b_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzle_gears",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_meshes_gear_b_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_meshes"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_puzzle_gears_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzles",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_puzzles_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_solutions",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_solution_swaps_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_solution_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "gear_a_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzle_gears",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_solution_swaps_gear_a_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_solution_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "gear_b_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzle_gears",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_solution_swaps_gear_b_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_solution_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gear_solutions_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_solutions"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "killer_gear_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "gear_puzzle_gears",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "gear_solutions_killer_gear_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gear_solutions"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_attempts",
+      "columnsTo": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_attempt_swaps_attempt_id_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "worker_a_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_workers",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "rota_attempt_swaps_worker_a_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "worker_b_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_workers",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "rota_attempt_swaps_worker_b_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "attempts",
+      "columnsTo": [
+        "id",
+        "puzzle_id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_attempts_attempt_id_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "instigator_worker_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_workers",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "rota_attempts_instigator_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "clue_id",
+        "kind"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_clues",
+      "columnsTo": [
+        "id",
+        "kind"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_clue_max_swaps_clue_id_kind_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_clue_max_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "clue_id",
+        "kind"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_clues",
+      "columnsTo": [
+        "id",
+        "kind"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_clue_never_in_rank_clue_id_kind_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "clue_id",
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_clues",
+      "columnsTo": [
+        "id",
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_clue_never_in_rank_clue_id_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "worker_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_workers",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_clue_never_in_rank_worker_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "clue_id",
+        "kind"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_clues",
+      "columnsTo": [
+        "id",
+        "kind"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_clue_unpowered_square_clue_id_kind_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_clue_unpowered_square"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_clues_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzles",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_puzzles_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_solutions",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_solution_swaps_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "worker_a_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_workers",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_solution_swaps_worker_a_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "worker_b_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_workers",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_solution_swaps_worker_b_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_solutions_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_solutions"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "instigator_worker_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_workers",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "name": "rota_solutions_instigator_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_solutions"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "worker_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_workers",
+      "columnsTo": [
+        "puzzle_id",
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_worker_squares_worker_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "rota_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "rota_workers_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "rota_workers"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "attempts",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "anagram_attempts_attempt_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "anagram_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzles",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "anagram_puzzles_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "anagram_puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "crossword_attempts",
+      "columnsTo": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "crossword_attempt_cells_attempt_id_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "row",
+        "col"
+      ],
+      "schemaTo": "public",
+      "tableTo": "crossword_cells",
+      "columnsTo": [
+        "puzzle_id",
+        "row",
+        "col"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "crossword_attempt_cells_cell_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "attempts",
+      "columnsTo": [
+        "id",
+        "puzzle_id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "crossword_attempts_attempt_id_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "crossword_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "crossword_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "crossword_cells_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "direction",
+        "row",
+        "col"
+      ],
+      "schemaTo": "public",
+      "tableTo": "crossword_clues",
+      "columnsTo": [
+        "puzzle_id",
+        "direction",
+        "row",
+        "col"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "crossword_clue_segments_clue_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "row",
+        "col"
+      ],
+      "schemaTo": "public",
+      "tableTo": "crossword_cells",
+      "columnsTo": [
+        "puzzle_id",
+        "row",
+        "col"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "crossword_clues_start_cell_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "crossword_clues"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzles",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "crossword_puzzles_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "crossword_puzzles"
+    },
+    {
+      "columns": [
+        "week_start",
+        "slot"
+      ],
+      "nameExplicit": false,
+      "name": "weekly_puzzles_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "weekly_puzzles"
+    },
+    {
+      "columns": [
+        "attempt_id",
+        "ply"
+      ],
+      "nameExplicit": false,
+      "name": "reverse_chess_attempt_plies_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "file",
+        "rank"
+      ],
+      "nameExplicit": false,
+      "name": "reverse_chess_pieces_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "reverse_chess_pieces"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "ply"
+      ],
+      "nameExplicit": false,
+      "name": "reverse_chess_solution_plies_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "columns": [
+        "attempt_id",
+        "gear_a_id",
+        "gear_b_id"
+      ],
+      "nameExplicit": true,
+      "name": "gear_attempt_swaps_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "gear_a_id",
+        "gear_b_id"
+      ],
+      "nameExplicit": true,
+      "name": "gear_meshes_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "gear_meshes"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "gear_a_id",
+        "gear_b_id"
+      ],
+      "nameExplicit": true,
+      "name": "gear_solution_swaps_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "gear_solution_swaps"
+    },
+    {
+      "columns": [
+        "attempt_id",
+        "step"
+      ],
+      "nameExplicit": true,
+      "name": "rota_attempt_swaps_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "step"
+      ],
+      "nameExplicit": true,
+      "name": "rota_solution_swaps_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "worker_id",
+        "phase"
+      ],
+      "nameExplicit": true,
+      "name": "rota_worker_squares_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "columns": [
+        "attempt_id",
+        "row",
+        "col"
+      ],
+      "nameExplicit": true,
+      "name": "crossword_attempt_cells_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "row",
+        "col"
+      ],
+      "nameExplicit": true,
+      "name": "crossword_cells_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "direction",
+        "row",
+        "col",
+        "position"
+      ],
+      "nameExplicit": true,
+      "name": "crossword_clue_segments_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "direction",
+        "row",
+        "col"
+      ],
+      "nameExplicit": true,
+      "name": "crossword_clues_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "crossword_clues"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "account_pkey",
+      "schema": "public",
+      "table": "account",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "rate_limit_pkey",
+      "schema": "public",
+      "table": "rate_limit",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "session_pkey",
+      "schema": "public",
+      "table": "session",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "user_pkey",
+      "schema": "public",
+      "table": "user",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "verification_pkey",
+      "schema": "public",
+      "table": "verification",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "key"
+      ],
+      "nameExplicit": false,
+      "name": "puzzle_categories_pkey",
+      "schema": "public",
+      "table": "puzzle_categories",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "key"
+      ],
+      "nameExplicit": false,
+      "name": "puzzle_types_pkey",
+      "schema": "public",
+      "table": "puzzle_types",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "puzzles_pkey",
+      "schema": "public",
+      "table": "puzzles",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "user_id"
+      ],
+      "nameExplicit": false,
+      "name": "user_settings_pkey",
+      "schema": "public",
+      "table": "user_settings",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "volumes_pkey",
+      "schema": "public",
+      "table": "volumes",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "attempt_hints_pkey",
+      "schema": "public",
+      "table": "attempt_hints",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "attempts_pkey",
+      "schema": "public",
+      "table": "attempts",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "attempt_id"
+      ],
+      "nameExplicit": false,
+      "name": "reverse_chess_attempts_pkey",
+      "schema": "public",
+      "table": "reverse_chess_attempts",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "puzzle_id"
+      ],
+      "nameExplicit": false,
+      "name": "reverse_chess_puzzles_pkey",
+      "schema": "public",
+      "table": "reverse_chess_puzzles",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "attempt_id"
+      ],
+      "nameExplicit": false,
+      "name": "gear_attempts_pkey",
+      "schema": "public",
+      "table": "gear_attempts",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "date"
+      ],
+      "nameExplicit": false,
+      "name": "gear_daily_pkey",
+      "schema": "public",
+      "table": "gear_daily",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "gear_puzzle_gears_pkey",
+      "schema": "public",
+      "table": "gear_puzzle_gears",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "puzzle_id"
+      ],
+      "nameExplicit": false,
+      "name": "gear_puzzles_pkey",
+      "schema": "public",
+      "table": "gear_puzzles",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "puzzle_id"
+      ],
+      "nameExplicit": false,
+      "name": "gear_solutions_pkey",
+      "schema": "public",
+      "table": "gear_solutions",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "attempt_id"
+      ],
+      "nameExplicit": false,
+      "name": "rota_attempts_pkey",
+      "schema": "public",
+      "table": "rota_attempts",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "clue_id"
+      ],
+      "nameExplicit": false,
+      "name": "rota_clue_max_swaps_pkey",
+      "schema": "public",
+      "table": "rota_clue_max_swaps",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "clue_id"
+      ],
+      "nameExplicit": false,
+      "name": "rota_clue_never_in_rank_pkey",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "clue_id"
+      ],
+      "nameExplicit": false,
+      "name": "rota_clue_unpowered_square_pkey",
+      "schema": "public",
+      "table": "rota_clue_unpowered_square",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "rota_clues_pkey",
+      "schema": "public",
+      "table": "rota_clues",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "puzzle_id"
+      ],
+      "nameExplicit": false,
+      "name": "rota_puzzles_pkey",
+      "schema": "public",
+      "table": "rota_puzzles",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "puzzle_id"
+      ],
+      "nameExplicit": false,
+      "name": "rota_solutions_pkey",
+      "schema": "public",
+      "table": "rota_solutions",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "rota_workers_pkey",
+      "schema": "public",
+      "table": "rota_workers",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "attempt_id"
+      ],
+      "nameExplicit": false,
+      "name": "anagram_attempts_pkey",
+      "schema": "public",
+      "table": "anagram_attempts",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "puzzle_id"
+      ],
+      "nameExplicit": false,
+      "name": "anagram_puzzles_pkey",
+      "schema": "public",
+      "table": "anagram_puzzles",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "attempt_id"
+      ],
+      "nameExplicit": false,
+      "name": "crossword_attempts_pkey",
+      "schema": "public",
+      "table": "crossword_attempts",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "puzzle_id"
+      ],
+      "nameExplicit": false,
+      "name": "crossword_puzzles_pkey",
+      "schema": "public",
+      "table": "crossword_puzzles",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "type_key",
+        "slug"
+      ],
+      "nullsNotDistinct": false,
+      "name": "puzzles_type_key_slug_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "id",
+        "type_key"
+      ],
+      "nullsNotDistinct": false,
+      "name": "puzzles_id_type_key_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "week_start",
+        "puzzle_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "weekly_puzzles_week_start_puzzle_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "weekly_puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "user_id",
+        "puzzle_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "attempts_user_id_puzzle_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "id",
+        "type_key"
+      ],
+      "nullsNotDistinct": false,
+      "name": "attempts_id_type_key_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "id",
+        "puzzle_id",
+        "type_key"
+      ],
+      "nullsNotDistinct": false,
+      "name": "attempts_id_puzzle_id_type_key_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "gear_attempts_attempt_id_puzzle_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "gear_daily_puzzle_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "gear_daily"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "gear_puzzle_gears_puzzle_id_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "label"
+      ],
+      "nullsNotDistinct": false,
+      "name": "gear_puzzle_gears_puzzle_id_label_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "rota_attempts_attempt_id_puzzle_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "rota_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "id",
+        "kind"
+      ],
+      "nullsNotDistinct": false,
+      "name": "rota_clues_id_kind_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "id",
+        "puzzle_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "rota_clues_id_puzzle_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "position"
+      ],
+      "nullsNotDistinct": false,
+      "name": "rota_clues_puzzle_id_position_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "phase",
+        "file",
+        "rank"
+      ],
+      "nullsNotDistinct": false,
+      "name": "rota_worker_squares_puzzle_id_phase_square_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "rota_workers_puzzle_id_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "rota_workers"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "rota_workers_puzzle_id_name_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "rota_workers"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "puzzle_id"
+      ],
+      "nullsNotDistinct": false,
+      "name": "crossword_attempts_attempt_id_puzzle_id_unique",
+      "entityType": "uniques",
+      "schema": "public",
+      "table": "crossword_attempts"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "key"
+      ],
+      "nullsNotDistinct": false,
+      "name": "rate_limit_key_key",
+      "schema": "public",
+      "table": "rate_limit",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "token"
+      ],
+      "nullsNotDistinct": false,
+      "name": "session_token_key",
+      "schema": "public",
+      "table": "session",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "email"
+      ],
+      "nullsNotDistinct": false,
+      "name": "user_email_key",
+      "schema": "public",
+      "table": "user",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "subtype_table"
+      ],
+      "nullsNotDistinct": false,
+      "name": "puzzle_types_subtype_table_key",
+      "schema": "public",
+      "table": "puzzle_types",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "slug"
+      ],
+      "nullsNotDistinct": false,
+      "name": "volumes_slug_key",
+      "schema": "public",
+      "table": "volumes",
+      "entityType": "uniques"
+    },
+    {
+      "value": "\"difficulty\" between 1 and 5",
+      "name": "puzzles_difficulty_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "puzzles"
+    },
+    {
+      "value": "\"row\" >= 0",
+      "name": "attempt_hints_row_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "value": "\"col\" >= 0",
+      "name": "attempt_hints_col_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "attempt_hints"
+    },
+    {
+      "value": "\"ply\" >= 1",
+      "name": "reverse_chess_attempt_plies_ply_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "value": "\"from_rank\" between 1 and 8",
+      "name": "reverse_chess_attempt_plies_from_rank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "value": "\"to_rank\" between 1 and 8",
+      "name": "reverse_chess_attempt_plies_to_rank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_attempt_plies"
+    },
+    {
+      "value": "\"rank\" between 1 and 8",
+      "name": "reverse_chess_pieces_rank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_pieces"
+    },
+    {
+      "value": "\"halfmove\" >= 0",
+      "name": "reverse_chess_puzzles_halfmove_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "value": "\"fullmove\" >= 1",
+      "name": "reverse_chess_puzzles_fullmove_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "value": "\"ply_count\" >= 1",
+      "name": "reverse_chess_puzzles_ply_count_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_puzzles"
+    },
+    {
+      "value": "\"ply\" >= 1",
+      "name": "reverse_chess_solution_plies_ply_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "value": "\"from_rank\" between 1 and 8",
+      "name": "reverse_chess_solution_plies_from_rank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "value": "\"to_rank\" between 1 and 8",
+      "name": "reverse_chess_solution_plies_to_rank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "reverse_chess_solution_plies"
+    },
+    {
+      "value": "\"gear_a_id\" < \"gear_b_id\"",
+      "name": "gear_attempt_swaps_order_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_attempt_swaps"
+    },
+    {
+      "value": "\"crank\" >= 0",
+      "name": "gear_attempts_crank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "value": "\"convergence\" between 1 and 8",
+      "name": "gear_attempts_convergence_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_attempts"
+    },
+    {
+      "value": "\"gear_a_id\" < \"gear_b_id\"",
+      "name": "gear_meshes_order_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_meshes"
+    },
+    {
+      "value": "\"teeth\" in (8, 12, 16, 24)",
+      "name": "gear_puzzle_gears_teeth_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "value": "\"start_slot\" >= 0",
+      "name": "gear_puzzle_gears_start_slot_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "value": "\"initial_offset\" >= 0 and \"initial_offset\" < \"teeth\"",
+      "name": "gear_puzzle_gears_initial_offset_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "value": "\"half_width_deg\" between 1 and 180",
+      "name": "gear_puzzle_gears_half_width_deg_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_puzzle_gears"
+    },
+    {
+      "value": "\"slot_count\" >= 2 and \"slot_count\" % 2 = 0",
+      "name": "gear_puzzles_slot_count_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "value": "\"m_in\" <> \"m_out\"",
+      "name": "gear_puzzles_m_in_m_out_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "value": "\"max_adjustments\" >= 0",
+      "name": "gear_puzzles_max_adjustments_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_puzzles"
+    },
+    {
+      "value": "\"gear_a_id\" < \"gear_b_id\"",
+      "name": "gear_solution_swaps_order_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_solution_swaps"
+    },
+    {
+      "value": "\"crank\" >= 0",
+      "name": "gear_solutions_crank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_solutions"
+    },
+    {
+      "value": "\"convergence\" between 1 and 8",
+      "name": "gear_solutions_convergence_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "gear_solutions"
+    },
+    {
+      "value": "\"step\" >= 1",
+      "name": "rota_attempt_swaps_step_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "value": "\"worker_a_id\" <> \"worker_b_id\"",
+      "name": "rota_attempt_swaps_distinct_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_attempt_swaps"
+    },
+    {
+      "value": "\"max_swaps\" >= 1",
+      "name": "rota_clue_max_swaps_max_swaps_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_clue_max_swaps"
+    },
+    {
+      "value": "\"rank\" between 1 and 8",
+      "name": "rota_clue_never_in_rank_rank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_clue_never_in_rank"
+    },
+    {
+      "value": "\"rank\" between 1 and 8",
+      "name": "rota_clue_unpowered_square_rank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_clue_unpowered_square"
+    },
+    {
+      "value": "\"position\" >= 0",
+      "name": "rota_clues_position_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_clues"
+    },
+    {
+      "value": "\"step\" >= 1",
+      "name": "rota_solution_swaps_step_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "value": "\"worker_a_id\" <> \"worker_b_id\"",
+      "name": "rota_solution_swaps_distinct_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_solution_swaps"
+    },
+    {
+      "value": "\"rank\" between 1 and 8",
+      "name": "rota_worker_squares_rank_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "rota_worker_squares"
+    },
+    {
+      "value": "\"scramble_seed\" >= 0",
+      "name": "anagram_puzzles_scramble_seed_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "anagram_puzzles"
+    },
+    {
+      "value": "\"letter\" ~ '^[A-Z]$'",
+      "name": "crossword_attempt_cells_letter_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "crossword_attempt_cells"
+    },
+    {
+      "value": "\"row\" >= 0",
+      "name": "crossword_cells_row_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "value": "\"col\" >= 0",
+      "name": "crossword_cells_col_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "value": "\"letter\" ~ '^[A-Z]$'",
+      "name": "crossword_cells_letter_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "crossword_cells"
+    },
+    {
+      "value": "\"position\" >= 0",
+      "name": "crossword_clue_segments_position_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "value": "\"length\" >= 1",
+      "name": "crossword_clue_segments_length_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "crossword_clue_segments"
+    },
+    {
+      "value": "\"rows\" between 2 and 21",
+      "name": "crossword_puzzles_rows_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "crossword_puzzles"
+    },
+    {
+      "value": "\"cols\" between 2 and 21",
+      "name": "crossword_puzzles_cols_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "crossword_puzzles"
+    }
+  ],
+  "renames": []
+}

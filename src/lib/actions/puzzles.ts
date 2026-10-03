@@ -8,7 +8,12 @@ import {
   recordHint,
   replaceAttemptState,
 } from "@/lib/data/attempts";
-import { checkPuzzleAnswer, getPublishedTypeKey } from "@/lib/data/puzzles";
+import {
+  checkPuzzleAnswer,
+  checkPuzzleCell,
+  getPublishedTypeKey,
+  revealPuzzleCell,
+} from "@/lib/data/puzzles";
 import { requireUser } from "@/lib/data/user";
 import { getPuzzleModule } from "@/puzzles/registry";
 
@@ -26,7 +31,11 @@ const checkOptionsSchema = z.discriminatedUnion("mode", [
     mode: z.literal("full"),
     durationMs: z.number().int().nonnegative(),
   }),
-  z.object({ mode: z.literal("cell"), ...cellSchema.shape }),
+  z.object({
+    mode: z.literal("cell"),
+    ...cellSchema.shape,
+    value: z.string().min(1).max(8),
+  }),
 ]);
 
 export async function saveState(
@@ -53,14 +62,15 @@ export async function clearState(
   return { ok: true };
 }
 
+/**
+ * Full mode checks `answer` as a whole and completes the attempt when correct.
+ * Cell mode ignores `answer`: the cell's own `value` is checked and one hint recorded.
+ */
 export async function checkAnswer(
   puzzleId: string,
   answer: unknown,
   options: z.input<typeof checkOptionsSchema>,
-): Promise<
-  | { ok: true; result: Awaited<ReturnType<typeof checkPuzzleAnswer>> }
-  | ActionError
-> {
+): Promise<{ ok: true; result: { correct: boolean } } | ActionError> {
   const user = await requireUser();
   const parsedOptions = checkOptionsSchema.safeParse(options);
   if (!puzzleIdSchema.safeParse(puzzleId).success || !parsedOptions.success) {
@@ -68,33 +78,52 @@ export async function checkAnswer(
   }
   const typeKey = await getPublishedTypeKey(puzzleId);
   if (!typeKey) return notFound;
+  const { data } = parsedOptions;
+
+  if (data.mode === "cell") {
+    const result = await checkPuzzleCell(
+      typeKey,
+      puzzleId,
+      data.row,
+      data.col,
+      data.value,
+    );
+    if (!result) return invalid;
+    const attempt = await getOrCreateAttempt(user.id, puzzleId);
+    await recordHint(attempt.id, "check_cell", data.row, data.col);
+    return { ok: true, result };
+  }
+
   const parsedAnswer =
     getPuzzleModule(typeKey).schema.answerSchema.safeParse(answer);
   if (!parsedAnswer.success) return invalid;
-
   const attempt = await getOrCreateAttempt(user.id, puzzleId);
   const result = await checkPuzzleAnswer(typeKey, puzzleId, parsedAnswer.data);
-  const { data } = parsedOptions;
-  if (data.mode === "cell") {
-    await recordHint(attempt.id, "check_cell", data.row, data.col);
-  } else if (result.correct) {
-    await completeAttempt(attempt.id, data.durationMs);
-  }
+  if (result.correct) await completeAttempt(attempt.id, data.durationMs);
   return { ok: true, result };
 }
 
+/** Returns only the one cell's value; the grid never reaches the client. */
 export async function revealCell(
   puzzleId: string,
   row: number,
   col: number,
-): Promise<{ ok: true } | ActionError> {
+): Promise<{ ok: true; value: string } | ActionError> {
   const user = await requireUser();
   const parsed = cellSchema.safeParse({ row, col });
   if (!puzzleIdSchema.safeParse(puzzleId).success || !parsed.success) {
     return invalid;
   }
-  if (!(await getPublishedTypeKey(puzzleId))) return notFound;
+  const typeKey = await getPublishedTypeKey(puzzleId);
+  if (!typeKey) return notFound;
+  const value = await revealPuzzleCell(
+    typeKey,
+    puzzleId,
+    parsed.data.row,
+    parsed.data.col,
+  );
+  if (value === null) return invalid;
   const attempt = await getOrCreateAttempt(user.id, puzzleId);
   await recordHint(attempt.id, "reveal_cell", parsed.data.row, parsed.data.col);
-  return { ok: true };
+  return { ok: true, value };
 }

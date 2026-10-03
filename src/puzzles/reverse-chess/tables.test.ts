@@ -247,6 +247,34 @@ describe("reverse_chess_goals", () => {
     expect(error?.message).toMatch(/in mode last_move must not have a goal/);
   });
 
+  it("rejects deleting the goal of an unwind puzzle at commit", async () => {
+    const error = await pgError(async (tx) => {
+      const puzzleId = await unwindPuzzle(tx);
+      await addGoal(tx, puzzleId);
+      await forceDeferred(tx);
+      await tx
+        .delete(reverseChessGoals)
+        .where(eq(reverseChessGoals.puzzleId, puzzleId));
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/in mode unwind must have a goal/);
+  });
+
+  it("rejects switching a last_move puzzle to unwind without a goal at commit", async () => {
+    const error = await pgError(async (tx) => {
+      await ensureTypes(tx);
+      const puzzleId = await insertPuzzle(tx, "reverse-chess");
+      await insertSubtype(tx, puzzleId);
+      await forceDeferred(tx);
+      await tx
+        .update(reverseChessPuzzles)
+        .set({ mode: "unwind" })
+        .where(eq(reverseChessPuzzles.puzzleId, puzzleId));
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/in mode unwind must have a goal/);
+  });
+
   it("rejects a rank outside 1 to 8", async () => {
     expect(
       await pgErrorCode(async (tx) => {

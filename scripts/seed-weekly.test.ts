@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import {
@@ -97,7 +97,9 @@ describe("seedWeekly", () => {
   });
 
   it("rejects a week that does not start on Monday, writing nothing", async () => {
-    await db.delete(weeklyPuzzles);
+    await db
+      .delete(weeklyPuzzles)
+      .where(inArray(weeklyPuzzles.weekStart, weekStarts));
     const result = await seedWeekly(db, [
       { weekStart: "2026-09-29", first: ref("w-a"), second: ref("w-b") },
     ]);
@@ -120,6 +122,10 @@ describe("seedWeekly", () => {
       { weekStart: weekStarts[0], first: ref("w-a"), second: ref("w-a") },
     ]);
     expect(result.failures).toHaveLength(1);
+  });
+
+  it("accepts an empty schedule", async () => {
+    expect(await seedWeekly(db, [])).toEqual({ weeks: 0, failures: [] });
   });
 
   it("leaves puzzle rows alone", async () => {

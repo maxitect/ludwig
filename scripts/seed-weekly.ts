@@ -42,15 +42,15 @@ export async function seedWeekly(db: Db, schedule: unknown) {
     };
   }
 
+  if (parsed.data.length === 0) return { weeks: 0, failures: [] };
+
   const slugs = [
     ...new Set(parsed.data.flatMap(({ first, second }) => [first.slug, second.slug])),
   ];
-  const rows = slugs.length
-    ? await db
-        .select({ id: puzzles.id, typeKey: puzzles.typeKey, slug: puzzles.slug })
-        .from(puzzles)
-        .where(inArray(puzzles.slug, slugs))
-    : [];
+  const rows = await db
+    .select({ id: puzzles.id, typeKey: puzzles.typeKey, slug: puzzles.slug })
+    .from(puzzles)
+    .where(inArray(puzzles.slug, slugs));
   const ids = new Map(rows.map((row) => [`${row.typeKey}/${row.slug}`, row.id]));
 
   const failures: string[] = [];

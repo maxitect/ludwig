@@ -13,7 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
-import { getCurrentUser } from "@/lib/data/user";
 import { getWeeklySchedule } from "@/lib/data/weekly";
 import { londonWeekStart } from "@/utils/london-time";
 
@@ -44,11 +43,6 @@ function formatWeek(weekStart: string) {
 const puzzleHref = ({ typeKey, slug }: WeekPuzzle) =>
   `/puzzles/${typeKey}/${slug}`;
 
-async function getSolvedForCurrentUser(puzzleIds: string[]) {
-  const user = await getCurrentUser();
-  return user ? getSolvedPuzzleIds(user.id, puzzleIds) : new Set<string>();
-}
-
 export default function ThisWeekPage() {
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
@@ -69,7 +63,7 @@ async function Schedule() {
   const weeks = await getWeeklySchedule(currentWeekStart);
   const current = weeks.find(({ weekStart }) => weekStart === currentWeekStart);
   const previous = weeks.filter(({ weekStart }) => weekStart !== currentWeekStart);
-  const solved = getSolvedForCurrentUser(
+  const solved = getSolvedPuzzleIds(
     weeks.flatMap(({ puzzles }) => puzzles.map(({ id }) => id)),
   );
 

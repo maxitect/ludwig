@@ -44,7 +44,7 @@ export const content = {
     { direction: "across", row: 2, col: 7, clueText: "Glowing review, or a lively party", segments: [4] },
     { direction: "across", row: 3, col: 0, clueText: "Colour of a pillar box", segments: [3] },
     { direction: "across", row: 3, col: 5, clueText: "Go on journeys", segments: [6] },
-    { direction: "down", row: 3, col: 6, clueText: "Sat on a horse as it moved", segments: [4] },
+    { direction: "down", row: 3, col: 6, clueText: "Travelled on horseback", segments: [4] },
     { direction: "across", row: 4, col: 4, clueText: "Made from timber", segments: [6] },
     { direction: "down", row: 4, col: 4, clueText: "Legal order from a court", segments: [4] },
     { direction: "across", row: 5, col: 1, clueText: "One who does not tell the truth", segments: [4] },

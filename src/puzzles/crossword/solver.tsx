@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 import {
   CellGrid,
@@ -17,9 +18,6 @@ import type * as schema from "./schema";
 const DIRECTIONS = ["across", "down"] as const;
 
 const LETTER = /^[A-Z]$/;
-
-const actionClass =
-  "h-8 border-2 border-border bg-background px-3 font-display text-xs font-bold tracking-[0.04em] text-foreground uppercase shadow-[3px_3px_0_var(--color-shadow)] transition-[color,background-color,box-shadow,translate] hover:bg-foreground hover:text-background focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:pointer-events-none disabled:opacity-50";
 
 const label = (entry: Entry) =>
   `${entry.number} ${entry.direction === "across" ? "Across" : "Down"}`;
@@ -208,7 +206,7 @@ export function Solver({
                           onClick={() => selectEntry(entry)}
                           className={cn(
                             "flex w-full gap-2 border-l-4 border-transparent px-2 py-1 text-left outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-ring",
-                            current && "border-ink bg-paper-deep",
+                            current && "border-foreground bg-muted",
                           )}
                         >
                           <span className="w-6 shrink-0 font-display font-bold">
@@ -230,22 +228,24 @@ export function Solver({
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <button
+        <Button
           type="button"
-          className={actionClass}
+          variant="secondary"
+          size="sm"
           disabled={!checkCell || !activeValue || busy}
           onClick={check}
         >
           Check cell
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className={actionClass}
+          variant="secondary"
+          size="sm"
           disabled={!revealCell || busy}
           onClick={reveal}
         >
           Reveal cell
-        </button>
+        </Button>
         <p role="status" aria-live="polite">
           {cellNotice}
         </p>

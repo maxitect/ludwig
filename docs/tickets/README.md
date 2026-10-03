@@ -34,10 +34,10 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T019](./T019-type-anagram.md) | Puzzle type: anagram (pilot) | T018 | ✔ | | done |
 | [T020](./T020-local-progress-merge.md) | Signed-out progress in `localStorage` and merge on sign-up | T019 | | | todo |
 | [T021](./T021-shared-cell-input-grid.md) | Shared `CellInput` grid | T018 | | | done |
-| [T022](./T022-type-crossword-quick.md) | Puzzle type: crossword (quick style) | T019, T021 | ✔ | | in-progress |
+| [T022](./T022-type-crossword-quick.md) | Puzzle type: crossword (quick style) | T019, T021 | ✔ | | done |
 | [T023](./T023-casebook-v1.md) | Casebook v1 (stats views, progress page) | T019 | ✔ | | todo |
 | [T024](./T024-e2e-flows-1-2.md) | Playwright end-to-end flows 1 and 2 | T002, T009, T020, T022, T023 | | | todo |
-| [T071](./T071-split-solver-registry.md) | Split client solvers out of the server puzzle registry | T019 | | | review |
+| [T071](./T071-split-solver-registry.md) | Split client solvers out of the server puzzle registry | T019 | | | done |
 
 ## M2: Reverse Chess
 

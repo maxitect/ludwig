@@ -37,6 +37,23 @@ function describe(position: number) {
     : `Travelling in to convergence ${(position + 1) / 2}`;
 }
 
+function keyTarget(key: string, latest: number) {
+  switch (key) {
+    case "ArrowRight":
+    case "ArrowUp":
+      return Math.floor(latest) + 1;
+    case "ArrowLeft":
+    case "ArrowDown":
+      return Math.ceil(latest) - 1;
+    case "Home":
+      return markerOf(1);
+    case "End":
+      return markerOf(HALF_PHASES / 2);
+    default:
+      return null;
+  }
+}
+
 /**
  * Timeline over the 16 half-phases. `position` is written by the scrubber and read by the board;
  * neither re-renders while it moves. `onSettle` reports the convergence the dance stops on, or null while it is moving.
@@ -128,17 +145,7 @@ export function Scrubber({
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    const latest = position.get();
-    const target =
-      event.key === "ArrowRight" || event.key === "ArrowUp"
-        ? Math.floor(latest) + 1
-        : event.key === "ArrowLeft" || event.key === "ArrowDown"
-          ? Math.ceil(latest) - 1
-          : event.key === "Home"
-            ? markerOf(1)
-            : event.key === "End"
-              ? markerOf(HALF_PHASES / 2)
-              : null;
+    const target = keyTarget(event.key, position.get());
     if (event.key === " ") {
       event.preventDefault();
       setPlaying((now) => !now);

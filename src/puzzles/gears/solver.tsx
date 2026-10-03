@@ -26,7 +26,7 @@ export function Solver({
   });
   const { crank, convergence } = state;
   const position = useMotionValue(markerOf(convergence));
-  const [settled, setSettled] = useState<number | null>(convergence);
+  const [atConvergence, setAtConvergence] = useState(true);
 
   function update(next: Partial<typeof state>) {
     const merged = { ...state, ...next };
@@ -39,7 +39,7 @@ export function Solver({
   }
 
   function settle(next: number | null) {
-    setSettled(next);
+    setAtConvergence(next !== null);
     if (next !== null && next !== convergence) update({ convergence: next });
   }
 
@@ -69,15 +69,15 @@ export function Solver({
         data-testid="convergence-status"
         className="min-h-6"
       >
-        {settled === null ? null : (
+        {atConvergence ? (
           <>
-            Convergence {settled}:{" "}
+            Convergence {convergence}:{" "}
             <output data-testid="seeing-count" className="font-bold">
               {seeing}
             </output>{" "}
             {seeing === 1 ? "dancer sees" : "dancers see"} the victim
           </>
-        )}
+        ) : null}
       </p>
       <div className="flex items-center gap-2">
         <Button

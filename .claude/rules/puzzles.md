@@ -17,7 +17,7 @@ Every type in `src/puzzles/<type>/` has the same shape. Use `/new-puzzle-type` t
 | ------------------ | -------------------------------------------------------------------------------------------------- | ------------------------ |
 | `tables.ts`        | Drizzle tables: subtype, children, **(S)** solution, attempt state                                 | drizzle                  |
 | `schema.ts`        | `payloadSchema`, `answerSchema`, `contentSchema`, `attemptSchema`, composed from `drizzle-orm/zod` | zod, tables              |
-| `load.ts`          | `server-only`. One RQBv2 query that builds the payload DTO. Never selects **(S)**                  | db, schema               |
+| `load.ts`          | `server-only`. One RQBv2 query that builds the payload DTO. Never selects **(S)**                  | db, schema, derive, load-solution |
 | `load-solution.ts` | `server-only`. Solution rows for checking                                                          | db                       |
 | `check.ts`         | Pure `check(payload, solution, answer)`                                                            | schema types, derive     |
 | `derive.ts`        | Pure derivations used instead of stored values                                                     | schema types             |
@@ -26,7 +26,7 @@ Every type in `src/puzzles/<type>/` has the same shape. Use `/new-puzzle-type` t
 
 - Register every type's server module in `src/puzzles/registry.ts`. A `PuzzleTypeModule` is `{ schema, meta, load, loadSolution, check, insertContent, replaceAttemptState, loadAttemptState, clearAttemptState, verify? }`. `loadAttemptState` reads back what `replaceAttemptState` wrote, and `clearAttemptState` deletes it.
 - **Solvers are not part of the module.** The scripts (`db:seed`, `puzzles:verify`) import the registry under `--conditions react-server`, where radix and react-chessboard crash. Register each solver in `src/puzzles/solvers.ts` (`null` until the type has one), which only the solve page imports. Solver props types live in `src/puzzles/solver-types.ts`. `registry-imports.test.ts` guards this.
-- A `load.ts` may call `loadSolution` when the payload is derived from the solution (anagram's tiles), provided it never returns an **(S)** value. An AC4-style test must prove it.
+- A `load.ts` may call `loadSolution` when the payload is derived from the solution (anagram's tiles), provided it never returns an **(S)** value. The payload leak test (`payloadSchema.strict()` on a real `load` result) must prove it.
 - Shared pure code goes in `src/puzzles/_shared/`.
 
 ## Purity

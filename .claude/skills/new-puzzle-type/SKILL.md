@@ -40,7 +40,7 @@ Compose these from `createSelectSchema` / `createInsertSchema` (`drizzle-orm/zod
 
 ## 3. Server and pure code
 
-- **`load.ts`** (`server-only`): one RQBv2 query that names its columns, with no **(S)**, and returns a `payloadSchema` value.
+- **`load.ts`** (`server-only`): one RQBv2 query that names its columns, with no **(S)**, and returns a `payloadSchema` value. If the payload is derived from the solution (anagram's tiles), it may call `loadSolution`, but no **(S)** value may reach the result.
 - **`load-solution.ts`** (`server-only`): the solution rows only.
 - **`derive.ts`** (pure): every value the spec says is derived, e.g. tiles, numbering or ciphertext.
 - **`check.ts`** (pure): `check(payload, solution, answer)` returns `{ correct, cellsWrong? }`.
@@ -50,7 +50,7 @@ Compose these from `createSelectSchema` / `createInsertSchema` (`drizzle-orm/zod
 
 ## 4. Solver UI (`solver.tsx`)
 
-- `"use client"`. It receives the payload and saved attempt state as props, and saves through `saveState`. Type its props with `SolverProps` from `src/puzzles/solver-types.ts`, never from the registry. It may import `ui/*` and `ChessBoard` freely, because no script reaches it.
+- `"use client"`. It receives the payload and saved attempt state as props, reports state changes through `onStateChange` (the chrome autosaves them with `saveState`) and registers its answer reader with `registerCheck`. Type its props with `SolverProps` from `src/puzzles/solver-types.ts`, never from the registry. It may import `ui/*` and `ChessBoard` freely, because no script reaches it.
 - Add it to the solver map in `src/puzzles/solvers.ts`.
 - Reuse `src/puzzles/_shared/` parts such as `CellInput`. Extract a new shared part only if a second type needs it.
 - Follow `.claude/rules/design-system.md`: tokens only, hand-font entries, keyboard-operable, reduced motion respected.

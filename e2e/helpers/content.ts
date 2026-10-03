@@ -9,10 +9,10 @@ type ContentFile<T> = { meta: ContentMeta; content: T };
 
 const contentDir = path.resolve(__dirname, "../../content");
 
-async function loadAll<T>(typeKey: string) {
+async function loadPublished<T>(typeKey: string) {
   const dir = path.join(contentDir, typeKey);
   const names = readdirSync(dir).filter((name) => name.endsWith(".ts"));
-  return Promise.all(
+  const files = await Promise.all(
     names.map(
       (name) =>
         import(pathToFileURL(path.join(dir, name)).href) as Promise<
@@ -20,11 +20,16 @@ async function loadAll<T>(typeKey: string) {
         >,
     ),
   );
+  const now = new Date();
+  return files.filter(
+    ({ meta }) => meta.publishedAt && meta.publishedAt <= now,
+  );
 }
 
 /** Any published anagram; the answer comes straight from its content file. */
 export async function anagramPuzzle() {
-  const [first] = await loadAll<AnagramContent>("anagram");
+  const [first] = await loadPublished<AnagramContent>("anagram");
+  if (!first) throw new Error("No published anagram in content/anagram");
   return {
     typeKey: "anagram",
     slug: first.meta.slug,
@@ -35,9 +40,10 @@ export async function anagramPuzzle() {
 
 /** Any published quick crossword, with its solution cells from the content file. */
 export async function quickCrosswordPuzzle() {
-  const all = await loadAll<CrosswordContent>("crossword");
+  const all = await loadPublished<CrosswordContent>("crossword");
   const quick = all.find(({ content }) => content.style === "quick");
-  if (!quick) throw new Error("No quick crossword in content/crossword");
+  if (!quick)
+    throw new Error("No published quick crossword in content/crossword");
   return {
     typeKey: "crossword",
     slug: quick.meta.slug,

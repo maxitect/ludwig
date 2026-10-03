@@ -1,11 +1,10 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { and, eq, like, not, notInArray, sql } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
 import type { db as appDb } from "../src/db";
-import { GENERATED_SLUG_PREFIX } from "../src/config/generated-puzzles";
 import { relations } from "../src/db/relations";
 import {
   puzzleCategories,
@@ -13,6 +12,7 @@ import {
   puzzles,
   volumes,
 } from "../src/db/schema/core";
+import { gearDaily } from "../src/puzzles/gears/tables";
 import type { PuzzleRegistry } from "../src/puzzles/registry";
 import {
   type ContentFailure,
@@ -22,6 +22,7 @@ import {
 } from "./content-files";
 
 type Db = typeof appDb;
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 type Lookups = typeof defaultLookups;
 
 export type SeedCounts = { inserted: number; updated: number; removed: number };
@@ -80,10 +81,10 @@ async function seedLookups(db: Db, lookups: Lookups) {
 
 /**
  * Writes one puzzle (supertype, subtype and children) in a single transaction, replacing the
- * subtype rows of an existing `(type_key, slug)`. Returns whether the puzzle was newly inserted.
+ * subtype rows of an existing `(type_key, slug)`. Inside a transaction it runs as a savepoint.
  */
 export async function upsertPuzzle(
-  db: Db,
+  db: Db | Tx,
   registry: PuzzleRegistry,
   {
     typeKey,
@@ -129,14 +130,14 @@ export async function upsertPuzzle(
     }
 
     await registry[typeKey].insertContent(tx, puzzleId, content);
-    return !existing;
+    return { id: puzzleId, inserted: !existing };
   });
 }
 
 /**
  * Upserts lookups, then every valid content file (supertype, subtype and children in one
  * transaction per puzzle), then removes puzzles of registered types that no longer have a file.
- * Generated puzzles (slug prefix `daily-`) have no file and are never removed.
+ * Generated daily diagrams (linked in `gear_daily`) have no file and are never removed.
  */
 export async function seed({
   db,
@@ -164,12 +165,12 @@ export async function seed({
 
   for (const { typeKey, slug, file, meta, content } of files) {
     try {
-      const wasInserted = await upsertPuzzle(db, registry, {
+      const { inserted } = await upsertPuzzle(db, registry, {
         typeKey,
         meta,
         content,
       });
-      types[typeKey][wasInserted ? "inserted" : "updated"] += 1;
+      types[typeKey][inserted ? "inserted" : "updated"] += 1;
     } catch (error) {
       const cause = (error as { cause?: Error }).cause ?? error;
       failures.push({
@@ -192,7 +193,10 @@ export async function seed({
       .where(
         and(
           eq(puzzles.typeKey, typeKey),
-          not(like(puzzles.slug, `${GENERATED_SLUG_PREFIX}%`)),
+          notInArray(
+            puzzles.id,
+            db.select({ id: gearDaily.puzzleId }).from(gearDaily),
+          ),
           slugs.length ? notInArray(puzzles.slug, slugs) : undefined,
         ),
       )

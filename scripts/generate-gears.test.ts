@@ -1,13 +1,14 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { and, eq, like, sql } from "drizzle-orm";
+import { eq, like, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import { gearDaily, gearPuzzleGears, gearPuzzles, puzzles } from "@/db/schema";
 import { registry } from "@/puzzles/registry";
 import { generateDailies, parseOptions, UsageError } from "./generate-gears";
-import { seed } from "./seed";
+import { generateDiagram } from "@/puzzles/gears/generate";
+import { seed, upsertPuzzle } from "./seed";
 
 const FROM = "2099-03-01";
 const options = { from: FROM, days: 4, cycle: ["easy", "medium"] as const };
@@ -107,6 +108,18 @@ describe("generateDailies", () => {
     expect(await counts()).toEqual(first);
   });
 
+  it("lets db:seed remove a daily-* puzzle that gear_daily does not link", async () => {
+    await upsertPuzzle(db, registry, {
+      typeKey: "gears",
+      meta: { slug: "daily-2099-09-09", title: "Unlinked", difficulty: 2 },
+      content: generateDiagram("2099-09-09", "easy"),
+    });
+    await seed({ db, registry, contentDir });
+    expect(
+      await db.select({ id: puzzles.id }).from(puzzles).where(eq(puzzles.slug, "daily-2099-09-09")),
+    ).toEqual([]);
+  });
+
   it("regenerates identical diagrams after the rows are dropped", async () => {
     const snapshot = async () =>
       db
@@ -117,7 +130,7 @@ describe("generateDailies", () => {
         })
         .from(gearPuzzleGears)
         .innerJoin(puzzles, eq(puzzles.id, gearPuzzleGears.puzzleId))
-        .where(and(eq(puzzles.slug, "daily-2099-03-03")))
+        .where(eq(puzzles.slug, "daily-2099-03-03"))
         .orderBy(gearPuzzleGears.label);
     const before = await snapshot();
     expect(before.length).toBeGreaterThanOrEqual(6);

@@ -3,9 +3,9 @@ import { parseArgs } from "node:util";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import type { db as appDb } from "../src/db";
 import { relations } from "../src/db/relations";
-import { dailySlug } from "../src/config/generated-puzzles";
-import { gearDaily, puzzles } from "../src/db/schema";
+import { gearDaily } from "../src/db/schema";
 import { generateDiagram } from "../src/puzzles/gears/generate";
 import {
   type Difficulty,
@@ -16,7 +16,7 @@ import { londonMidnight } from "../src/utils/london-time";
 import { contentMetaSchema } from "./content-files";
 import { upsertPuzzle } from "./seed";
 
-type Db = Parameters<typeof upsertPuzzle>[0];
+type Db = typeof appDb;
 
 const USAGE =
   "usage: pnpm puzzles:gen-gears --from YYYY-MM-DD --days N [--difficulty-cycle easy,medium,hard,expert]";
@@ -76,9 +76,9 @@ function addDays(date: string, days: number) {
 
 /**
  * Generates `daily-<date>` for each of `days` dates from `from`, seeded by the date and cycling
- * through `cycle`. Each puzzle is written by the seed module's per-puzzle transaction. A date that
- * already has a `gear_daily` row is skipped: rewriting it would delete its subtype rows, and with
- * them the attempts players have saved against it.
+ * through `cycle`. Each puzzle is written by the seed module's per-puzzle transaction, nested in one
+ * that also links it in `gear_daily`. A date that already has a `gear_daily` row is skipped:
+ * rewriting it would delete its subtype rows, and with them the attempts players have saved.
  */
 export async function generateDailies(
   db: Db,
@@ -100,7 +100,7 @@ export async function generateDailies(
     }
 
     const difficulty = cycle[i % cycle.length];
-    const slug = dailySlug(date);
+    const slug = `daily-${date}`;
     const content = contentSchema.parse(generateDiagram(date, difficulty));
     const meta = contentMetaSchema.parse({
       slug,
@@ -108,19 +108,14 @@ export async function generateDailies(
       difficulty: difficulties.indexOf(difficulty) + 2,
       publishedAt: londonMidnight(date),
     });
-    await upsertPuzzle(db, puzzleRegistry, { typeKey: TYPE_KEY, meta, content });
-
-    const [puzzle] = await db
-      .select({ id: puzzles.id })
-      .from(puzzles)
-      .where(eq(puzzles.slug, slug));
-    await db
-      .insert(gearDaily)
-      .values({ date, puzzleId: puzzle.id })
-      .onConflictDoUpdate({
-        target: gearDaily.date,
-        set: { puzzleId: puzzle.id },
+    await db.transaction(async (tx) => {
+      const { id } = await upsertPuzzle(tx, puzzleRegistry, {
+        typeKey: TYPE_KEY,
+        meta,
+        content,
       });
+      await tx.insert(gearDaily).values({ date, puzzleId: id });
+    });
     summary.created += 1;
     console.log(`${slug} ${difficulty}`);
   }

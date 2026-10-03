@@ -183,11 +183,6 @@ function LastMove({
           </p>
         )}
       </div>
-
-      <p className="sr-only">
-        Drag a piece back to where it came from, or pick it up with Enter,
-        move with the arrow keys and drop it with Enter. Then press Check.
-      </p>
     </div>
   );
 }

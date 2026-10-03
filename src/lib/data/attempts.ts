@@ -84,8 +84,9 @@ export async function completeAttempt(attemptId: string, durationMs: number) {
 
 /** The subset of `puzzleIds` the signed-in user has completed; empty when signed out. */
 export async function getSolvedPuzzleIds(puzzleIds: string[]) {
+  if (puzzleIds.length === 0) return new Set<string>();
   const user = await getCurrentUser();
-  if (!user || puzzleIds.length === 0) return new Set<string>();
+  if (!user) return new Set<string>();
   const rows = await db.query.attempts.findMany({
     where: {
       userId: user.id,

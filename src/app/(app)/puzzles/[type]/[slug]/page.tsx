@@ -83,6 +83,7 @@ async function Solve({
   return (
     <SolveChrome
       puzzleId={play.puzzle.id}
+      typeKey={typeKey}
       category={summary.categoryName}
       title={summary.title}
       difficulty={summary.difficulty}

@@ -18,8 +18,12 @@ export function applyTheme(theme: Theme) {
 }
 
 export function readStoredTheme(): Theme {
-  const stored = localStorage.getItem(THEME_KEY);
-  return isTheme(stored) ? stored : "system";
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    return isTheme(stored) ? stored : "system";
+  } catch {
+    return "system";
+  }
 }
 
 export function writeThemeCookie(theme: Theme | null) {

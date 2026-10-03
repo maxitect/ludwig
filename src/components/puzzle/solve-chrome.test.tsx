@@ -18,6 +18,7 @@ const { SolveChrome } = await import("./solve-chrome");
 afterEach(cleanup);
 beforeEach(() => {
   vi.clearAllMocks();
+  localStorage.clear();
   actions.checkAnswer.mockResolvedValue({ ok: true, result: { correct: true } });
   actions.clearState.mockResolvedValue({ ok: true });
   actions.saveState.mockResolvedValue({ ok: true });
@@ -26,7 +27,13 @@ beforeEach(() => {
 
 const cellResults: unknown[] = [];
 
-function Solver({ registerCheck, checkCell, revealCell }: SolverProps) {
+function Solver({
+  registerCheck,
+  checkCell,
+  revealCell,
+  initialState,
+  onStateChange,
+}: SolverProps) {
   useEffect(() => registerCheck(() => ({ answer: "x" })), [registerCheck]);
   return (
     <>
@@ -45,6 +52,10 @@ function Solver({ registerCheck, checkCell, revealCell }: SolverProps) {
         Cell reveal
       </button>
       <div role="group" aria-label="Board" tabIndex={0} />
+      <output aria-label="Restored">{JSON.stringify(initialState)}</output>
+      <button type="button" onClick={() => onStateChange({ answer: "abc" })}>
+        Place
+      </button>
       <div
         role="application"
         aria-label="Own Enter"
@@ -57,15 +68,19 @@ function Solver({ registerCheck, checkCell, revealCell }: SolverProps) {
   );
 }
 
-function renderChrome(signedIn = true) {
+function renderChrome(
+  signedIn = true,
+  initialState: SolverProps["initialState"] = null,
+) {
   render(
     <SolveChrome
       puzzleId="00000000-0000-0000-0000-000000000001"
+      typeKey="anagram"
       category="Word"
       title="Test"
       difficulty={1}
       payload={{}}
-      initialState={null}
+      initialState={initialState}
       Solver={Solver}
       signedIn={signedIn}
       signInHref="/sign-in"
@@ -101,10 +116,86 @@ describe("SolveChrome Reset", () => {
     );
   });
 
-  it("calls no action when signed out", async () => {
+  it("clears the local entry and calls no action when signed out", async () => {
     renderChrome(false);
+    await userEvent.click(await screen.findByRole("button", { name: "Place" }));
     await userEvent.click(screen.getByRole("button", { name: "Reset" }));
     expect(actions.clearState).not.toHaveBeenCalled();
+    expect(localStorage.getItem(progressKey)).toBeNull();
+  });
+});
+
+const progressKey = "ludwig:progress:00000000-0000-0000-0000-000000000001";
+
+describe("SolveChrome signed out", () => {
+  it("saves state to localStorage without calling saveState, and restores it", async () => {
+    renderChrome(false);
+    await userEvent.click(await screen.findByRole("button", { name: "Place" }));
+    expect(actions.saveState).not.toHaveBeenCalled();
+    expect(JSON.parse(localStorage.getItem(progressKey) ?? "").state).toEqual({
+      answer: "abc",
+    });
+    cleanup();
+    renderChrome(false);
+    expect((await screen.findByLabelText("Restored")).textContent).toBe(
+      '{"answer":"abc"}',
+    );
+  });
+
+  it("checks through the action and marks the local entry complete", async () => {
+    renderChrome(false);
+    await userEvent.click(await screen.findByRole("button", { name: "Place" }));
+    await userEvent.click(screen.getByRole("button", { name: "Check" }));
+    await screen.findByText(/Solved in/);
+    expect(actions.checkAnswer).toHaveBeenCalledTimes(1);
+    const stored = JSON.parse(localStorage.getItem(progressKey) ?? "");
+    expect(stored.completedAt).toBeTypeOf("number");
+    expect(stored.durationMs).toBeTypeOf("number");
+  });
+
+  it("discards a corrupt entry and loads fresh", async () => {
+    localStorage.setItem(progressKey, "{bad");
+    renderChrome(false);
+    expect((await screen.findByLabelText("Restored")).textContent).toBe("null");
+    expect(localStorage.getItem(progressKey)).toBeNull();
+  });
+
+  it("still works when localStorage throws", async () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
+    renderChrome(false);
+    await userEvent.click(await screen.findByRole("button", { name: "Place" }));
+    await userEvent.click(screen.getByRole("button", { name: "Check" }));
+    await screen.findByText(/Solved in/);
+    vi.restoreAllMocks();
+  });
+});
+
+describe("SolveChrome signed in with a local entry awaiting merge", () => {
+  const localEntry = JSON.stringify({
+    typeKey: "anagram",
+    state: { answer: "abc" },
+    startedAt: 1,
+  });
+
+  it("resumes the local state when the server has none", async () => {
+    localStorage.setItem(progressKey, localEntry);
+    renderChrome(true);
+    expect((await screen.findByLabelText("Restored")).textContent).toBe(
+      '{"answer":"abc"}',
+    );
+  });
+
+  it("keeps the server state when there is one", async () => {
+    localStorage.setItem(progressKey, localEntry);
+    renderChrome(true, { answer: "srv" });
+    expect((await screen.findByLabelText("Restored")).textContent).toBe(
+      '{"answer":"srv"}',
+    );
   });
 });
 

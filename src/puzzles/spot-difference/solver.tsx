@@ -125,6 +125,7 @@ export function Solver({
   const [found, setFound] = useState<ReadonlyMap<number, schema.Region>>(
     new Map(),
   );
+  const foundRef = useRef(found);
   const [status, setStatus] = useState("");
   const [cursor, setCursor] = useState<Cursor>({
     column: COLUMNS / 2,
@@ -141,9 +142,10 @@ export function Solver({
     loadFoundRegions(puzzleId, saved)
       .then((result) => {
         if (cancelled || !result.ok) return;
-        setFound(
-          new Map(result.regions.map(({ index, region }) => [index, region])),
+        foundRef.current = new Map(
+          result.regions.map(({ index, region }) => [index, region]),
         );
+        setFound(foundRef.current);
       })
       .catch(() => setStatus("Your saved finds could not be loaded."));
     return () => {
@@ -171,8 +173,9 @@ export function Solver({
       if (!result.ok) return setStatus("That tap could not be checked.");
       if (!result.found) return setStatus("Nothing there.");
       const { index, region } = result.found;
-      if (found.has(index)) return setStatus("Already circled.");
-      const next = new Map(found).set(index, region);
+      if (foundRef.current.has(index)) return setStatus("Already circled.");
+      const next = new Map(foundRef.current).set(index, region);
+      foundRef.current = next;
       setFound(next);
       completedByTap.current = next.size === differenceCount;
       onStateChange({ found: [...next.keys()].sort((a, b) => a - b) });

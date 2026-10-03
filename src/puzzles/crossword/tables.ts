@@ -184,7 +184,7 @@ export const crosswordAttemptCells = pgTable(
         crosswordCells.row,
         crosswordCells.col,
       ],
-    }).onDelete("cascade"),
+    }),
     check(
       "crossword_attempt_cells_letter_check",
       sql`${table.letter} ~ '^[A-Z]$'`,

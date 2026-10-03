@@ -4564,7 +4564,7 @@
         "col"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
+      "onDelete": "NO ACTION",
       "name": "crossword_attempt_cells_cell_fk",
       "entityType": "fks",
       "schema": "public",

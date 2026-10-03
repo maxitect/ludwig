@@ -60,7 +60,7 @@ CREATE TABLE "crossword_puzzles" (
 );
 --> statement-breakpoint
 ALTER TABLE "crossword_attempt_cells" ADD CONSTRAINT "crossword_attempt_cells_attempt_id_puzzle_id_fk" FOREIGN KEY ("attempt_id","puzzle_id") REFERENCES "crossword_attempts"("attempt_id","puzzle_id") ON DELETE CASCADE;--> statement-breakpoint
-ALTER TABLE "crossword_attempt_cells" ADD CONSTRAINT "crossword_attempt_cells_cell_fk" FOREIGN KEY ("puzzle_id","row","col") REFERENCES "crossword_cells"("puzzle_id","row","col") ON DELETE CASCADE;--> statement-breakpoint
+ALTER TABLE "crossword_attempt_cells" ADD CONSTRAINT "crossword_attempt_cells_cell_fk" FOREIGN KEY ("puzzle_id","row","col") REFERENCES "crossword_cells"("puzzle_id","row","col") DEFERRABLE INITIALLY DEFERRED;--> statement-breakpoint
 ALTER TABLE "crossword_attempts" ADD CONSTRAINT "crossword_attempts_attempt_id_puzzle_id_type_key_fk" FOREIGN KEY ("attempt_id","puzzle_id","type_key") REFERENCES "attempts"("id","puzzle_id","type_key") ON DELETE CASCADE;--> statement-breakpoint
 ALTER TABLE "crossword_cells" ADD CONSTRAINT "crossword_cells_puzzle_id_fk" FOREIGN KEY ("puzzle_id") REFERENCES "crossword_puzzles"("puzzle_id") ON DELETE CASCADE;--> statement-breakpoint
 ALTER TABLE "crossword_clue_segments" ADD CONSTRAINT "crossword_clue_segments_clue_fk" FOREIGN KEY ("puzzle_id","direction","row","col") REFERENCES "crossword_clues"("puzzle_id","direction","row","col") ON DELETE CASCADE;--> statement-breakpoint

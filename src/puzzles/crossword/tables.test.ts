@@ -7,6 +7,7 @@ import {
   forceDeferred,
   pgError,
   pgErrorCode,
+  rolledBack,
   type Tx,
 } from "@/db/integrity/harness";
 import {
@@ -327,6 +328,41 @@ describe("crossword module", () => {
           await tx
             .insert(crosswordAttemptCells)
             .values({ attemptId, row: 1, col: 1, letter: "Q" });
+          await forceDeferred(tx);
+        }),
+      ).toBe("23503");
+    });
+
+    it("keeps saved letters when a re-seed rewrites the puzzle's rows", async () => {
+      const kept = await rolledBack(async (tx) => {
+        const attemptId = await startAttempt(tx);
+        await tx
+          .insert(crosswordAttemptCells)
+          .values({ attemptId, row: 0, col: 0, letter: "C" });
+        await tx
+          .delete(crosswordPuzzles)
+          .where(eq(crosswordPuzzles.puzzleId, puzzleId));
+        await crosswordModule.insertContent(tx, puzzleId, fixture);
+        await forceDeferred(tx);
+        return tx
+          .select({ letter: crosswordAttemptCells.letter })
+          .from(crosswordAttemptCells)
+          .where(eq(crosswordAttemptCells.attemptId, attemptId));
+      });
+      expect(kept).toEqual([{ letter: "C" }]);
+    });
+
+    it("rejects removing a cell that holds a saved letter", async () => {
+      expect(
+        await pgErrorCode(async (tx) => {
+          const attemptId = await startAttempt(tx);
+          await tx
+            .insert(crosswordAttemptCells)
+            .values({ attemptId, row: 0, col: 0, letter: "C" });
+          await tx
+            .delete(crosswordPuzzles)
+            .where(eq(crosswordPuzzles.puzzleId, puzzleId));
+          await forceDeferred(tx);
         }),
       ).toBe("23503");
     });

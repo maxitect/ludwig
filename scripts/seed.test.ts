@@ -514,7 +514,7 @@ describe("in-place content updates", () => {
   });
 
   it("removes content rows no attempt references", async () => {
-    const { puzzleId } = await put("rota", rotaContent());
+    const { id: puzzleId } = await put("rota", rotaContent());
     expect((await contentIds(puzzleId)).workers).toHaveLength(3);
 
     await put("rota", rotaContent("Only neighbours swap", ["Marty", "Gary"]));

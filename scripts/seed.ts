@@ -2,7 +2,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { and, eq, notInArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { DatabaseError, Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
 import { weekly } from "../content/weekly";
 import type { db as appDb } from "../src/db";
@@ -99,7 +99,7 @@ export async function upsertPuzzle(
   try {
     return await writePuzzle(db, registry, typeKey, volume, columns, content);
   } catch (error) {
-    const cause = (error as { cause?: unknown }).cause ?? error;
+    const cause = error instanceof Error && error.cause ? error.cause : error;
     if (isAttemptReferenceViolation(cause)) {
       throw new Error(
         `${typeKey}/${columns.slug}: content change removes a row that attempt data references (${cause.constraint}); restore it or delete the affected attempts deliberately`,
@@ -109,14 +109,12 @@ export async function upsertPuzzle(
   }
 }
 
-type PgError = Error & { code?: string; constraint?: string; table?: string };
-
-function isAttemptReferenceViolation(error: unknown): error is PgError {
+function isAttemptReferenceViolation(error: unknown): error is DatabaseError {
   return (
-    error instanceof Error &&
-    (error as PgError).code === "23503" &&
+    error instanceof DatabaseError &&
+    error.code === "23503" &&
     error.message.startsWith("update or delete on table") &&
-    ((error as PgError).table ?? "").includes("attempt")
+    (error.table ?? "").includes("attempt")
   );
 }
 

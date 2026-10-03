@@ -142,9 +142,10 @@ export function Solver({
     loadFoundRegions(puzzleId, saved)
       .then((result) => {
         if (cancelled || !result.ok) return;
-        foundRef.current = new Map(
-          result.regions.map(({ index, region }) => [index, region]),
-        );
+        foundRef.current = new Map([
+          ...result.regions.map(({ index, region }) => [index, region] as const),
+          ...foundRef.current,
+        ]);
         setFound(foundRef.current);
       })
       .catch(() => setStatus("Your saved finds could not be loaded."));

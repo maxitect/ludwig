@@ -5,10 +5,12 @@ export const meta = {
   slug: "dev-knight-takes",
   title: "Dev: Knight Takes",
   difficulty: 2,
-  publishedAt: new Date("2026-10-01T00:00:00Z"),
 } satisfies ContentMeta;
 
-/** rnbqkb1r/pppppPpp/5pN1/8/8/8/PPPP1PPP/RNBQKB1R b - - 0 7 */
+/**
+ * rnbqkb1r/pppppPpp/5pN1/8/8/8/PPPP1PPP/RNBQKB1R b - - 0 10
+ * Proof game: 1.e3 f6 2.e4 Kf7 3.e5 Ke8 4.e6 Nh6 5.Nf3 Rg8 6.Nh4 Rh8 7.Ng6 Nc6 8.Ke2 Nb8 9.Ke1 Nf7 10.exf7+
+ */
 export const content = {
   mode: "last_move",
   sideToMove: "black",
@@ -17,7 +19,7 @@ export const content = {
   blackKingside: false,
   blackQueenside: false,
   halfmove: 0,
-  fullmove: 7,
+  fullmove: 10,
   pieces: [
     { file: "a", rank: 8, colour: "black", piece: "rook" },
     { file: "b", rank: 8, colour: "black", piece: "knight" },

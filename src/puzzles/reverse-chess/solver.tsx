@@ -60,6 +60,13 @@ const toDraft = (ply: Ply): Draft => ({
   unpromote: ply.unpromote,
 });
 
+function evaluate(fen: string, draft: Draft | null) {
+  if (!draft) return { result: null, valid: null };
+  const ply = toPly(draft);
+  const result = applyRetro(fen, toRetro(ply));
+  return { result, valid: result.ok ? ply : null };
+}
+
 export function Solver(props: SolverProps<typeof schema>) {
   if (props.payload.mode !== "last_move") {
     return <p>This kind of Reverse Chess puzzle is not open yet.</p>;
@@ -79,11 +86,7 @@ function LastMove({
   );
   const [rejection, setRejection] = useState<RetroRejection | null>(null);
 
-  const { result, valid } = useMemo(() => {
-    const ply = draft && toPly(draft);
-    const applied = ply ? applyRetro(fen, toRetro(ply)) : null;
-    return { result: applied, valid: ply && applied?.ok ? ply : null };
-  }, [draft, fen]);
+  const { result, valid } = useMemo(() => evaluate(fen, draft), [draft, fen]);
 
   useEffect(() => {
     registerCheck(() => (valid ? { plies: [valid] } : null));
@@ -92,9 +95,8 @@ function LastMove({
   function update(next: Draft | null) {
     setDraft(next);
     setRejection(null);
-    const nextPly = next && toPly(next);
-    const ok = nextPly && applyRetro(fen, toRetro(nextPly)).ok;
-    onStateChange({ plies: nextPly && ok ? [nextPly] : [] });
+    const nextValid = evaluate(fen, next).valid;
+    onStateChange({ plies: nextValid ? [nextValid] : [] });
   }
 
   /** A drop is kept when some choice of uncapture or unpromotion makes it legal, so the player can then make that choice. */

@@ -2,7 +2,9 @@ import "server-only";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { attemptHints, attempts } from "@/db/schema";
+import { getPublishedTypeKey } from "@/lib/data/puzzles";
 import { getCurrentUser } from "@/lib/data/user";
+import type { MergeEntry } from "@/lib/forms/local-progress";
 import { getPuzzleModule } from "@/puzzles/registry";
 
 type HintKind = typeof attemptHints.$inferInsert.kind;
@@ -96,4 +98,40 @@ export async function getSolvedPuzzleIds(puzzleIds: string[]) {
     columns: { puzzleId: true },
   });
   return new Set(rows.map(({ puzzleId }) => puzzleId));
+}
+
+/**
+ * Merges signed-out progress into the user's attempts. The server wins on conflict:
+ * local state is written only when the server has none, and local completion is carried
+ * over only when the server attempt is not complete. Entries that don't validate are skipped.
+ */
+export async function mergeLocalProgress(
+  userId: string,
+  entries: MergeEntry[],
+) {
+  for (const entry of entries) {
+    const typeKey = await getPublishedTypeKey(entry.puzzleId);
+    if (typeKey === null || typeKey !== entry.typeKey) continue;
+    const puzzleModule = getPuzzleModule(typeKey);
+    const state = puzzleModule.schema.attemptSchema.safeParse(entry.state);
+    if (!state.success) continue;
+
+    const attempt = await getOrCreateAttempt(userId, entry.puzzleId);
+    if ((await puzzleModule.loadAttemptState(attempt.id)) === null) {
+      await replaceAttemptState(attempt.id, state.data);
+    }
+    if (entry.completedAt !== undefined && attempt.completedAt === null) {
+      const completedAt = new Date(Math.min(entry.completedAt, Date.now()));
+      await db
+        .update(attempts)
+        .set({
+          startedAt: sql`least(${attempts.startedAt}, ${new Date(Math.min(entry.startedAt, completedAt.getTime()))})`,
+          completedAt,
+          durationMs: entry.durationMs ?? null,
+        })
+        .where(
+          and(eq(attempts.id, attempt.id), sql`${attempts.completedAt} is null`),
+        );
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import { LocalProgressMerge } from "@/components/auth/local-progress-merge";
 import { AccountMenu } from "@/components/shell/account-menu";
 import { GuestMenu } from "@/components/shell/guest-menu";
 import { ThemeSync } from "@/components/shell/theme-sync";
@@ -19,6 +20,7 @@ export async function UserSlot() {
   return (
     <>
       <ThemeSync theme={theme} />
+      <LocalProgressMerge />
       <AccountMenu name={user.name} theme={theme} />
     </>
   );

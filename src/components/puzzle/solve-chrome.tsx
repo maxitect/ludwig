@@ -1,8 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { Credit, SolvedStamp } from "@/components/brand";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
+import { Credit, SolvedStamp, Walker } from "@/components/brand";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,21 +32,29 @@ import {
 } from "@/lib/actions/puzzles";
 import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
+import {
+  clearProgress,
+  completeProgress,
+  readProgress,
+  writeProgress,
+} from "@/utils/local-progress";
 import { usePuzzleTimer } from "./use-puzzle-timer";
 
 const SAVE_DEBOUNCE_MS = 800;
+
+const subscribeNever = () => () => {};
 
 type ReadAnswer = Parameters<SolverProps["registerCheck"]>[0];
 
 type Notice =
   | "wrong"
   | "incomplete"
-  | "sign-in"
+  | "cell-sign-in"
   | "reveal-unavailable"
   | "error"
   | "not-saved";
 
-const noticeText: Record<Exclude<Notice, "sign-in">, string> = {
+const noticeText: Record<Exclude<Notice, "cell-sign-in">, string> = {
   wrong: "Not quite. Keep going.",
   incomplete: "Finish the puzzle before checking it.",
   "reveal-unavailable": "Reveal is not available for this puzzle yet.",
@@ -48,6 +64,7 @@ const noticeText: Record<Exclude<Notice, "sign-in">, string> = {
 
 type SolveChromeProps = {
   puzzleId: string;
+  typeKey: string;
   category: string;
   title: string;
   difficulty: number;
@@ -61,6 +78,7 @@ type SolveChromeProps = {
 
 export function SolveChrome({
   puzzleId,
+  typeKey,
   category,
   title,
   difficulty,
@@ -74,6 +92,15 @@ export function SolveChrome({
   const [solvedMs, setSolvedMs] = useState<number | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+  const localState = useMemo(
+    () => (hydrated ? (readProgress(puzzleId)?.state ?? null) : undefined),
+    [hydrated, puzzleId],
+  );
   const [pending, startTransition] = useTransition();
   const timer = usePuzzleTimer(solvedMs === null);
   const readAnswer = useRef<ReadAnswer | null>(null);
@@ -88,7 +115,7 @@ export function SolveChrome({
 
   const onStateChange = useCallback<SolverProps["onStateChange"]>(
     (state) => {
-      if (!signedIn) return;
+      if (!signedIn) return writeProgress(puzzleId, typeKey, state);
       clearTimeout(saveTimeout.current);
       saveTimeout.current = setTimeout(async () => {
         try {
@@ -99,12 +126,11 @@ export function SolveChrome({
         }
       }, SAVE_DEBOUNCE_MS);
     },
-    [puzzleId, signedIn],
+    [puzzleId, typeKey, signedIn],
   );
 
   function check() {
     if (pending || solved) return;
-    if (!signedIn) return setNotice("sign-in");
     const answer = readAnswer.current?.();
     if (answer === null || answer === undefined) return setNotice("incomplete");
     const durationMs = timer.read();
@@ -116,6 +142,7 @@ export function SolveChrome({
         });
         if (!response.ok) return setNotice("error");
         if (response.result.correct) {
+          if (!signedIn) completeProgress(puzzleId, durationMs);
           setNotice(null);
           setSolvedMs(durationMs);
         } else {
@@ -130,7 +157,7 @@ export function SolveChrome({
   const checkCell = useCallback<NonNullable<SolverProps["checkCell"]>>(
     async (row, col, value) => {
       if (!signedIn) {
-        setNotice("sign-in");
+        setNotice("cell-sign-in");
         return null;
       }
       const response = await checkAnswer(puzzleId, null, {
@@ -149,7 +176,7 @@ export function SolveChrome({
   const revealCellValue = useCallback<NonNullable<SolverProps["revealCell"]>>(
     async (row, col) => {
       if (!signedIn) {
-        setNotice("sign-in");
+        setNotice("cell-sign-in");
         return null;
       }
       const response = await revealCell(puzzleId, row, col).catch(() => null);
@@ -167,7 +194,7 @@ export function SolveChrome({
     setSolvedMs(null);
     setAttempt((value) => value + 1);
     timer.reset();
-    if (!signedIn) return;
+    if (!signedIn) return clearProgress(puzzleId);
     startTransition(async () => {
       try {
         const result = await clearState(puzzleId);
@@ -209,14 +236,20 @@ export function SolveChrome({
           }
         }}
       >
-        <Solver
-          payload={payload}
-          initialState={attempt === 0 ? initialState : null}
-          onStateChange={onStateChange}
-          registerCheck={registerCheck}
-          checkCell={solved ? undefined : checkCell}
-          revealCell={solved ? undefined : revealCellValue}
-        />
+        {signedIn || localState !== undefined ? (
+          <Solver
+            payload={payload}
+            initialState={
+              attempt === 0 ? (signedIn ? initialState : localState) : null
+            }
+            onStateChange={onStateChange}
+            registerCheck={registerCheck}
+            checkCell={solved ? undefined : checkCell}
+            revealCell={solved ? undefined : revealCellValue}
+          />
+        ) : (
+          <Walker />
+        )}
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -250,12 +283,12 @@ export function SolveChrome({
       </div>
 
       <div role="status" aria-live="polite" className="min-h-6">
-        {notice === "sign-in" ? (
+        {notice === "cell-sign-in" ? (
           <p>
             <Link href={signInHref} className="underline underline-offset-4">
               Sign in
             </Link>{" "}
-            to check your answer.
+            to check or reveal individual cells.
           </p>
         ) : (
           notice && <p>{noticeText[notice]}</p>

@@ -288,9 +288,6 @@ describe("unauthenticated", () => {
       "Unauthorised",
     );
     await expect(
-      checkAnswer(puzzleId, { label: "alpha" }, { mode: "full", durationMs: 1 }),
-    ).rejects.toThrow("Unauthorised");
-    await expect(
       checkAnswer(
         puzzleId,
         { label: "alpha" },
@@ -298,6 +295,23 @@ describe("unauthenticated", () => {
       ),
     ).rejects.toThrow("Unauthorised");
     await expect(revealCell(puzzleId, 0, 0)).rejects.toThrow("Unauthorised");
+    expect([await count(attempts), await count(attemptHints)]).toEqual(before);
+  });
+});
+
+describe("unauthenticated full check", () => {
+  it("only checks and writes no attempt or hint rows", async () => {
+    session.userId = null;
+    const before = [await count(attempts), await count(attemptHints)];
+    const full = { mode: "full" as const, durationMs: 1 };
+    expect(await checkAnswer(puzzleId, { label: "alpha" }, full)).toEqual({
+      ok: true,
+      result: { correct: true },
+    });
+    expect(await checkAnswer(puzzleId, { label: "nope" }, full)).toEqual({
+      ok: true,
+      result: { correct: false },
+    });
     expect([await count(attempts), await count(attemptHints)]).toEqual(before);
   });
 });

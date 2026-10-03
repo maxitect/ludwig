@@ -14,7 +14,7 @@ import {
   getPublishedTypeKey,
   revealPuzzleCell,
 } from "@/lib/data/puzzles";
-import { requireUser } from "@/lib/data/user";
+import { getCurrentUser, requireUser } from "@/lib/data/user";
 import { getPuzzleModule } from "@/puzzles/registry";
 
 type ActionError = { ok: false; error: "invalid" | "not_found" };
@@ -64,6 +64,7 @@ export async function clearState(
 
 /**
  * Full mode checks `answer` as a whole and completes the attempt when correct.
+ * Signed out, full mode only checks: no attempt or hint rows are written.
  * Cell mode ignores `answer`: the cell's own `value` is checked and one hint recorded.
  */
 export async function checkAnswer(
@@ -71,7 +72,7 @@ export async function checkAnswer(
   answer: unknown,
   options: z.input<typeof checkOptionsSchema>,
 ): Promise<{ ok: true; result: { correct: boolean } } | ActionError> {
-  const user = await requireUser();
+  const user = await getCurrentUser();
   const parsedOptions = checkOptionsSchema.safeParse(options);
   if (!puzzleIdSchema.safeParse(puzzleId).success || !parsedOptions.success) {
     return invalid;
@@ -81,6 +82,7 @@ export async function checkAnswer(
   const { data } = parsedOptions;
 
   if (data.mode === "cell") {
+    if (!user) throw new Error("Unauthorised");
     const result = await checkPuzzleCell(
       typeKey,
       puzzleId,
@@ -97,8 +99,9 @@ export async function checkAnswer(
   const parsedAnswer =
     getPuzzleModule(typeKey).schema.answerSchema.safeParse(answer);
   if (!parsedAnswer.success) return invalid;
-  const attempt = await getOrCreateAttempt(user.id, puzzleId);
   const result = await checkPuzzleAnswer(typeKey, puzzleId, parsedAnswer.data);
+  if (!user) return { ok: true, result };
+  const attempt = await getOrCreateAttempt(user.id, puzzleId);
   if (result.correct) await completeAttempt(attempt.id, data.durationMs);
   return { ok: true, result };
 }

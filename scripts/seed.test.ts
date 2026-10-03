@@ -492,8 +492,12 @@ describe("in-place content updates", () => {
           .from(puzzles)
           .where(eq(puzzles.id, puzzleId))
       )[0];
-    expect((await metaOf()).sourceNote).toBe("S1E1");
-    expect((await metaOf()).publishedAt).not.toBeNull();
+    const attemptRows = () => db.select().from(attempts).where(eq(attempts.id, attemptId));
+    expect(await metaOf()).toEqual({
+      sourceNote: "S1E1",
+      publishedAt: new Date("2026-01-01T00:00:00Z"),
+    });
+    const attemptsBefore = await attemptRows();
 
     await upsertPuzzle(db, realRegistry, {
       typeKey: "gears",
@@ -502,9 +506,8 @@ describe("in-place content updates", () => {
     });
 
     expect(await metaOf()).toEqual({ sourceNote: null, publishedAt: null });
-    expect(
-      await db.select({ id: attempts.id }).from(attempts).where(eq(attempts.id, attemptId)),
-    ).toHaveLength(1);
+    expect(await attemptRows()).toEqual(attemptsBefore);
+    expect(attemptsBefore).toHaveLength(1);
   });
 
   it("updates edited content fields in place without touching attempts", async () => {

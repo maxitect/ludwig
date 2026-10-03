@@ -200,7 +200,7 @@ Every Monday two puzzles are published, nodding to the paper's "two puzzles a we
 
 - **Header:** the category in a small light caps line, the puzzle title in large bold caps (the credits pattern), and a difficulty shown as 1–5 filled grid squares.
 - **Timer:** monospaced and pausable. It pauses when the tab is hidden.
-- **Actions:** Check, Reveal (with a confirm dialog) and Reset.
+- **Actions:** Check, Reveal (with a confirm dialog) and Reset. Reset clears the board and, when signed in, deletes the saved attempt state (`clearState`), so a reload after Reset starts empty.
 - **On completion:** a red handwritten "Solved." stamp in the hand font, the time, and a "Next in volume" link.
 
 ### 4.6 Content as code

@@ -138,6 +138,24 @@ describe("mergeLocalProgress", () => {
     expect(row.durationMs).toBe(60_000);
   });
 
+  it("clamps the duration to the local start-to-completion window", async () => {
+    const startedAt = Date.now() - 120_000;
+    const completedAt = Date.now() - 60_000;
+    await mergeLocalProgress([
+      entry({ startedAt, completedAt, durationMs: 10 * 60 * 60_000 }),
+    ]);
+    expect((await attemptRow()).durationMs).toBe(60_000);
+  });
+
+  it("rejects a duration beyond the integer column", async () => {
+    expect(
+      await mergeLocalProgress([
+        entry({ startedAt: 0, completedAt: Date.now(), durationMs: 2 ** 31 }),
+      ]),
+    ).toEqual({ ok: false, error: "invalid" });
+    expect(await count()).toBe(0);
+  });
+
   it("does not overwrite a server completion", async () => {
     const { id } = await getOrCreateAttempt(userId, puzzleId);
     const serverCompletedAt = new Date(Date.now() - 5_000);

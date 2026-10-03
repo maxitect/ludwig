@@ -103,7 +103,8 @@ export async function getSolvedPuzzleIds(puzzleIds: string[]) {
 /**
  * Merges signed-out progress into the user's attempts. The server wins on conflict:
  * local state is written only when the server has none, and local completion is carried
- * over only when the server attempt is not complete. Entries that don't validate are skipped.
+ * over only when the server attempt is not complete, with the duration clamped to the local
+ * start-to-completion window. Entries that don't validate are skipped.
  */
 export async function mergeLocalProgress(
   userId: string,
@@ -121,13 +122,17 @@ export async function mergeLocalProgress(
       await replaceAttemptState(attempt.id, state.data);
     }
     if (entry.completedAt !== undefined && attempt.completedAt === null) {
-      const completedAt = new Date(Math.min(entry.completedAt, Date.now()));
+      const completedAt = Math.min(entry.completedAt, Date.now());
+      const startedAt = Math.min(entry.startedAt, completedAt);
       await db
         .update(attempts)
         .set({
-          startedAt: sql`least(${attempts.startedAt}, ${new Date(Math.min(entry.startedAt, completedAt.getTime()))})`,
-          completedAt,
-          durationMs: entry.durationMs ?? null,
+          startedAt: sql`least(${attempts.startedAt}, ${new Date(startedAt)})`,
+          completedAt: new Date(completedAt),
+          durationMs:
+            entry.durationMs === undefined
+              ? null
+              : Math.min(entry.durationMs, completedAt - startedAt),
         })
         .where(
           and(eq(attempts.id, attempt.id), sql`${attempts.completedAt} is null`),

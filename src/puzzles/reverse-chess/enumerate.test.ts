@@ -6,6 +6,7 @@ import path from "node:path";
 import { verifyPuzzles } from "../../../scripts/verify-puzzles";
 import { registry } from "../registry";
 import { enumerateRetro, retroKey } from "./engine";
+import type { Content } from "./schema";
 import { verifyReverseChess } from "./verify";
 
 const ROOK_FEN = "k7/8/1K6/8/8/8/8/R7 b - - 1 1";
@@ -127,17 +128,17 @@ describe("verifyReverseChess Mode B", () => {
   });
 
   it("fails when no chain reaches the goal", () => {
-    const unreachable = {
+    const unreachable: Content = {
       ...unwind,
       goal: { ...unwind.goal, rank: 5 },
-    } as typeof unwind;
+    };
     expect(() => verifyReverseChess(unreachable)).toThrow(
       "expected exactly 1 chain of 2 retro moves reaching the goal, found 0",
     );
   });
 
   it("fails when several chains reach the goal", () => {
-    const loose = {
+    const loose: Content = {
       ...rookCheck,
       mode: "unwind",
       goal: {
@@ -147,7 +148,7 @@ describe("verifyReverseChess Mode B", () => {
         piece: "king",
         count: 1,
       },
-    } as typeof unwind;
+    };
     expect(() => verifyReverseChess(loose)).toThrow(/found at least 2/);
   });
 });

@@ -3,9 +3,9 @@ import { content as unwind } from "../../../content/reverse-chess/dev-unwind";
 import { content as uncaptureFixture } from "../../../content/reverse-chess/dev-knight-takes";
 import { content as uniqueFixture } from "../../../content/reverse-chess/dev-pawn-push";
 import { check } from "./check";
-import type { Answer, Payload } from "./schema";
+import type { Answer, Content, Payload, SolutionPly } from "./schema";
 
-const payload = (content: typeof uniqueFixture | typeof uncaptureFixture): Payload => ({
+const payload = (content: Content): Payload => ({
   mode: content.mode,
   sideToMove: content.sideToMove,
   whiteKingside: content.whiteKingside,
@@ -15,10 +15,13 @@ const payload = (content: typeof uniqueFixture | typeof uncaptureFixture): Paylo
   enPassantFile: null,
   halfmove: content.halfmove,
   fullmove: content.fullmove,
-  goalText: null,
+  goalText: content.goalText ?? null,
   plyCount: content.solutionPlies.length,
   pieces: content.pieces,
 });
+
+const solutionOf = (content: Content): SolutionPly[] =>
+  content.solutionPlies.map((authored) => ({ uncapture: null, ...authored }));
 
 const ply = (
   from: string,
@@ -36,7 +39,7 @@ const ply = (
 });
 
 describe("Mode A check", () => {
-  const solution = uniqueFixture.solutionPlies;
+  const solution = solutionOf(uniqueFixture);
   const run = (plies: Answer["plies"]) =>
     check(payload(uniqueFixture), solution, { plies }).correct;
 
@@ -63,7 +66,7 @@ describe("Mode A check", () => {
 
   it("accepts the uncapture only with the authored piece", () => {
     const run = (uncapture: Answer["plies"][number]["uncapture"]) =>
-      check(payload(uncaptureFixture), uncaptureFixture.solutionPlies, {
+      check(payload(uncaptureFixture), solutionOf(uncaptureFixture), {
         plies: [ply("e6", "f7", { uncapture })],
       }).correct;
     expect(run("knight")).toBe(true);

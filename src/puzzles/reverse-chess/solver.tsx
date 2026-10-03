@@ -131,7 +131,7 @@ function LastMove({
                 : "size-4 border-2 border-border bg-ink"
             }
           />
-          <span className="capitalize">{payload.sideToMove} to move</span>
+          <span>{payload.sideToMove === "white" ? "White" : "Black"} to move</span>
         </p>
       </div>
 

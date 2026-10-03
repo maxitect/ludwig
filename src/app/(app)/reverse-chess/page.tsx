@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
 import { getReverseChessHub } from "@/lib/data/reverse-chess";
 import { PieceGlyph, type PieceKind } from "@/puzzles/_shared/chess-board";
+import "./hub.css";
 
 export const metadata: Metadata = {
   title: "Reverse Chess | Ludwig.",
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 type Hub = Awaited<ReturnType<typeof getReverseChessHub>>;
+type SolvedIds = ReturnType<typeof getSolvedPuzzleIds>;
 
 const SECTIONS = [
   {
@@ -42,7 +44,7 @@ const SECTIONS = [
 
 const DECORATIVE_PIECES = [
   { piece: "king", className: "top-4 right-4 w-16 sm:top-2 sm:right-8 sm:w-44" },
-  { piece: "knight", className: "hidden sm:block sm:top-32 sm:right-56 sm:w-28" },
+  { piece: "knight", className: "hidden sm:block sm:top-32 sm:right-40 sm:w-28" },
 ] as const satisfies readonly { piece: PieceKind; className: string }[];
 
 const HOW_IT_WORKS = [
@@ -54,6 +56,9 @@ const HOW_IT_WORKS = [
 
 export default async function ReverseChessPage() {
   const hub = await getReverseChessHub();
+  const solved = getSolvedPuzzleIds(
+    SECTIONS.flatMap(({ key }) => hub[key].map(({ id }) => id)),
+  );
 
   return (
     <main className="relative mx-auto flex max-w-5xl flex-col gap-10 overflow-x-clip px-4 py-12 sm:px-8">
@@ -65,7 +70,7 @@ export default async function ReverseChessPage() {
         ))}
       </div>
       <header className="relative">
-        <Credit level={1} top="Play it" bottom="Reverse Chess" />
+        <Credit level={1} top="Reverse" bottom="Chess" />
       </header>
       <Card className="relative max-w-2xl">
         <CardContent>
@@ -94,21 +99,12 @@ export default async function ReverseChessPage() {
           ))}
         </ol>
       </section>
-      <Suspense fallback={<ModeSections hub={hub} solved={new Set()} />}>
-        <SignedInModeSections hub={hub} />
-      </Suspense>
+      <ModeSections hub={hub} solved={solved} />
     </main>
   );
 }
 
-async function SignedInModeSections({ hub }: { hub: Hub }) {
-  const solved = await getSolvedPuzzleIds(
-    SECTIONS.flatMap(({ key }) => hub[key].map(({ id }) => id)),
-  );
-  return <ModeSections hub={hub} solved={solved} />;
-}
-
-function ModeSections({ hub, solved }: { hub: Hub; solved: Set<string> }) {
+function ModeSections({ hub, solved }: { hub: Hub; solved: SolvedIds }) {
   return SECTIONS.map(({ key, id, top, title, blurb }) => (
     <section
       key={key}
@@ -139,12 +135,9 @@ function ModeSections({ hub, solved }: { hub: Hub; solved: Set<string> }) {
                   {puzzle.title}
                 </span>
                 <span className="flex items-center gap-3">
-                  {solved.has(puzzle.id) && (
-                    <Badge variant="outline">
-                      <Check aria-hidden="true" />
-                      Solved
-                    </Badge>
-                  )}
+                  <Suspense fallback={null}>
+                    <SolvedBadge puzzleId={puzzle.id} solved={solved} />
+                  </Suspense>
                   <Badge variant="difficulty" level={puzzle.difficulty} />
                 </span>
               </Link>
@@ -154,4 +147,20 @@ function ModeSections({ hub, solved }: { hub: Hub; solved: Set<string> }) {
       )}
     </section>
   ));
+}
+
+async function SolvedBadge({
+  puzzleId,
+  solved,
+}: {
+  puzzleId: string;
+  solved: SolvedIds;
+}) {
+  if (!(await solved).has(puzzleId)) return null;
+  return (
+    <Badge variant="outline">
+      <Check aria-hidden="true" />
+      Solved
+    </Badge>
+  );
 }

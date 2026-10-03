@@ -13,9 +13,12 @@ export async function getReverseChessHub() {
     orderBy: { difficulty: "asc", title: "asc" },
     with: { reverseChess: { columns: { mode: true } } },
   });
-  const puzzles = rows.flatMap(({ reverseChess, ...puzzle }) =>
-    reverseChess ? [{ ...puzzle, mode: reverseChess.mode }] : [],
-  );
+  const puzzles = rows.map(({ reverseChess, ...puzzle }) => {
+    if (!reverseChess) {
+      throw new Error(`Reverse chess puzzle ${puzzle.slug} has no subtype row`);
+    }
+    return { ...puzzle, mode: reverseChess.mode };
+  });
   return {
     lastMove: puzzles.filter(({ mode }) => mode === "last_move"),
     unwind: puzzles.filter(({ mode }) => mode === "unwind"),

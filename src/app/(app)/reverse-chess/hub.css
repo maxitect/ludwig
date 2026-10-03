@@ -1,0 +1,15 @@
+@keyframes hub-piece-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hub-piece {
+    animation: hub-piece-sway 6s ease-in-out infinite;
+  }
+}

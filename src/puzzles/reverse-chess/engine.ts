@@ -79,6 +79,9 @@ function buildPrior(position: string, retro: Retro): Result<{ prior: string }> {
   if (uncapture) chess.put({ type: uncapture, color: other(mover) }, to);
 
   if (special === "en_passant") {
+    if (onTo.type !== "p" || unpromote) {
+      return { ok: false, reason: "replay_mismatch" };
+    }
     const captured = `${to[0]}${from[1]}` as Square;
     if (chess.get(captured)) return { ok: false, reason: "origin_occupied" };
     chess.put({ type: "p", color: other(mover) }, captured);

@@ -15,8 +15,18 @@ export const anagramModule = {
   loadSolution,
   check,
   verify: verifyAnagram,
-  async insertContent(tx, puzzleId, content) {
-    await tx.insert(anagramPuzzles).values({ ...content, puzzleId });
+  async upsertContent(tx, puzzleId, content) {
+    await tx
+      .insert(anagramPuzzles)
+      .values({ ...content, puzzleId })
+      .onConflictDoUpdate({
+        target: anagramPuzzles.puzzleId,
+        set: {
+          answer: content.answer,
+          definitionHint: content.definitionHint ?? null,
+          scrambleSeed: content.scrambleSeed,
+        },
+      });
   },
   async replaceAttemptState(tx, attemptId, { answer }) {
     await tx

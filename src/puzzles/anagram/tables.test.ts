@@ -160,7 +160,7 @@ describe("anagram module", () => {
           difficulty: 1,
         })
         .returning({ id: puzzles.id });
-      await anagramModule.insertContent(tx, row.id, content);
+      await anagramModule.upsertContent(tx, row.id, content);
       return row.id;
     });
     userId = await createTestUser("t019mod");

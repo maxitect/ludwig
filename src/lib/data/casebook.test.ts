@@ -56,7 +56,7 @@ async function makePuzzle(name: string) {
       .insert(puzzles)
       .values({ typeKey: "__fixture", slug: name, title: name, difficulty: 1 })
       .returning({ id: puzzles.id });
-    await fixtureModule.insertContent(tx, row.id, {
+    await fixtureModule.upsertContent(tx, row.id, {
       note: "alpha",
       items: [{ position: 0, label: "alpha" }],
     });

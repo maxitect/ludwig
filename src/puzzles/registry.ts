@@ -40,8 +40,13 @@ export type PuzzleTypeModule<
   ): { correct: boolean };
   /** Per-cell reveal for grid types: the one value at `(row, col)`, or null when there is no such cell. */
   revealCell?(solution: TSolution, row: number, col: number): string | null;
-  /** Writes the subtype and child rows for a puzzle whose supertype row already exists. */
-  insertContent(
+  /**
+   * Brings the subtype and child rows of a puzzle whose supertype row already exists in line with
+   * `content`, in place: upsert on natural keys, delete only rows missing from `content`. Content
+   * rows keep their ids and `*_attempt*` tables are never written. Removing a row that attempt
+   * data references must fail (FK without cascade), never cascade.
+   */
+  upsertContent(
     tx: Tx,
     puzzleId: string,
     content: z.infer<S["contentSchema"]>,

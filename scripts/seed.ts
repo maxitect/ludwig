@@ -2,7 +2,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { and, eq, notInArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { DatabaseError, Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
 import { weekly } from "../content/weekly";
 import type { db as appDb } from "../src/db";
@@ -82,8 +82,10 @@ async function seedLookups(db: Db, lookups: Lookups) {
 }
 
 /**
- * Writes one puzzle (supertype, subtype and children) in a single transaction, replacing the
- * subtype rows of an existing `(type_key, slug)`. Inside a transaction it runs as a savepoint.
+ * Writes one puzzle (supertype, subtype and children) in a single transaction, updating an
+ * existing `(type_key, slug)` in place so content row ids stay stable and attempt data is never
+ * touched. A content change that removes a row attempt data references fails the whole puzzle.
+ * Inside a transaction it runs as a savepoint.
  */
 export async function upsertPuzzle(
   db: Db | Tx,
@@ -93,6 +95,36 @@ export async function upsertPuzzle(
     meta: { volume, ...columns },
     content,
   }: { typeKey: string; meta: ContentMeta; content: unknown },
+) {
+  try {
+    return await writePuzzle(db, registry, typeKey, volume, columns, content);
+  } catch (error) {
+    const cause = error instanceof Error && error.cause ? error.cause : error;
+    if (isAttemptReferenceViolation(cause)) {
+      throw new Error(
+        `${typeKey}/${columns.slug}: content change removes a row that attempt data references (${cause.constraint}); restore it or delete the affected attempts deliberately`,
+      );
+    }
+    throw error;
+  }
+}
+
+function isAttemptReferenceViolation(error: unknown): error is DatabaseError {
+  return (
+    error instanceof DatabaseError &&
+    error.code === "23503" &&
+    error.message.startsWith("update or delete on table") &&
+    (error.table ?? "").includes("attempt")
+  );
+}
+
+async function writePuzzle(
+  db: Db | Tx,
+  registry: PuzzleRegistry,
+  typeKey: string,
+  volume: ContentMeta["volume"],
+  columns: Omit<ContentMeta, "volume">,
+  content: unknown,
 ) {
   return db.transaction(async (tx) => {
     const volumeId = volume
@@ -105,12 +137,6 @@ export async function upsertPuzzle(
       : null;
     if (volume && !volumeId) throw new Error(`unknown volume "${volume}"`);
 
-    const [type] = await tx
-      .select({ subtypeTable: puzzleTypes.subtypeTable })
-      .from(puzzleTypes)
-      .where(eq(puzzleTypes.key, typeKey));
-    if (!type) throw new Error(`no puzzle_types row for "${typeKey}"`);
-
     const values = { ...columns, volumeId };
     const [existing] = await tx
       .select({ id: puzzles.id })
@@ -121,9 +147,6 @@ export async function upsertPuzzle(
     if (existing) {
       puzzleId = existing.id;
       await tx.update(puzzles).set(values).where(eq(puzzles.id, puzzleId));
-      await tx.execute(
-        sql`delete from ${sql.identifier(type.subtypeTable)} where puzzle_id = ${puzzleId}`,
-      );
     } else {
       [{ id: puzzleId }] = await tx
         .insert(puzzles)
@@ -131,7 +154,7 @@ export async function upsertPuzzle(
         .returning({ id: puzzles.id });
     }
 
-    await registry[typeKey].insertContent(tx, puzzleId, content);
+    await registry[typeKey].upsertContent(tx, puzzleId, content);
     return { id: puzzleId, inserted: !existing };
   });
 }

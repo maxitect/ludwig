@@ -1,13 +1,36 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, like, sql } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/db";
-import { puzzleCategories, puzzleTypes, puzzles, volumes } from "@/db/schema";
+import { createTestUser, deleteTestUsers } from "@/db/integrity/harness";
+import {
+  attempts,
+  crosswordAttemptCells,
+  crosswordCells,
+  crosswordClues,
+  gearAttemptSwaps,
+  gearAttempts,
+  gearPuzzleGears,
+  puzzleCategories,
+  puzzleTypes,
+  puzzles,
+  reverseChessAttemptPlies,
+  rotaAttemptSwaps,
+  rotaClues,
+  rotaWorkers,
+  volumes,
+} from "@/db/schema";
 import { registry } from "@/puzzles/__fixture/registry";
 import { fixtureItems, fixturePuzzles } from "@/puzzles/__fixture/tables";
-import { seed } from "./seed";
+import type { Content as CrosswordContent } from "@/puzzles/crossword/schema";
+import type { Content as GearsContent } from "@/puzzles/gears/schema";
+import { registry as realRegistry } from "@/puzzles/registry";
+import type { Content as ReverseChessContent } from "@/puzzles/reverse-chess/schema";
+import type { Content as RotaContent } from "@/puzzles/rota/schema";
+import * as defaultLookups from "../content/lookups";
+import { seed, upsertPuzzle } from "./seed";
 import { verifyPuzzles } from "./verify-puzzles";
 
 const lookups = {
@@ -204,5 +227,356 @@ describe("verifyPuzzles", () => {
 
   it("is a no-op success with an empty registry", async () => {
     expect(await verifyPuzzles({}, contentDir)).toEqual({ checked: 0, failures: [] });
+  });
+});
+
+describe("in-place content updates", () => {
+  const slugPrefix = "t072-";
+  const testCategory = "t072";
+  const typeKeys = ["gears", "rota", "reverse-chess", "crossword"];
+
+  const gears = (overrides: Partial<GearsContent["gears"][number]>[] = []) =>
+    [
+      { label: "a", teeth: 12, startSlot: 0, initialOffset: 0, halfWidthDeg: 45, isDriver: true },
+      { label: "b", teeth: 12, startSlot: 1, initialOffset: 0, halfWidthDeg: 45, isDriver: false },
+      { label: "c", teeth: 12, startSlot: 2, initialOffset: 0, halfWidthDeg: 45, isDriver: false },
+    ].map((gear, index) => ({ ...gear, ...overrides[index] }));
+  const gearsContent = (
+    gearRows = gears(),
+    swaps: GearsContent["solution"]["swaps"] = [{ a: "a", b: "b" }],
+  ): GearsContent => ({
+    slotCount: 8,
+    mIn: 3,
+    mOut: 1,
+    maxAdjustments: 2,
+    occlusion: false,
+    gears: gearRows,
+    meshes: [
+      { a: "a", b: "b" },
+      { a: "b", b: "c" },
+    ],
+    solution: { crank: 4, convergence: 2, killerLabel: "a", swaps },
+  });
+
+  const rotaContent = (
+    clueText = "Only neighbours swap",
+    workerNames = ["Marty", "Gary", "Sue"],
+  ): RotaContent => ({
+    workers: workerNames.map((name, index) => ({
+      name,
+      intended: { file: "a", rank: index + 1 },
+      final: { file: "a", rank: ((index + 1) % workerNames.length) + 1 },
+    })),
+    clues: [
+      { displayText: clueText, kind: "adjacent_only" },
+      { displayText: "One swap at most", kind: "max_swaps", maxSwaps: 2 },
+    ],
+    solution: { instigatorName: "Marty", swaps: [{ a: "Marty", b: "Gary" }] },
+  });
+
+  const reverseChessContent = (): ReverseChessContent => ({
+    mode: "last_move",
+    sideToMove: "black",
+    whiteKingside: false,
+    whiteQueenside: false,
+    blackKingside: false,
+    blackQueenside: false,
+    halfmove: 0,
+    fullmove: 1,
+    pieces: [
+      { file: "b", rank: 7, colour: "black", piece: "king" },
+      { file: "h", rank: 3, colour: "white", piece: "king" },
+    ],
+    solutionPlies: [
+      { fromFile: "a", fromRank: 5, toFile: "a", toRank: 6, unpromote: false, special: "none" },
+    ],
+  });
+
+  const crosswordContent = (
+    clueText = "First two",
+    cells = [
+      { row: 0, col: 0, letter: "A" },
+      { row: 0, col: 1, letter: "B" },
+      { row: 1, col: 0, letter: "C" },
+    ],
+  ): CrosswordContent => ({
+    style: "quick",
+    rows: 2,
+    cols: 2,
+    cells,
+    clues: [{ direction: "across", row: 0, col: 0, clueText, segments: [2] }],
+  });
+
+  const put = (typeKey: string, content: unknown) =>
+    upsertPuzzle(db, realRegistry, {
+      typeKey,
+      meta: { slug: `${slugPrefix}${typeKey}`, title: "T072", difficulty: 1 },
+      content,
+    });
+
+  const startAttempt = async (puzzleId: string) => {
+    const userId = await createTestUser("t072");
+    const [attempt] = await db
+      .insert(attempts)
+      .values({ userId, puzzleId })
+      .returning({ id: attempts.id });
+    return attempt.id;
+  };
+
+  async function cleanUpTypes() {
+    await db.delete(puzzles).where(like(puzzles.slug, `${slugPrefix}%`));
+    await db.delete(puzzleTypes).where(eq(puzzleTypes.categoryKey, testCategory));
+    await db.delete(puzzleCategories).where(eq(puzzleCategories.key, testCategory));
+  }
+
+  beforeAll(async () => {
+    await cleanUpTypes();
+    await db
+      .insert(puzzleCategories)
+      .values({ key: testCategory, name: "T072", sort: 98 })
+      .onConflictDoNothing();
+    await db
+      .insert(puzzleTypes)
+      .values(
+        defaultLookups.types
+          .filter((type) => typeKeys.includes(type.key))
+          .map((type) => ({ ...type, categoryKey: testCategory })),
+      )
+      .onConflictDoNothing();
+  });
+  beforeEach(async () => {
+    await db.delete(puzzles).where(like(puzzles.slug, `${slugPrefix}%`));
+  });
+  afterAll(async () => {
+    await cleanUpTypes();
+    await deleteTestUsers();
+  });
+
+  const gearState = (attemptId: string) =>
+    Promise.all([
+      db.select().from(gearAttempts).where(eq(gearAttempts.attemptId, attemptId)),
+      db.select().from(gearAttemptSwaps).where(eq(gearAttemptSwaps.attemptId, attemptId)),
+    ]);
+  const rotaState = (attemptId: string) =>
+    db.select().from(rotaAttemptSwaps).where(eq(rotaAttemptSwaps.attemptId, attemptId));
+  const crosswordState = (attemptId: string) =>
+    db
+      .select()
+      .from(crosswordAttemptCells)
+      .where(eq(crosswordAttemptCells.attemptId, attemptId));
+  const reverseChessState = (attemptId: string) =>
+    db
+      .select()
+      .from(reverseChessAttemptPlies)
+      .where(eq(reverseChessAttemptPlies.attemptId, attemptId));
+
+  const contentIds = async (puzzleId: string) => ({
+    gears: await db
+      .select({ id: gearPuzzleGears.id, label: gearPuzzleGears.label })
+      .from(gearPuzzleGears)
+      .where(eq(gearPuzzleGears.puzzleId, puzzleId))
+      .orderBy(gearPuzzleGears.label),
+    workers: await db
+      .select({ id: rotaWorkers.id, name: rotaWorkers.name })
+      .from(rotaWorkers)
+      .where(eq(rotaWorkers.puzzleId, puzzleId))
+      .orderBy(rotaWorkers.name),
+    clues: await db
+      .select({ id: rotaClues.id, position: rotaClues.position })
+      .from(rotaClues)
+      .where(eq(rotaClues.puzzleId, puzzleId))
+      .orderBy(rotaClues.position),
+  });
+
+  async function startGearsAttempt() {
+    const { id: puzzleId } = await put("gears", gearsContent());
+    const [a, b] = (await contentIds(puzzleId)).gears;
+    const attemptId = await startAttempt(puzzleId);
+    await db.transaction((tx) =>
+      realRegistry.gears.replaceAttemptState(tx, attemptId, {
+        crank: 3,
+        convergence: 1,
+        accusedGearId: a.id,
+        swaps: [{ gearAId: a.id, gearBId: b.id }],
+      }),
+    );
+    return { puzzleId, attemptId };
+  }
+
+  async function startRotaAttempt() {
+    const { id: puzzleId } = await put("rota", rotaContent());
+    const [gary, marty] = (await contentIds(puzzleId)).workers;
+    const attemptId = await startAttempt(puzzleId);
+    await db.transaction((tx) =>
+      realRegistry.rota.replaceAttemptState(tx, attemptId, {
+        instigatorWorkerId: marty.id,
+        swaps: [{ workerAId: marty.id, workerBId: gary.id }],
+      }),
+    );
+    return { puzzleId, attemptId };
+  }
+
+  async function startCrosswordAttempt() {
+    const { id: puzzleId } = await put("crossword", crosswordContent());
+    const attemptId = await startAttempt(puzzleId);
+    await db.transaction((tx) =>
+      realRegistry.crossword.replaceAttemptState(tx, attemptId, {
+        cells: [{ row: 0, col: 1, letter: "B" }],
+      }),
+    );
+    return { puzzleId, attemptId };
+  }
+
+  async function startReverseChessAttempt() {
+    const { id: puzzleId } = await put("reverse-chess", reverseChessContent());
+    const attemptId = await startAttempt(puzzleId);
+    await db.transaction((tx) =>
+      realRegistry["reverse-chess"].replaceAttemptState(tx, attemptId, {
+        plies: [
+          { fromFile: "a", fromRank: 5, toFile: "a", toRank: 6, unpromote: false, special: "none" },
+        ],
+      }),
+    );
+    return { puzzleId, attemptId };
+  }
+
+  it("keeps attempt rows and content ids when unchanged content is re-seeded", async () => {
+    const gearsRun = await startGearsAttempt();
+    const rotaRun = await startRotaAttempt();
+    const crosswordRun = await startCrosswordAttempt();
+    const reverseChessRun = await startReverseChessAttempt();
+    const before = {
+      gears: await gearState(gearsRun.attemptId),
+      rota: await rotaState(rotaRun.attemptId),
+      crossword: await crosswordState(crosswordRun.attemptId),
+      reverseChess: await reverseChessState(reverseChessRun.attemptId),
+      gearIds: await contentIds(gearsRun.puzzleId),
+      rotaIds: await contentIds(rotaRun.puzzleId),
+    };
+    expect(before.gears[1]).toHaveLength(1);
+    expect(before.rota).toHaveLength(1);
+    expect(before.crossword).toHaveLength(1);
+    expect(before.reverseChess).toHaveLength(1);
+
+    for (let round = 0; round < 2; round++) {
+      await put("gears", gearsContent());
+      await put("rota", rotaContent());
+      await put("crossword", crosswordContent());
+      await put("reverse-chess", reverseChessContent());
+    }
+
+    expect(await gearState(gearsRun.attemptId)).toEqual(before.gears);
+    expect(await rotaState(rotaRun.attemptId)).toEqual(before.rota);
+    expect(await crosswordState(crosswordRun.attemptId)).toEqual(before.crossword);
+    expect(await reverseChessState(reverseChessRun.attemptId)).toEqual(before.reverseChess);
+    expect(await contentIds(gearsRun.puzzleId)).toEqual(before.gearIds);
+    expect(await contentIds(rotaRun.puzzleId)).toEqual(before.rotaIds);
+  });
+
+  it("updates edited content fields in place without touching attempts", async () => {
+    const gearsRun = await startGearsAttempt();
+    const rotaRun = await startRotaAttempt();
+    const crosswordRun = await startCrosswordAttempt();
+    const before = {
+      gears: await gearState(gearsRun.attemptId),
+      rota: await rotaState(rotaRun.attemptId),
+      crossword: await crosswordState(crosswordRun.attemptId),
+      gearIds: await contentIds(gearsRun.puzzleId),
+      rotaIds: await contentIds(rotaRun.puzzleId),
+    };
+
+    await put("gears", gearsContent(gears([{}, { teeth: 16 }])));
+    await put("rota", rotaContent("Neighbours only"));
+    await put("crossword", crosswordContent("Changed clue"));
+
+    const [, changedGear] = await db
+      .select({ teeth: gearPuzzleGears.teeth })
+      .from(gearPuzzleGears)
+      .where(eq(gearPuzzleGears.puzzleId, gearsRun.puzzleId))
+      .orderBy(gearPuzzleGears.label);
+    expect(changedGear.teeth).toBe(16);
+    const [clue] = await db
+      .select({ displayText: rotaClues.displayText })
+      .from(rotaClues)
+      .where(and(eq(rotaClues.puzzleId, rotaRun.puzzleId), eq(rotaClues.position, 0)));
+    expect(clue.displayText).toBe("Neighbours only");
+    const [crosswordClue] = await db
+      .select({ clueText: crosswordClues.clueText })
+      .from(crosswordClues)
+      .where(eq(crosswordClues.puzzleId, crosswordRun.puzzleId));
+    expect(crosswordClue.clueText).toBe("Changed clue");
+
+    expect(await gearState(gearsRun.attemptId)).toEqual(before.gears);
+    expect(await rotaState(rotaRun.attemptId)).toEqual(before.rota);
+    expect(await crosswordState(crosswordRun.attemptId)).toEqual(before.crossword);
+    expect(await contentIds(gearsRun.puzzleId)).toEqual(before.gearIds);
+    expect((await contentIds(rotaRun.puzzleId)).workers).toEqual(before.rotaIds.workers);
+  });
+
+  it("removes content rows no attempt references", async () => {
+    const { id: puzzleId } = await put("rota", rotaContent());
+    expect((await contentIds(puzzleId)).workers).toHaveLength(3);
+
+    await put("rota", rotaContent("Only neighbours swap", ["Marty", "Gary"]));
+
+    expect((await contentIds(puzzleId)).workers.map((worker) => worker.name)).toEqual([
+      "Gary",
+      "Marty",
+    ]);
+  });
+
+  it("fails naming the puzzle and changes nothing when attempt data references a removed row", async () => {
+    const gearsRun = await startGearsAttempt();
+    const rotaRun = await startRotaAttempt();
+    const crosswordRun = await startCrosswordAttempt();
+    const before = {
+      gears: await gearState(gearsRun.attemptId),
+      rota: await rotaState(rotaRun.attemptId),
+      crossword: await crosswordState(crosswordRun.attemptId),
+      gearIds: await contentIds(gearsRun.puzzleId),
+      rotaIds: await contentIds(rotaRun.puzzleId),
+    };
+
+    const withoutGearB = gearsContent(
+      [gears()[0], { ...gears()[2], teeth: 16 }],
+      [],
+    );
+    withoutGearB.meshes = [{ a: "a", b: "c" }];
+    await expect(put("gears", withoutGearB)).rejects.toThrow(
+      /gears\/t072-gears.*attempt data references/,
+    );
+    await expect(
+      put("rota", rotaContent("Edited and removed", ["Gary", "Sue"])),
+    ).rejects.toThrow(/rota\/t072-rota.*attempt data references/);
+    await expect(
+      put(
+        "crossword",
+        crosswordContent("Edited and removed", [
+          { row: 0, col: 0, letter: "A" },
+          { row: 1, col: 0, letter: "C" },
+        ]),
+      ),
+    ).rejects.toThrow(/crossword\/t072-crossword.*attempt data references/);
+
+    expect(await contentIds(gearsRun.puzzleId)).toEqual(before.gearIds);
+    expect(await contentIds(rotaRun.puzzleId)).toEqual(before.rotaIds);
+    expect(await gearState(gearsRun.attemptId)).toEqual(before.gears);
+    expect(await rotaState(rotaRun.attemptId)).toEqual(before.rota);
+    expect(await crosswordState(crosswordRun.attemptId)).toEqual(before.crossword);
+    const [clue] = await db
+      .select({ displayText: rotaClues.displayText })
+      .from(rotaClues)
+      .where(and(eq(rotaClues.puzzleId, rotaRun.puzzleId), eq(rotaClues.position, 0)));
+    expect(clue.displayText).toBe("Only neighbours swap");
+    const cells = await db
+      .select({ row: crosswordCells.row })
+      .from(crosswordCells)
+      .where(eq(crosswordCells.puzzleId, crosswordRun.puzzleId));
+    expect(cells).toHaveLength(3);
+    const [gearC] = await db
+      .select({ teeth: gearPuzzleGears.teeth })
+      .from(gearPuzzleGears)
+      .where(and(eq(gearPuzzleGears.puzzleId, gearsRun.puzzleId), eq(gearPuzzleGears.label, "c")));
+    expect(gearC.teeth).toBe(12);
   });
 });

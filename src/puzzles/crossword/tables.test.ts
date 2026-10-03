@@ -152,13 +152,13 @@ describe("crossword module", () => {
   let userId: string;
   const insertedTypes: string[] = [];
 
-  async function insertContentPuzzle(slug: string) {
+  async function upsertContentPuzzle(slug: string) {
     return db.transaction(async (tx) => {
       const [row] = await tx
         .insert(puzzles)
         .values({ typeKey: "crossword", slug, title: slug, difficulty: 1 })
         .returning({ id: puzzles.id });
-      await crosswordModule.insertContent(tx, row.id, fixture);
+      await crosswordModule.upsertContent(tx, row.id, fixture);
       return row.id;
     });
   }
@@ -181,8 +181,8 @@ describe("crossword module", () => {
       .onConflictDoNothing()
       .returning({ key: puzzleTypes.key });
     insertedTypes.push(...added.map((row) => row.key));
-    puzzleId = await insertContentPuzzle("t022-module");
-    otherPuzzleId = await insertContentPuzzle("t022-other");
+    puzzleId = await upsertContentPuzzle("t022-module");
+    otherPuzzleId = await upsertContentPuzzle("t022-other");
     userId = await createTestUser("t022mod");
   });
 
@@ -220,7 +220,7 @@ describe("crossword module", () => {
           difficulty: 1,
         })
         .returning({ id: puzzles.id });
-      await crosswordModule.insertContent(tx, row.id, split);
+      await crosswordModule.upsertContent(tx, row.id, split);
       return row.id;
     });
     const payload = await load(id);
@@ -342,7 +342,7 @@ describe("crossword module", () => {
         await tx
           .delete(crosswordPuzzles)
           .where(eq(crosswordPuzzles.puzzleId, puzzleId));
-        await crosswordModule.insertContent(tx, puzzleId, fixture);
+        await crosswordModule.upsertContent(tx, puzzleId, fixture);
         await forceDeferred(tx);
         return tx
           .select({ letter: crosswordAttemptCells.letter })

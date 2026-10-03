@@ -30,8 +30,17 @@ export const fixtureModule = {
   revealCell(solution) {
     return solution;
   },
-  async insertContent(tx, puzzleId, content) {
-    await tx.insert(fixturePuzzles).values({ puzzleId, note: content.note });
+  async upsertContent(tx, puzzleId, content) {
+    await tx
+      .insert(fixturePuzzles)
+      .values({ puzzleId, note: content.note })
+      .onConflictDoUpdate({
+        target: fixturePuzzles.puzzleId,
+        set: { note: content.note },
+      });
+    await tx
+      .delete(fixtureItems)
+      .where(eq(fixtureItems.puzzleId, puzzleId));
     await tx
       .insert(fixtureItems)
       .values(content.items.map((item) => ({ ...item, puzzleId })));

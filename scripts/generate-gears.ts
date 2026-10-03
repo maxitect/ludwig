@@ -77,8 +77,8 @@ function addDays(date: string, days: number) {
 /**
  * Generates `daily-<date>` for each of `days` dates from `from`, seeded by the date and cycling
  * through `cycle`. Each puzzle is written by the seed module's per-puzzle transaction, nested in one
- * that also links it in `gear_daily`. A date that already has a `gear_daily` row is skipped:
- * rewriting it would delete its subtype rows, and with them the attempts players have saved.
+ * that also links it in `gear_daily`. A date that already has a `gear_daily` row is skipped, so a
+ * published daily never changes.
  */
 export async function generateDailies(
   db: Db,

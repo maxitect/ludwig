@@ -2,6 +2,7 @@ import "server-only";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { attemptHints, attempts } from "@/db/schema";
+import { getCurrentUser } from "@/lib/data/user";
 import { getPuzzleModule } from "@/puzzles/registry";
 
 type HintKind = typeof attemptHints.$inferInsert.kind;
@@ -79,4 +80,20 @@ export async function completeAttempt(attemptId: string, durationMs: number) {
     .where(
       and(eq(attempts.id, attemptId), sql`${attempts.completedAt} is null`),
     );
+}
+
+/** The subset of `puzzleIds` the signed-in user has completed; empty when signed out. */
+export async function getSolvedPuzzleIds(puzzleIds: string[]) {
+  if (puzzleIds.length === 0) return new Set<string>();
+  const user = await getCurrentUser();
+  if (!user) return new Set<string>();
+  const rows = await db.query.attempts.findMany({
+    where: {
+      userId: user.id,
+      puzzleId: { in: puzzleIds },
+      completedAt: { isNotNull: true },
+    },
+    columns: { puzzleId: true },
+  });
+  return new Set(rows.map(({ puzzleId }) => puzzleId));
 }

@@ -127,3 +127,5 @@ export const weeklyPuzzles = pgTable(
 export const puzzleInsertSchema = createInsertSchema(puzzles, {
   difficulty: (schema) => schema.min(1).max(5),
 });
+
+export const weeklyPuzzleInsertSchema = createInsertSchema(weeklyPuzzles);

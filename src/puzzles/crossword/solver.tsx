@@ -81,9 +81,6 @@ export function Solver({
   );
   const words = useMemo(() => deriveWords(entries, direction), [entries, direction]);
 
-  const filled = (map: ReadonlyMap<CellKey, string>) =>
-    entered(payload.cells, map);
-
   useEffect(() => {
     registerCheck(() =>
       letters.size === payload.cells.length
@@ -98,7 +95,7 @@ export function Solver({
     else next.delete(cellKey(row, col));
     setLetters(next);
     setCellNotice("");
-    onStateChange({ cells: filled(next) });
+    onStateChange({ cells: entered(payload.cells, next) });
   }
 
   function moveTo(position: CellPosition) {

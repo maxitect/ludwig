@@ -64,7 +64,7 @@ export function lcmTeeth(gears: Gear[]) {
   return gears.reduce((l, g) => (l * g.teeth) / gcd(l, g.teeth), 1);
 }
 
-function signsOf({ gears, meshes }: Diagram): Signs {
+export function signsOf({ gears, meshes }: Diagram): Signs {
   const driver = gears.find((g) => g.isDriver);
   if (!driver) throw new Error("diagram has no driver gear");
   const result = spinSigns(gears, meshes, driver.id);
@@ -72,14 +72,19 @@ function signsOf({ gears, meshes }: Diagram): Signs {
   return result.signs;
 }
 
+export function slotOf({ slotCount }: Diagram, gear: Gear, f: number) {
+  return mod(gear.startSlot + (f - 1) * (slotCount / 2 + 1), slotCount);
+}
+
 function geometry(
-  { slotCount, mIn, mOut }: Diagram,
+  diagram: Diagram,
   gear: Gear,
   sign: Spin,
   crank: number,
   f: number,
 ) {
-  const slot = mod(gear.startSlot + (f - 1) * (slotCount / 2 + 1), slotCount);
+  const slot = slotOf(diagram, gear, f);
+  const { mIn, mOut } = diagram;
   const facingTeeth = mod(
     gear.initialOffset + sign * (crank + mIn + (f - 1) * (mIn - mOut)),
     gear.teeth,

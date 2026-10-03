@@ -400,7 +400,9 @@ Tuning result: gear counts (7, 9, 9, 11), half-widths (45, 45, 30, 30), 12 slots
 
 - **Crank:** drag-rotate the driver gear, or use ± tooth buttons and arrow keys. Every meshed gear turns live, in the correct direction and ratio.
 - **Dance scrubber:** a timeline of 8 figures, 16 half-phases, with play/pause. Animation interpolates position along an in/out path and rotation, using `motion`.
-- At each convergence the victim marker shows which gears "see" it: thin red sightlines appear from those gears.
+  - The timeline position runs 0 to 16 in half-phases, and half-phase 2f - 1 ends at convergence f (markers 1 to 8). Gears move in a straight line, outer ring to inner ring and back out to the next figure's slot, and turn linearly by +m_in and then -m_out teeth. Interpolation is presentation only: at a marker the board equals `stateAt` exactly.
+  - Keys on the scrubber: Left and Right move one half-phase, Home and End jump to markers 1 and 8, Space plays or pauses. Play dwells on each convergence. With reduced motion, Play steps from marker to marker with no interpolation.
+- At each convergence the victim marker shows which gears "see" it: thin red sightlines appear from those gears, and an `aria-live="polite"` line announces the count.
 - **Accuse:** choose the convergence and the killer gear, then submit. The submission contains (c, f, g).
 - Fix the Diagram: tap two gears to swap their starting slots. The swap count is shown as "Adjustments: 1/2".
 

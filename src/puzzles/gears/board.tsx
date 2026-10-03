@@ -1,4 +1,9 @@
+"use client";
+
+import type { MotionValue } from "motion/react";
+import { useLayoutEffect, useRef } from "react";
 import type { CrankProps } from "./crank";
+import { convergenceAt, type DanceGear, danceAt, markerOf } from "./dance";
 import { type Diagram, stateAt } from "./engine";
 
 type Gear = Diagram["gears"][number];
@@ -55,28 +60,126 @@ function toothScale({ gears, slotCount }: Diagram) {
   return Math.min(MAX_TOOTH_SCALE, halfGap / Math.max(...gears.map((g) => g.teeth)));
 }
 
+const pointOf = (slot: number, inner: boolean, slotCount: number) =>
+  polar(slotAngle(slot, slotCount), inner ? RING_IN : RING_OUT);
+
+/** Straight line from the leg's start to its end, so a gear crosses the floor on the way out. */
+function centreOf(dance: DanceGear, slotCount: number) {
+  const [x1, y1] = pointOf(dance.fromSlot, dance.fromInner, slotCount);
+  const [x2, y2] = pointOf(dance.toSlot, dance.toInner, slotCount);
+  return [
+    round(x1 + (x2 - x1) * dance.progress),
+    round(y1 + (y2 - y1) * dance.progress),
+  ] as const;
+}
+
+/** Everything the animation changes on one gear. The JSX and `paint` both read it, so they cannot drift apart. */
+function gearView(
+  gear: Gear,
+  dance: DanceGear,
+  slotCount: number,
+  scale: number,
+  sees: boolean,
+) {
+  const [x, y] = centreOf(dance, slotCount);
+  return {
+    transform: `translate(${x.toFixed(2)} ${y.toFixed(2)})`,
+    rotate: `rotate(${dance.facingDeg})`,
+    slot: dance.progress < 0.5 ? dance.fromSlot : dance.toSlot,
+    facingDeg: dance.facingDeg,
+    sees,
+    vision: visionXs(gear.teeth * scale, dance.facingDeg, gear.halfWidthDeg),
+  };
+}
+
+/** The engine's state at a convergence, or null while the dance is between two of them. */
+function engineStateAt(diagram: Diagram, crank: number, position: number) {
+  const figure = convergenceAt(position);
+  return figure === null ? null : stateAt(diagram, crank, figure);
+}
+
+/** Moves the board to `position` without a React render. */
+function paint(
+  svg: SVGSVGElement,
+  diagram: Diagram,
+  crank: number,
+  convergence: number,
+  position: number,
+) {
+  const { slotCount } = diagram;
+  const scale = toothScale(diagram);
+  const dances = danceAt(diagram, crank, position);
+  const states = engineStateAt(diagram, crank, position);
+  for (const gear of diagram.gears) {
+    const view = gearView(
+      gear,
+      dances[gear.id]!,
+      slotCount,
+      scale,
+      states?.[gear.id]!.sees ?? false,
+    );
+    const root = svg.querySelector(`[data-gear="${gear.label}"]`);
+    root?.setAttribute("transform", view.transform);
+    root?.setAttribute("data-slot", String(view.slot));
+    root?.setAttribute("data-facing-deg", String(view.facingDeg));
+    root?.setAttribute("data-sees", String(view.sees));
+    root?.querySelector("[data-vision]")?.setAttribute("d", view.vision);
+    root?.querySelector("[data-cog]")?.setAttribute("transform", view.rotate);
+  }
+  for (const { gearAId, gearBId } of diagram.meshes) {
+    const [x1, y1] = centreOf(dances[gearAId]!, slotCount);
+    const [x2, y2] = centreOf(dances[gearBId]!, slotCount);
+    const line = svg.querySelector(`[data-mesh="${gearAId}-${gearBId}"]`);
+    line?.setAttribute("x1", String(x1));
+    line?.setAttribute("y1", String(y1));
+    line?.setAttribute("x2", String(x2));
+    line?.setAttribute("y2", String(y2));
+  }
+  const sightlines = svg.querySelector<SVGGElement>("[data-sightlines]");
+  sightlines?.style.setProperty(
+    "display",
+    position === markerOf(convergence) ? "inline" : "none",
+  );
+}
+
+/**
+ * `position` is the dance timeline in half-phases. The board repaints itself on every frame, so
+ * playing the dance renders no React: React renders only when the crank or the settled convergence changes.
+ */
 export function GearBoard({
   diagram,
   crank,
   convergence,
+  position,
   crankProps,
 }: {
   diagram: Diagram;
   crank: number;
   convergence: number;
+  position: MotionValue<number>;
   crankProps?: CrankProps;
 }) {
-  const states = stateAt(diagram, crank, convergence);
+  const svgRef = useRef<SVGSVGElement>(null);
   const scale = toothScale(diagram);
-  const centres = new Map(
-    diagram.gears.map((gear) => [
-      gear.id,
-      polar(slotAngle(states[gear.id]!.slot, diagram.slotCount), RING_IN),
-    ]),
-  );
+  const { slotCount } = diagram;
+  const now = position.get();
+  const dances = danceAt(diagram, crank, now);
+  const states = engineStateAt(diagram, crank, now);
+  const settled = danceAt(diagram, crank, markerOf(convergence));
+  const settledStates = stateAt(diagram, crank, convergence);
+
+  useLayoutEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const repaint = (latest: number) =>
+      paint(svg, diagram, crank, convergence, latest);
+    repaint(position.get());
+    return position.on("change", repaint);
+  }, [diagram, crank, convergence, position]);
 
   return (
     <svg
+      ref={svgRef}
       viewBox="-100 -100 200 200"
       className="h-auto w-full max-w-xl border-2 border-border bg-card"
       role="group"
@@ -84,8 +187,8 @@ export function GearBoard({
     >
       <circle r={RING_OUT} className="fill-none stroke-foreground/25" strokeWidth={0.6} />
       <circle r={RING_IN} className="fill-none stroke-foreground/25" strokeWidth={0.6} />
-      {Array.from({ length: diagram.slotCount }, (_, slot) => {
-        const angle = slotAngle(slot, diagram.slotCount);
+      {Array.from({ length: slotCount }, (_, slot) => {
+        const angle = slotAngle(slot, slotCount);
         const [x1, y1] = polar(angle, RING_OUT - 2);
         const [x2, y2] = polar(angle, RING_OUT + 2);
         return (
@@ -102,11 +205,12 @@ export function GearBoard({
       })}
 
       {diagram.meshes.map(({ gearAId, gearBId }) => {
-        const [x1, y1] = centres.get(gearAId)!;
-        const [x2, y2] = centres.get(gearBId)!;
+        const [x1, y1] = centreOf(dances[gearAId]!, slotCount);
+        const [x2, y2] = centreOf(dances[gearBId]!, slotCount);
         return (
           <line
             key={`${gearAId}-${gearBId}`}
+            data-mesh={`${gearAId}-${gearBId}`}
             x1={x1}
             y1={y1}
             x2={x2}
@@ -125,53 +229,61 @@ export function GearBoard({
         <GearGlyph
           key={gear.id}
           gear={gear}
-          state={states[gear.id]!}
-          centre={centres.get(gear.id)!}
+          view={gearView(
+            gear,
+            dances[gear.id]!,
+            slotCount,
+            scale,
+            states?.[gear.id]!.sees ?? false,
+          )}
           radius={gear.teeth * scale}
           crankProps={gear.isDriver ? crankProps : undefined}
         />
       ))}
 
-      {diagram.gears
-        .filter((gear) => states[gear.id]!.sees)
-        .map((gear) => {
-          const [cx, cy] = centres.get(gear.id)!;
-          const length = Math.sqrt(cx * cx + cy * cy);
-          const [ux, uy] = [cx / length, cy / length];
-          const start = gear.teeth * scale + TOOTH_DEPTH;
-          return (
-            <line
-              key={gear.id}
-              data-sightline={gear.label}
-              x1={round(cx - ux * start)}
-              y1={round(cy - uy * start)}
-              x2={round(ux * (VICTIM_RADIUS + 2))}
-              y2={round(uy * (VICTIM_RADIUS + 2))}
-              className="stroke-ludwig-red"
-              strokeWidth={0.9}
-            />
-          );
-        })}
+      <g
+        data-sightlines
+        style={{ display: now === markerOf(convergence) ? "inline" : "none" }}
+      >
+        {diagram.gears
+          .filter((gear) => settledStates[gear.id]!.sees)
+          .map((gear) => {
+            const [cx, cy] = centreOf(settled[gear.id]!, slotCount);
+            const length = Math.sqrt(cx * cx + cy * cy);
+            const [ux, uy] = [cx / length, cy / length];
+            const start = gear.teeth * scale + TOOTH_DEPTH;
+            return (
+              <line
+                key={gear.id}
+                data-sightline={gear.label}
+                x1={round(cx - ux * start)}
+                y1={round(cy - uy * start)}
+                x2={round(ux * (VICTIM_RADIUS + 2))}
+                y2={round(uy * (VICTIM_RADIUS + 2))}
+                className="stroke-ludwig-red"
+                strokeWidth={0.9}
+              />
+            );
+          })}
+      </g>
     </svg>
   );
 }
 
 function GearGlyph({
   gear,
-  state,
-  centre: [cx, cy],
+  view,
   radius,
   crankProps,
 }: {
   gear: Gear;
-  state: ReturnType<typeof stateAt>[string];
-  centre: readonly [number, number];
+  view: ReturnType<typeof gearView>;
   radius: number;
   crankProps?: CrankProps;
 }) {
   return (
     <g
-      transform={`translate(${cx.toFixed(2)} ${cy.toFixed(2)})`}
+      transform={view.transform}
       className={
         crankProps
           ? "group cursor-grab outline-none active:cursor-grabbing"
@@ -182,12 +294,12 @@ function GearGlyph({
         "aria-label": `Gear ${gear.label}, ${gear.teeth} teeth`,
       })}
       data-gear={gear.label}
-      data-slot={state.slot}
-      data-facing-deg={state.facingDeg}
-      data-sees={state.sees}
+      data-slot={view.slot}
+      data-facing-deg={view.facingDeg}
+      data-sees={view.sees}
     >
       <path
-        d={visionXs(radius, state.facingDeg, gear.halfWidthDeg)}
+        d={view.vision}
         className="pointer-events-none fill-none stroke-ludwig-red"
         strokeWidth={0.5}
         data-vision
@@ -200,7 +312,7 @@ function GearGlyph({
           data-focus-ring
         />
       ) : null}
-      <g transform={`rotate(${state.facingDeg})`}>
+      <g transform={view.rotate} data-cog>
         <path
           d={cogPath(gear.teeth, radius)}
           className="fill-card stroke-foreground"

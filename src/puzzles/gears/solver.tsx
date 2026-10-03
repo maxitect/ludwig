@@ -1,16 +1,17 @@
 "use client";
 
+import { useMotionValue } from "motion/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { SolverProps } from "../solver-types";
 import { GearBoard } from "./board";
 import { useCrank } from "./crank";
+import { markerOf } from "./dance";
 import { lcmTeeth, seeingCount } from "./engine";
+import { Scrubber } from "./scrubber";
 import type * as schema from "./schema";
 
-const FIGURES = Array.from({ length: 8 }, (_, i) => i + 1);
-
-/** The crank is live. T039 and T040 replace the convergence select with the scrubber and add the accuse flow. */
+/** The crank and the dance scrubber are live. T040 adds the accuse flow. */
 export function Solver({
   payload,
   initialState,
@@ -24,6 +25,8 @@ export function Solver({
     convergence: initialState?.convergence ?? 1,
   });
   const { crank, convergence } = state;
+  const position = useMotionValue(markerOf(convergence));
+  const [atConvergence, setAtConvergence] = useState(true);
 
   function update(next: Partial<typeof state>) {
     const merged = { ...state, ...next };
@@ -35,6 +38,11 @@ export function Solver({
     });
   }
 
+  function settle(next: number | null) {
+    setAtConvergence(next !== null);
+    if (next !== null && next !== convergence) update({ convergence: next });
+  }
+
   const setCrank = (next: number) => update({ crank: next });
   const turn = (by: number) => setCrank((crank + by + cranks) % cranks);
   const crankProps = useCrank({
@@ -44,6 +52,7 @@ export function Solver({
     crank,
     onChange: setCrank,
   });
+  const seeing = seeingCount(payload, crank, convergence);
 
   return (
     <section className="flex flex-col gap-4">
@@ -51,52 +60,45 @@ export function Solver({
         diagram={payload}
         crank={crank}
         convergence={convergence}
+        position={position}
         crankProps={crankProps}
       />
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            size="icon"
-            aria-label="Crank back one tooth"
-            onClick={() => turn(-1)}
-          >
-            -
-          </Button>
-          <span className="min-w-24 text-center">
-            Crank <output data-testid="crank">{crank}</output> of {cranks}
-          </span>
-          <Button
-            variant="secondary"
-            size="icon"
-            aria-label="Crank forward one tooth"
-            onClick={() => turn(1)}
-          >
-            +
-          </Button>
-        </div>
-        <label className="flex items-center gap-2">
-          Convergence
-          <select
-            value={convergence}
-            onChange={(event) =>
-              update({ convergence: Number(event.target.value) })
-            }
-            className="h-10 border-2 border-border bg-background px-2 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-ring"
-          >
-            {FIGURES.map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
-            ))}
-          </select>
-        </label>
-        <p>
-          Gears that see the victim:{" "}
-          <output data-testid="seeing-count" className="font-bold">
-            {seeingCount(payload, crank, convergence)}
-          </output>
-        </p>
+      <Scrubber position={position} onSettle={settle} />
+      <p
+        aria-live="polite"
+        data-testid="convergence-status"
+        className="min-h-6"
+      >
+        {atConvergence ? (
+          <>
+            Convergence {convergence}:{" "}
+            <output data-testid="seeing-count" className="font-bold">
+              {seeing}
+            </output>{" "}
+            {seeing === 1 ? "dancer sees" : "dancers see"} the victim
+          </>
+        ) : null}
+      </p>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="secondary"
+          size="icon"
+          aria-label="Crank back one tooth"
+          onClick={() => turn(-1)}
+        >
+          -
+        </Button>
+        <span className="min-w-24 text-center">
+          Crank <output data-testid="crank">{crank}</output> of {cranks}
+        </span>
+        <Button
+          variant="secondary"
+          size="icon"
+          aria-label="Crank forward one tooth"
+          onClick={() => turn(1)}
+        >
+          +
+        </Button>
       </div>
     </section>
   );

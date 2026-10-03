@@ -72,6 +72,7 @@ type SolveChromeProps = {
   initialState: SolverProps["initialState"];
   Solver: SolverComponent;
   signedIn: boolean;
+  chessNotation?: SolverProps["chessNotation"];
   signInHref: string;
   nextHref: string | null;
 };
@@ -86,6 +87,7 @@ export function SolveChrome({
   initialState,
   Solver,
   signedIn,
+  chessNotation,
   signInHref,
   nextHref,
 }: SolveChromeProps) {
@@ -254,6 +256,7 @@ export function SolveChrome({
             onStateChange={onStateChange}
             registerCheck={registerCheck}
             requestCheck={requestCheck}
+            chessNotation={chessNotation}
             checkCell={solved ? undefined : checkCell}
             revealCell={solved ? undefined : revealCellValue}
           />

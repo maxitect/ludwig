@@ -10,7 +10,7 @@ import {
 } from "@/lib/data/catalogue";
 import { getAttemptState } from "@/lib/data/attempts";
 import { getPuzzleForPlay } from "@/lib/data/puzzles";
-import { getCurrentUser } from "@/lib/data/user";
+import { getCurrentUser, getUserChessNotation } from "@/lib/data/user";
 import { getSolver } from "@/puzzles/solvers";
 
 export const generateStaticParams = getPuzzleStaticParams;
@@ -61,9 +61,12 @@ async function Solve({
   ]);
   if (!play) notFound();
   const Solver = getSolver(typeKey);
-  const initialState = user
-    ? await getAttemptState(user.id, play.puzzle.id)
-    : null;
+  const [initialState, chessNotation] = user
+    ? await Promise.all([
+        getAttemptState(user.id, play.puzzle.id),
+        getUserChessNotation(user.id),
+      ])
+    : [null, undefined];
 
   if (!Solver) {
     return (
@@ -91,6 +94,7 @@ async function Solve({
       initialState={initialState}
       Solver={Solver}
       signedIn={user !== null}
+      chessNotation={chessNotation}
       signInHref={`/sign-in?next=${encodeURIComponent(`/puzzles/${typeKey}/${slug}`)}`}
       nextHref={
         summary.next ? `/puzzles/${summary.next.typeKey}/${summary.next.slug}` : null

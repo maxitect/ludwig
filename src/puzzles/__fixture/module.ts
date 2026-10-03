@@ -24,6 +24,12 @@ export const fixtureModule = {
   check(_payload, solution, answer) {
     return { correct: answer.label === solution };
   },
+  checkCell(_payload, solution, _row, _col, value) {
+    return { correct: value === solution };
+  },
+  revealCell(solution) {
+    return solution;
+  },
   async insertContent(tx, puzzleId, content) {
     await tx.insert(fixturePuzzles).values({ puzzleId, note: content.note });
     await tx

@@ -22,7 +22,7 @@ If the spec has no tables for this type yet, design them, add them to section 7.
    - composite `foreignKey` `(puzzleId, typeKey)` → `puzzles (id, typeKey)`, `onDelete: "cascade"`.
 2. **Child tables** keyed by `(puzzleId, position)` or `(puzzleId, row, col)`. They hold atomic columns only, with no json and no arrays.
 3. **Solution data:** an **(S)** column on the entity it describes, or a `<type>_solution*` table. Never store anything `derive.ts` can compute.
-4. **Attempt subtype** `<type>_attempts`, keyed by `attemptId` with a generated `typeKey` and a composite FK to `attempts (id, typeKey)`. Add `<type>_attempt_*` children for multi-row state.
+4. **Attempt subtype** `<type>_attempts`, keyed by `attemptId` with a generated `typeKey` and a composite FK to `attempts (id, typeKey)`. Add `<type>_attempt_*` children for multi-row state. When an attempt child references a puzzle child row by a natural key (crossword's `(puzzle_id, row, col)`), make that FK `DEFERRABLE INITIALLY DEFERRED` with no cascade, in the table migration: `db:seed` deletes and rewrites a puzzle's rows, and a cascade would wipe every player's saved progress on each deploy.
 5. Use enums for fixed name-only sets, and `CHECK` only for numeric domains.
 6. Re-export from `src/db/schema/index.ts`, and add relations in `src/db/relations.ts`.
 7. Add a `puzzle_types` row (key, category, name, description, `subtype_table`, sort) in `content/lookups.ts`.
@@ -43,14 +43,15 @@ Compose these from `createSelectSchema` / `createInsertSchema` (`drizzle-orm/zod
 - **`load.ts`** (`server-only`): one RQBv2 query that names its columns, with no **(S)**, and returns a `payloadSchema` value. If the payload is derived from the solution (anagram's tiles), it may call `loadSolution`, but no **(S)** value may reach the result.
 - **`load-solution.ts`** (`server-only`): the solution rows only.
 - **`derive.ts`** (pure): every value the spec says is derived, e.g. tiles, numbering or ciphertext.
-- **`check.ts`** (pure): `check(payload, solution, answer)` returns `{ correct, cellsWrong? }`.
+- **`check.ts`** (pure): `check(payload, solution, answer)` returns `{ correct }`.
+  - Grid types also export `checkCell(payload, solution, row, col, value) → { correct }` and `revealCell(solution, row, col) → value | null`, and put them on the module. The `checkAnswer` (cell mode) and `revealCell` actions call them and return only that one cell's result. A type without them gets `invalid` from both actions.
 - **`engine.ts`** (pure, optional): a solver or generator. Use a seeded PRNG only.
-- Write `module.ts` and register it in `src/puzzles/registry.ts`. It is a `PuzzleTypeModule`: `{ schema, meta, load, loadSolution, check, insertContent, replaceAttemptState, loadAttemptState, clearAttemptState, verify? }`. `loadAttemptState` reads back what `replaceAttemptState` wrote (null when nothing is saved), and `clearAttemptState` deletes it so a reset survives a reload.
+- Write `module.ts` and register it in `src/puzzles/registry.ts`. It is a `PuzzleTypeModule`: `{ schema, meta, load, loadSolution, check, optional checkCell and revealCell, insertContent, replaceAttemptState, loadAttemptState, clearAttemptState, verify? }`. `loadAttemptState` reads back what `replaceAttemptState` wrote (null when nothing is saved), and `clearAttemptState` deletes it so a reset survives a reload.
 - The module has **no `Solver`**. `db:seed` and `puzzles:verify` import the registry under `--conditions react-server`, where radix (`ui/Button`) and react-chessboard throw. Register the solver in `src/puzzles/solvers.ts` instead (`null` until the type has one). Only the solve page imports that map.
 
 ## 4. Solver UI (`solver.tsx`)
 
-- `"use client"`. It receives the payload and saved attempt state as props, reports state changes through `onStateChange` (the chrome autosaves them with `saveState`) and registers its answer reader with `registerCheck`. Type its props with `SolverProps` from `src/puzzles/solver-types.ts`, never from the registry. It may import `ui/*` and `ChessBoard` freely, because no script reaches it.
+- `"use client"`. It receives the payload and saved attempt state as props, reports state changes through `onStateChange` (the chrome autosaves them with `saveState`) and registers its answer reader with `registerCheck`. Grid types also receive `checkCell` and `revealCell` callbacks from the chrome. Type its props with `SolverProps` from `src/puzzles/solver-types.ts`, never from the registry. It may import `ui/*` and `ChessBoard` freely, because no script reaches it.
 - Add it to the solver map in `src/puzzles/solvers.ts`.
 - Reuse `src/puzzles/_shared/` parts such as `CellInput`. Extract a new shared part only if a second type needs it.
 - Follow `.claude/rules/design-system.md`: tokens only, hand-font entries, keyboard-operable, reduced motion respected.

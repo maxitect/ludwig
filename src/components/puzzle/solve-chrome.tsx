@@ -16,7 +16,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { checkAnswer, clearState, saveState } from "@/lib/actions/puzzles";
+import {
+  checkAnswer,
+  clearState,
+  revealCell,
+  saveState,
+} from "@/lib/actions/puzzles";
 import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
 import { usePuzzleTimer } from "./use-puzzle-timer";
@@ -122,6 +127,39 @@ export function SolveChrome({
     });
   }
 
+  const checkCell = useCallback<NonNullable<SolverProps["checkCell"]>>(
+    async (row, col, value) => {
+      if (!signedIn) {
+        setNotice("sign-in");
+        return null;
+      }
+      const response = await checkAnswer(puzzleId, null, {
+        mode: "cell",
+        row,
+        col,
+        value,
+      }).catch(() => null);
+      if (response?.ok) return response.result.correct;
+      setNotice("error");
+      return null;
+    },
+    [puzzleId, signedIn],
+  );
+
+  const revealCellValue = useCallback<NonNullable<SolverProps["revealCell"]>>(
+    async (row, col) => {
+      if (!signedIn) {
+        setNotice("sign-in");
+        return null;
+      }
+      const response = await revealCell(puzzleId, row, col).catch(() => null);
+      if (response?.ok) return response.value;
+      setNotice("error");
+      return null;
+    },
+    [puzzleId, signedIn],
+  );
+
   function reset() {
     clearTimeout(saveTimeout.current);
     readAnswer.current = null;
@@ -176,6 +214,8 @@ export function SolveChrome({
           initialState={attempt === 0 ? initialState : null}
           onStateChange={onStateChange}
           registerCheck={registerCheck}
+          checkCell={solved ? undefined : checkCell}
+          revealCell={solved ? undefined : revealCellValue}
         />
       </div>
 

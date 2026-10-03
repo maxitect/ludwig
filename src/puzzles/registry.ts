@@ -2,6 +2,7 @@ import type { z } from "zod";
 import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
 import { anagramModule } from "./anagram/module";
+import { crosswordModule } from "./crossword/module";
 import { gearsModule } from "./gears/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
@@ -29,6 +30,16 @@ export type PuzzleTypeModule<
     solution: TSolution,
     answer: z.infer<S["answerSchema"]>,
   ): { correct: boolean };
+  /** Per-cell check for grid types: whether `value` is the solution's value at `(row, col)`. */
+  checkCell?(
+    payload: z.infer<S["payloadSchema"]>,
+    solution: TSolution,
+    row: number,
+    col: number,
+    value: string,
+  ): { correct: boolean };
+  /** Per-cell reveal for grid types: the one value at `(row, col)`, or null when there is no such cell. */
+  revealCell?(solution: TSolution, row: number, col: number): string | null;
   /** Writes the subtype and child rows for a puzzle whose supertype row already exists. */
   insertContent(
     tx: Tx,
@@ -55,6 +66,7 @@ export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 
 export const registry: PuzzleRegistry = {
   [anagramModule.meta.key]: anagramModule,
+  [crosswordModule.meta.key]: crosswordModule,
   [gearsModule.meta.key]: gearsModule,
   [reverseChessModule.meta.key]: reverseChessModule,
   [rotaModule.meta.key]: rotaModule,

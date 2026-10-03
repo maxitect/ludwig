@@ -137,6 +137,38 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.rotaSolutionSwaps.puzzleId,
     }),
   },
+  crosswordPuzzles: {
+    cells: r.many.crosswordCells({
+      from: r.crosswordPuzzles.puzzleId,
+      to: r.crosswordCells.puzzleId,
+    }),
+    clues: r.many.crosswordClues({
+      from: r.crosswordPuzzles.puzzleId,
+      to: r.crosswordClues.puzzleId,
+    }),
+  },
+  crosswordClues: {
+    segments: r.many.crosswordClueSegments({
+      from: [
+        r.crosswordClues.puzzleId,
+        r.crosswordClues.direction,
+        r.crosswordClues.row,
+        r.crosswordClues.col,
+      ],
+      to: [
+        r.crosswordClueSegments.puzzleId,
+        r.crosswordClueSegments.direction,
+        r.crosswordClueSegments.row,
+        r.crosswordClueSegments.col,
+      ],
+    }),
+  },
+  crosswordAttempts: {
+    cells: r.many.crosswordAttemptCells({
+      from: r.crosswordAttempts.attemptId,
+      to: r.crosswordAttemptCells.attemptId,
+    }),
+  },
   weeklyPuzzles: {
     puzzle: r.one.puzzles({
       from: r.weeklyPuzzles.puzzleId,

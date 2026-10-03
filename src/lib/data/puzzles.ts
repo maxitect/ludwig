@@ -38,6 +38,39 @@ export async function getPublishedTypeKey(puzzleId: string) {
   return row?.typeKey ?? null;
 }
 
+/** Checks one cell against the server-side solution. Null when the type has no per-cell check. */
+export async function checkPuzzleCell(
+  typeKey: string,
+  puzzleId: string,
+  row: number,
+  col: number,
+  value: string,
+) {
+  const puzzleModule = getPuzzleModule(typeKey);
+  if (!puzzleModule.checkCell) return null;
+  const [payload, solution] = await Promise.all([
+    puzzleModule.load(puzzleId),
+    puzzleModule.loadSolution(puzzleId),
+  ]);
+  return puzzleModule.checkCell(payload, solution, row, col, value);
+}
+
+/** The single value at one cell. Null when the type has no per-cell reveal or the cell does not exist. */
+export async function revealPuzzleCell(
+  typeKey: string,
+  puzzleId: string,
+  row: number,
+  col: number,
+) {
+  const puzzleModule = getPuzzleModule(typeKey);
+  if (!puzzleModule.revealCell) return null;
+  return puzzleModule.revealCell(
+    await puzzleModule.loadSolution(puzzleId),
+    row,
+    col,
+  );
+}
+
 /** Loads the payload and solution server-side and runs the type's checker. */
 export async function checkPuzzleAnswer(
   typeKey: string,

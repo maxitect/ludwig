@@ -8,6 +8,7 @@ import type { SolverProps } from "@/puzzles/solver-types";
 const actions = vi.hoisted(() => ({
   checkAnswer: vi.fn(),
   clearState: vi.fn(),
+  revealCell: vi.fn(),
   saveState: vi.fn(),
 }));
 vi.mock("@/lib/actions/puzzles", () => actions);
@@ -20,12 +21,29 @@ beforeEach(() => {
   actions.checkAnswer.mockResolvedValue({ ok: true, result: { correct: true } });
   actions.clearState.mockResolvedValue({ ok: true });
   actions.saveState.mockResolvedValue({ ok: true });
+  actions.revealCell.mockResolvedValue({ ok: true, value: "Q" });
 });
 
-function Solver({ registerCheck }: SolverProps) {
+const cellResults: unknown[] = [];
+
+function Solver({ registerCheck, checkCell, revealCell }: SolverProps) {
   useEffect(() => registerCheck(() => ({ answer: "x" })), [registerCheck]);
   return (
     <>
+      <button
+        type="button"
+        disabled={!checkCell}
+        onClick={async () => cellResults.push(await checkCell?.(1, 2, "A"))}
+      >
+        Cell check
+      </button>
+      <button
+        type="button"
+        disabled={!revealCell}
+        onClick={async () => cellResults.push(await revealCell?.(1, 2))}
+      >
+        Cell reveal
+      </button>
       <div role="group" aria-label="Board" tabIndex={0} />
       <div
         role="application"
@@ -87,5 +105,59 @@ describe("SolveChrome Reset", () => {
     renderChrome(false);
     await userEvent.click(screen.getByRole("button", { name: "Reset" }));
     expect(actions.clearState).not.toHaveBeenCalled();
+  });
+});
+
+describe("SolveChrome cell hooks", () => {
+  beforeEach(() => {
+    cellResults.length = 0;
+  });
+
+  it("checks and reveals one cell through the actions", async () => {
+    renderChrome();
+    await userEvent.click(screen.getByRole("button", { name: "Cell check" }));
+    await userEvent.click(screen.getByRole("button", { name: "Cell reveal" }));
+    expect(actions.checkAnswer).toHaveBeenCalledWith(
+      "00000000-0000-0000-0000-000000000001",
+      null,
+      { mode: "cell", row: 1, col: 2, value: "A" },
+    );
+    expect(actions.revealCell).toHaveBeenCalledWith(
+      "00000000-0000-0000-0000-000000000001",
+      1,
+      2,
+    );
+    expect(cellResults).toEqual([true, "Q"]);
+  });
+
+  it("asks a signed-out player to sign in and calls no action", async () => {
+    renderChrome(false);
+    await userEvent.click(screen.getByRole("button", { name: "Cell check" }));
+    await userEvent.click(screen.getByRole("button", { name: "Cell reveal" }));
+    expect(actions.checkAnswer).not.toHaveBeenCalled();
+    expect(actions.revealCell).not.toHaveBeenCalled();
+    expect(cellResults).toEqual([null, null]);
+    expect(screen.getByRole("link", { name: "Sign in" })).toBeTruthy();
+  });
+
+  it("shows an error when the action fails", async () => {
+    actions.revealCell.mockResolvedValue({ ok: false, error: "invalid" });
+    renderChrome();
+    await userEvent.click(screen.getByRole("button", { name: "Cell reveal" }));
+    expect(cellResults).toEqual([null]);
+    expect(screen.getByText(/could not be completed/)).toBeTruthy();
+  });
+
+  it("withholds the cell hooks once the puzzle is solved", async () => {
+    renderChrome();
+    screen.getByRole("group", { name: "Board" }).focus();
+    await userEvent.keyboard("{Enter}");
+    await screen.findByText(/Solved in/);
+    expect(
+      screen.getByRole("button", { name: "Cell check" }),
+    ).toHaveProperty("disabled", true);
+    expect(
+      screen.getByRole("button", { name: "Cell reveal" }),
+    ).toHaveProperty("disabled", true);
   });
 });

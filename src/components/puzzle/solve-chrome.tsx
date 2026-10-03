@@ -214,8 +214,8 @@ export function SolveChrome({
           initialState={attempt === 0 ? initialState : null}
           onStateChange={onStateChange}
           registerCheck={registerCheck}
-          checkCell={checkCell}
-          revealCell={revealCellValue}
+          checkCell={solved ? undefined : checkCell}
+          revealCell={solved ? undefined : revealCellValue}
         />
       </div>
 

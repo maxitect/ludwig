@@ -2,7 +2,7 @@
 
 The execution protocol is in [`INSTRUCTIONS.md`](./INSTRUCTIONS.md) and the ticket format is in [`_TEMPLATE.md`](./_TEMPLATE.md). Reports go in `reports/<id>.md`.
 
-The orchestrator updates the status column below: `todo` → `in-progress` → `review` → `done` (or `blocked`). A ticket can start once everything in its **Depends on** column is `done`. **Mig** marks tickets that create migrations; serialise those (INSTRUCTIONS §1). **Human** marks tickets that need the user to act.
+The orchestrator updates the status column below: `todo` → `in-progress` → `review` → `done` (or `blocked`). A ticket can start once everything in its **Depends on** column is `done`. **Mig** marks tickets that create migrations; serialise those (`/orchestrate` skill). **Human** marks tickets that need the user to act.
 
 ## M0: Foundations and risk spikes
 
@@ -39,6 +39,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T024](./T024-e2e-flows-1-2.md) | Playwright end-to-end flows 1 and 2 | T002, T009, T020, T022, T023 | | | done |
 | [T071](./T071-split-solver-registry.md) | Split client solvers out of the server puzzle registry | T019 | | | done |
 | [T072](./T072-seed-update-in-place.md) | Seed updates content in place and never touches attempt data | T016, T022 | | | done |
+| [T073](./T073-seed-clears-omitted-meta.md) | Seed clears optional meta fields that a content file omits | T072 | | | todo |
 
 ## M2: Reverse Chess
 
@@ -48,10 +49,10 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T026](./T026-retro-move-engine.md) | Retro-move engine | T025 | | | done |
 | [T027](./T027-retro-verifier.md) | Retro enumerator and uniqueness verifier | T026 | | | done |
 | [T028](./T028-chess-board-component.md) | Chess board component (react-chessboard v5, cburnett, arrow, tray) | T010, T025 | | | done |
-| [T029](./T029-reverse-chess-mode-a.md) | Mode A "The Last Move": UI and check | T026, T028, T018, T071 | | | review |
+| [T029](./T029-reverse-chess-mode-a.md) | Mode A "The Last Move": UI and check | T026, T028, T018, T071 | | | done |
 | [T030](./T030-reverse-chess-mode-b-notation.md) | Mode B "Unwind" plus descriptive notation | T029 | | | todo |
 | [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | todo |
-| [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031 | | | todo |
+| [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073 | | | todo |
 
 ## M3: The Gear Puzzle
 
@@ -90,7 +91,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T058](./T058-shared-visibility-engine.md) | Shared `visibility.ts` engine | T016 | | | done |
 | [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | todo |
 | [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | todo |
-| [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | in-progress |
+| [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | review |
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | done |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | todo |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |

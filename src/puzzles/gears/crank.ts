@@ -7,6 +7,14 @@ const mod = (n: number, m: number) => ((n % m) + m) % m;
 const bearing = (x: number, y: number, cx: number, cy: number) =>
   (Math.atan2(y - cy, x - cx) * 180) / Math.PI;
 
+/** Browsers ignore `touch-action` on SVG children, and React's touch listeners are passive, so the page would scroll mid-drag. */
+function holdPageStill(element: SVGGElement | null) {
+  if (!element) return;
+  const stop = (event: TouchEvent) => event.preventDefault();
+  element.addEventListener("touchstart", stop, { passive: false });
+  return () => element.removeEventListener("touchstart", stop);
+}
+
 /** Gesture handlers and accessibility props that turn the driver gear into a crank over `cranks` whole teeth. */
 export function useCrank({
   driver,
@@ -91,6 +99,7 @@ export function useCrank({
     "aria-valuenow": crank,
     "aria-valuetext": `Crank ${crank} of ${cranks}`,
     style: { touchAction: "none" },
+    ref: holdPageStill,
     onKeyDown,
     onPointerDown,
     onPointerMove,

@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
+import { check } from "./check";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
 import * as schema from "./schema";
@@ -18,9 +19,7 @@ export const reverseChessModule = {
   meta: { key: "reverse-chess" },
   load,
   loadSolution,
-  check() {
-    throw new Error("Reverse Chess checking is implemented in T029");
-  },
+  check,
   verify: verifyReverseChess,
   async upsertContent(tx, puzzleId, { pieces, solutionPlies, ...puzzle }) {
     const columns = {

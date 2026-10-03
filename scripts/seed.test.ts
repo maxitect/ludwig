@@ -473,6 +473,43 @@ describe("in-place content updates", () => {
     expect(await contentIds(rotaRun.puzzleId)).toEqual(before.rotaIds);
   });
 
+  it("clears optional meta a re-seeded content file omits, keeping attempts", async () => {
+    const meta = { slug: `${slugPrefix}meta`, title: "T073", difficulty: 1 };
+    const { id: puzzleId } = await upsertPuzzle(db, realRegistry, {
+      typeKey: "gears",
+      meta: {
+        ...meta,
+        sourceNote: "S1E1",
+        publishedAt: new Date("2026-01-01T00:00:00Z"),
+      },
+      content: gearsContent(),
+    });
+    const attemptId = await startAttempt(puzzleId);
+    const metaOf = async () =>
+      (
+        await db
+          .select({ sourceNote: puzzles.sourceNote, publishedAt: puzzles.publishedAt })
+          .from(puzzles)
+          .where(eq(puzzles.id, puzzleId))
+      )[0];
+    const attemptRows = () => db.select().from(attempts).where(eq(attempts.id, attemptId));
+    expect(await metaOf()).toEqual({
+      sourceNote: "S1E1",
+      publishedAt: new Date("2026-01-01T00:00:00Z"),
+    });
+    const attemptsBefore = await attemptRows();
+
+    await upsertPuzzle(db, realRegistry, {
+      typeKey: "gears",
+      meta,
+      content: gearsContent(),
+    });
+
+    expect(await metaOf()).toEqual({ sourceNote: null, publishedAt: null });
+    expect(await attemptRows()).toEqual(attemptsBefore);
+    expect(attemptsBefore).toHaveLength(1);
+  });
+
   it("updates edited content fields in place without touching attempts", async () => {
     const gearsRun = await startGearsAttempt();
     const rotaRun = await startRotaAttempt();

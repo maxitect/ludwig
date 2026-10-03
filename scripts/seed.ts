@@ -137,7 +137,12 @@ async function writePuzzle(
       : null;
     if (volume && !volumeId) throw new Error(`unknown volume "${volume}"`);
 
-    const values = { ...columns, volumeId };
+    const values = {
+      ...columns,
+      sourceNote: columns.sourceNote ?? null,
+      publishedAt: columns.publishedAt ?? null,
+      volumeId,
+    };
     const [existing] = await tx
       .select({ id: puzzles.id })
       .from(puzzles)

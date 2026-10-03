@@ -8,9 +8,9 @@ import { mergeEntriesSchema } from "@/lib/forms/local-progress";
 export async function mergeLocalProgress(
   entries: unknown,
 ): Promise<{ ok: true } | { ok: false; error: "invalid" }> {
-  const user = await requireUser();
+  await requireUser();
   const parsed = mergeEntriesSchema.safeParse(entries);
   if (!parsed.success) return { ok: false, error: "invalid" };
-  await mergeProgress(user.id, parsed.data);
+  await mergeProgress(parsed.data);
   return { ok: true };
 }

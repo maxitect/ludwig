@@ -3,7 +3,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { attemptHints, attempts } from "@/db/schema";
 import { getPublishedTypeKey } from "@/lib/data/puzzles";
-import { getCurrentUser } from "@/lib/data/user";
+import { getCurrentUser, requireUser } from "@/lib/data/user";
 import type { MergeEntry } from "@/lib/forms/local-progress";
 import { getPuzzleModule } from "@/puzzles/registry";
 
@@ -106,10 +106,8 @@ export async function getSolvedPuzzleIds(puzzleIds: string[]) {
  * over only when the server attempt is not complete, with the duration clamped to the local
  * start-to-completion window. Entries that don't validate are skipped.
  */
-export async function mergeLocalProgress(
-  userId: string,
-  entries: MergeEntry[],
-) {
+export async function mergeLocalProgress(entries: MergeEntry[]) {
+  const { id: userId } = await requireUser();
   for (const entry of entries) {
     const typeKey = await getPublishedTypeKey(entry.puzzleId);
     if (typeKey === null || typeKey !== entry.typeKey) continue;

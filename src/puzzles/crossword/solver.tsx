@@ -24,6 +24,16 @@ const actionClass =
 const label = (entry: Entry) =>
   `${entry.number} ${entry.direction === "across" ? "Across" : "Down"}`;
 
+/** The entered letters as attempt cells, in the payload's cell order. */
+const entered = (
+  playable: ReadonlyArray<CellPosition>,
+  letters: ReadonlyMap<CellKey, string>,
+) =>
+  playable.flatMap(({ row, col }) => {
+    const letter = letters.get(cellKey(row, col));
+    return letter ? [{ row, col, letter }] : [];
+  });
+
 export function Solver({
   payload,
   initialState,
@@ -75,16 +85,14 @@ export function Solver({
   const words = useMemo(() => deriveWords(entries, direction), [entries, direction]);
 
   const filled = (map: ReadonlyMap<CellKey, string>) =>
-    payload.cells.flatMap(({ row, col }) => {
-      const letter = map.get(cellKey(row, col));
-      return letter ? [{ row, col, letter }] : [];
-    });
+    entered(payload.cells, map);
 
   useEffect(() => {
     registerCheck(() =>
-      letters.size === payload.cells.length ? { cells: filled(letters) } : null,
+      letters.size === payload.cells.length
+        ? { cells: entered(payload.cells, letters) }
+        : null,
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registerCheck, letters, payload.cells]);
 
   useEffect(() => {

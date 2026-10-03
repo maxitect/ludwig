@@ -65,7 +65,7 @@ export function verifyCrossword({ rows, cols, cells, clues }: Content) {
       );
     }
     const answer = deriveAnswer(cells, run);
-    if (clue.clueText.toUpperCase().includes(answer)) {
+    if (new RegExp(`\\b${answer}\\b`).test(clue.clueText.toUpperCase())) {
       problems.push(`${describeRun(run)}: the clue contains its answer ${answer}`);
     }
   }

@@ -36,13 +36,15 @@ export function RetroArrow({
   const heading = Math.atan2(head.y - control.y, head.x - control.x);
   const barb = (spread: number) => {
     const angle = heading + Math.PI + spread;
-    return `${head.x + Math.cos(angle) * HEAD_LENGTH} ${head.y + Math.sin(angle) * HEAD_LENGTH}`;
+    const x = head.x + Math.cos(angle) * HEAD_LENGTH;
+    const y = head.y + Math.sin(angle) * HEAD_LENGTH;
+    return `${x.toFixed(4)} ${y.toFixed(4)}`;
   };
 
   return (
     <path
       data-retro-arrow=""
-      d={`M ${tail.x} ${tail.y} Q ${control.x} ${control.y} ${head.x} ${head.y} M ${barb(HEAD_SPREAD)} L ${head.x} ${head.y} L ${barb(-HEAD_SPREAD)}`}
+      d={`M ${tail.x} ${tail.y} Q ${control.x.toFixed(4)} ${control.y.toFixed(4)} ${head.x} ${head.y} M ${barb(HEAD_SPREAD)} L ${head.x} ${head.y} L ${barb(-HEAD_SPREAD)}`}
       fill="none"
       stroke="var(--color-ludwig-red)"
       strokeWidth="0.13"

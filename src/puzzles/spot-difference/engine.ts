@@ -55,20 +55,6 @@ type Change =
   | { type: "mirror" }
   | { type: "scale"; factor: number };
 
-export type DifferenceType = Change["type"];
-
-export type Difference = {
-  index: number;
-  type: DifferenceType;
-  region: Region;
-};
-
-export type GeneratedScene = {
-  original: SceneNode;
-  altered: SceneNode;
-  differences: Difference[];
-};
-
 const round = (value: number) => Math.round(value * 100) / 100;
 
 const INK = "var(--color-ink)";
@@ -264,10 +250,10 @@ function changedBox(change: Change, box: Region): Region {
   }
 }
 
-const inCanvas = ({ x, y, width, height }: Region) =>
+export const inCanvas = ({ x, y, width, height }: Region) =>
   x >= 0 && y >= 0 && x + width <= SCENE_WIDTH && y + height <= SCENE_HEIGHT;
 
-const overlaps = (a: Region, b: Region) =>
+export const overlaps = (a: Region, b: Region) =>
   a.x < b.x + b.width &&
   b.x < a.x + a.width &&
   a.y < b.y + b.height &&
@@ -361,7 +347,7 @@ function layout(rng: Rng, differenceCount: number) {
 }
 
 function proposeChange(rng: Rng, object: SceneObject): Change | null {
-  const types = shuffled<DifferenceType>(rng, [
+  const types = shuffled<Change["type"]>(rng, [
     "remove",
     "colour",
     "move",
@@ -462,7 +448,7 @@ const outlinedHouse = () =>
     ),
   ]);
 
-function generateV1(sceneSeed: number, differenceCount: number): GeneratedScene {
+function generateV1(sceneSeed: number, differenceCount: number) {
   const rng = mulberry32(sceneSeed);
   const base = backdrop(rng);
   const objects = layout(rng, differenceCount);
@@ -501,9 +487,9 @@ function generateV1(sceneSeed: number, differenceCount: number): GeneratedScene 
 }
 
 /** Each version pins one derivation. Never edit an entry: add a new version instead. */
-export const engines: Readonly<
-  Record<number, (sceneSeed: number, differenceCount: number) => GeneratedScene>
-> = { 1: generateV1 };
+export const engines: Readonly<Record<number, typeof generateV1>> = {
+  1: generateV1,
+};
 
 export function generateScene(
   sceneSeed: number,
@@ -533,7 +519,7 @@ export const regionContains = (
 
 /** The difference a tap lands in, or null. Regions never overlap, so there is at most one. */
 export function findDifferenceAt(
-  differences: readonly Difference[],
+  differences: ReturnType<typeof generateScene>["differences"],
   point: { x: number; y: number },
 ) {
   return differences.find(({ region }) => regionContains(region, point)) ?? null;

@@ -5,20 +5,17 @@ import {
   spotDifferencePuzzles,
 } from "./tables";
 
-export type SceneNode = {
-  tag: "g" | "rect" | "circle" | "ellipse" | "line" | "path" | "polygon";
-  attrs: Record<string, string | number>;
-  children?: SceneNode[];
-};
-
 /** One SVG element, as plain data: the engine builds these and the solver renders them. */
-export const sceneNodeSchema: z.ZodType<SceneNode> = z.lazy(() =>
-  z.object({
-    tag: z.enum(["g", "rect", "circle", "ellipse", "line", "path", "polygon"]),
-    attrs: z.record(z.string().regex(/^[a-z][a-z0-9-]*$/), z.union([z.string(), z.number()])),
-    children: z.array(sceneNodeSchema).optional(),
-  }),
-);
+export const sceneNodeSchema = z.object({
+  tag: z.enum(["g", "rect", "circle", "ellipse", "line", "path", "polygon"]),
+  attrs: z.record(
+    z.string().regex(/^[a-z][a-z0-9-]*$/),
+    z.union([z.string(), z.number()]),
+  ),
+  get children() {
+    return z.array(sceneNodeSchema).optional();
+  },
+});
 
 export const regionSchema = z.object({
   x: z.number(),
@@ -82,3 +79,4 @@ export type AttemptState = z.infer<typeof attemptSchema>;
 export type Content = z.infer<typeof contentSchema>;
 export type Solution = z.infer<typeof solutionSchema>;
 export type Region = z.infer<typeof regionSchema>;
+export type SceneNode = z.infer<typeof sceneNodeSchema>;

@@ -1,6 +1,6 @@
 # Ticket Execution Instructions
 
-This file is for the agentic build system: an **Opus orchestrator**, **Sonnet implementers** and **Opus reviewers**. It defines only the execution protocol. Everything about _what_ to build and _how the code should look_ lives in:
+This file is for the agentic build system's **Sonnet implementers** and **Opus reviewers**. The Opus orchestrator's protocol is in `.claude/skills/orchestrate/SKILL.md`. This file defines only the execution protocol. Everything about _what_ to build and _how the code should look_ lives in:
 
 - `docs/SPEC.md`: the product, puzzle rules, design system and data model. Tickets cite sections as `SPEC §x.y`.
 - `docs/PLAN.md`: milestones, principles and the definition of done (`PLAN §5.3`).
@@ -15,40 +15,7 @@ The ticket index and dependency order are in `README.md`, in this folder.
 
 ## 1. Orchestrator (Opus)
 
-0. **Pre-flight**, once per session: run `pnpm preflight` from the repo root, once, and read only its last line. Don't re-run its steps yourself.
-   - It checks Docker and the shared Postgres container, that Homebrew `postgresql@17` is stopped, `gh auth`, and that `main` is clean and level with `origin`. It removes leftover worktrees, branches and databases of merged tickets, then runs install, `db:migrate`, `db:seed` and the gates (section 2.2) plus `puzzles:verify`.
-   - `PREFLIGHT PASS`: carry on. Full output is in `.verification/preflight.log`; don't read it.
-   - `PREFLIGHT FAIL: <step>`: fix that step (the failure prints its last lines), or escalate per step 7, then run `pnpm preflight` again.
-1. **Pick work.** Choose tickets whose `depends_on` are all `done` in `README.md`.
-   - Tickets in the same milestone with no dependency between them may run in parallel, each in its own git worktree.
-   - Don't run two tickets in parallel if both create migrations. Migration order must stay linear, so serialise those even when `depends_on` allows parallelism. Tickets with `migrations: true` in their frontmatter are the ones affected.
-2. **Brief the implementer.** Spawn it with `model: "sonnet"` and `isolation: "worktree"`, and give it:
-   - the ticket path and its isolated environment (section 3), with the id and port filled in;
-   - the facts it needs from its dependencies' reports in `reports/` (contract changes, file locations, gotchas);
-   - an instruction to follow sections 2.1–2.4 of this file.
-3. **Human tickets.** For `requires_human: true`, have the implementer do every repo-side step. Then pause and ask the user to perform the listed human steps before verification continues.
-4. **Launch the reviewer.** When an implementer returns a PR, spawn an Opus reviewer with `model: "opus"` and no `isolation`, because it works in the implementer's worktree. Brief it with the PR URL, the ticket path, the worktree path and its environment, and an instruction to follow section 2.5.
-   - The reviewer replaces the orchestrator's own checks. Don't re-run gates or AC verifications yourself.
-   - If the implementer reported `BLOCKED`, or the reviewer returns `NOT CLEAR`, escalate or send the ticket back with the reviewer's findings: continue the reviewer (`SendMessage`) for unfinished fixes, or the implementer for missing scope.
-5. **Merge** only on the reviewer's `ALL CLEAR`.
-   - **Don't re-push just to rebase.** If `gh pr view <n> --json mergeable` says `MERGEABLE` and `main` only gained docs or unrelated code, squash-merge as is. Rebase (and push once) only on a real conflict, or when `main` gained a migration or changed files the PR also touches; then run the gates locally before that push. On `package.json` conflicts take the union of both dependency lists. On `pnpm-lock.yaml` conflicts run `git checkout --theirs pnpm-lock.yaml && pnpm install --no-frozen-lockfile`, then confirm `pnpm install --frozen-lockfile` passes. Any conflict in code goes back to the reviewer.
-   - Check CI once with `gh pr checks <n>`. If it already passed, or is still running on a commit whose gates the reviewer ran green locally, squash-merge (`gh pr merge <n> --squash`) with a single-line Conventional Commit title that includes the ticket ID and no AI attribution. Don't poll or wait for CI. Never merge over a **failed** check.
-   - Batch status edits: set the ticket's status in `README.md` (and any other ticket-index changes) in one commit and push, rather than one push per status change.
-   - Clean up: remove the worktree (`git worktree remove -f -f <path>`), delete its git branches (local `ticket/<id>-<slug>` and any `worktree-agent-*`, plus the remote `origin/ticket/<id>-<slug>` if the merge didn't remove it), and drop `ludwig_<id>` and `ludwig_<id>_test`. Also delete local `ticket/*` branches left by interrupted agents once `git log main..<branch>` shows no commits. Then delete the merged PR's Neon preview branch, `preview/ticket/<id>-<slug>` (`neonctl branches delete <branch-id> --project-id bold-term-80947033`). The Neon plan caps the project at 10 branches, and a new preview fails with "Resource provisioning failed" once the cap is reached. The user has approved this deletion for merged tickets; never delete `main` or the branch of an open PR.
-   - Sync local `main`: `git pull && pnpm install --frozen-lockfile`, plus `pnpm db:migrate && pnpm db:seed` if a migration or content landed.
-   - For tickets that touch auth, env, config, routing, caching, migrations or content, check production's build and runtime logs after the merge (section 3.1).
-   - After the ticket that ends a milestone, give the user a short milestone summary, then carry on.
-6. **Shared doc edits.**
-   - Some tickets edit `docs/SPEC.md` (decision records, new §7.4.5 rows) or `CLAUDE.md`. They may edit only the sections they name.
-   - Don't run two such tickets in parallel.
-   - Rebase onto `main` before merging, so doc edits never clobber each other.
-7. **Escalate** to the user, rather than guess, when a ticket:
-   - is `BLOCKED`;
-   - contradicts `SPEC.md`;
-   - or needs a decision that isn't in the docs.
-
-   Before escalating anything about Vercel or Neon (failed builds, env vars, previews, database state), investigate it yourself with the platform tools (section 3.1). Only bring the user what needs their approval or access.
-8. **Interrupted agents.** Subagents can die mid-run on rate limits, and a worktree with no commits may then be removed automatically. Before resuming one, check its worktree still exists. If it's gone and nothing was committed, re-dispatch the ticket fresh rather than recreating the worktree by hand.
+The orchestrator protocol is the `/orchestrate` skill, `.claude/skills/orchestrate/SKILL.md`. Run `/orchestrate`: the skill runs `pnpm preflight` itself, stops if it fails, and injects `PROMPT.md` (the current state) only when it passes. It rewrites `PROMPT.md` when the session ends. Everything below is for implementers and reviewers.
 
 ---
 
@@ -183,7 +150,7 @@ Rules:
 
 - **Previews:** every pushed PR branch gets a preview deployment and its own Neon branch. Verify deployed ACs there: `vercel curl` for API checks, a `get_access_to_vercel_url` share link for browser checks. Sign up test users on previews only. Each push costs a preview build and a CI run, so push as few times as possible (sections 2.4 and 2.5).
 - **Neon reads:** read-only SQL (`run_sql` with `SELECT`) on any branch, including production `main`, is allowed for verification. Pass `branch_id` for preview branches.
-- **Neon writes:** writing SQL is allowed on preview branches. On production `main`, any write, delete or schema change, and every destructive Neon operation (deleting branches, resetting, dropping), needs the user's explicit approval first. Implementers ask the orchestrator, and the orchestrator asks the user. The one standing exception: the orchestrator deletes a merged ticket's preview branch during cleanup (section 1, step 5).
+- **Neon writes:** writing SQL is allowed on preview branches. On production `main`, any write, delete or schema change, and every destructive Neon operation (deleting branches, resetting, dropping), needs the user's explicit approval first. Implementers ask the orchestrator, and the orchestrator asks the user. The one standing exception: the orchestrator deletes a merged ticket's preview branch during cleanup (`/orchestrate` skill, merge cleanup).
 - **Vercel changes:** reads are always fine. Changing project settings, env vars, protection or domains needs the user's approval, except that the orchestrator may add a missing per-environment secret generated with `openssl rand` and piped straight in, without printing it.
 - **Secrets:** never print secret values, never decrypt env vars, and never copy credentials into the repo.
 

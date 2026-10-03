@@ -50,7 +50,16 @@ async function insertPuzzle(tx: Tx, typeKey: string, slug = "one") {
 }
 
 const { pieces: _pieces, solutionPlies: _plies, ...puzzleColumns } = content;
-const { pieces: _p, solutionPlies: _s, goal: _g, ...unwindColumns } = unwind;
+const unwindColumns = {
+  mode: unwind.mode,
+  sideToMove: unwind.sideToMove,
+  whiteKingside: unwind.whiteKingside,
+  whiteQueenside: unwind.whiteQueenside,
+  blackKingside: unwind.blackKingside,
+  blackQueenside: unwind.blackQueenside,
+  halfmove: unwind.halfmove,
+  fullmove: unwind.fullmove,
+};
 
 async function insertSubtype(tx: Tx, puzzleId: string) {
   await tx

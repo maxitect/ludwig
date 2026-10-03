@@ -1,6 +1,7 @@
 import { Solver as fixtureSolver } from "./__fixture/solver";
 import { Solver as anagramSolver } from "./anagram/solver";
 import { Solver as crosswordSolver } from "./crossword/solver";
+import { Solver as gearsSolver } from "./gears/solver";
 import type { SolverComponent } from "./solver-types";
 
 /** Client solvers by type key. Only the solve page imports this; the registry and scripts must never reach it. */
@@ -8,7 +9,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   __fixture: fixtureSolver,
   anagram: anagramSolver,
   crossword: crosswordSolver,
-  gears: null,
+  gears: gearsSolver,
   "reverse-chess": null,
   rota: null,
 };

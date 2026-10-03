@@ -17,7 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { checkAnswer, clearState, saveState } from "@/lib/actions/puzzles";
-import type { SolverComponent, SolverProps } from "@/puzzles/registry";
+import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
 import { usePuzzleTimer } from "./use-puzzle-timer";
 

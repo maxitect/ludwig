@@ -11,7 +11,7 @@ import {
 import { getAttemptState } from "@/lib/data/attempts";
 import { getPuzzleForPlay } from "@/lib/data/puzzles";
 import { getCurrentUser } from "@/lib/data/user";
-import { getPuzzleModule } from "@/puzzles/registry";
+import { getSolver } from "@/puzzles/solvers";
 
 export const generateStaticParams = getPuzzleStaticParams;
 
@@ -60,7 +60,7 @@ async function Solve({
     getCurrentUser(),
   ]);
   if (!play) notFound();
-  const { Solver } = getPuzzleModule(typeKey);
+  const Solver = getSolver(typeKey);
   const initialState = user
     ? await getAttemptState(user.id, play.puzzle.id)
     : null;

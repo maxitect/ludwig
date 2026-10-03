@@ -5,7 +5,6 @@ import { check } from "./check";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
 import * as schema from "./schema";
-import { Solver } from "./solver";
 import { anagramAttempts, anagramPuzzles } from "./tables";
 import { verifyAnagram } from "./verify";
 
@@ -15,7 +14,6 @@ export const anagramModule = {
   load,
   loadSolution,
   check,
-  Solver,
   verify: verifyAnagram,
   async insertContent(tx, puzzleId, content) {
     await tx.insert(anagramPuzzles).values({ ...content, puzzleId });

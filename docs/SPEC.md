@@ -170,7 +170,7 @@ src/puzzles/<type>/
 ```
 
 - Types come from `z.infer<…>` on schemas composed from the generated table schemas. There are no hand-written duplicates and no `any`.
-- `registry.ts` maps each `type_key` to `{ schema, load, check, Solver, meta }`.
+- `registry.ts` maps each `type_key` to its server module (`schema`, `meta`, `load`, `loadSolution`, `check`, `insertContent` and the attempt-state functions). Client solvers live in a separate map, `solvers.ts`, which only the solve page imports, so scripts can load the registry without any client code.
 - Shared pure engines live in `src/puzzles/_shared/`, for example `visibility.ts`, which is used by `sightlines`, `cctv-maze` and the gear occlusion rule.
 
 ### 4.2 Answer checking

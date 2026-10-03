@@ -1,17 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
-import type { SolverProps } from "../registry";
+import type { SolverProps } from "../solver-types";
 import type * as schema from "./schema";
 
 const TILT_DEGREES = [-2, 1, 0, 2, -1];
 
 const tileClass =
   "flex size-12 items-center justify-center border-2 border-border bg-paper font-hand text-3xl text-crayon uppercase shadow-[3px_3px_0_var(--color-shadow)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:size-14";
-
-const actionClass =
-  "h-8 border-2 border-border bg-background px-3 font-display text-xs font-bold tracking-[0.04em] text-foreground uppercase shadow-[3px_3px_0_var(--color-shadow)] transition-[color,background-color,box-shadow,translate] hover:bg-foreground hover:text-background focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-x-[3px] active:translate-y-[3px] active:shadow-none";
 
 const tilt = (index: number) => ({
   transform: `rotate(${TILT_DEGREES[(index * 3 + 1) % TILT_DEGREES.length]}deg)`,
@@ -165,23 +163,25 @@ export function Solver({
         </div>
       </div>
       <div className="flex flex-wrap gap-3">
-        <button
+        <Button
           type="button"
-          className={actionClass}
+          variant="secondary"
+          size="sm"
           onClick={() => setOrder(shuffled(tiles.length))}
         >
           Shuffle
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className={actionClass}
+          variant="secondary"
+          size="sm"
           onClick={() => {
             update([]);
             board.current?.focus();
           }}
         >
           Clear
-        </button>
+        </Button>
       </div>
     </div>
   );

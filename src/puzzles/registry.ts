@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
@@ -16,19 +15,6 @@ export type PuzzleSchemas = {
   attemptSchema: z.ZodType;
 };
 
-export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
-  payload: z.infer<S["payloadSchema"]>;
-  initialState: z.infer<S["attemptSchema"]> | null;
-  onStateChange(state: z.infer<S["attemptSchema"]>): void;
-  /** The solver registers a function that returns its current answer, or null while it is incomplete. */
-  registerCheck(read: () => z.infer<S["answerSchema"]> | null): void;
-};
-
-/** The method shorthand keeps the props bivariant, like the module methods below. */
-export type SolverComponent<S extends PuzzleSchemas = PuzzleSchemas> = {
-  bivarianceHack(props: SolverProps<S>): ReactNode;
-}["bivarianceHack"];
-
 /** Method signatures keep the parameters bivariant, so one registry can hold modules of different types. */
 export type PuzzleTypeModule<
   S extends PuzzleSchemas = PuzzleSchemas,
@@ -43,8 +29,6 @@ export type PuzzleTypeModule<
     solution: TSolution,
     answer: z.infer<S["answerSchema"]>,
   ): { correct: boolean };
-  /** A `"use client"` component, or null until the type has a solver. */
-  Solver: SolverComponent<S> | null;
   /** Writes the subtype and child rows for a puzzle whose supertype row already exists. */
   insertContent(
     tx: Tx,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { SolverProps } from "../registry";
+import type { SolverProps } from "../solver-types";
 import type * as schema from "./schema";
 
 export function Solver({

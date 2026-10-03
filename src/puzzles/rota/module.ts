@@ -25,9 +25,6 @@ export const rotaModule = {
   load,
   loadSolution,
   check,
-  Solver() {
-    return null;
-  },
   async insertContent(tx, puzzleId, { workers, clues, solution }) {
     await tx.insert(rotaPuzzles).values({ puzzleId });
     const insertedWorkers = await tx

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { SolverProps } from "../registry";
+import type { SolverProps } from "../solver-types";
 import { GearBoard } from "./board";
 import { lcmTeeth, seeingCount } from "./engine";
 import type * as schema from "./schema";

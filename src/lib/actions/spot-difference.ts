@@ -14,8 +14,9 @@ const tapSchema = z.object({
   y: z.number().min(0).max(SCENE_HEIGHT),
 });
 
-type Invalid = { ok: false; error: "invalid" };
-const invalid: Invalid = { ok: false, error: "invalid" };
+type ActionError = { ok: false; error: "invalid" | "not_found" };
+const invalid: ActionError = { ok: false, error: "invalid" };
+const notFound: ActionError = { ok: false, error: "not_found" };
 
 /**
  * Hit-tests a tap, in scene units, against the derived regions on the server.
@@ -27,7 +28,7 @@ export async function tapScene(puzzleId: string, x: number, y: number) {
     return invalid;
   }
   const result = await hitTestScene(puzzleId, point.data);
-  return result ? { ok: true as const, ...result } : invalid;
+  return result ? { ok: true as const, ...result } : notFound;
 }
 
 /** The regions of already found differences, for circling them again after a reload. */
@@ -37,5 +38,5 @@ export async function loadFoundRegions(puzzleId: string, found: number[]) {
     return invalid;
   }
   const regions = await getFoundRegions(puzzleId, parsed.data.found);
-  return regions ? { ok: true as const, regions } : invalid;
+  return regions ? { ok: true as const, regions } : notFound;
 }

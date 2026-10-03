@@ -3,7 +3,13 @@ import { content as unwind } from "../../../content/reverse-chess/dev-unwind";
 import { content as uncaptureFixture } from "../../../content/reverse-chess/dev-knight-takes";
 import { content as uniqueFixture } from "../../../content/reverse-chess/dev-pawn-push";
 import { check } from "./check";
-import type { Answer, Content, Payload, Solution } from "./schema";
+import {
+  solutionSchema,
+  type Answer,
+  type Content,
+  type Payload,
+  type Solution,
+} from "./schema";
 
 const payload = (content: Content): Payload => ({
   mode: content.mode,
@@ -22,7 +28,7 @@ const payload = (content: Content): Payload => ({
 
 const solutionOf = ({ solutionPlies, goal }: Content): Solution => ({
   plies: solutionPlies.map((authored) => ({ uncapture: null, ...authored })),
-  goal: goal ? (({ displayText: _, ...params }) => params)(goal) : null,
+  goal: solutionSchema.shape.goal.parse(goal ?? null),
 });
 
 const ply = (

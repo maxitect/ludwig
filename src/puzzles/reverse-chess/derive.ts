@@ -213,3 +213,20 @@ export function toDescriptive(move: ForwardMove, prior: string) {
     ? `${piece}(${descriptiveSquare(found.from, found.color)})${rest}`
     : `${piece}${rest}`;
 }
+
+const NOTATORS = { algebraic: toAlgebraic, descriptive: toDescriptive };
+
+export type Notation = keyof typeof NOTATORS;
+
+/** Notation of the forward move that a retro move takes back: `position` is the one shown, `prior` the one before the move. */
+export function notateRetro(
+  notation: Notation,
+  retro: Pick<Move, "from" | "to"> & { unpromote?: boolean },
+  position: string,
+  prior: string,
+) {
+  const promotion = retro.unpromote
+    ? new Chess(position).get(retro.to)?.type
+    : undefined;
+  return NOTATORS[notation]({ from: retro.from, to: retro.to, promotion }, prior);
+}

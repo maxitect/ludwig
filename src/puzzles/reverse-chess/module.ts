@@ -54,18 +54,20 @@ export const reverseChessModule = {
         .insert(reverseChessGoals)
         .values({ puzzleId, kind: params.kind, displayText });
       if (params.kind === "piece_on_square") {
-        const { kind: _, ...row } = params;
+        const { colour, piece, file, rank } = params;
         await tx
           .insert(reverseChessGoalPieceOnSquare)
-          .values({ ...row, puzzleId });
+          .values({ puzzleId, colour, piece, file, rank });
       } else if (params.kind === "castling_right") {
-        const { kind: _, ...row } = params;
+        const { colour, side } = params;
         await tx
           .insert(reverseChessGoalCastlingRight)
-          .values({ ...row, puzzleId });
+          .values({ puzzleId, colour, side });
       } else {
-        const { kind: _, ...row } = params;
-        await tx.insert(reverseChessGoalPieceCount).values({ ...row, puzzleId });
+        const { colour, piece, count } = params;
+        await tx
+          .insert(reverseChessGoalPieceCount)
+          .values({ puzzleId, colour, piece, count });
       }
     }
     await tx

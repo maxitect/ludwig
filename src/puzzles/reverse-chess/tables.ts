@@ -8,6 +8,7 @@ import {
   primaryKey,
   smallint,
   text,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 import {
@@ -19,6 +20,15 @@ import {
 import { attempts } from "../../db/schema/progress";
 
 export const retroModeEnum = pgEnum("retro_mode", ["last_move", "unwind"]);
+export const retroGoalKindEnum = pgEnum("retro_goal_kind", [
+  "piece_on_square",
+  "castling_right",
+  "piece_count",
+]);
+export const retroCastleSideEnum = pgEnum("retro_castle_side", [
+  "kingside",
+  "queenside",
+]);
 export const retroSpecialEnum = pgEnum("retro_special", [
   "none",
   "en_passant",
@@ -41,7 +51,6 @@ export const reverseChessPuzzles = pgTable(
     enPassantFile: chessFileEnum("en_passant_file"),
     halfmove: smallint("halfmove").notNull(),
     fullmove: smallint("fullmove").notNull(),
-    goalText: text("goal_text"),
     plyCount: smallint("ply_count").notNull(),
   },
   (table) => [
@@ -53,6 +62,94 @@ export const reverseChessPuzzles = pgTable(
     check("reverse_chess_puzzles_halfmove_check", sql`${table.halfmove} >= 0`),
     check("reverse_chess_puzzles_fullmove_check", sql`${table.fullmove} >= 1`),
     check("reverse_chess_puzzles_ply_count_check", sql`${table.plyCount} >= 1`),
+  ],
+);
+
+export const reverseChessGoals = pgTable(
+  "reverse_chess_goals",
+  {
+    puzzleId: uuid("puzzle_id").primaryKey(),
+    kind: retroGoalKindEnum("kind").notNull(),
+    displayText: text("display_text").notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "reverse_chess_goals_puzzle_id_fk",
+      columns: [table.puzzleId],
+      foreignColumns: [reverseChessPuzzles.puzzleId],
+    }).onDelete("cascade"),
+    unique("reverse_chess_goals_puzzle_id_kind_unique").on(
+      table.puzzleId,
+      table.kind,
+    ),
+  ],
+);
+
+export const reverseChessGoalPieceOnSquare = pgTable(
+  "reverse_chess_goal_piece_on_square",
+  {
+    puzzleId: uuid("puzzle_id").primaryKey(),
+    kind: retroGoalKindEnum("kind")
+      .notNull()
+      .generatedAlwaysAs(sql`'piece_on_square'::retro_goal_kind`),
+    colour: chessColourEnum("colour").notNull(),
+    piece: chessPieceEnum("piece").notNull(),
+    file: chessFileEnum("file").notNull(),
+    rank: smallint("rank").notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "reverse_chess_goal_piece_on_square_puzzle_id_kind_fk",
+      columns: [table.puzzleId, table.kind],
+      foreignColumns: [reverseChessGoals.puzzleId, reverseChessGoals.kind],
+    }).onDelete("cascade"),
+    check(
+      "reverse_chess_goal_piece_on_square_rank_check",
+      sql`${table.rank} between 1 and 8`,
+    ),
+  ],
+);
+
+export const reverseChessGoalCastlingRight = pgTable(
+  "reverse_chess_goal_castling_right",
+  {
+    puzzleId: uuid("puzzle_id").primaryKey(),
+    kind: retroGoalKindEnum("kind")
+      .notNull()
+      .generatedAlwaysAs(sql`'castling_right'::retro_goal_kind`),
+    colour: chessColourEnum("colour").notNull(),
+    side: retroCastleSideEnum("side").notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "reverse_chess_goal_castling_right_puzzle_id_kind_fk",
+      columns: [table.puzzleId, table.kind],
+      foreignColumns: [reverseChessGoals.puzzleId, reverseChessGoals.kind],
+    }).onDelete("cascade"),
+  ],
+);
+
+export const reverseChessGoalPieceCount = pgTable(
+  "reverse_chess_goal_piece_count",
+  {
+    puzzleId: uuid("puzzle_id").primaryKey(),
+    kind: retroGoalKindEnum("kind")
+      .notNull()
+      .generatedAlwaysAs(sql`'piece_count'::retro_goal_kind`),
+    colour: chessColourEnum("colour").notNull(),
+    piece: chessPieceEnum("piece").notNull(),
+    count: smallint("count").notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "reverse_chess_goal_piece_count_puzzle_id_kind_fk",
+      columns: [table.puzzleId, table.kind],
+      foreignColumns: [reverseChessGoals.puzzleId, reverseChessGoals.kind],
+    }).onDelete("cascade"),
+    check(
+      "reverse_chess_goal_piece_count_count_check",
+      sql`${table.count} between 0 and 10`,
+    ),
   ],
 );
 

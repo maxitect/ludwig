@@ -116,12 +116,39 @@ describe("verifyReverseChess Mode B", () => {
     expect(() => verifyReverseChess(unwind)).not.toThrow();
   });
 
-  it("AC6: fails at step 1 when the plies are swapped", () => {
+  it("AC6: fails when the authored plies are swapped", () => {
     const swapped = {
       ...unwind,
       solutionPlies: [...unwind.solutionPlies].reverse(),
     };
-    expect(() => verifyReverseChess(swapped)).toThrow(/^step 1 /);
+    expect(() => verifyReverseChess(swapped)).toThrow(
+      /^authored chain does not match unique survivor/,
+    );
+  });
+
+  it("fails when no chain reaches the goal", () => {
+    const unreachable = {
+      ...unwind,
+      goal: { ...unwind.goal, rank: 5 },
+    } as typeof unwind;
+    expect(() => verifyReverseChess(unreachable)).toThrow(
+      "expected exactly 1 chain of 2 retro moves reaching the goal, found 0",
+    );
+  });
+
+  it("fails when several chains reach the goal", () => {
+    const loose = {
+      ...rookCheck,
+      mode: "unwind",
+      goal: {
+        kind: "piece_count",
+        displayText: "Any chain",
+        colour: "black",
+        piece: "king",
+        count: 1,
+      },
+    } as typeof unwind;
+    expect(() => verifyReverseChess(loose)).toThrow(/found at least 2/);
   });
 });
 

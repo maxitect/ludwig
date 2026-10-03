@@ -15,10 +15,10 @@ export async function load(puzzleId: string) {
       enPassantFile: true,
       halfmove: true,
       fullmove: true,
-      goalText: true,
       plyCount: true,
     },
     with: {
+      goal: { columns: { displayText: true } },
       pieces: {
         columns: { file: true, rank: true, colour: true, piece: true },
         orderBy: { rank: "desc", file: "asc" },
@@ -26,5 +26,6 @@ export async function load(puzzleId: string) {
     },
   });
   if (!puzzle) throw new Error(`Reverse chess puzzle not found: ${puzzleId}`);
-  return payloadSchema.parse(puzzle);
+  const { goal, ...rest } = puzzle;
+  return payloadSchema.parse({ ...rest, goalText: goal?.displayText ?? null });
 }

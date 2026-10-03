@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   check,
   foreignKey,
+  index,
   integer,
   numeric,
   pgEnum,
@@ -80,6 +81,7 @@ export const attemptHints = pgTable(
   (table) => [
     check("attempt_hints_row_check", sql`${table.row} >= 0`),
     check("attempt_hints_col_check", sql`${table.col} >= 0`),
+    index("attempt_hints_attempt_id_idx").on(table.attemptId),
   ],
 );
 

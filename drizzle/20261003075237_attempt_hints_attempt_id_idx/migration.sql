@@ -1,0 +1,1 @@
+CREATE INDEX "attempt_hints_attempt_id_idx" ON "attempt_hints" ("attempt_id");

@@ -98,6 +98,7 @@
   --ring: var(--color-book-blue);
   --grain-blend: screen;
   --grain-invert: 1;
+  --piece-black-outline: var(--color-paper);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -123,6 +124,7 @@
     --ring: var(--color-book-blue);
     --grain-blend: screen;
     --grain-invert: 1;
+    --piece-black-outline: var(--color-paper);
   }
 }
 

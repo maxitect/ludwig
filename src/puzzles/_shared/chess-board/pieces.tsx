@@ -9,7 +9,10 @@ const SHADOW_FILTER = [1, 2, 3, 4, 5, 6, 7, 8]
   )
   .join(" ");
 
-const FILL: CSSProperties = { fill: "var(--piece-fill)" };
+const FILL: CSSProperties = {
+  fill: "var(--piece-fill)",
+  stroke: "var(--piece-outline, none)",
+};
 const LINE: CSSProperties = {
   fill: "none",
   stroke: "var(--piece-line)",
@@ -123,8 +126,16 @@ const SHAPES = {
 } as const satisfies Record<PieceKind, ReactNode>;
 
 const PIECE_COLOURS = {
-  white: { fill: "var(--color-paper)", line: "var(--color-ink)" },
-  black: { fill: "var(--color-ink)", line: "var(--color-paper)" },
+  white: {
+    fill: "var(--color-paper)",
+    line: "var(--color-ink)",
+    outline: "none",
+  },
+  black: {
+    fill: "var(--color-ink)",
+    line: "var(--color-paper)",
+    outline: "var(--piece-black-outline, none)",
+  },
 } as const satisfies Record<Colour, Record<string, string>>;
 
 export function PieceGlyph({
@@ -136,7 +147,7 @@ export function PieceGlyph({
   piece: PieceKind;
   shadow?: boolean;
 }): ReactElement {
-  const { fill, line } = PIECE_COLOURS[colour];
+  const { fill, line, outline } = PIECE_COLOURS[colour];
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -148,6 +159,7 @@ export function PieceGlyph({
         {
           "--piece-fill": fill,
           "--piece-line": line,
+          "--piece-outline": outline,
           fillRule: "evenodd",
           strokeWidth: 1.5,
           strokeLinecap: "round",

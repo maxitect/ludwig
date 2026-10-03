@@ -106,6 +106,7 @@ export function SolveChrome({
   const timer = usePuzzleTimer(solvedMs === null);
   const readAnswer = useRef<ReadAnswer | null>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const latestCheck = useRef<() => void>(undefined);
   const solved = solvedMs !== null;
 
   const registerCheck = useCallback<SolverProps["registerCheck"]>((read) => {
@@ -113,6 +114,12 @@ export function SolveChrome({
   }, []);
 
   useEffect(() => () => clearTimeout(saveTimeout.current), []);
+
+  useEffect(() => {
+    latestCheck.current = check;
+  });
+
+  const requestCheck = useCallback(() => latestCheck.current?.(), []);
 
   const onStateChange = useCallback<SolverProps["onStateChange"]>(
     (state) => {
@@ -246,6 +253,7 @@ export function SolveChrome({
             }
             onStateChange={onStateChange}
             registerCheck={registerCheck}
+            requestCheck={requestCheck}
             checkCell={solved ? undefined : checkCell}
             revealCell={solved ? undefined : revealCellValue}
           />

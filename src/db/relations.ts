@@ -169,6 +169,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.crosswordAttemptCells.attemptId,
     }),
   },
+  spotDifferenceAttempts: {
+    found: r.many.spotDifferenceAttemptFound({
+      from: r.spotDifferenceAttempts.attemptId,
+      to: r.spotDifferenceAttemptFound.attemptId,
+    }),
+  },
   weeklyPuzzles: {
     puzzle: r.one.puzzles({
       from: r.weeklyPuzzles.puzzleId,

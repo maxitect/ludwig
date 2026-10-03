@@ -13,7 +13,7 @@ export function SolvedStamp({ className = "", ...props }: SolvedStampProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 1.8, rotate: -14 }}
+      initial={{ opacity: 0, scale: 1.3, rotate: -14 }}
       animate={{ opacity: 1, scale: 1, rotate: -6 }}
       transition={
         reduceMotion

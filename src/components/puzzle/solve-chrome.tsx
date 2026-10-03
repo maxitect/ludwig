@@ -306,7 +306,7 @@ export function SolveChrome({
       </div>
 
       {solved && (
-        <footer className="flex flex-wrap items-center gap-6">
+        <footer className="flex flex-wrap items-center gap-x-12 gap-y-14 py-4">
           <SolvedStamp />
           <p>
             Solved in{" "}

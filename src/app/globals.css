@@ -230,3 +230,23 @@
     animation: none;
   }
 }
+
+@keyframes hub-piece-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.hub-piece {
+  animation: hub-piece-sway 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-piece {
+    animation: none;
+  }
+}

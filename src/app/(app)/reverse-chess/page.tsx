@@ -1,10 +1,157 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Suspense } from "react";
+import { Check } from "lucide-react";
 import { Credit } from "@/components/brand";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { getSolvedPuzzleIds } from "@/lib/data/attempts";
+import { getReverseChessHub } from "@/lib/data/reverse-chess";
+import { PieceGlyph, type PieceKind } from "@/puzzles/_shared/chess-board";
 
-export default function ReverseChessPage() {
+export const metadata: Metadata = {
+  title: "Reverse Chess | Ludwig.",
+  description:
+    "Instead of having to work out what comes next, you deduce what came before.",
+};
+
+type Hub = Awaited<ReturnType<typeof getReverseChessHub>>;
+
+const SECTIONS = [
+  {
+    key: "lastMove",
+    id: "last-move",
+    top: "Mode A",
+    title: "The Last Move",
+    blurb: "One move back. What was just played?",
+  },
+  {
+    key: "unwind",
+    id: "unwind",
+    top: "Mode B",
+    title: "Unwind",
+    blurb: "Take back several moves to reach an earlier position.",
+  },
+] as const satisfies readonly {
+  key: keyof Hub;
+  id: string;
+  top: string;
+  title: string;
+  blurb: string;
+}[];
+
+const DECORATIVE_PIECES = [
+  { piece: "king", className: "top-4 right-4 w-16 sm:top-2 sm:right-8 sm:w-44" },
+  { piece: "knight", className: "hidden sm:block sm:top-32 sm:right-56 sm:w-28" },
+] as const satisfies readonly { piece: PieceKind; className: string }[];
+
+const HOW_IT_WORKS = [
+  "You are shown a chess position, never the game that led to it.",
+  "Drag a piece backwards to the square it came from.",
+  "If it captured something, say what, and put it back.",
+  "Only one answer keeps the whole story legal.",
+];
+
+export default async function ReverseChessPage() {
+  const hub = await getReverseChessHub();
+
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-12 sm:px-8">
-      <Credit level={1} top="Play it backwards" bottom="Reverse Chess" />
-      <Credit level={2} top="Not yet open" bottom="Coming soon" />
+    <main className="relative mx-auto flex max-w-5xl flex-col gap-10 overflow-x-clip px-4 py-12 sm:px-8">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        {DECORATIVE_PIECES.map(({ piece, className }) => (
+          <div key={piece} className={`hub-piece absolute ${className}`}>
+            <PieceGlyph colour="white" piece={piece} />
+          </div>
+        ))}
+      </div>
+      <header className="relative">
+        <Credit level={1} top="Play it" bottom="Reverse Chess" />
+      </header>
+      <Card className="relative max-w-2xl">
+        <CardContent>
+          <blockquote className="flex flex-col gap-2">
+            <p className="font-display text-2xl font-bold tracking-[0.04em] uppercase">
+              &ldquo;Instead of having to work out what comes next, you deduce
+              what came before.&rdquo;
+            </p>
+            <footer className="text-sm text-muted-foreground">John, Ludwig</footer>
+          </blockquote>
+        </CardContent>
+      </Card>
+      <section
+        aria-labelledby="how-it-works"
+        className="relative flex max-w-2xl flex-col gap-4"
+      >
+        <h2
+          id="how-it-works"
+          className="border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase"
+        >
+          How it works
+        </h2>
+        <ol className="flex list-decimal flex-col gap-1 pl-6">
+          {HOW_IT_WORKS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </section>
+      <Suspense fallback={<ModeSections hub={hub} solved={new Set()} />}>
+        <SignedInModeSections hub={hub} />
+      </Suspense>
     </main>
   );
+}
+
+async function SignedInModeSections({ hub }: { hub: Hub }) {
+  const solved = await getSolvedPuzzleIds(
+    SECTIONS.flatMap(({ key }) => hub[key].map(({ id }) => id)),
+  );
+  return <ModeSections hub={hub} solved={solved} />;
+}
+
+function ModeSections({ hub, solved }: { hub: Hub; solved: Set<string> }) {
+  return SECTIONS.map(({ key, id, top, title, blurb }) => (
+    <section
+      key={key}
+      aria-labelledby={id}
+      className="relative flex flex-col gap-4"
+    >
+      <div className="flex flex-col gap-1 border-b-2 border-border pb-1">
+        <Credit
+          id={id}
+          level={2}
+          top={top}
+          bottom={title}
+          className="[&>span:last-child]:text-3xl"
+        />
+        <p className="text-sm text-muted-foreground">{blurb}</p>
+      </div>
+      {hub[key].length === 0 ? (
+        <p>No puzzles in this mode have been published yet.</p>
+      ) : (
+        <ul className="flex flex-col">
+          {hub[key].map((puzzle) => (
+            <li key={puzzle.id} className="border-b-2 border-border">
+              <Link
+                href={`/puzzles/reverse-chess/${puzzle.slug}`}
+                className="flex items-center justify-between gap-4 py-3 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
+                  {puzzle.title}
+                </span>
+                <span className="flex items-center gap-3">
+                  {solved.has(puzzle.id) && (
+                    <Badge variant="outline">
+                      <Check aria-hidden="true" />
+                      Solved
+                    </Badge>
+                  )}
+                  <Badge variant="difficulty" level={puzzle.difficulty} />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  ));
 }

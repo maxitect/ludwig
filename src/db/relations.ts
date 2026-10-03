@@ -56,6 +56,10 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.weeklyPuzzles.puzzleId,
     }),
     attempts: r.many.attempts({ from: r.puzzles.id, to: r.attempts.puzzleId }),
+    reverseChess: r.one.reverseChessPuzzles({
+      from: r.puzzles.id,
+      to: r.reverseChessPuzzles.puzzleId,
+    }),
   },
   reverseChessPuzzles: {
     pieces: r.many.reverseChessPieces({

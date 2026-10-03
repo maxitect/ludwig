@@ -1,0 +1,23 @@
+import "server-only";
+import { cacheLife, cacheTag } from "next/cache";
+import { db } from "@/db";
+import { isPublished } from "./puzzles";
+
+export async function getReverseChessHub() {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("puzzles");
+  const rows = await db.query.puzzles.findMany({
+    where: { typeKey: "reverse-chess", RAW: isPublished },
+    columns: { id: true, slug: true, title: true, difficulty: true },
+    orderBy: { difficulty: "asc", title: "asc" },
+    with: { reverseChess: { columns: { mode: true } } },
+  });
+  const puzzles = rows.flatMap(({ reverseChess, ...puzzle }) =>
+    reverseChess ? [{ ...puzzle, mode: reverseChess.mode }] : [],
+  );
+  return {
+    lastMove: puzzles.filter(({ mode }) => mode === "last_move"),
+    unwind: puzzles.filter(({ mode }) => mode === "unwind"),
+  };
+}

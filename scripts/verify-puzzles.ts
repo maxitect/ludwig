@@ -1,5 +1,11 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { eq } from "drizzle-orm";
+import { db } from "../src/db";
+import { gearDaily, gearPuzzles, puzzles } from "../src/db/schema";
+import { load } from "../src/puzzles/gears/load";
+import { loadSolution } from "../src/puzzles/gears/load-solution";
+import { verifyStored } from "../src/puzzles/gears/verify-stored";
 import type { PuzzleRegistry } from "../src/puzzles/registry";
 import {
   type ContentFailure,
@@ -34,6 +40,38 @@ export async function verifyPuzzles(
   return { checked: files.length + failures.length, failures: all };
 }
 
+/** Re-solves every generated daily diagram stored in the DB and compares it with its stored solution. */
+export async function verifyGeneratedRows() {
+  const rows = await db
+    .select({
+      id: puzzles.id,
+      slug: puzzles.slug,
+      date: gearDaily.date,
+      generatorSeed: gearPuzzles.generatorSeed,
+    })
+    .from(gearDaily)
+    .innerJoin(puzzles, eq(puzzles.id, gearDaily.puzzleId))
+    .innerJoin(gearPuzzles, eq(gearPuzzles.puzzleId, gearDaily.puzzleId))
+    .orderBy(gearDaily.date);
+
+  const failures: { slug: string; error: string }[] = [];
+  for (const { id, slug, date, generatorSeed } of rows) {
+    try {
+      if (generatorSeed !== date) {
+        throw new Error(`generator_seed "${generatorSeed}" differs from the date ${date}`);
+      }
+      verifyStored(await load(id), await loadSolution(id));
+      console.log(`gears/${slug}: unique (re-solved from the database)`);
+    } catch (error) {
+      failures.push({
+        slug,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+  return { checked: rows.length, failures };
+}
+
 async function main() {
   const { registry, contentDir } = await resolveCliOptions(process.argv.slice(2));
   const { checked, failures } = await verifyPuzzles(registry, contentDir);
@@ -48,7 +86,15 @@ async function main() {
     if (reminder) console.log(`${typeKey}/${slug}: ${reminder}`);
   }
   console.log(`puzzles:verify: ${checked - failures.length}/${checked} files ok`);
-  process.exitCode = failures.length ? 1 : 0;
+
+  const generated = await verifyGeneratedRows();
+  for (const failure of generated.failures) {
+    console.error(`FAIL gears/${failure.slug} (database): ${failure.error}`);
+  }
+  console.log(
+    `puzzles:verify: ${generated.checked - generated.failures.length}/${generated.checked} generated rows unique`,
+  );
+  process.exitCode = failures.length || generated.failures.length ? 1 : 0;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

@@ -101,6 +101,7 @@ export function SolveChrome({
     () => (hydrated ? (readProgress(puzzleId)?.state ?? null) : undefined),
     [hydrated, puzzleId],
   );
+  const resumeLocal = initialState === null && localState != null;
   const [pending, startTransition] = useTransition();
   const timer = usePuzzleTimer(solvedMs === null);
   const readAnswer = useRef<ReadAnswer | null>(null);
@@ -238,9 +239,10 @@ export function SolveChrome({
       >
         {signedIn || localState !== undefined ? (
           <Solver
+            key={resumeLocal ? "local" : "initial"}
             payload={payload}
             initialState={
-              attempt === 0 ? (signedIn ? initialState : localState) : null
+              attempt === 0 ? (resumeLocal ? localState : initialState) : null
             }
             onStateChange={onStateChange}
             registerCheck={registerCheck}

@@ -68,7 +68,10 @@ function Solver({
   );
 }
 
-function renderChrome(signedIn = true) {
+function renderChrome(
+  signedIn = true,
+  initialState: SolverProps["initialState"] = null,
+) {
   render(
     <SolveChrome
       puzzleId="00000000-0000-0000-0000-000000000001"
@@ -77,7 +80,7 @@ function renderChrome(signedIn = true) {
       title="Test"
       difficulty={1}
       payload={{}}
-      initialState={null}
+      initialState={initialState}
       Solver={Solver}
       signedIn={signedIn}
       signInHref="/sign-in"
@@ -169,6 +172,30 @@ describe("SolveChrome signed out", () => {
     await userEvent.click(screen.getByRole("button", { name: "Check" }));
     await screen.findByText(/Solved in/);
     vi.restoreAllMocks();
+  });
+});
+
+describe("SolveChrome signed in with a local entry awaiting merge", () => {
+  const localEntry = JSON.stringify({
+    typeKey: "anagram",
+    state: { answer: "abc" },
+    startedAt: 1,
+  });
+
+  it("resumes the local state when the server has none", async () => {
+    localStorage.setItem(progressKey, localEntry);
+    renderChrome(true);
+    expect((await screen.findByLabelText("Restored")).textContent).toBe(
+      '{"answer":"abc"}',
+    );
+  });
+
+  it("keeps the server state when there is one", async () => {
+    localStorage.setItem(progressKey, localEntry);
+    renderChrome(true, { answer: "srv" });
+    expect((await screen.findByLabelText("Restored")).textContent).toBe(
+      '{"answer":"srv"}',
+    );
   });
 });
 

@@ -2,6 +2,7 @@ import {
   type LocalProgress,
   localProgressSchema,
   type MergeEntry,
+  mergeEntrySchema,
 } from "@/lib/forms/local-progress";
 import { getAttemptSchema } from "@/puzzles/attempt-schemas";
 
@@ -76,7 +77,12 @@ export function readAllProgress(): MergeEntry[] {
     [],
   );
   return keys.flatMap((key) => {
+    const puzzleId = key.slice(PREFIX.length);
+    if (!mergeEntrySchema.shape.puzzleId.safeParse(puzzleId).success) {
+      removeKey(key);
+      return [];
+    }
     const entry = parseEntry(key);
-    return entry ? [{ ...entry, puzzleId: key.slice(PREFIX.length) }] : [];
+    return entry ? [{ ...entry, puzzleId }] : [];
   });
 }

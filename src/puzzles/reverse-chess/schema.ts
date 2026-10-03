@@ -54,5 +54,6 @@ export const contentSchema = z.object({
 export const attemptSchema = z.object({ plies: z.array(attemptPlyInsert) });
 
 export type Payload = z.infer<typeof payloadSchema>;
+export type Answer = z.infer<typeof answerSchema>;
 export type Content = z.infer<typeof contentSchema>;
 export type SolutionPly = z.infer<typeof solutionPlySchema>;

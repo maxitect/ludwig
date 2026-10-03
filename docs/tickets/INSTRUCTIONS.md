@@ -15,12 +15,10 @@ The ticket index and dependency order are in `README.md`, in this folder.
 
 ## 1. Orchestrator (Opus)
 
-0. **Pre-flight**, once per session:
-   - Docker is running and the shared Postgres container is up: `docker compose up -d` from the repo root, then `docker compose ps` shows `ludwig-db-1` healthy.
-   - Homebrew `postgresql@17` is stopped (`brew services list`), because it would take port 5432.
-   - `gh auth status` is OK, and `main` is clean and up to date with `origin`.
-   - `git worktree list`: remove any leftover `.claude/worktrees/agent-*` worktree whose branch is already merged (`git worktree remove -f -f <path>`, then delete its branches). Leave `.kilo/worktrees/*` alone.
-   - On `main`: `pnpm install --frozen-lockfile && pnpm db:migrate && pnpm db:seed`, then the gates (section 2.2).
+0. **Pre-flight**, once per session: run `pnpm preflight` from the repo root, once, and read only its last line. Don't re-run its steps yourself.
+   - It checks Docker and the shared Postgres container, that Homebrew `postgresql@17` is stopped, `gh auth`, and that `main` is clean and level with `origin`. It removes leftover worktrees, branches and databases of merged tickets, then runs install, `db:migrate`, `db:seed` and the gates (section 2.2) plus `puzzles:verify`.
+   - `PREFLIGHT PASS`: carry on. Full output is in `.verification/preflight.log`; don't read it.
+   - `PREFLIGHT FAIL: <step>`: fix that step (the failure prints its last lines), or escalate per step 7, then run `pnpm preflight` again.
 1. **Pick work.** Choose tickets whose `depends_on` are all `done` in `README.md`.
    - Tickets in the same milestone with no dependency between them may run in parallel, each in its own git worktree.
    - Don't run two tickets in parallel if both create migrations. Migration order must stay linear, so serialise those even when `depends_on` allows parallelism. Tickets with `migrations: true` in their frontmatter are the ones affected.

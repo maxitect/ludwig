@@ -1,4 +1,4 @@
-import { toFen } from "./derive";
+import { satisfiesGoal, toFen } from "./derive";
 import {
   applyRetro,
   enumerateRetro,
@@ -6,23 +6,19 @@ import {
   toRetro,
   type Retro,
 } from "./engine";
-import type { Content } from "./schema";
+import type { Content, Goal } from "./schema";
 
-function mismatch(label: string, authored: Retro, survivor: Retro) {
+const MAX_REPORTED_CHAINS = 2;
+
+function mismatch(
+  label: "ply" | "chain",
+  authored: Retro[],
+  survivor: Retro[],
+) {
+  const keys = (chain: Retro[]) => chain.map(retroKey).join(" ");
   return new Error(
-    `${label}authored ply does not match unique survivor (authored ${retroKey(authored)}, survivor ${retroKey(survivor)})`,
+    `authored ${label} does not match unique survivor (authored ${keys(authored)}, survivor ${keys(survivor)})`,
   );
-}
-
-/** True when every ply of `chain` applies in order, starting from `position`. */
-function chainApplies(position: string, chain: Retro[]) {
-  let current = position;
-  for (const retro of chain) {
-    const result = applyRetro(current, retro);
-    if (!result.ok) return false;
-    current = result.prior;
-  }
-  return true;
 }
 
 function verifyLastMove(fen: string, authored: Retro) {
@@ -33,37 +29,41 @@ function verifyLastMove(fen: string, authored: Retro) {
     );
   }
   if (retroKey(survivors[0]) !== retroKey(authored)) {
-    throw mismatch("", authored, survivors[0]);
+    throw mismatch("ply", [authored], [survivors[0]]);
   }
 }
 
-/**
- * Step N passes when the authored ply is the only enumerated retro move after which the
- * remaining authored plies still apply in order. The free-text goal is not machine-checkable.
- */
-function verifyUnwind(fen: string, chain: Retro[]) {
-  let position = fen;
-  chain.forEach((authored, index) => {
-    const step = index + 1;
-    const rest = chain.slice(index + 1);
-    const consistent = enumerateRetro(position).filter((retro) => {
+/** Every chain of `length` retro moves from `fen` whose last prior position meets `goal`, stopping after `limit`. */
+function goalChains(fen: string, length: number, goal: Goal, limit: number) {
+  const found: Retro[][] = [];
+  const walk = (position: string, chain: Retro[]) => {
+    if (chain.length === length) {
+      if (satisfiesGoal(position, goal)) found.push(chain);
+      return;
+    }
+    for (const retro of enumerateRetro(position)) {
+      if (found.length >= limit) return;
       const result = applyRetro(position, retro);
-      return result.ok && chainApplies(result.prior, rest);
-    });
-    if (consistent.length !== 1) {
-      throw new Error(
-        `step ${step} has ${consistent.length} consistent retro moves, expected exactly 1`,
-      );
+      if (result.ok) walk(result.prior, [...chain, retro]);
     }
-    if (retroKey(consistent[0]) !== retroKey(authored)) {
-      throw mismatch(`step ${step} `, authored, consistent[0]);
-    }
-    const result = applyRetro(position, authored);
-    if (!result.ok) {
-      throw new Error(`step ${step} authored ply is invalid (${result.reason})`);
-    }
-    position = result.prior;
-  });
+  };
+  walk(fen, []);
+  return found;
+}
+
+/** Exactly one chain of the authored length may reach the goal, and it must be the authored one. */
+function verifyUnwind(fen: string, chain: Retro[], goal: Goal) {
+  const chains = goalChains(fen, chain.length, goal, MAX_REPORTED_CHAINS);
+  if (chains.length !== 1) {
+    const count = chains.length ? `at least ${chains.length}` : "0";
+    throw new Error(
+      `expected exactly 1 chain of ${chain.length} retro moves reaching the goal, found ${count}`,
+    );
+  }
+  const survivor = chains[0];
+  if (survivor.map(retroKey).join() !== chain.map(retroKey).join()) {
+    throw mismatch("chain", chain, survivor);
+  }
 }
 
 /** Throws unless the puzzle's authored retro moves are its unique solution. */
@@ -73,7 +73,10 @@ export function verifyReverseChess(content: Content) {
     enPassantFile: content.enPassantFile ?? null,
   });
   const chain = content.solutionPlies.map(toRetro);
-  if (content.mode === "unwind") return verifyUnwind(fen, chain);
+  if (content.mode === "unwind") {
+    if (!content.goal) throw new Error("unwind puzzles need a goal");
+    return verifyUnwind(fen, chain, content.goal);
+  }
   if (chain.length !== 1) {
     throw new Error("last_move puzzles need exactly 1 solution ply");
   }

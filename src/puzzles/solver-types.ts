@@ -8,6 +8,8 @@ export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
   onStateChange(state: z.infer<S["attemptSchema"]>): void;
   /** The solver registers a function that returns its current answer, or null while it is incomplete. */
   registerCheck(read: () => z.infer<S["answerSchema"]> | null): void;
+  /** Asks the chrome to check the registered answer now, for types that complete without a Check press. */
+  requestCheck?(): void;
   /** Checks one cell on the server and records the hint. Null when the player is signed out or the call failed. */
   checkCell?(row: number, col: number, value: string): Promise<boolean | null>;
   /** Reveals one cell's value from the server and records the hint. Null when signed out or the call failed. */

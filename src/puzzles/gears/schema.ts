@@ -73,7 +73,7 @@ export const answerSchema = z.object({
   swaps: z.array(attemptSwapSelect),
 });
 
-/** Content names gears by label; `insertContent` resolves labels to ids. */
+/** Content names gears by label; `upsertContent` resolves labels to ids. */
 export const contentSchema = z.object({
   ...puzzleInsert.shape,
   gears: z.array(gearInsert).min(2),

@@ -94,7 +94,7 @@ function makePuzzle(name: string, publishedAt: Date | null) {
         publishedAt,
       })
       .returning({ id: puzzles.id });
-    await fixtureModule.insertContent(tx, row.id, {
+    await fixtureModule.upsertContent(tx, row.id, {
       note: "alpha",
       items: [{ position: 0, label: "alpha" }],
     });

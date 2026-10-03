@@ -96,7 +96,7 @@ export const answerSchema = z.object({
 
 const nameSwap = z.object({ a: workerInsert.shape.name, b: workerInsert.shape.name });
 
-/** Content names workers by name and orders clues by array index; `insertContent` resolves names to ids. */
+/** Content names workers by name and orders clues by array index; `upsertContent` resolves names to ids. */
 export const contentSchema = z.object({
   workers: z
     .array(

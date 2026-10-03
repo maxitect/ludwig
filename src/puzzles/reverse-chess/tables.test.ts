@@ -219,7 +219,7 @@ describe("play payload", () => {
         })
         .returning({ id: puzzles.id });
       puzzleId = row.id;
-      await reverseChessModule.insertContent(tx, puzzleId, parsedContent);
+      await reverseChessModule.upsertContent(tx, puzzleId, parsedContent);
     });
 
     const payload = await load(puzzleId);

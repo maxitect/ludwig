@@ -457,7 +457,7 @@ describe("play payload", () => {
     const puzzleId = await db.transaction(async (tx) => {
       await ensureTypes(tx);
       const id = await insertPuzzle(tx, "gears", "t033-leak-test");
-      await gearsModule.insertContent(tx, id, content);
+      await gearsModule.upsertContent(tx, id, content);
       return id;
     });
 

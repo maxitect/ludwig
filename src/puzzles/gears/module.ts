@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
 import { load } from "./load";
@@ -25,29 +25,81 @@ export const gearsModule = {
   check() {
     throw new Error("Gear checking is implemented in a later ticket");
   },
-  async insertContent(tx, puzzleId, { gears, meshes, solution, ...puzzle }) {
-    await tx.insert(gearPuzzles).values({ ...puzzle, puzzleId });
-    const inserted = await tx
+  async upsertContent(tx, puzzleId, { gears, meshes, solution, ...puzzle }) {
+    const columns = {
+      slotCount: puzzle.slotCount,
+      mIn: puzzle.mIn,
+      mOut: puzzle.mOut,
+      maxAdjustments: puzzle.maxAdjustments,
+      occlusion: puzzle.occlusion,
+      generatorSeed: puzzle.generatorSeed ?? null,
+    };
+    await tx
+      .insert(gearPuzzles)
+      .values({ ...columns, puzzleId })
+      .onConflictDoUpdate({ target: gearPuzzles.puzzleId, set: columns });
+
+    const driver = gears.find((gear) => gear.isDriver);
+    await tx
+      .update(gearPuzzleGears)
+      .set({ isDriver: false })
+      .where(
+        and(
+          eq(gearPuzzleGears.puzzleId, puzzleId),
+          eq(gearPuzzleGears.isDriver, true),
+          driver ? sql`${gearPuzzleGears.label} <> ${driver.label}` : undefined,
+        ),
+      );
+    const upserted = await tx
       .insert(gearPuzzleGears)
       .values(gears.map((gear) => ({ ...gear, puzzleId })))
+      .onConflictDoUpdate({
+        target: [gearPuzzleGears.puzzleId, gearPuzzleGears.label],
+        set: {
+          teeth: sql`excluded.teeth`,
+          startSlot: sql`excluded.start_slot`,
+          initialOffset: sql`excluded.initial_offset`,
+          halfWidthDeg: sql`excluded.half_width_deg`,
+          isDriver: sql`excluded.is_driver`,
+        },
+      })
       .returning({ id: gearPuzzleGears.id, label: gearPuzzleGears.label });
     const idOf = (label: string) => {
-      const gear = inserted.find((row) => row.label === label);
+      const gear = upserted.find((row) => row.label === label);
       if (!gear) throw new Error(`Unknown gear label: ${label}`);
       return gear.id;
     };
+    const solutionColumns = {
+      crank: solution.crank,
+      convergence: solution.convergence,
+      killerGearId: idOf(solution.killerLabel),
+    };
+    await tx
+      .insert(gearSolutions)
+      .values({ ...solutionColumns, puzzleId })
+      .onConflictDoUpdate({
+        target: gearSolutions.puzzleId,
+        set: solutionColumns,
+      });
+    await tx.delete(gearMeshes).where(eq(gearMeshes.puzzleId, puzzleId));
+    await tx
+      .delete(gearSolutionSwaps)
+      .where(eq(gearSolutionSwaps.puzzleId, puzzleId));
+    await tx.delete(gearPuzzleGears).where(
+      and(
+        eq(gearPuzzleGears.puzzleId, puzzleId),
+        notInArray(
+          gearPuzzleGears.label,
+          gears.map((gear) => gear.label),
+        ),
+      ),
+    );
     await tx.insert(gearMeshes).values(
       meshes.map(({ a, b }) => ({
         ...ordered(idOf(a), idOf(b)),
         puzzleId,
       })),
     );
-    await tx.insert(gearSolutions).values({
-      puzzleId,
-      crank: solution.crank,
-      convergence: solution.convergence,
-      killerGearId: idOf(solution.killerLabel),
-    });
     if (!solution.swaps.length) return;
     await tx.insert(gearSolutionSwaps).values(
       solution.swaps.map(({ a, b }) => ({

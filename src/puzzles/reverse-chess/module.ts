@@ -22,10 +22,33 @@ export const reverseChessModule = {
     throw new Error("Reverse Chess checking is implemented in T029");
   },
   verify: verifyReverseChess,
-  async insertContent(tx, puzzleId, { pieces, solutionPlies, ...puzzle }) {
+  async upsertContent(tx, puzzleId, { pieces, solutionPlies, ...puzzle }) {
+    const columns = {
+      mode: puzzle.mode,
+      sideToMove: puzzle.sideToMove,
+      whiteKingside: puzzle.whiteKingside,
+      whiteQueenside: puzzle.whiteQueenside,
+      blackKingside: puzzle.blackKingside,
+      blackQueenside: puzzle.blackQueenside,
+      enPassantFile: puzzle.enPassantFile ?? null,
+      halfmove: puzzle.halfmove,
+      fullmove: puzzle.fullmove,
+      goalText: puzzle.goalText ?? null,
+      plyCount: solutionPlies.length,
+    };
     await tx
       .insert(reverseChessPuzzles)
-      .values({ ...puzzle, puzzleId, plyCount: solutionPlies.length });
+      .values({ ...columns, puzzleId })
+      .onConflictDoUpdate({
+        target: reverseChessPuzzles.puzzleId,
+        set: columns,
+      });
+    await tx
+      .delete(reverseChessPieces)
+      .where(eq(reverseChessPieces.puzzleId, puzzleId));
+    await tx
+      .delete(reverseChessSolutionPlies)
+      .where(eq(reverseChessSolutionPlies.puzzleId, puzzleId));
     await tx
       .insert(reverseChessPieces)
       .values(pieces.map((piece) => ({ ...piece, puzzleId })));

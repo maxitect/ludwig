@@ -551,7 +551,7 @@ describe("play payload", () => {
     const puzzleId = await db.transaction(async (tx) => {
       await ensureTypes(tx);
       const id = await insertPuzzle(tx, "rota", "t062-leak-test");
-      await rotaModule.insertContent(tx, id, content);
+      await rotaModule.upsertContent(tx, id, content);
       return id;
     });
 

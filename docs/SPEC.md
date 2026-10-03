@@ -170,7 +170,7 @@ src/puzzles/<type>/
 ```
 
 - Types come from `z.infer<…>` on schemas composed from the generated table schemas. There are no hand-written duplicates and no `any`.
-- `registry.ts` maps each `type_key` to its server module (`schema`, `meta`, `load`, `loadSolution`, `check`, `insertContent` and the attempt-state functions). Client solvers live in a separate map, `solvers.ts`, which only the solve page imports, so scripts can load the registry without any client code.
+- `registry.ts` maps each `type_key` to its server module (`schema`, `meta`, `load`, `loadSolution`, `check`, `upsertContent` and the attempt-state functions). Client solvers live in a separate map, `solvers.ts`, which only the solve page imports, so scripts can load the registry without any client code.
 - **Per-cell hooks (optional, grid types).** A type whose answer is a grid may add two members to its module, first implemented by `crossword`:
   - `checkCell(payload, solution, row, col, value) → { correct }`: whether `value` is the solution's value at that cell.
   - `revealCell(solution, row, col) → value | null`: the one value at that cell, or null when there is no such cell.
@@ -207,7 +207,7 @@ Every Monday two puzzles are published, nodding to the paper's "two puzzles a we
 
 - **Where puzzles live.** Curated puzzles are TypeScript files in `content/<type>/<slug>.ts`. Each one exports `{ meta, content }`, typed and validated by that type's `contentSchema`, which is composed from the insert schemas (section 7.4.6).
 - **Verification.** `pnpm puzzles:verify` runs in CI. For every file it parses the schema, runs `derive.ts`, and runs the type's solver or uniqueness check (the word ladder checks validity only).
-- **Seeding.** `pnpm db:seed` upserts by `(type_key, slug)`. Each puzzle's supertype, subtype and child rows are written in a single transaction, so the deferred subtype trigger (section 7.4.2) passes. Rows a file no longer contains are removed.
+- **Seeding.** `pnpm db:seed` upserts by `(type_key, slug)`. Each puzzle's supertype, subtype and child rows are written in a single transaction, so the deferred subtype trigger (section 7.4.2) passes. Content is updated in place by natural key (upsert, then delete only the child rows the file no longer contains), so content row ids such as gears and rota workers are stable and `db:seed` never writes a `*_attempt*` table. A content change that removes a row attempt data references fails the seed for that puzzle with an error naming it, and that puzzle is left unchanged. Puzzles whose file is gone are removed.
 - **Generated content.** Gears and spot-difference puzzles are produced by scripts and materialised through the same seeding path.
 - **What this gives us.** Reviewable diffs, git history and rollbacks for content. Every Neon preview branch also gets real content.
 

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
 import { check } from "./check";
@@ -25,17 +25,28 @@ export const rotaModule = {
   load,
   loadSolution,
   check,
-  async insertContent(tx, puzzleId, { workers, clues, solution }) {
-    await tx.insert(rotaPuzzles).values({ puzzleId });
-    const insertedWorkers = await tx
+  async upsertContent(tx, puzzleId, { workers, clues, solution }) {
+    await tx.insert(rotaPuzzles).values({ puzzleId }).onConflictDoNothing();
+    await tx
       .insert(rotaWorkers)
       .values(workers.map(({ name }) => ({ name, puzzleId })))
-      .returning({ id: rotaWorkers.id, name: rotaWorkers.name });
+      .onConflictDoNothing();
+    const storedWorkers = await tx
+      .select({ id: rotaWorkers.id, name: rotaWorkers.name })
+      .from(rotaWorkers)
+      .where(eq(rotaWorkers.puzzleId, puzzleId));
     const idOf = (name: string) => {
-      const worker = insertedWorkers.find((row) => row.name === name);
+      const worker = storedWorkers.find((row) => row.name === name);
       if (!worker) throw new Error(`Unknown rota worker: ${name}`);
       return worker.id;
     };
+
+    await tx
+      .delete(rotaWorkerSquares)
+      .where(eq(rotaWorkerSquares.puzzleId, puzzleId));
+    await tx
+      .delete(rotaSolutionSwaps)
+      .where(eq(rotaSolutionSwaps.puzzleId, puzzleId));
     await tx.insert(rotaWorkerSquares).values(
       workers.flatMap(({ name, intended, final }) => [
         {
@@ -47,7 +58,20 @@ export const rotaModule = {
         { ...final, phase: "final" as const, puzzleId, workerId: idOf(name) },
       ]),
     );
-    const insertedClues = clues.length
+
+    const storedClues = await tx
+      .select({ id: rotaClues.id, position: rotaClues.position, kind: rotaClues.kind })
+      .from(rotaClues)
+      .where(eq(rotaClues.puzzleId, puzzleId));
+    const staleClueIds = storedClues
+      .filter(
+        ({ position, kind }) => clues[position]?.kind !== kind,
+      )
+      .map(({ id }) => id);
+    if (staleClueIds.length) {
+      await tx.delete(rotaClues).where(inArray(rotaClues.id, staleClueIds));
+    }
+    const upsertedClues = clues.length
       ? await tx
           .insert(rotaClues)
           .values(
@@ -58,10 +82,26 @@ export const rotaModule = {
               displayText,
             })),
           )
+          .onConflictDoUpdate({
+            target: [rotaClues.puzzleId, rotaClues.position],
+            set: { displayText: sql`excluded.display_text` },
+          })
           .returning({ id: rotaClues.id, position: rotaClues.position })
       : [];
+    const clueIds = upsertedClues.map(({ id }) => id);
+    if (clueIds.length) {
+      await tx
+        .delete(rotaClueUnpoweredSquare)
+        .where(inArray(rotaClueUnpoweredSquare.clueId, clueIds));
+      await tx
+        .delete(rotaClueNeverInRank)
+        .where(inArray(rotaClueNeverInRank.clueId, clueIds));
+      await tx
+        .delete(rotaClueMaxSwaps)
+        .where(inArray(rotaClueMaxSwaps.clueId, clueIds));
+    }
     for (const [position, clue] of clues.entries()) {
-      const clueId = insertedClues.find((row) => row.position === position)?.id;
+      const clueId = upsertedClues.find((row) => row.position === position)?.id;
       if (!clueId) throw new Error(`Rota clue not inserted: ${position}`);
       if (clue.kind === "unpowered_square") {
         await tx
@@ -79,9 +119,24 @@ export const rotaModule = {
           .values({ clueId, maxSwaps: clue.maxSwaps });
       }
     }
+
+    const instigatorWorkerId = idOf(solution.instigatorName);
     await tx
       .insert(rotaSolutions)
-      .values({ puzzleId, instigatorWorkerId: idOf(solution.instigatorName) });
+      .values({ puzzleId, instigatorWorkerId })
+      .onConflictDoUpdate({
+        target: rotaSolutions.puzzleId,
+        set: { instigatorWorkerId },
+      });
+    await tx.delete(rotaWorkers).where(
+      and(
+        eq(rotaWorkers.puzzleId, puzzleId),
+        notInArray(
+          rotaWorkers.name,
+          workers.map(({ name }) => name),
+        ),
+      ),
+    );
     await tx.insert(rotaSolutionSwaps).values(
       solution.swaps.map(({ a, b }, index) => ({
         puzzleId,

@@ -16,7 +16,14 @@ export const content = {
   blackQueenside: false,
   halfmove: 0,
   fullmove: 1,
-  goalText: "Before the black pawn left the a7 square",
+  goal: {
+    kind: "piece_on_square",
+    displayText: "Before the black pawn left the a7 square",
+    colour: "black",
+    piece: "pawn",
+    file: "a",
+    rank: 7,
+  },
   pieces: [
     { file: "a", rank: 1, colour: "white", piece: "king" },
     { file: "b", rank: 1, colour: "white", piece: "knight" },

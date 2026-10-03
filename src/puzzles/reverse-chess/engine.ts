@@ -19,6 +19,7 @@ export type RetroRejection =
   | "illegal_uncapture"
   | "illegal_unpromote"
   | "replay_mismatch"
+  | "implausible_material"
   | "invalid_fen";
 
 type Result<T> = ({ ok: true } & T) | { ok: false; reason: RetroRejection };
@@ -306,7 +307,19 @@ function hasPlausibleMaterial(prior: string) {
   return true;
 }
 
-/** Every retro move that `applyRetro` accepts for `position` and whose prior position passes the material rules. */
+/** `applyRetro` plus the material rules that every enumerated retro move must also pass. */
+export function stepRetro(
+  position: string,
+  retro: Retro,
+): Result<{ prior: string }> {
+  const result = applyRetro(position, retro);
+  if (!result.ok) return result;
+  return hasPlausibleMaterial(result.prior)
+    ? result
+    : { ok: false, reason: "implausible_material" };
+}
+
+/** Every retro move that `stepRetro` accepts for `position`. */
 export function enumerateRetro(position: string): Retro[] {
   const chess = load(position);
   if (!chess) return [];
@@ -363,10 +376,7 @@ export function enumerateRetro(position: string): Retro[] {
   }
 
   return candidates
-    .filter((retro) => {
-      const result = applyRetro(position, retro);
-      return result.ok && hasPlausibleMaterial(result.prior);
-    })
+    .filter((retro) => stepRetro(position, retro).ok)
     .map(({ from, to, uncapture, unpromote, special }) => ({
       from,
       to,

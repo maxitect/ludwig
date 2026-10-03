@@ -4,7 +4,7 @@ title: Mode B "Unwind" plus descriptive notation
 milestone: M2
 epic: E6
 depends_on: [T029]
-migrations: false
+migrations: true
 requires_human: false
 spec: ["SPEC §5.1 (Mode B)", "SPEC §7.4.3 (user_settings.chess_notation)"]
 skills: []

@@ -8,6 +8,10 @@ import * as schema from "./schema";
 import {
   reverseChessAttemptPlies,
   reverseChessAttempts,
+  reverseChessGoalCastlingRight,
+  reverseChessGoalPieceCount,
+  reverseChessGoalPieceOnSquare,
+  reverseChessGoals,
   reverseChessPieces,
   reverseChessPuzzles,
   reverseChessSolutionPlies,
@@ -21,7 +25,7 @@ export const reverseChessModule = {
   loadSolution,
   check,
   verify: verifyReverseChess,
-  async upsertContent(tx, puzzleId, { pieces, solutionPlies, ...puzzle }) {
+  async upsertContent(tx, puzzleId, { pieces, solutionPlies, goal, ...puzzle }) {
     const columns = {
       mode: puzzle.mode,
       sideToMove: puzzle.sideToMove,
@@ -32,7 +36,6 @@ export const reverseChessModule = {
       enPassantFile: puzzle.enPassantFile ?? null,
       halfmove: puzzle.halfmove,
       fullmove: puzzle.fullmove,
-      goalText: puzzle.goalText ?? null,
       plyCount: solutionPlies.length,
     };
     await tx
@@ -42,6 +45,31 @@ export const reverseChessModule = {
         target: reverseChessPuzzles.puzzleId,
         set: columns,
       });
+    await tx
+      .delete(reverseChessGoals)
+      .where(eq(reverseChessGoals.puzzleId, puzzleId));
+    if (goal) {
+      const { displayText, ...params } = goal;
+      await tx
+        .insert(reverseChessGoals)
+        .values({ puzzleId, kind: params.kind, displayText });
+      if (params.kind === "piece_on_square") {
+        const { colour, piece, file, rank } = params;
+        await tx
+          .insert(reverseChessGoalPieceOnSquare)
+          .values({ puzzleId, colour, piece, file, rank });
+      } else if (params.kind === "castling_right") {
+        const { colour, side } = params;
+        await tx
+          .insert(reverseChessGoalCastlingRight)
+          .values({ puzzleId, colour, side });
+      } else {
+        const { colour, piece, count } = params;
+        await tx
+          .insert(reverseChessGoalPieceCount)
+          .values({ puzzleId, colour, piece, count });
+      }
+    }
     await tx
       .delete(reverseChessPieces)
       .where(eq(reverseChessPieces.puzzleId, puzzleId));
@@ -95,4 +123,4 @@ export const reverseChessModule = {
     });
     return attempt ? schema.attemptSchema.parse(attempt) : null;
   },
-} satisfies PuzzleTypeModule<typeof schema, schema.SolutionPly[]>;
+} satisfies PuzzleTypeModule<typeof schema, schema.Solution>;

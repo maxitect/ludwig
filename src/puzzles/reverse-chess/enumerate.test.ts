@@ -6,6 +6,7 @@ import path from "node:path";
 import { verifyPuzzles } from "../../../scripts/verify-puzzles";
 import { registry } from "../registry";
 import { enumerateRetro, retroKey } from "./engine";
+import type { Content } from "./schema";
 import { verifyReverseChess } from "./verify";
 
 const ROOK_FEN = "k7/8/1K6/8/8/8/8/R7 b - - 1 1";
@@ -116,12 +117,39 @@ describe("verifyReverseChess Mode B", () => {
     expect(() => verifyReverseChess(unwind)).not.toThrow();
   });
 
-  it("AC6: fails at step 1 when the plies are swapped", () => {
+  it("AC6: fails when the authored plies are swapped", () => {
     const swapped = {
       ...unwind,
       solutionPlies: [...unwind.solutionPlies].reverse(),
     };
-    expect(() => verifyReverseChess(swapped)).toThrow(/^step 1 /);
+    expect(() => verifyReverseChess(swapped)).toThrow(
+      /^authored chain does not match unique survivor/,
+    );
+  });
+
+  it("fails when no chain reaches the goal", () => {
+    const unreachable: Content = {
+      ...unwind,
+      goal: { ...unwind.goal, rank: 5 },
+    };
+    expect(() => verifyReverseChess(unreachable)).toThrow(
+      "expected exactly 1 chain of 2 retro moves reaching the goal, found 0",
+    );
+  });
+
+  it("fails when several chains reach the goal", () => {
+    const loose: Content = {
+      ...rookCheck,
+      mode: "unwind",
+      goal: {
+        kind: "piece_count",
+        displayText: "Any chain",
+        colour: "black",
+        piece: "king",
+        count: 1,
+      },
+    };
+    expect(() => verifyReverseChess(loose)).toThrow(/found at least 2/);
   });
 });
 

@@ -1,10 +1,12 @@
 import { attemptSchema as anagramAttempt } from "./anagram/schema";
 import { attemptSchema as crosswordAttempt } from "./crossword/schema";
+import { attemptSchema as gearsAttempt } from "./gears/schema";
 
 /** Attempt schemas for the types that have a solver, importable from client code (the registry is not). */
 const attemptSchemas = {
   anagram: anagramAttempt,
   crossword: crosswordAttempt,
+  gears: gearsAttempt,
 } as const;
 
 export function getAttemptSchema(typeKey: string) {

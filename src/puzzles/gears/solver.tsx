@@ -4,21 +4,55 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { SolverProps } from "../solver-types";
 import { GearBoard } from "./board";
+import { useCrank } from "./crank";
 import { lcmTeeth, seeingCount } from "./engine";
 import type * as schema from "./schema";
 
 const FIGURES = Array.from({ length: 8 }, (_, i) => i + 1);
 
-/** Rough playtest controls. T038 to T040 replace them with the real crank, scrubber and accuse flow. */
-export function Solver({ payload, initialState }: SolverProps<typeof schema>) {
+/** The crank is live. T039 and T040 replace the convergence select with the scrubber and add the accuse flow. */
+export function Solver({
+  payload,
+  initialState,
+  onStateChange,
+}: SolverProps<typeof schema>) {
   const cranks = lcmTeeth(payload.gears);
-  const [crank, setCrank] = useState(initialState?.crank ?? 0);
-  const [convergence, setConvergence] = useState(initialState?.convergence ?? 1);
-  const turn = (by: number) => setCrank((c) => (c + by + cranks) % cranks);
+  const driver = payload.gears.find((gear) => gear.isDriver);
+  if (!driver) throw new Error("gear puzzle has no driver");
+  const [state, setState] = useState({
+    crank: initialState?.crank ?? 0,
+    convergence: initialState?.convergence ?? 1,
+  });
+  const { crank, convergence } = state;
+
+  function update(next: Partial<typeof state>) {
+    const merged = { ...state, ...next };
+    setState(merged);
+    onStateChange({
+      accusedGearId: initialState?.accusedGearId ?? null,
+      swaps: initialState?.swaps ?? [],
+      ...merged,
+    });
+  }
+
+  const setCrank = (next: number) => update({ crank: next });
+  const turn = (by: number) => setCrank((crank + by + cranks) % cranks);
+  const crankProps = useCrank({
+    driver,
+    slotCount: payload.slotCount,
+    cranks,
+    crank,
+    onChange: setCrank,
+  });
 
   return (
     <section className="flex flex-col gap-4">
-      <GearBoard diagram={payload} crank={crank} convergence={convergence} />
+      <GearBoard
+        diagram={payload}
+        crank={crank}
+        convergence={convergence}
+        crankProps={crankProps}
+      />
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <Button
@@ -45,7 +79,9 @@ export function Solver({ payload, initialState }: SolverProps<typeof schema>) {
           Convergence
           <select
             value={convergence}
-            onChange={(event) => setConvergence(Number(event.target.value))}
+            onChange={(event) =>
+              update({ convergence: Number(event.target.value) })
+            }
             className="h-10 border-2 border-border bg-background px-2 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-ring"
           >
             {FIGURES.map((f) => (

@@ -1,3 +1,4 @@
+import type { CrankProps } from "./crank";
 import { type Diagram, stateAt } from "./engine";
 
 type Gear = Diagram["gears"][number];
@@ -58,10 +59,12 @@ export function GearBoard({
   diagram,
   crank,
   convergence,
+  crankProps,
 }: {
   diagram: Diagram;
   crank: number;
   convergence: number;
+  crankProps?: CrankProps;
 }) {
   const states = stateAt(diagram, crank, convergence);
   const scale = toothScale(diagram);
@@ -125,6 +128,7 @@ export function GearBoard({
           state={states[gear.id]!}
           centre={centres.get(gear.id)!}
           radius={gear.teeth * scale}
+          crankProps={gear.isDriver ? crankProps : undefined}
         />
       ))}
 
@@ -157,17 +161,26 @@ function GearGlyph({
   state,
   centre: [cx, cy],
   radius,
+  crankProps,
 }: {
   gear: Gear;
   state: ReturnType<typeof stateAt>[string];
   centre: readonly [number, number];
   radius: number;
+  crankProps?: CrankProps;
 }) {
   return (
     <g
       transform={`translate(${cx.toFixed(2)} ${cy.toFixed(2)})`}
-      role="img"
-      aria-label={`Gear ${gear.label}, ${gear.teeth} teeth`}
+      className={
+        crankProps
+          ? "group cursor-grab outline-none active:cursor-grabbing"
+          : undefined
+      }
+      {...(crankProps ?? {
+        role: "img",
+        "aria-label": `Gear ${gear.label}, ${gear.teeth} teeth`,
+      })}
       data-gear={gear.label}
       data-slot={state.slot}
       data-facing-deg={state.facingDeg}
@@ -175,10 +188,18 @@ function GearGlyph({
     >
       <path
         d={visionXs(radius, state.facingDeg, gear.halfWidthDeg)}
-        className="fill-none stroke-ludwig-red"
+        className="pointer-events-none fill-none stroke-ludwig-red"
         strokeWidth={0.5}
         data-vision
       />
+      {crankProps ? (
+        <circle
+          r={radius + TOOTH_DEPTH + 1.5}
+          className="fill-none stroke-transparent group-focus-visible:stroke-ring"
+          strokeWidth={1.4}
+          data-focus-ring
+        />
+      ) : null}
       <g transform={`rotate(${state.facingDeg})`}>
         <path
           d={cogPath(gear.teeth, radius)}

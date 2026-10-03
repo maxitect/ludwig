@@ -66,7 +66,6 @@ export function Solver({
   const [cellNotice, setCellNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const grid = useRef<CellGridHandle>(null);
-  const clues = useRef<HTMLDivElement>(null);
 
   const entryAt = (position: CellPosition, along: Direction) =>
     entries.find(
@@ -94,16 +93,6 @@ export function Solver({
         : null,
     );
   }, [registerCheck, letters, payload.cells]);
-
-  useEffect(() => {
-    const list = clues.current;
-    const item = list?.querySelector<HTMLElement>("[aria-current=true]");
-    if (!list || !item) return;
-    const top = item.offsetTop - list.offsetTop;
-    if (top < list.scrollTop || top + item.offsetHeight > list.scrollTop + list.clientHeight) {
-      list.scrollTop = top - list.clientHeight / 2;
-    }
-  }, [activeEntry]);
 
   function setLetter(row: number, col: number, value: string) {
     const next = new Map(letters);
@@ -175,7 +164,7 @@ export function Solver({
           </>
         )}
       </p>
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,38.5rem)_minmax(0,1fr)]">
+      <div className="flex flex-col gap-6">
         <CellGrid
           ref={grid}
           label="Crossword"
@@ -200,10 +189,7 @@ export function Solver({
           }}
           words={words}
         />
-        <div
-          ref={clues}
-          className="relative grid gap-6 sm:grid-cols-2 lg:max-h-[38.5rem] lg:overflow-y-auto"
-        >
+        <div className="grid gap-6 sm:grid-cols-2">
           {DIRECTIONS.map((along) => (
             <section key={along} aria-label={`${along} clues`}>
               <h2 className="mb-2 font-display text-sm font-bold tracking-[0.1em] uppercase">

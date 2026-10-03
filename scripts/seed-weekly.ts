@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { z } from "zod";
 import type { db as appDb } from "../src/db";
 import { puzzles, weeklyPuzzles } from "../src/db/schema";

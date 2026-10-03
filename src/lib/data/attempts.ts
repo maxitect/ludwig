@@ -80,3 +80,17 @@ export async function completeAttempt(attemptId: string, durationMs: number) {
       and(eq(attempts.id, attemptId), sql`${attempts.completedAt} is null`),
     );
 }
+
+/** The subset of `puzzleIds` the user has completed. */
+export async function getSolvedPuzzleIds(userId: string, puzzleIds: string[]) {
+  if (puzzleIds.length === 0) return new Set<string>();
+  const rows = await db.query.attempts.findMany({
+    where: {
+      userId,
+      puzzleId: { in: puzzleIds },
+      completedAt: { isNotNull: true },
+    },
+    columns: { puzzleId: true },
+  });
+  return new Set(rows.map(({ puzzleId }) => puzzleId));
+}

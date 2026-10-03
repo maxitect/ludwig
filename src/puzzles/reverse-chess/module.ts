@@ -22,7 +22,6 @@ export const reverseChessModule = {
     throw new Error("Reverse Chess checking is implemented in T029");
   },
   verify: verifyReverseChess,
-  Solver: null,
   async insertContent(tx, puzzleId, { pieces, solutionPlies, ...puzzle }) {
     await tx
       .insert(reverseChessPuzzles)

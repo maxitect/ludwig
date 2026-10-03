@@ -45,11 +45,13 @@ Compose these from `createSelectSchema` / `createInsertSchema` (`drizzle-orm/zod
 - **`derive.ts`** (pure): every value the spec says is derived, e.g. tiles, numbering or ciphertext.
 - **`check.ts`** (pure): `check(payload, solution, answer)` returns `{ correct, cellsWrong? }`.
 - **`engine.ts`** (pure, optional): a solver or generator. Use a seeded PRNG only.
-- Register `{ schema, load, check, Solver, meta }` in `src/puzzles/registry.ts`.
+- Write `module.ts` and register it in `src/puzzles/registry.ts`. It is a `PuzzleTypeModule`: `{ schema, meta, load, loadSolution, check, insertContent, replaceAttemptState, loadAttemptState, clearAttemptState, verify? }`. `loadAttemptState` reads back what `replaceAttemptState` wrote (null when nothing is saved), and `clearAttemptState` deletes it so a reset survives a reload.
+- The module has **no `Solver`**. `db:seed` and `puzzles:verify` import the registry under `--conditions react-server`, where radix (`ui/Button`) and react-chessboard throw. Register the solver in `src/puzzles/solvers.ts` instead (`null` until the type has one). Only the solve page imports that map.
 
 ## 4. Solver UI (`solver.tsx`)
 
-- `"use client"`. It receives the payload and saved attempt state as props, and saves through `saveState`.
+- `"use client"`. It receives the payload and saved attempt state as props, and saves through `saveState`. Type its props with `SolverProps` from `src/puzzles/solver-types.ts`, never from the registry. It may import `ui/*` and `ChessBoard` freely, because no script reaches it.
+- Add it to the solver map in `src/puzzles/solvers.ts`.
 - Reuse `src/puzzles/_shared/` parts such as `CellInput`. Extract a new shared part only if a second type needs it.
 - Follow `.claude/rules/design-system.md`: tokens only, hand-font entries, keyboard-operable, reduced motion respected.
 

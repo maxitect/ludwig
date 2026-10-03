@@ -3,7 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { SolverProps } from "@/puzzles/registry";
+import type { SolverProps } from "@/puzzles/solver-types";
 
 const actions = vi.hoisted(() => ({
   checkAnswer: vi.fn(),

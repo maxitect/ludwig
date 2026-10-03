@@ -25,7 +25,6 @@ export const gearsModule = {
   check() {
     throw new Error("Gear checking is implemented in a later ticket");
   },
-  Solver: null,
   async insertContent(tx, puzzleId, { gears, meshes, solution, ...puzzle }) {
     await tx.insert(gearPuzzles).values({ ...puzzle, puzzleId });
     const inserted = await tx

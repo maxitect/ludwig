@@ -254,6 +254,8 @@ describe("SolveChrome cell hooks", () => {
 });
 
 describe("SolveChrome pending save", () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it("sends one save when Check and unmount follow a state change", async () => {
     renderChrome();
     await userEvent.click(screen.getByRole("button", { name: "Place" }));
@@ -286,7 +288,6 @@ describe("SolveChrome pending save", () => {
     window.dispatchEvent(new Event("pagehide"));
     cleanup();
     expect(actions.saveState).toHaveBeenCalledTimes(1);
-    vi.restoreAllMocks();
   });
 
   it("sends nothing when no state changed", () => {

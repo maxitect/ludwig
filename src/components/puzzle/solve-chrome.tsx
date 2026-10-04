@@ -108,9 +108,9 @@ export function SolveChrome({
   const timer = usePuzzleTimer(solvedMs === null);
   const readAnswer = useRef<ReadAnswer | null>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const pendingState = useRef<{ state: SolverProps["initialState"] } | null>(
-    null,
-  );
+  const pendingState = useRef<Parameters<
+    SolverProps["onStateChange"]
+  >[0] | null>(null);
   const latestCheck = useRef<() => void>(undefined);
   const solved = solvedMs !== null;
 
@@ -120,11 +120,11 @@ export function SolveChrome({
 
   const flushSave = useCallback(async () => {
     clearTimeout(saveTimeout.current);
-    const pendingSave = pendingState.current;
-    if (!pendingSave) return;
+    const state = pendingState.current;
+    if (state === null) return;
     pendingState.current = null;
     try {
-      const result = await saveState(puzzleId, pendingSave.state);
+      const result = await saveState(puzzleId, state);
       if (!result.ok) setNotice("not-saved");
     } catch {
       setNotice("not-saved");
@@ -154,7 +154,7 @@ export function SolveChrome({
     (state) => {
       if (!signedIn) return writeProgress(puzzleId, typeKey, state);
       clearTimeout(saveTimeout.current);
-      pendingState.current = { state };
+      pendingState.current = state;
       saveTimeout.current = setTimeout(flushSave, SAVE_DEBOUNCE_MS);
     },
     [puzzleId, typeKey, signedIn, flushSave],
@@ -165,8 +165,8 @@ export function SolveChrome({
     const answer = readAnswer.current?.();
     if (answer === null || answer === undefined) return setNotice("incomplete");
     const durationMs = timer.read();
-    flushSave();
     startTransition(async () => {
+      await flushSave();
       try {
         const response = await checkAnswer(puzzleId, answer, {
           mode: "full",

@@ -8,7 +8,13 @@ import {
   deriveRuns,
   deriveWords,
 } from "./derive";
-import { cells, clues, crypticCells, crypticClues } from "./fixture";
+import {
+  cells,
+  clues,
+  crypticCells,
+  crypticClues,
+  toPayloadClues,
+} from "./fixture";
 
 const positions = cells.map(({ row, col }) => ({ row, col }));
 
@@ -52,14 +58,31 @@ describe("deriveNumbers", () => {
 });
 
 describe("deriveEnumeration", () => {
-  it("joins the segment lengths", () => {
-    expect(deriveEnumeration([4, 3])).toBe("(4,3)");
-    expect(deriveEnumeration([5])).toBe("(5)");
+  const segments = (...parts: [number, "word" | "hyphen" | null][]) =>
+    parts.map(([length, separator]) => ({ length, separator }));
+
+  it("joins word breaks with commas", () => {
+    expect(deriveEnumeration(segments([4, "word"], [3, null]))).toBe("(4,3)");
+    expect(deriveEnumeration(segments([5, null]))).toBe("(5)");
+  });
+
+  it("joins a hyphen break with a hyphen", () => {
+    expect(deriveEnumeration(segments([5, "hyphen"], [4, null]))).toBe("(5-4)");
+  });
+
+  it("mixes word and hyphen breaks", () => {
+    expect(
+      deriveEnumeration(segments([3, "word"], [4, "hyphen"], [5, null])),
+    ).toBe("(3,4-5)");
+  });
+
+  it("reads a missing separator before the last segment as a word break", () => {
+    expect(deriveEnumeration(segments([2, null], [2, null]))).toBe("(2,2)");
   });
 });
 
 describe("deriveEntries", () => {
-  const entries = deriveEntries({ cells: positions, clues });
+  const entries = deriveEntries({ cells: positions, clues: toPayloadClues(clues) });
 
   it("pairs every run with its number, clue and enumeration", () => {
     expect(
@@ -85,7 +108,7 @@ describe("deriveEntries", () => {
   });
 
   it("leaves out a run that has no clue", () => {
-    const fewer = deriveEntries({ cells: positions, clues: clues.slice(1) });
+    const fewer = deriveEntries({ cells: positions, clues: toPayloadClues(clues).slice(1) });
     expect(fewer).toHaveLength(5);
   });
 
@@ -118,7 +141,7 @@ describe("deriveAnswer", () => {
 
 describe("a 15x15 cryptic grid", () => {
   const crypticPositions = crypticCells.map(({ row, col }) => ({ row, col }));
-  const entries = deriveEntries({ cells: crypticPositions, clues: crypticClues });
+  const entries = deriveEntries({ cells: crypticPositions, clues: toPayloadClues(crypticClues) });
 
   it("numbers every start cell once, in reading order", () => {
     expect([...deriveNumbers(deriveRuns(crypticPositions))]).toEqual([

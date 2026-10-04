@@ -19,6 +19,10 @@ export const crosswordStyleEnum = pgEnum("crossword_style", [
   "quick",
 ]);
 export const clueDirectionEnum = pgEnum("clue_direction", ["across", "down"]);
+export const segmentSeparatorEnum = pgEnum("segment_separator", [
+  "word",
+  "hyphen",
+]);
 
 export const crosswordPuzzles = pgTable(
   "crossword_puzzles",
@@ -101,6 +105,7 @@ export const crosswordClueSegments = pgTable(
     col: smallint("col").notNull(),
     position: smallint("position").notNull(),
     length: smallint("length").notNull(),
+    separator: segmentSeparatorEnum("separator"),
   },
   (table) => [
     primaryKey({

@@ -770,7 +770,7 @@ How this looks in code:
   - Play queries name their columns explicitly and never use `select *` on tables that have **(S)** columns.
   - Only `check.ts` and `load-solution.ts` (both `server-only`) read solution columns.
   - A Vitest test asserts that every type's play payload, run through `payloadSchema.strict()`, contains no solution field.
-- **Stats:** streaks and stats are computed from `attempts.completed_at` in SQL views. There are no stored counters.
+- **Stats:** streaks and stats are computed from `attempts.completed_at` in SQL views. There are no stored counters. Days are London calendar days. The current streak counts consecutive London days with at least one solve, ending on the day of the most recent solve; it stays alive until the end of the London day after that solve, and is 0 after that.
 
 ### 7.5 Environment
 

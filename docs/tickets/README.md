@@ -41,6 +41,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T072](./T072-seed-update-in-place.md) | Seed updates content in place and never touches attempt data | T016, T022 | | | done |
 | [T073](./T073-seed-clears-omitted-meta.md) | Seed clears optional meta fields that a content file omits | T072 | | | done |
 | [T075](./T075-flush-pending-save.md) | Flush the pending autosave on check, navigation and page hide | T030 | | | todo |
+| [T079](./T079-seed-confirm-removal.md) | Confirm before the seed removes a puzzle that has attempts | T073 | | | todo |
 
 ## M2: Reverse Chess
 
@@ -72,6 +73,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T042](./T042-gear-state-table.md) | Accessible gear state table | T039 | | | todo |
 | [T043](./T043-gears-hub.md) | `/gears` hub and daily diagram | T036, T040 | | | todo |
 | [T044](./T044-gear-content-e2e-perf.md) | Gear content ×12, end-to-end flow 4, performance budget | T041, T042, T043 | | | todo |
+| [T078](./T078-daily-gears-production.md) | Keep a year of daily gear diagrams generated in production (Vercel cron) | T036 | | | todo |
 
 ## M4: Library breadth
 
@@ -109,3 +111,4 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4 | | | todo |
 | [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067 | | | todo |
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |
+| [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | todo |

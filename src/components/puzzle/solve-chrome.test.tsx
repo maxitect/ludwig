@@ -252,3 +252,46 @@ describe("SolveChrome cell hooks", () => {
     ).toHaveProperty("disabled", true);
   });
 });
+
+describe("SolveChrome pending save", () => {
+  it("sends one save when Check and unmount follow a state change", async () => {
+    renderChrome();
+    await userEvent.click(screen.getByRole("button", { name: "Place" }));
+    await userEvent.click(screen.getByRole("button", { name: "Check" }));
+    await screen.findByText(/Solved in/);
+    cleanup();
+    expect(actions.saveState).toHaveBeenCalledTimes(1);
+    expect(actions.saveState).toHaveBeenCalledWith(
+      "00000000-0000-0000-0000-000000000001",
+      { answer: "abc" },
+    );
+    expect(actions.saveState.mock.invocationCallOrder[0]).toBeLessThan(
+      actions.checkAnswer.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("flushes on unmount within the debounce window", async () => {
+    renderChrome();
+    await userEvent.click(screen.getByRole("button", { name: "Place" }));
+    expect(actions.saveState).not.toHaveBeenCalled();
+    cleanup();
+    expect(actions.saveState).toHaveBeenCalledTimes(1);
+  });
+
+  it("flushes when the page is hidden, once", async () => {
+    renderChrome();
+    await userEvent.click(screen.getByRole("button", { name: "Place" }));
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+    document.dispatchEvent(new Event("visibilitychange"));
+    window.dispatchEvent(new Event("pagehide"));
+    cleanup();
+    expect(actions.saveState).toHaveBeenCalledTimes(1);
+    vi.restoreAllMocks();
+  });
+
+  it("sends nothing when no state changed", () => {
+    renderChrome();
+    cleanup();
+    expect(actions.saveState).not.toHaveBeenCalled();
+  });
+});

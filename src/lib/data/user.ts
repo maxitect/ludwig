@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { db } from "@/db";
 import { userSettings } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import type { SettingsInput } from "@/lib/forms/settings";
 
 export async function getCurrentUser() {
   await connection();
@@ -17,12 +18,18 @@ export async function requireUser() {
   return user;
 }
 
-export async function getUserTheme(userId: string) {
+export async function getUserSettings(userId: string) {
   const settings = await db.query.userSettings.findFirst({
     where: { userId },
-    columns: { theme: true },
+    columns: { theme: true, chessNotation: true, reduceMotion: true },
   });
-  return settings?.theme ?? "system";
+  return (
+    settings ?? {
+      theme: "system" as const,
+      chessNotation: "algebraic" as const,
+      reduceMotion: false,
+    }
+  );
 }
 
 export async function setUserTheme(
@@ -54,4 +61,13 @@ export async function setUserChessNotation(
       target: userSettings.userId,
       set: { chessNotation },
     });
+}
+
+export async function updateUserSettings({ name, ...settings }: SettingsInput) {
+  const user = await requireUser();
+  await db
+    .insert(userSettings)
+    .values({ userId: user.id, ...settings })
+    .onConflictDoUpdate({ target: userSettings.userId, set: settings });
+  await auth.api.updateUser({ headers: await headers(), body: { name } });
 }

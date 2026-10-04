@@ -230,3 +230,10 @@
     animation: none;
   }
 }
+
+:root[data-reduce-motion] {
+  .walker-figure,
+  .walker-leg {
+    animation: none;
+  }
+}

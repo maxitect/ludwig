@@ -9,7 +9,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hub-piece {
+  :root:not([data-reduce-motion]) .hub-piece {
     animation: hub-piece-sway 6s ease-in-out infinite;
   }
 }

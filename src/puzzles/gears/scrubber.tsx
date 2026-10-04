@@ -5,7 +5,6 @@ import {
   animate,
   type MotionValue,
   motion,
-  useReducedMotion,
   useTransform,
 } from "motion/react";
 import {
@@ -17,6 +16,7 @@ import {
 } from "react";
 import { Button } from "@/components/ui/button";
 import { Cog } from "@/components/ui/slider";
+import { useReduceMotion } from "@/utils/use-reduce-motion";
 import { convergenceAt, HALF_PHASES, markerOf } from "./dance";
 
 const SECONDS_PER_HALF_PHASE = 0.9;
@@ -65,7 +65,7 @@ export function Scrubber({
   position: MotionValue<number>;
   onSettle(convergence: number | null): void;
 }) {
-  const reducedMotion = useReducedMotion();
+  const reducedMotion = useReduceMotion();
   const latestOnSettle = useRef(onSettle);
   useEffect(() => {
     latestOnSettle.current = onSettle;

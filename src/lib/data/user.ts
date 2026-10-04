@@ -1,14 +1,17 @@
 import "server-only";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { connection } from "next/server";
 import { db } from "@/db";
 import { userSettings } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import type { SettingsInput } from "@/lib/forms/settings";
 
+/** Reads the session from the current cookies, so a Server Action's re-render sees cookies it just set (e.g. the refreshed session cache after a name change). */
 export async function getCurrentUser() {
   await connection();
-  const session = await auth.api.getSession({ headers: await headers() });
+  const requestHeaders = new Headers(await headers());
+  requestHeaders.set("cookie", (await cookies()).toString());
+  const session = await auth.api.getSession({ headers: requestHeaders });
   return session?.user ?? null;
 }
 

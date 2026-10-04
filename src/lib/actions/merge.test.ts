@@ -23,7 +23,10 @@ vi.mock("@/puzzles/registry", async (importOriginal) => {
 });
 
 const session = vi.hoisted(() => ({ userId: null as string | null }));
-vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
+vi.mock("next/headers", () => ({
+  headers: async () => new Headers(),
+  cookies: async () => ({ toString: () => "" }),
+}));
 vi.mock("next/server", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/server")>()),
   connection: async () => {},

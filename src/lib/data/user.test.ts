@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { settingsSchema } from "@/lib/forms/settings";
 
-vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
+vi.mock("next/headers", () => ({
+  headers: async () => new Headers(),
+  cookies: async () => ({ toString: () => "" }),
+}));
 vi.mock("next/server", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/server")>()),
   connection: async () => {},

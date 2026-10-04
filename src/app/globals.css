@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+@custom-variant motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    &:where(:root:not([data-reduce-motion]) *) {
+      @slot;
+    }
+  }
+}
+
+@custom-variant motion-reduce {
+  @media (prefers-reduced-motion: reduce) {
+    @slot;
+  }
+  &:where([data-reduce-motion] *) {
+    @slot;
+  }
+}
+
 @theme static {
   --color-paper: #E9E4DE;
   --color-paper-shade: #C2BABB;

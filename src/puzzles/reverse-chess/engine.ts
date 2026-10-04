@@ -20,7 +20,6 @@ export type RetroRejection =
   | "illegal_unpromote"
   | "replay_mismatch"
   | "implausible_material"
-  | "filtered"
   | "invalid_fen";
 
 type Result<T> = ({ ok: true } & T) | { ok: false; reason: RetroRejection };
@@ -155,30 +154,26 @@ export function replayMatches(prior: string, retro: Retro, position: string) {
   return fenKey(chess.fen()) === fenKey(target.fen());
 }
 
-/** `applyRetro`, but `admit` sees the built prior first, so a rejected move skips validation and replay. */
-function applyAdmitted(
+function confirmPrior(
   position: string,
   retro: Retro,
-  admit?: (prior: string) => boolean,
+  prior: string,
 ): Result<{ prior: string }> {
-  const built = buildPrior(position, retro);
-  if (!built.ok) return built;
-  if (admit && !admit(built.prior)) return { ok: false, reason: "filtered" };
-
-  const valid = validatePrior(built.prior);
+  const valid = validatePrior(prior);
   if (!valid.ok) return valid;
 
-  if (!replayMatches(built.prior, retro, position)) {
+  if (!replayMatches(prior, retro, position)) {
     return { ok: false, reason: "replay_mismatch" };
   }
-  return built;
+  return { ok: true, prior };
 }
 
 export function applyRetro(
   position: string,
   retro: Retro,
 ): Result<{ prior: string }> {
-  return applyAdmitted(position, retro);
+  const built = buildPrior(position, retro);
+  return built.ok ? confirmPrior(position, retro, built.prior) : built;
 }
 
 const FILES = "abcdefgh";
@@ -285,7 +280,7 @@ function originsFor(chess: Chess, to: Square, type: PieceSymbol, mover: Color) {
   return pawnOrigins(chess, to, mover);
 }
 
-type Cell = { color: Color; type: PieceSymbol; square: Square };
+type Cell = { color: Color; type: PieceSymbol; square: string };
 
 /**
  * Pawn count, back-rank pawns and promotion budget (bishop colour included) of `cells`.
@@ -330,9 +325,8 @@ function hasPlausibleMaterial(prior: string) {
 export function stepRetro(
   position: string,
   retro: Retro,
-  admit?: (prior: string) => boolean,
 ): Result<{ prior: string }> {
-  const result = applyAdmitted(position, retro, admit);
+  const result = applyRetro(position, retro);
   if (!result.ok) return result;
   return hasPlausibleMaterial(result.prior)
     ? result
@@ -401,8 +395,10 @@ export function* enumerateRetroSteps(
   }
 
   for (const candidate of candidates) {
-    const step = stepRetro(position, candidate, admit);
-    if (!step.ok) continue;
+    const built = buildPrior(position, candidate);
+    if (!built.ok || (admit && !admit(built.prior))) continue;
+    const step = confirmPrior(position, candidate, built.prior);
+    if (!step.ok || !hasPlausibleMaterial(step.prior)) continue;
     const { from, to, uncapture, unpromote, special } = candidate;
     yield {
       retro: {

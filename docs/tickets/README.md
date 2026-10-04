@@ -40,7 +40,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T071](./T071-split-solver-registry.md) | Split client solvers out of the server puzzle registry | T019 | | | done |
 | [T072](./T072-seed-update-in-place.md) | Seed updates content in place and never touches attempt data | T016, T022 | | | done |
 | [T073](./T073-seed-clears-omitted-meta.md) | Seed clears optional meta fields that a content file omits | T072 | | | done |
-| [T075](./T075-flush-pending-save.md) | Flush the pending autosave on check, navigation and page hide | T030 | | | todo |
+| [T075](./T075-flush-pending-save.md) | Flush the pending autosave on check, navigation and page hide | T030 | | | done |
 | [T079](./T079-seed-confirm-removal.md) | Confirm before the seed removes a puzzle that has attempts | T073 | | | todo |
 
 ## M2: Reverse Chess
@@ -54,7 +54,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T029](./T029-reverse-chess-mode-a.md) | Mode A "The Last Move": UI and check | T026, T028, T018, T071 | | | done |
 | [T030](./T030-reverse-chess-mode-b-notation.md) | Mode B "Unwind" plus descriptive notation | T029 | ✔ | | done |
 | [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | done |
-| [T076](./T076-retro-verify-pruning.md) | Prune the Mode B goal-chain search in the verifier | T030 | | | todo |
+| [T076](./T076-retro-verify-pruning.md) | Prune the Mode B goal-chain search in the verifier | T030 | | | review |
 | [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073, T076 | | | todo |
 
 ## M3: The Gear Puzzle
@@ -98,14 +98,14 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | done |
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | done |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | todo |
-| [T074](./T074-crossword-enumeration-separators.md) | Crossword enumeration separators (hyphen or word break) | T045 | ✔ | | todo |
+| [T074](./T074-crossword-enumeration-separators.md) | Crossword enumeration separators (hyphen or word break) | T045 | ✔ | | done |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
 
 ## M5: Polish and launch
 
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
-| [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | todo |
+| [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | done |
 | [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | todo |
 | [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
 | [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4 | | | todo |

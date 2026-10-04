@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { z } from "zod";
+import type { userSettings } from "@/db/schema";
 import type { PuzzleSchemas } from "./registry";
 
 export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
@@ -10,6 +11,8 @@ export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
   registerCheck(read: () => z.infer<S["answerSchema"]> | null): void;
   /** Asks the chrome to check the registered answer now, for types that complete without a Check press. */
   requestCheck?(): void;
+  /** The signed-in player's saved chess notation, or undefined when signed out. */
+  chessNotation?: (typeof userSettings.$inferSelect)["chessNotation"];
   /** Checks one cell on the server and records the hint. Null when the player is signed out or the call failed. */
   checkCell?(row: number, col: number, value: string): Promise<boolean | null>;
   /** Reveals one cell's value from the server and records the hint. Null when signed out or the call failed. */

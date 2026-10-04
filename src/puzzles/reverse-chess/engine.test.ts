@@ -72,6 +72,16 @@ describe("applyRetro", () => {
     ]);
   });
 
+  it("rejects en passant by a piece other than a pawn", () => {
+    expect(
+      applyRetro("4k3/8/8/8/8/2q5/8/4K3 w - - 0 2", {
+        from: "d3",
+        to: "c3",
+        special: "en_passant",
+      }),
+    ).toEqual({ ok: false, reason: "replay_mismatch" });
+  });
+
   describe("AC7: illegal uncaptures and unpromotions", () => {
     const position = "4k3/5N2/8/8/8/8/8/4K3 b - - 0 1";
 

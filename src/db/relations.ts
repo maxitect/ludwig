@@ -70,6 +70,24 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.reverseChessPuzzles.puzzleId,
       to: r.reverseChessSolutionPlies.puzzleId,
     }),
+    goal: r.one.reverseChessGoals({
+      from: r.reverseChessPuzzles.puzzleId,
+      to: r.reverseChessGoals.puzzleId,
+    }),
+  },
+  reverseChessGoals: {
+    pieceOnSquare: r.one.reverseChessGoalPieceOnSquare({
+      from: r.reverseChessGoals.puzzleId,
+      to: r.reverseChessGoalPieceOnSquare.puzzleId,
+    }),
+    castlingRight: r.one.reverseChessGoalCastlingRight({
+      from: r.reverseChessGoals.puzzleId,
+      to: r.reverseChessGoalCastlingRight.puzzleId,
+    }),
+    pieceCount: r.one.reverseChessGoalPieceCount({
+      from: r.reverseChessGoals.puzzleId,
+      to: r.reverseChessGoalPieceCount.puzzleId,
+    }),
   },
   gearPuzzles: {
     gears: r.many.gearPuzzleGears({

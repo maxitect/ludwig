@@ -34,3 +34,24 @@ export async function setUserTheme(
     .values({ userId, theme })
     .onConflictDoUpdate({ target: userSettings.userId, set: { theme } });
 }
+
+export async function getUserChessNotation(userId: string) {
+  const settings = await db.query.userSettings.findFirst({
+    where: { userId },
+    columns: { chessNotation: true },
+  });
+  return settings?.chessNotation ?? "algebraic";
+}
+
+export async function setUserChessNotation(
+  userId: string,
+  chessNotation: (typeof userSettings.$inferInsert)["chessNotation"],
+) {
+  await db
+    .insert(userSettings)
+    .values({ userId, chessNotation })
+    .onConflictDoUpdate({
+      target: userSettings.userId,
+      set: { chessNotation },
+    });
+}

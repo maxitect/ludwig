@@ -1,5 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
+import { content as unwind } from "../../../content/reverse-chess/dev-unwind";
 import { content, meta } from "./fixtures/content/reverse-chess/dev-rook-check";
 import { db } from "@/db";
 import { attempts, puzzles } from "@/db/schema";
@@ -9,14 +10,19 @@ import {
   forceDeferred,
   pgError,
   pgErrorCode,
+  rolledBack,
   type Tx,
 } from "@/db/integrity/harness";
 import { load } from "./load";
+import { loadSolution } from "./load-solution";
 import { reverseChessModule } from "./module";
-import { contentSchema, payloadSchema } from "./schema";
+import { contentSchema, payloadSchema, type Content } from "./schema";
 import {
   reverseChessAttemptPlies,
   reverseChessAttempts,
+  reverseChessGoalCastlingRight,
+  reverseChessGoalPieceOnSquare,
+  reverseChessGoals,
   reverseChessPieces,
   reverseChessPuzzles,
 } from "./tables";
@@ -44,6 +50,16 @@ async function insertPuzzle(tx: Tx, typeKey: string, slug = "one") {
 }
 
 const { pieces: _pieces, solutionPlies: _plies, ...puzzleColumns } = content;
+const unwindColumns = {
+  mode: unwind.mode,
+  sideToMove: unwind.sideToMove,
+  whiteKingside: unwind.whiteKingside,
+  whiteQueenside: unwind.whiteQueenside,
+  blackKingside: unwind.blackKingside,
+  blackQueenside: unwind.blackQueenside,
+  halfmove: unwind.halfmove,
+  fullmove: unwind.fullmove,
+};
 
 async function insertSubtype(tx: Tx, puzzleId: string) {
   await tx
@@ -150,6 +166,161 @@ describe("reverse_chess_pieces", () => {
   });
 });
 
+describe("reverse_chess_goals", () => {
+  async function unwindPuzzle(tx: Tx) {
+    await ensureTypes(tx);
+    const puzzleId = await insertPuzzle(tx, "reverse-chess");
+    await tx
+      .insert(reverseChessPuzzles)
+      .values({ ...unwindColumns, puzzleId, plyCount: 2 });
+    return puzzleId;
+  }
+
+  const square = {
+    colour: "black",
+    piece: "pawn",
+    file: "a",
+    rank: 7,
+  } as const;
+
+  async function addGoal(tx: Tx, puzzleId: string) {
+    await tx
+      .insert(reverseChessGoals)
+      .values({ puzzleId, kind: "piece_on_square", displayText: "goal" });
+    await tx
+      .insert(reverseChessGoalPieceOnSquare)
+      .values({ ...square, puzzleId });
+  }
+
+  it("commits an unwind puzzle with a goal and its subtype row", async () => {
+    expect(
+      await pgError(async (tx) => {
+        await addGoal(tx, await unwindPuzzle(tx));
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+  });
+
+  it("rejects a goal without its subtype row at commit", async () => {
+    const error = await pgError(async (tx) => {
+      const puzzleId = await unwindPuzzle(tx);
+      await tx
+        .insert(reverseChessGoals)
+        .values({ puzzleId, kind: "castling_right", displayText: "goal" });
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/of kind castling_right has no subtype row/);
+  });
+
+  it("rejects a subtype row of another kind than the goal", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await unwindPuzzle(tx);
+        await tx
+          .insert(reverseChessGoals)
+          .values({ puzzleId, kind: "piece_on_square", displayText: "goal" });
+        await tx.insert(reverseChessGoalCastlingRight).values({
+          puzzleId,
+          colour: "white",
+          side: "kingside",
+        });
+      }),
+    ).toBe("23503");
+  });
+
+  it("rejects an unwind puzzle without a goal at commit", async () => {
+    const error = await pgError(async (tx) => {
+      await unwindPuzzle(tx);
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/in mode unwind must have a goal/);
+  });
+
+  it("rejects a goal on a last_move puzzle at commit", async () => {
+    const error = await pgError(async (tx) => {
+      await ensureTypes(tx);
+      const puzzleId = await insertPuzzle(tx, "reverse-chess");
+      await insertSubtype(tx, puzzleId);
+      await addGoal(tx, puzzleId);
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/in mode last_move must not have a goal/);
+  });
+
+  it("rejects deleting the goal of an unwind puzzle at commit", async () => {
+    const error = await pgError(async (tx) => {
+      const puzzleId = await unwindPuzzle(tx);
+      await addGoal(tx, puzzleId);
+      await forceDeferred(tx);
+      await tx
+        .delete(reverseChessGoals)
+        .where(eq(reverseChessGoals.puzzleId, puzzleId));
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/in mode unwind must have a goal/);
+  });
+
+  it("rejects switching a last_move puzzle to unwind without a goal at commit", async () => {
+    const error = await pgError(async (tx) => {
+      await ensureTypes(tx);
+      const puzzleId = await insertPuzzle(tx, "reverse-chess");
+      await insertSubtype(tx, puzzleId);
+      await forceDeferred(tx);
+      await tx
+        .update(reverseChessPuzzles)
+        .set({ mode: "unwind" })
+        .where(eq(reverseChessPuzzles.puzzleId, puzzleId));
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/in mode unwind must have a goal/);
+  });
+
+  it("rejects a rank outside 1 to 8", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await unwindPuzzle(tx);
+        await tx
+          .insert(reverseChessGoals)
+          .values({ puzzleId, kind: "piece_on_square", displayText: "goal" });
+        await tx
+          .insert(reverseChessGoalPieceOnSquare)
+          .values({ ...square, rank: 9, puzzleId });
+      }),
+    ).toBe("23514");
+  });
+
+  it("is replaced in place when the content is seeded again", async () => {
+    const castling: Content = {
+      ...unwind,
+      goal: {
+        kind: "castling_right",
+        displayText: "Before black last castled",
+        colour: "black",
+        side: "queenside",
+      },
+    };
+    const stored = await rolledBack(async (tx) => {
+      await ensureTypes(tx);
+      const puzzleId = await insertPuzzle(tx, "reverse-chess");
+      await reverseChessModule.upsertContent(tx, puzzleId, unwind);
+      await reverseChessModule.upsertContent(tx, puzzleId, castling);
+      return tx.execute(sql`
+        select g.kind, g.display_text,
+          (select count(*)::int from reverse_chess_goal_piece_on_square) as squares,
+          (select count(*)::int from reverse_chess_goal_castling_right) as castles
+        from reverse_chess_goals g where g.puzzle_id = ${puzzleId}`);
+    });
+    expect(stored.rows).toEqual([
+      {
+        kind: "castling_right",
+        display_text: "Before black last castled",
+        squares: 0,
+        castles: 1,
+      },
+    ]);
+  });
+});
+
 describe("reverse_chess_attempts pinning", () => {
   let userId: string;
   afterAll(deleteTestUsers);
@@ -198,6 +369,7 @@ describe("play payload", () => {
   let puzzleId: string;
 
   afterAll(async () => {
+    await db.delete(puzzles).where(eq(puzzles.slug, "t030-goal-leak-test"));
     await db.delete(puzzles).where(eq(puzzles.slug, "t025-leak-test"));
     await db.execute(
       sql`delete from puzzle_types where key in ('reverse-chess', 'anagram') and category_key = 'rc-test'`,
@@ -242,5 +414,41 @@ describe("play payload", () => {
       payloadSchema.strict().safeParse({ ...payload, solutionPlies: [] })
         .success,
     ).toBe(false);
+  });
+
+  it("shows the goal text but never its predicate", async () => {
+    const parsedContent = contentSchema.parse(unwind);
+    let unwindId = "";
+    await db.transaction(async (tx) => {
+      await ensureTypes(tx);
+      const [row] = await tx
+        .insert(puzzles)
+        .values({
+          typeKey: "reverse-chess",
+          slug: "t030-goal-leak-test",
+          title: "goal",
+          difficulty: 1,
+        })
+        .returning({ id: puzzles.id });
+      unwindId = row.id;
+      await reverseChessModule.upsertContent(tx, unwindId, parsedContent);
+    });
+
+    const payload = await load(unwindId);
+
+    expect(payloadSchema.strict().safeParse(payload).success).toBe(true);
+    expect(payload.goalText).toBe(unwind.goal.displayText);
+    expect(JSON.stringify(payload)).not.toContain("piece_on_square");
+    expect(JSON.stringify(payload)).not.toContain('"goal"');
+
+    const solution = await loadSolution(unwindId);
+    expect(solution.plies).toHaveLength(2);
+    expect(solution.goal).toEqual({
+      kind: "piece_on_square",
+      colour: "black",
+      piece: "pawn",
+      file: "a",
+      rank: 7,
+    });
   });
 });

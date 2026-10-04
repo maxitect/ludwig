@@ -5,7 +5,6 @@ import {
   useId,
   useRef,
   useState,
-  useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
 } from "react";
@@ -14,6 +13,7 @@ import {
   type PieceDropHandlerArgs,
   type SquareHandlerArgs,
 } from "react-chessboard";
+import { useReduceMotion } from "@/utils/use-reduce-motion";
 import { BOARD_PIECES } from "./pieces";
 import { RetroArrow } from "./retro-arrow";
 import {
@@ -34,22 +34,8 @@ const ARROW_KEYS = {
   ArrowRight: "right",
 } as const;
 
-const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
-
 const ring = (colour: string, width: number) =>
   `inset 0 0 0 ${width}px var(--color-${colour})`;
-
-function usePrefersReducedMotion() {
-  return useSyncExternalStore(
-    (notify) => {
-      const query = window.matchMedia(REDUCED_MOTION);
-      query.addEventListener("change", notify);
-      return () => query.removeEventListener("change", notify);
-    },
-    () => window.matchMedia(REDUCED_MOTION).matches,
-    () => false,
-  );
-}
 
 function squareLabel(square: string, piece: SquareHandlerArgs["piece"]) {
   if (!piece) return `${square}, empty`;
@@ -85,7 +71,7 @@ export function ChessBoard({
 }: ChessBoardProps) {
   const boardId = `board${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   const rootRef = useRef<HTMLDivElement>(null);
-  const reducedMotion = usePrefersReducedMotion();
+  const reducedMotion = useReduceMotion();
   const [cursor, setCursor] = useState<Square>("e4");
   const [picked, setPicked] = useState<Square | null>(null);
   const [focused, setFocused] = useState(false);

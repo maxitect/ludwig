@@ -17,6 +17,7 @@ import {
   writeThemeCookie,
   type Theme,
 } from "@/utils/theme";
+import { applyReduceMotion } from "@/utils/reduce-motion";
 import { ThemeRadioGroup } from "./theme-radio-group";
 
 type AccountMenuProps = { name: string; theme: Theme };
@@ -27,6 +28,7 @@ export function AccountMenu({ name, theme }: AccountMenuProps) {
   async function signOut() {
     await authClient.signOut();
     writeThemeCookie(null);
+    applyReduceMotion(false);
     applyTheme(readStoredTheme());
     router.refresh();
   }

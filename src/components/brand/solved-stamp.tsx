@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import type { ComponentProps } from "react";
+import { useReduceMotion } from "@/utils/use-reduce-motion";
 
 type SolvedStampProps = Omit<
   ComponentProps<"div">,
@@ -9,7 +10,7 @@ type SolvedStampProps = Omit<
 >;
 
 export function SolvedStamp({ className = "", ...props }: SolvedStampProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
 
   return (
     <motion.div

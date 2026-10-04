@@ -39,7 +39,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T024](./T024-e2e-flows-1-2.md) | Playwright end-to-end flows 1 and 2 | T002, T009, T020, T022, T023 | | | done |
 | [T071](./T071-split-solver-registry.md) | Split client solvers out of the server puzzle registry | T019 | | | done |
 | [T072](./T072-seed-update-in-place.md) | Seed updates content in place and never touches attempt data | T016, T022 | | | done |
-| [T073](./T073-seed-clears-omitted-meta.md) | Seed clears optional meta fields that a content file omits | T072 | | | todo |
+| [T073](./T073-seed-clears-omitted-meta.md) | Seed clears optional meta fields that a content file omits | T072 | | | done |
 
 ## M2: Reverse Chess
 
@@ -50,8 +50,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T027](./T027-retro-verifier.md) | Retro enumerator and uniqueness verifier | T026 | | | done |
 | [T028](./T028-chess-board-component.md) | Chess board component (react-chessboard v5, cburnett, arrow, tray) | T010, T025 | | | done |
 | [T029](./T029-reverse-chess-mode-a.md) | Mode A "The Last Move": UI and check | T026, T028, T018, T071 | | | done |
-| [T030](./T030-reverse-chess-mode-b-notation.md) | Mode B "Unwind" plus descriptive notation | T029 | | | todo |
-| [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | todo |
+| [T030](./T030-reverse-chess-mode-b-notation.md) | Mode B "Unwind" plus descriptive notation | T029 | ✔ | | done |
+| [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | done |
 | [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073 | | | todo |
 
 ## M3: The Gear Puzzle
@@ -64,7 +64,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T036](./T036-gen-gears-script.md) | `puzzles:gen-gears` script and daily diagrams | T035 | | | done |
 | [T037](./T037-gear-board-prototype.md) | SVG gear board, prototype and parameter evaluation | T034, T018 | | | done |
 | [T038](./T038-gear-crank.md) | Crank interaction (drag, keyboard, ±) | T037 | | | done |
-| [T039](./T039-gear-scrubber-animation.md) | Dance scrubber, animation and sightlines | T038 | | | todo |
+| [T039](./T039-gear-scrubber-animation.md) | Dance scrubber, animation and sightlines | T038 | | | done |
 | [T040](./T040-gear-accuse-check.md) | Accuse flow and server check | T039 | | | todo |
 | [T041](./T041-gear-fix-the-diagram-ui.md) | Fix the Diagram UI | T040, T035 | | | todo |
 | [T042](./T042-gear-state-table.md) | Accessible gear state table | T039 | | | todo |
@@ -75,7 +75,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
-| [T045](./T045-crossword-cryptic.md) | Crossword: cryptic style and content | T022 | | | todo |
+| [T045](./T045-crossword-cryptic.md) | Crossword: cryptic style and content | T022 | | | done |
 | [T046](./T046-type-sudoku.md) | Puzzle type: sudoku (+ end-to-end flow 5, keyboard-only) | T021 | ✔ | | todo |
 | [T047](./T047-type-futoshiki.md) | Puzzle type: futoshiki | T046 | ✔ | | todo |
 | [T048](./T048-type-logic-grid.md) | Puzzle type: logic grid (+ false-statement variant) | T021 | ✔ | | todo |
@@ -94,6 +94,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | done |
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | done |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | todo |
+| [T074](./T074-crossword-enumeration-separators.md) | Crossword enumeration separators (hyphen or word break) | T045 | ✔ | | todo |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
 
 ## M5: Polish and launch

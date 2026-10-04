@@ -103,14 +103,11 @@ async function PuzzleList({
     ? puzzles.filter((puzzle) => puzzle.difficulty === difficulty)
     : puzzles;
 
+  const shelves = Map.groupBy(shown, ({ style }) => style);
+  const names = [...new Set(puzzles.map(({ style }) => style))].sort();
+
   return (
-    <section aria-labelledby="puzzle-list" className="flex flex-col gap-4">
-      <h2
-        id="puzzle-list"
-        className="border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase"
-      >
-        Puzzles
-      </h2>
+    <div className="flex flex-col gap-10">
       <nav aria-label="Filter by difficulty" className="flex flex-wrap gap-2">
         {[undefined, ...DIFFICULTIES].map((level) => (
           <Link
@@ -128,29 +125,42 @@ async function PuzzleList({
           </Link>
         ))}
       </nav>
-      {shown.length === 0 ? (
-        <p>
-          {puzzles.length === 0
-            ? "No puzzles of this type have been published yet."
-            : "No puzzles match this difficulty."}
-        </p>
-      ) : (
-        <ul className="flex flex-col">
-          {shown.map((puzzle) => (
-            <li key={puzzle.slug} className="border-b-2 border-border">
-              <Link
-                href={`/puzzles/${typeKey}/${puzzle.slug}`}
-                className="flex items-center justify-between gap-4 py-3 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
-              >
-                <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
-                  {puzzle.title}
-                </span>
-                <Badge variant="difficulty" level={puzzle.difficulty} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+      {puzzles.length === 0 && (
+        <p>No puzzles of this type have been published yet.</p>
       )}
-    </section>
+      {names.map((style) => {
+        const id = `shelf-${style ?? "puzzles"}`;
+        const shelf = shelves.get(style) ?? [];
+        return (
+          <section key={id} aria-labelledby={id} className="flex flex-col gap-4">
+            <h2
+              id={id}
+              className="border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase"
+            >
+              {style ?? "Puzzles"}
+            </h2>
+            {shelf.length === 0 ? (
+              <p>No puzzles match this difficulty.</p>
+            ) : (
+              <ul className="flex flex-col">
+                {shelf.map((puzzle) => (
+                  <li key={puzzle.slug} className="border-b-2 border-border">
+                    <Link
+                      href={`/puzzles/${typeKey}/${puzzle.slug}`}
+                      className="flex items-center justify-between gap-4 py-3 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
+                        {puzzle.title}
+                      </span>
+                      <Badge variant="difficulty" level={puzzle.difficulty} />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        );
+      })}
+    </div>
   );
 }

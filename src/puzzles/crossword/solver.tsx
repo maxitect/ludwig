@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/utils/cn";
 import {
   CellGrid,
@@ -64,6 +65,7 @@ export function Solver({
   const [cellNotice, setCellNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const grid = useRef<CellGridHandle>(null);
+  const clueList = useRef<HTMLOListElement>(null);
 
   const entryAt = (position: CellPosition, along: Direction) =>
     entries.find(
@@ -89,6 +91,20 @@ export function Solver({
     );
   }, [registerCheck, letters, payload.cells]);
 
+  useEffect(() => {
+    const list = clueList.current;
+    const current = list?.querySelector<HTMLElement>("[aria-current=true]");
+    if (!list || !current) return;
+    if (current.offsetTop < list.scrollTop) {
+      list.scrollTop = current.offsetTop;
+    } else if (
+      current.offsetTop + current.offsetHeight >
+      list.scrollTop + list.clientHeight
+    ) {
+      list.scrollTop = current.offsetTop + current.offsetHeight - list.clientHeight;
+    }
+  }, [activeEntry]);
+
   function setLetter(row: number, col: number, value: string) {
     const next = new Map(letters);
     if (value) next.set(cellKey(row, col), value);
@@ -104,6 +120,15 @@ export function Solver({
       const other = direction === "across" ? "down" : "across";
       if (entryAt(position, other)) setDirection(other);
     }
+  }
+
+  function selectDirection(next: Direction) {
+    if (!entryAt(active, next)) {
+      const first = entries.find((entry) => entry.direction === next);
+      if (!first) return;
+      setActive({ row: first.row, col: first.col });
+    }
+    setDirection(next);
   }
 
   function selectEntry(entry: Entry) {
@@ -184,13 +209,26 @@ export function Solver({
           }}
           words={words}
         />
-        <div className="grid gap-6 sm:grid-cols-2">
-          {DIRECTIONS.map((along) => (
-            <section key={along} aria-label={`${along} clues`}>
-              <h2 className="mb-2 font-display text-sm font-bold tracking-[0.1em] uppercase">
+        <Tabs
+          value={direction}
+          onValueChange={(value) => {
+            const next = DIRECTIONS.find((along) => along === value);
+            if (next) selectDirection(next);
+          }}
+        >
+          <TabsList aria-label="Clue direction">
+            {DIRECTIONS.map((along) => (
+              <TabsTrigger key={along} value={along}>
                 {along}
-              </h2>
-              <ol className="flex flex-col">
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {DIRECTIONS.map((along) => (
+            <TabsContent key={along} value={along}>
+              <ol
+                ref={along === direction ? clueList : undefined}
+                className="relative flex max-h-80 flex-col overflow-y-auto"
+              >
                 {entries
                   .filter((entry) => entry.direction === along)
                   .map((entry) => {
@@ -220,9 +258,9 @@ export function Solver({
                     );
                   })}
               </ol>
-            </section>
+            </TabsContent>
           ))}
-        </div>
+        </Tabs>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Button

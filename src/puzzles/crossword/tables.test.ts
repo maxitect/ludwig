@@ -186,6 +186,45 @@ describe("crossword clue segment separators", () => {
     ).toBe("23000");
   });
 
+  it("rejects updating the last segment to carry a separator", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t074-update");
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "word" },
+          { ...key, position: 1, length: 1, separator: null },
+        ]);
+        await forceDeferred(tx);
+        await tx
+          .update(crosswordClueSegments)
+          .set({ separator: "hyphen" })
+          .where(eq(crosswordClueSegments.position, 1));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
+  it("rejects moving the segment after a separated one to another clue", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t074-move");
+        await tx
+          .insert(crosswordClues)
+          .values({ ...key, direction: "down", clueText: "y" });
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "word" },
+          { ...key, position: 1, length: 1, separator: null },
+        ]);
+        await forceDeferred(tx);
+        await tx
+          .update(crosswordClueSegments)
+          .set({ direction: "down", position: 0 })
+          .where(eq(crosswordClueSegments.position, 1));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
   it("rejects deleting the segment after one that carries a separator", async () => {
     expect(
       await pgErrorCode(async (tx) => {

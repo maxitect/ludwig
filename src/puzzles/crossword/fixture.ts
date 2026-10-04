@@ -1,4 +1,4 @@
-import type { Content } from "./schema";
+import type { Content, Payload } from "./schema";
 
 /**
  * A hand-numbered 5x5 grid. Blocks sit at (1,1), (1,3), (3,1) and (3,3), so the runs and numbers are:
@@ -77,3 +77,13 @@ export const crypticFixture = {
   cells: crypticCells,
   clues: crypticClues,
 } satisfies Content;
+
+/** The payload shape of content clues: every segment carries the break that follows it, none after the last. */
+export const toPayloadClues = (contentClues: Content["clues"]): Payload["clues"] =>
+  contentClues.map(({ segments, separators, ...clue }) => ({
+    ...clue,
+    segments: segments.map((length, i) => ({
+      length,
+      separator: i === segments.length - 1 ? null : (separators?.[i] ?? "word"),
+    })),
+  }));

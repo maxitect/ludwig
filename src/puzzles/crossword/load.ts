@@ -12,7 +12,7 @@ export async function load(puzzleId: string) {
         columns: { direction: true, row: true, col: true, clueText: true },
         with: {
           segments: {
-            columns: { length: true },
+            columns: { length: true, separator: true },
             orderBy: { position: "asc" },
           },
         },
@@ -20,11 +20,5 @@ export async function load(puzzleId: string) {
     },
   });
   if (!puzzle) throw new Error(`Crossword puzzle not found: ${puzzleId}`);
-  return payloadSchema.parse({
-    ...puzzle,
-    clues: puzzle.clues.map(({ segments, ...clue }) => ({
-      ...clue,
-      segments: segments.map((segment) => segment.length),
-    })),
-  });
+  return payloadSchema.parse(puzzle);
 }

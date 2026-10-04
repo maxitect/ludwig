@@ -87,7 +87,7 @@ export const crosswordModule = {
       .delete(crosswordClueSegments)
       .where(eq(crosswordClueSegments.puzzleId, puzzleId));
     await tx.insert(crosswordClueSegments).values(
-      clues.flatMap(({ segments, direction, row, col }) =>
+      clues.flatMap(({ segments, separators, direction, row, col }) =>
         segments.map((length, position) => ({
           puzzleId,
           direction,
@@ -95,6 +95,10 @@ export const crosswordModule = {
           col,
           position,
           length,
+          separator:
+            position === segments.length - 1
+              ? null
+              : (separators?.[position] ?? "word"),
         })),
       ),
     );

@@ -61,9 +61,16 @@ export function deriveNumbers(runs: ReadonlyArray<Run>) {
   return numbers;
 }
 
-/** The "(4,3)" enumeration of a clue's segment lengths. */
-export function deriveEnumeration(segments: ReadonlyArray<number>) {
-  return `(${segments.join(",")})`;
+const SEPARATOR_MARK = { word: ",", hyphen: "-" } as const;
+
+/** The "(3,4-5)" enumeration of a clue's segments, each followed by its separator. */
+export function deriveEnumeration(segments: Clue["segments"]) {
+  const body = segments
+    .map(({ length, separator }, i) =>
+      i === segments.length - 1 ? length : `${length}${SEPARATOR_MARK[separator ?? "word"]}`,
+    )
+    .join("");
+  return `(${body})`;
 }
 
 /** The numbered entries of a puzzle, each paired with its clue. A run without a clue is left out. */

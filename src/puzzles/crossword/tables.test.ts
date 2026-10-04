@@ -146,6 +146,102 @@ describe("crossword schema", () => {
   });
 });
 
+describe("crossword clue segment separators", () => {
+  async function insertClue(tx: Tx, slug: string) {
+    const puzzleId = await insertPuzzle(tx, "crossword", slug);
+    await tx.insert(crosswordPuzzles).values({ ...grid, puzzleId });
+    await tx.insert(crosswordCells).values([
+      { puzzleId, row: 0, col: 0, letter: "A" },
+      { puzzleId, row: 0, col: 1, letter: "B" },
+    ]);
+    await tx
+      .insert(crosswordClues)
+      .values({ puzzleId, direction: "across", row: 0, col: 0, clueText: "x" });
+    return { puzzleId, direction: "across" as const, row: 0, col: 0 };
+  }
+
+  it("accepts a separator on every segment but the last", async () => {
+    expect(
+      await pgError(async (tx) => {
+        const key = await insertClue(tx, "t074-valid");
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "hyphen" },
+          { ...key, position: 1, length: 1, separator: null },
+        ]);
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+  });
+
+  it("rejects a separator on the last segment", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t074-last");
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "word" },
+          { ...key, position: 1, length: 1, separator: "hyphen" },
+        ]);
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
+  it("rejects updating the last segment to carry a separator", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t074-update");
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "word" },
+          { ...key, position: 1, length: 1, separator: null },
+        ]);
+        await forceDeferred(tx);
+        await tx
+          .update(crosswordClueSegments)
+          .set({ separator: "hyphen" })
+          .where(eq(crosswordClueSegments.position, 1));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
+  it("rejects moving the segment after a separated one to another clue", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t074-move");
+        await tx
+          .insert(crosswordClues)
+          .values({ ...key, direction: "down", clueText: "y" });
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "word" },
+          { ...key, position: 1, length: 1, separator: null },
+        ]);
+        await forceDeferred(tx);
+        await tx
+          .update(crosswordClueSegments)
+          .set({ direction: "down", position: 0 })
+          .where(eq(crosswordClueSegments.position, 1));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
+  it("rejects deleting the segment after one that carries a separator", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t074-delete");
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "word" },
+          { ...key, position: 1, length: 1, separator: null },
+        ]);
+        await tx
+          .delete(crosswordClueSegments)
+          .where(eq(crosswordClueSegments.position, 1));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+});
+
 describe("crossword module", () => {
   let puzzleId: string;
   let otherPuzzleId: string;
@@ -187,7 +283,7 @@ describe("crossword module", () => {
   });
 
   afterAll(async () => {
-    await db.delete(puzzles).where(sql`${puzzles.slug} like 't022-%'`);
+    await db.delete(puzzles).where(sql`${puzzles.slug} ~ '^t0(22|74)-'`);
     for (const key of insertedTypes) {
       await db.delete(puzzleTypes).where(eq(puzzleTypes.key, key));
     }
@@ -225,14 +321,17 @@ describe("crossword module", () => {
     expect(
       payload.clues.find((c) => c.direction === "across" && c.row === 0 && c.col === 0)
         ?.segments,
-    ).toEqual([4, 3]);
+    ).toEqual([
+      { length: 4, separator: "word" },
+      { length: 3, separator: null },
+    ]);
   });
 
-  it("round-trips segments in position order", async () => {
+  it("round-trips segments and their separators in position order", async () => {
     const split = {
       ...fixture,
       clues: fixture.clues.map((c, i) =>
-        i === 0 ? { ...c, segments: [2, 3] } : c,
+        i === 0 ? { ...c, segments: [2, 3], separators: ["hyphen" as const] } : c,
       ),
     };
     const id = await db.transaction(async (tx) => {
@@ -252,7 +351,46 @@ describe("crossword module", () => {
     expect(
       payload.clues.find((c) => c.direction === "across" && c.row === 0)
         ?.segments,
-    ).toEqual([2, 3]);
+    ).toEqual([
+      { length: 2, separator: "hyphen" },
+      { length: 3, separator: null },
+    ]);
+    expect(JSON.stringify(payload)).not.toMatch(/"letter"/);
+  });
+
+  it("re-seeds a changed separator in place", async () => {
+    const hyphenated = {
+      ...fixture,
+      clues: fixture.clues.map((c, i) =>
+        i === 0 ? { ...c, segments: [2, 3], separators: ["hyphen" as const] } : c,
+      ),
+    };
+    const id = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(puzzles)
+        .values({
+          typeKey: "crossword",
+          slug: "t074-reseed",
+          title: "r",
+          difficulty: 1,
+        })
+        .returning({ id: puzzles.id });
+      await crosswordModule.upsertContent(tx, row.id, hyphenated);
+      return row.id;
+    });
+    await db.transaction((tx) =>
+      crosswordModule.upsertContent(tx, id, {
+        ...hyphenated,
+        clues: hyphenated.clues.map((c, i) =>
+          i === 0 ? { ...c, separators: ["word" as const] } : c,
+        ),
+      }),
+    );
+    const payload = await load(id);
+    expect(
+      payload.clues.find((c) => c.direction === "across" && c.row === 0)
+        ?.segments[0].separator,
+    ).toBe("word");
   });
 
   it("loads the solution and checks answers against it", async () => {

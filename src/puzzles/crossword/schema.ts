@@ -6,6 +6,7 @@ import {
   crosswordClueSegments,
   crosswordClues,
   crosswordPuzzles,
+  segmentSeparatorEnum,
 } from "./tables";
 
 const letter = (schema: z.ZodString) => schema.regex(/^[A-Z]$/);
@@ -24,6 +25,7 @@ const cellSelect = createSelectSchema(crosswordCells, { letter });
 const clueSelect = createSelectSchema(crosswordClues);
 const clueInsert = createInsertSchema(crosswordClues);
 const segmentSelect = createSelectSchema(crosswordClueSegments);
+const separator = z.enum(segmentSeparatorEnum.enumValues);
 const attemptCellSelect = createSelectSchema(crosswordAttemptCells, { letter });
 
 const lettered = cellSelect.pick({ row: true, col: true, letter: true });
@@ -40,7 +42,9 @@ export const payloadSchema = z.object({
       .object({
         ...clueKey.shape,
         ...clueSelect.pick({ clueText: true }).shape,
-        segments: z.array(segmentSelect.shape.length).min(1),
+        segments: z
+          .array(segmentSelect.pick({ length: true, separator: true }).strict())
+          .min(1),
       })
       .strict(),
   ),
@@ -54,16 +58,24 @@ export const answerSchema = z.object({ cells: filledCells });
 
 export const attemptSchema = z.object({ cells: filledCells });
 
+/** `separators[i]` is the break after segment i; omitted, every break is a word break. */
 export const contentSchema = z.object({
   ...puzzleInsert.shape,
   cells: z.array(lettered).min(2),
   clues: z
     .array(
-      z.object({
-        ...clueKey.shape,
-        ...clueInsert.pick({ clueText: true }).shape,
-        segments: z.array(segmentSelect.shape.length).min(1),
-      }),
+      z
+        .object({
+          ...clueKey.shape,
+          ...clueInsert.pick({ clueText: true }).shape,
+          segments: z.array(segmentSelect.shape.length).min(1),
+          separators: z.array(separator).optional(),
+        })
+        .refine(
+          ({ segments, separators }) =>
+            !separators || separators.length === segments.length - 1,
+          { message: "separators must number one fewer than segments" },
+        ),
     )
     .min(1),
 });

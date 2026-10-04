@@ -2,7 +2,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { crypticFixture, fixture } from "./fixture";
+import { crypticFixture, fixture, toPayloadClues } from "./fixture";
 import type { Payload } from "./schema";
 import { Solver } from "./solver";
 
@@ -13,7 +13,7 @@ const payload: Payload = {
   rows: fixture.rows,
   cols: fixture.cols,
   cells: fixture.cells.map(({ row, col }) => ({ row, col })),
-  clues: fixture.clues,
+  clues: toPayloadClues(fixture.clues),
 };
 
 function renderSolver(overrides: Partial<Parameters<typeof Solver>[0]> = {}) {
@@ -98,7 +98,7 @@ describe("crossword Solver", () => {
         rows: crypticFixture.rows,
         cols: crypticFixture.cols,
         cells: crypticFixture.cells.map(({ row, col }) => ({ row, col })),
-        clues: crypticFixture.clues,
+        clues: toPayloadClues(crypticFixture.clues),
       },
     });
     expect(screen.getAllByRole("gridcell")).toHaveLength(15 * 15);

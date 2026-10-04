@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clues, fixture } from "./fixture";
+import { clues, fixture, toPayloadClues } from "./fixture";
 import {
   answerSchema,
   attemptSchema,
@@ -12,7 +12,7 @@ const payload = {
   rows: 5,
   cols: 5,
   cells: fixture.cells.map(({ row, col }) => ({ row, col })),
-  clues: clues.map((clue) => clue),
+  clues: toPayloadClues(clues),
 };
 
 describe("payloadSchema", () => {
@@ -37,7 +37,7 @@ describe("payloadSchema", () => {
   it("rejects a clue that carries its answer", () => {
     const leaked = {
       ...payload,
-      clues: [{ ...clues[0], answer: "CRANE" }, ...clues.slice(1)],
+      clues: [{ ...payload.clues[0], answer: "CRANE" }, ...payload.clues.slice(1)],
     };
     expect(payloadSchema.safeParse(leaked).success).toBe(false);
   });
@@ -52,6 +52,17 @@ describe("contentSchema", () => {
     const bad = {
       ...fixture,
       cells: [{ ...fixture.cells[0], letter }, ...fixture.cells.slice(1)],
+    };
+    expect(contentSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it("rejects separators that do not number one fewer than segments", () => {
+    const bad = {
+      ...fixture,
+      clues: [
+        { ...clues[0], segments: [2, 3], separators: ["word", "hyphen"] },
+        ...clues.slice(1),
+      ],
     };
     expect(contentSchema.safeParse(bad).success).toBe(false);
   });

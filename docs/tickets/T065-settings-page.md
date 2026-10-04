@@ -32,6 +32,7 @@ This is the `/settings` route from SPEC §3. The `user_settings` table already e
 ## Notes
 
 - `reduce_motion` combines with `prefers-reduced-motion` using OR. Either one disables motion.
+- Every existing motion path currently follows only `prefers-reduced-motion`: the landing title sequence (T067), the `/reverse-chess` hub pieces (T031, `hub.css`), the gear scrubber (T039, `motion`'s `useReducedMotion`) and the solved stamp. Each must also honour the account setting, e.g. via a root `data-reduce-motion` attribute plus `MotionConfig reducedMotion`, so CSS and `motion` share one switch. The T030 solver already reads and writes `chess_notation`; reuse that path.
 - `/settings` is protected by `proxy.ts` (T008), but the action must still call `getCurrentUser()`.
 
 ## Acceptance criteria
@@ -45,7 +46,7 @@ This is the `/settings` route from SPEC §3. The `user_settings` table already e
 - [ ] **AC4**: Descriptive notation is shown in the Reverse Chess move list.
   - _Verify (browser):_ Open a Mode B puzzle and make one retro move. The move list shows descriptive notation (e.g. `N–Q1`), and switching the setting back to algebraic shows algebraic.
 - [ ] **AC5**: The reduced-motion setting disables motion.
-  - _Verify (browser):_ With `reduce_motion` on, complete an anagram. The solved stamp appears with no animation: `getAnimations().length === 0` on the stamp element.
+  - _Verify (browser):_ With `reduce_motion` on, complete an anagram. The solved stamp appears with no animation: `getAnimations().length === 0` on the stamp element. Also, with the OS preference off, `/reverse-chess` hub pieces have `animationName` `none` and the gear scrubber's Play shows only marker states (computed durations `0s`).
 - [ ] **AC6**: Invalid input is rejected with a field error, and nothing is written.
   - _Verify (browser + db):_ Submit an empty name. A field error shows, and the `psql` query from AC2 is unchanged.
 - [ ] **AC7**: One user cannot change another user's settings.

@@ -3,7 +3,7 @@ id: T032
 title: Reverse Chess content ×10 and end-to-end flow 3
 milestone: M2
 epic: E6
-depends_on: [T027, T030, T031, T073]
+depends_on: [T027, T030, T031, T073, T076]
 migrations: false
 requires_human: false
 spec: ["SPEC §5.1 (Difficulty ladder)", "SPEC §8.2 (flow 3)", "SPEC §10 (decision 3)", "PLAN §5.4"]

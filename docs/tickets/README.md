@@ -40,6 +40,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T071](./T071-split-solver-registry.md) | Split client solvers out of the server puzzle registry | T019 | | | done |
 | [T072](./T072-seed-update-in-place.md) | Seed updates content in place and never touches attempt data | T016, T022 | | | done |
 | [T073](./T073-seed-clears-omitted-meta.md) | Seed clears optional meta fields that a content file omits | T072 | | | done |
+| [T075](./T075-flush-pending-save.md) | Flush the pending autosave on check, navigation and page hide | T030 | | | todo |
 
 ## M2: Reverse Chess
 
@@ -52,7 +53,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T029](./T029-reverse-chess-mode-a.md) | Mode A "The Last Move": UI and check | T026, T028, T018, T071 | | | done |
 | [T030](./T030-reverse-chess-mode-b-notation.md) | Mode B "Unwind" plus descriptive notation | T029 | ✔ | | done |
 | [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | done |
-| [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073 | | | todo |
+| [T076](./T076-retro-verify-pruning.md) | Prune the Mode B goal-chain search in the verifier | T030 | | | todo |
+| [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073, T076 | | | todo |
 
 ## M3: The Gear Puzzle
 

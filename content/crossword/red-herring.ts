@@ -29,7 +29,7 @@ export const content = {
   ],
   clues: [
     { direction: "across", row: 0, col: 0, clueText: "Exist with squad alongside", segments: [6] },
-    { direction: "down", row: 0, col: 0, clueText: "Born, a nan, and a yellow fruit", segments: [6] },
+    { direction: "down", row: 0, col: 0, clueText: "Born a gran, a yellow fruit", segments: [6] },
     { direction: "down", row: 0, col: 2, clueText: "Boy getting a right underwater detector", segments: [5] },
     { direction: "down", row: 0, col: 4, clueText: "Hold pins, wildly, for sea mammals", segments: [8] },
     { direction: "across", row: 0, col: 7, clueText: "Seek votes, shedding second, for tent material", segments: [6] },
@@ -51,7 +51,7 @@ export const content = {
     { direction: "across", row: 8, col: 0, clueText: "Husband's Roman salute: to possess", segments: [4] },
     { direction: "across", row: 8, col: 5, clueText: "Help that's finished: it's a transfer", segments: [8] },
     { direction: "down", row: 8, col: 10, clueText: "Overt transformed into elector", segments: [5] },
-    { direction: "down", row: 9, col: 4, clueText: "Men with university list of dishes", segments: [4] },
+    { direction: "down", row: 9, col: 4, clueText: "Fellows with university bill of fare", segments: [4] },
     { direction: "across", row: 10, col: 0, clueText: "Doctor, perhaps, as question of identity", segments: [3] },
     { direction: "across", row: 10, col: 4, clueText: "Dance then differently, being under a spell", segments: [9] },
     { direction: "across", row: 12, col: 0, clueText: "Concerning second prompt to save", segments: [6] },

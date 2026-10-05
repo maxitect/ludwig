@@ -195,6 +195,22 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.crosswordAttemptCells.attemptId,
     }),
   },
+  sudokuPuzzles: {
+    givens: r.many.sudokuGivens({
+      from: r.sudokuPuzzles.puzzleId,
+      to: r.sudokuGivens.puzzleId,
+    }),
+  },
+  sudokuAttempts: {
+    cells: r.many.sudokuAttemptCells({
+      from: r.sudokuAttempts.attemptId,
+      to: r.sudokuAttemptCells.attemptId,
+    }),
+    notes: r.many.sudokuAttemptNotes({
+      from: r.sudokuAttempts.attemptId,
+      to: r.sudokuAttemptNotes.attemptId,
+    }),
+  },
   spotDifferenceAttempts: {
     found: r.many.spotDifferenceAttemptFound({
       from: r.spotDifferenceAttempts.attemptId,

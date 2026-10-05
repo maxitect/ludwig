@@ -29,6 +29,7 @@ export function Solver({
   onStateChange,
   registerCheck,
   requestCheck,
+  solved,
 }: SolverProps<typeof schema>) {
   const cranks = lcmTeeth(payload.gears);
   const driver = payload.gears.find((gear) => gear.isDriver);
@@ -138,7 +139,7 @@ export function Solver({
           <AlertDialogTrigger asChild>
             <Button
               className="self-start"
-              disabled={!atConvergence}
+              disabled={solved || !atConvergence}
               aria-describedby={atConvergence ? undefined : accuseHint}
             >
               Accuse
@@ -165,7 +166,7 @@ export function Solver({
                     value={gear.id}
                     checked={picked === gear.id}
                     onChange={() => setPicked(gear.id)}
-                    className="size-4 accent-primary"
+                    className="size-4 shrink-0 appearance-none border-2 border-border checked:border-primary checked:bg-primary"
                   />
                   Gear {gear.label}, {gear.teeth} teeth
                 </label>

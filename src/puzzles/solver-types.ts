@@ -9,6 +9,8 @@ export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
   onStateChange(state: z.infer<S["attemptSchema"]>): void;
   /** The solver registers a function that returns its current answer, or null while it is incomplete. */
   registerCheck(read: () => z.infer<S["answerSchema"]> | null): void;
+  /** True once the chrome has accepted a correct answer. */
+  solved?: boolean;
   /** Asks the chrome to check the registered answer now, for types that complete without a Check press. */
   requestCheck?(): void;
   /** The signed-in player's saved chess notation, or undefined when signed out. */

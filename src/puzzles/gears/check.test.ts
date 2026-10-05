@@ -69,4 +69,10 @@ describe("answerSchema", () => {
       false,
     );
   });
+
+  it("rejects a negative crank", () => {
+    expect(answerSchema.safeParse({ ...answer, crank: -44 }).success).toBe(
+      false,
+    );
+  });
 });

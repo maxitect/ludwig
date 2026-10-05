@@ -16,6 +16,9 @@ const slotCount = z
   .min(4)
   .refine((n) => n % 4 === 0, "slotCount must be a multiple of 4");
 
+const crank = (schema: z.ZodInt) => schema.nonnegative();
+const convergence = (schema: z.ZodInt) => schema.min(1).max(8);
+
 const puzzleSelect = createSelectSchema(gearPuzzles, { slotCount }).omit({
   puzzleId: true,
   typeKey: true,
@@ -32,13 +35,19 @@ const gearInsert = createInsertSchema(gearPuzzleGears).omit({
   puzzleId: true,
 });
 const meshSelect = createSelectSchema(gearMeshes).omit({ puzzleId: true });
-const solutionSelect = createSelectSchema(gearSolutions).omit({
+const solutionSelect = createSelectSchema(gearSolutions, {
+  crank,
+  convergence,
+}).omit({
   puzzleId: true,
 });
 const solutionSwapSelect = createSelectSchema(gearSolutionSwaps).omit({
   puzzleId: true,
 });
-const attemptSelect = createSelectSchema(gearAttempts).omit({
+const attemptSelect = createSelectSchema(gearAttempts, {
+  crank,
+  convergence,
+}).omit({
   attemptId: true,
   puzzleId: true,
   typeKey: true,
@@ -47,8 +56,6 @@ const attemptSwapSelect = createSelectSchema(gearAttemptSwaps).omit({
   attemptId: true,
   puzzleId: true,
 });
-
-const convergence = z.number().int().min(1).max(8);
 
 const labelPair = z.object({ a: z.string(), b: z.string() });
 
@@ -70,7 +77,7 @@ export const attemptSchema = z.object({
 
 export const answerSchema = z.object({
   crank: attemptSelect.shape.crank,
-  convergence,
+  convergence: solutionSelect.shape.convergence,
   accusedGearId: solutionSelect.shape.killerGearId,
   swaps: z.array(attemptSwapSelect),
 });

@@ -174,7 +174,7 @@ export function Solver({
             return (
               <span
                 aria-hidden
-                className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-[6%] font-hand text-[0.45em] leading-none text-ink"
+                className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-[6%] font-hand text-[0.55em] leading-none text-ink"
               >
                 {DIGITS.map((digit) => (
                   <span

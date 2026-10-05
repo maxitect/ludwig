@@ -77,7 +77,13 @@ test("digits and notes survive a reload", async ({ page }) => {
   await page.keyboard.press("n");
   await page.keyboard.press("2");
   await page.keyboard.press("7");
+  const autosave = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      "next-action" in response.request().headers(),
+  );
   await page.keyboard.press("n");
+  await autosave;
 
   if (databaseAvailable) {
     await expect

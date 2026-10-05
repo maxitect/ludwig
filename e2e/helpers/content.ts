@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import type { ContentMeta } from "../../scripts/content-files";
 import type { Content as AnagramContent } from "../../src/puzzles/anagram/schema";
 import type { Content as CrosswordContent } from "../../src/puzzles/crossword/schema";
+import type { Content as ReverseChessContent } from "../../src/puzzles/reverse-chess/schema";
 import { solve } from "../../src/puzzles/sudoku/engine";
 import type { Content as SudokuContent } from "../../src/puzzles/sudoku/schema";
 
@@ -66,5 +67,29 @@ export async function quickCrosswordPuzzle() {
     slug: quick.meta.slug,
     title: quick.meta.title,
     cells: quick.content.cells,
+  };
+}
+
+/** Any published Mode A reverse chess puzzle whose last move captured a piece and promoted nothing. */
+export async function uncapturePuzzle() {
+  const all = await loadPublished<ReverseChessContent>("reverse-chess");
+  const found = all.find(
+    ({ content }) =>
+      content.mode === "last_move" &&
+      content.solutionPlies[0].uncapture &&
+      !content.solutionPlies[0].unpromote,
+  );
+  const ply = found?.content.solutionPlies[0];
+  if (!found || !ply?.uncapture) {
+    throw new Error("No published uncapture puzzle in content/reverse-chess");
+  }
+  return {
+    typeKey: "reverse-chess",
+    slug: found.meta.slug,
+    title: found.meta.title,
+    sideToMove: found.content.sideToMove,
+    from: `${ply.fromFile}${ply.fromRank}`,
+    to: `${ply.toFile}${ply.toRank}`,
+    uncapture: ply.uncapture,
   };
 }

@@ -54,6 +54,13 @@ const HOW_IT_WORKS = [
   "Only one answer keeps the whole story legal.",
 ];
 
+const UNWIND_HOW_IT_WORKS = [
+  "Unwind gives you a goal, such as \u201cBefore the black pawn left a7\u201d.",
+  "Take back several moves in a row, one at a time, and the last position you reach must meet the goal.",
+  "Wrong steps are allowed until you press Check, which flags the first one that could not have happened.",
+  "Only one chain of take-backs gets there.",
+];
+
 export default async function ReverseChessPage() {
   const hub = await getReverseChessHub();
   const solved = getSolvedPuzzleIds(
@@ -93,8 +100,19 @@ export default async function ReverseChessPage() {
         >
           How it works
         </h2>
+        <h3 className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+          The Last Move
+        </h3>
         <ol className="flex list-decimal flex-col gap-1 pl-6">
           {HOW_IT_WORKS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <h3 className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+          Unwind
+        </h3>
+        <ol className="flex list-decimal flex-col gap-1 pl-6">
+          {UNWIND_HOW_IT_WORKS.map((step) => (
             <li key={step}>{step}</li>
           ))}
         </ol>

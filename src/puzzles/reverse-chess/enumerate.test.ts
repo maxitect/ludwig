@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { content as pawnPush } from "../../../content/reverse-chess/dev-pawn-push";
-import { content as unwind } from "../../../content/reverse-chess/dev-unwind";
+import { content as pawnPush } from "./fixtures/dev-pawn-push";
+import { content as unwind } from "./fixtures/dev-unwind";
 import { content as rookCheck } from "./fixtures/content/reverse-chess/dev-rook-check";
 import path from "node:path";
 import { verifyPuzzles } from "../../../scripts/verify-puzzles";

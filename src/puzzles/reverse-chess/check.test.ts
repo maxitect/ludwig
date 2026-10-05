@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { content as unwind } from "../../../content/reverse-chess/dev-unwind";
-import { content as uncaptureFixture } from "../../../content/reverse-chess/dev-knight-takes";
-import { content as uniqueFixture } from "../../../content/reverse-chess/dev-pawn-push";
+import { content as unwind } from "./fixtures/dev-unwind";
+import { content as uncaptureFixture } from "./fixtures/dev-knight-takes";
+import { content as uniqueFixture } from "./fixtures/dev-pawn-push";
 import { check } from "./check";
 import {
   solutionSchema,

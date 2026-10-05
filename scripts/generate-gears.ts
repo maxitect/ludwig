@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import type { db as appDb } from "../src/db";
+import { verifyFullSsl } from "../src/utils/verify-full-ssl";
 import { relations } from "../src/db/relations";
 import { gearDaily } from "../src/db/schema";
 import { generateDiagram } from "../src/puzzles/gears/generate";
@@ -131,7 +132,9 @@ async function main() {
     console.error(`${error.message}\n${USAGE}`);
     process.exit(2);
   }
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL_UNPOOLED });
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL_UNPOOLED!),
+  });
   try {
     const db = drizzle({ client: pool, relations });
     const { created, skipped } = await generateDailies(db, registry, options);

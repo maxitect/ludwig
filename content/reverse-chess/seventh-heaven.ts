@@ -5,7 +5,8 @@ export const meta = {
   slug: "seventh-heaven",
   title: "Seventh Heaven",
   difficulty: 4,
-  sourceNote: "Original position, built from a proof game by the Ludwig authors.",
+  sourceNote:
+    "Original position, built from a proof game by the Ludwig authors.",
   publishedAt: new Date("2026-10-05T00:00:00Z"),
 } satisfies ContentMeta;
 
@@ -23,186 +24,36 @@ export const content = {
   halfmove: 0,
   fullmove: 13,
   pieces: [
-    {
-      file: "a",
-      rank: 8,
-      colour: "black",
-      piece: "rook"
-    },
-    {
-      file: "c",
-      rank: 8,
-      colour: "black",
-      piece: "bishop"
-    },
-    {
-      file: "d",
-      rank: 8,
-      colour: "black",
-      piece: "queen"
-    },
-    {
-      file: "e",
-      rank: 8,
-      colour: "black",
-      piece: "king"
-    },
-    {
-      file: "f",
-      rank: 8,
-      colour: "black",
-      piece: "bishop"
-    },
-    {
-      file: "g",
-      rank: 8,
-      colour: "black",
-      piece: "knight"
-    },
-    {
-      file: "h",
-      rank: 8,
-      colour: "black",
-      piece: "rook"
-    },
-    {
-      file: "e",
-      rank: 7,
-      colour: "black",
-      piece: "pawn"
-    },
-    {
-      file: "f",
-      rank: 7,
-      colour: "black",
-      piece: "pawn"
-    },
-    {
-      file: "a",
-      rank: 6,
-      colour: "black",
-      piece: "pawn"
-    },
-    {
-      file: "b",
-      rank: 6,
-      colour: "black",
-      piece: "pawn"
-    },
-    {
-      file: "f",
-      rank: 6,
-      colour: "black",
-      piece: "knight"
-    },
-    {
-      file: "g",
-      rank: 6,
-      colour: "black",
-      piece: "pawn"
-    },
-    {
-      file: "c",
-      rank: 5,
-      colour: "black",
-      piece: "pawn"
-    },
-    {
-      file: "h",
-      rank: 5,
-      colour: "black",
-      piece: "pawn"
-    },
-    {
-      file: "e",
-      rank: 4,
-      colour: "white",
-      piece: "pawn"
-    },
-    {
-      file: "f",
-      rank: 4,
-      colour: "white",
-      piece: "queen"
-    },
-    {
-      file: "b",
-      rank: 3,
-      colour: "white",
-      piece: "pawn"
-    },
-    {
-      file: "c",
-      rank: 3,
-      colour: "white",
-      piece: "knight"
-    },
-    {
-      file: "e",
-      rank: 3,
-      colour: "white",
-      piece: "bishop"
-    },
-    {
-      file: "a",
-      rank: 2,
-      colour: "white",
-      piece: "pawn"
-    },
-    {
-      file: "c",
-      rank: 2,
-      colour: "white",
-      piece: "pawn"
-    },
-    {
-      file: "d",
-      rank: 2,
-      colour: "black",
-      piece: "pawn"
-    },
-    {
-      file: "e",
-      rank: 2,
-      colour: "white",
-      piece: "bishop"
-    },
-    {
-      file: "f",
-      rank: 2,
-      colour: "white",
-      piece: "pawn"
-    },
-    {
-      file: "g",
-      rank: 2,
-      colour: "white",
-      piece: "pawn"
-    },
-    {
-      file: "h",
-      rank: 2,
-      colour: "white",
-      piece: "pawn"
-    },
-    {
-      file: "a",
-      rank: 1,
-      colour: "white",
-      piece: "rook"
-    },
-    {
-      file: "e",
-      rank: 1,
-      colour: "white",
-      piece: "king"
-    },
-    {
-      file: "f",
-      rank: 1,
-      colour: "white",
-      piece: "rook"
-    }
+    { file: "a", rank: 8, colour: "black", piece: "rook" },
+    { file: "c", rank: 8, colour: "black", piece: "bishop" },
+    { file: "d", rank: 8, colour: "black", piece: "queen" },
+    { file: "e", rank: 8, colour: "black", piece: "king" },
+    { file: "f", rank: 8, colour: "black", piece: "bishop" },
+    { file: "g", rank: 8, colour: "black", piece: "knight" },
+    { file: "h", rank: 8, colour: "black", piece: "rook" },
+    { file: "e", rank: 7, colour: "black", piece: "pawn" },
+    { file: "f", rank: 7, colour: "black", piece: "pawn" },
+    { file: "a", rank: 6, colour: "black", piece: "pawn" },
+    { file: "b", rank: 6, colour: "black", piece: "pawn" },
+    { file: "f", rank: 6, colour: "black", piece: "knight" },
+    { file: "g", rank: 6, colour: "black", piece: "pawn" },
+    { file: "c", rank: 5, colour: "black", piece: "pawn" },
+    { file: "h", rank: 5, colour: "black", piece: "pawn" },
+    { file: "e", rank: 4, colour: "white", piece: "pawn" },
+    { file: "f", rank: 4, colour: "white", piece: "queen" },
+    { file: "b", rank: 3, colour: "white", piece: "pawn" },
+    { file: "c", rank: 3, colour: "white", piece: "knight" },
+    { file: "e", rank: 3, colour: "white", piece: "bishop" },
+    { file: "a", rank: 2, colour: "white", piece: "pawn" },
+    { file: "c", rank: 2, colour: "white", piece: "pawn" },
+    { file: "d", rank: 2, colour: "black", piece: "pawn" },
+    { file: "e", rank: 2, colour: "white", piece: "bishop" },
+    { file: "f", rank: 2, colour: "white", piece: "pawn" },
+    { file: "g", rank: 2, colour: "white", piece: "pawn" },
+    { file: "h", rank: 2, colour: "white", piece: "pawn" },
+    { file: "a", rank: 1, colour: "white", piece: "rook" },
+    { file: "e", rank: 1, colour: "white", piece: "king" },
+    { file: "f", rank: 1, colour: "white", piece: "rook" },
   ],
   solutionPlies: [
     {
@@ -211,7 +62,7 @@ export const content = {
       toFile: "d",
       toRank: 2,
       unpromote: false,
-      special: "none"
-    }
-  ]
+      special: "none",
+    },
+  ],
 } satisfies Content;

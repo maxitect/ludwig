@@ -36,7 +36,7 @@ Launch content for Reverse Chess, plus the Playwright flow that proves Mode A en
 - [ ] **AC1**: Ten published puzzles with the right mode mix.
   - _Verify (db):_ after `pnpm db:seed`, `SELECT mode, count(*) FROM reverse_chess_puzzles r JOIN puzzles p ON p.id=r.puzzle_id WHERE p.published_at IS NOT NULL GROUP BY mode` returns at least 6 `last_move` and at least 3 `unwind` rows, totalling 10.
 - [ ] **AC2**: Every puzzle is unique.
-  - _Verify (cli):_ `pnpm puzzles:verify` exits 0 and prints exactly one survivor per Mode A slug and per Mode B step.
+  - _Verify (cli):_ `pnpm puzzles:verify` exits 0. It fails unless every Mode A slug has exactly one survivor and every Mode B slug exactly one goal chain, the authored one.
 - [ ] **AC3**: The difficulty ladder is covered.
   - _Verify (code):_ `REVIEW.md` maps each ladder rung to at least one slug. At least one puzzle uses each of uncapture, unpromote, en passant and castling (`grep` over the content files).
 - [ ] **AC4**: Every slug has a legality review.

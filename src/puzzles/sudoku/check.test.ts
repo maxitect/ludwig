@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { check, checkCell, revealCell } from "./check";
+import { check } from "./check";
 import { givens, solution } from "./fixture";
 import type { Answer } from "./schema";
 
@@ -16,7 +16,7 @@ describe("sudoku check", () => {
   it("accepts the solution", () => {
     expect(check(payload, solution, correct)).toEqual({
       correct: true,
-      wrongCells: [],
+      cellsWrong: [],
     });
   });
 
@@ -39,13 +39,13 @@ describe("sudoku check", () => {
   it("rejects a one-cell perturbation and reports the wrong cells", () => {
     const result = check(payload, solution, perturb(0, 2, 1));
     expect(result.correct).toBe(false);
-    expect(result.wrongCells).toContainEqual({ row: 0, col: 2 });
+    expect(result.cellsWrong).toContainEqual({ row: 0, col: 2 });
   });
 
   it("reports an overwritten given", () => {
     const result = check(payload, solution, perturb(0, 0, 9));
     expect(result.correct).toBe(false);
-    expect(result.wrongCells).toContainEqual({ row: 0, col: 0 });
+    expect(result.cellsWrong).toContainEqual({ row: 0, col: 0 });
   });
 
   it("rejects an empty cell", () => {
@@ -54,14 +54,7 @@ describe("sudoku check", () => {
     });
     expect(result).toMatchObject({
       correct: false,
-      wrongCells: [{ row: 8, col: 8 }],
+      cellsWrong: [{ row: 8, col: 8 }],
     });
-  });
-
-  it("checks and reveals a single cell from the solution", () => {
-    expect(checkCell(payload, solution, 0, 2, "4")).toEqual({ correct: true });
-    expect(checkCell(payload, solution, 0, 2, "5")).toEqual({ correct: false });
-    expect(revealCell(solution, 0, 2)).toBe("4");
-    expect(revealCell(solution, 9, 9)).toBeNull();
   });
 });

@@ -13,7 +13,9 @@ export const databaseAvailable =
 export type AttemptRow = { typeKey: string; slug: string; completed: boolean };
 
 export async function sudokuAttemptCounts(email: string) {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
   try {
     const { rows } = await pool.query<{ cells: number; notes: number }>(
       `select (select count(*) from sudoku_attempt_cells c where c.attempt_id = a.id)::int as cells,

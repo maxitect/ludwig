@@ -15,24 +15,8 @@ export function check(payload: Payload, _solution: Solution, answer: Answer) {
   grid.forEach((digit, index) => {
     if (!digit || (givens[index] && givens[index] !== digit)) wrong.add(index);
   });
-  const wrongCells = [...wrong]
+  const cellsWrong = [...wrong]
     .sort((a, b) => a - b)
     .map((index) => ({ row: Math.floor(index / SIZE), col: index % SIZE }));
-  return { correct: wrongCells.length === 0, wrongCells };
-}
-
-export function checkCell(
-  _payload: Payload,
-  solution: Solution,
-  row: number,
-  col: number,
-  value: string,
-) {
-  const cell = solution.find((c) => c.row === row && c.col === col);
-  return { correct: cell !== undefined && String(cell.digit) === value };
-}
-
-export function revealCell(solution: Solution, row: number, col: number) {
-  const cell = solution.find((c) => c.row === row && c.col === col);
-  return cell ? String(cell.digit) : null;
+  return { correct: cellsWrong.length === 0, cellsWrong };
 }

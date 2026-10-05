@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
-import { check, checkCell, revealCell } from "./check";
+import { check } from "./check";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
 import * as schema from "./schema";
@@ -20,15 +20,25 @@ export const sudokuModule = {
   load,
   loadSolution,
   check,
-  checkCell,
-  revealCell,
   verify: verifySudoku,
   async upsertContent(tx, puzzleId, { givens }) {
     await tx.insert(sudokuPuzzles).values({ puzzleId }).onConflictDoNothing();
-    await tx.delete(sudokuGivens).where(eq(sudokuGivens.puzzleId, puzzleId));
+    await tx.delete(sudokuGivens).where(
+      and(
+        eq(sudokuGivens.puzzleId, puzzleId),
+        sql`(${sudokuGivens.row}, ${sudokuGivens.col}) not in (${sql.join(
+          givens.map(({ row, col }) => sql`(${row}, ${col})`),
+          sql`, `,
+        )})`,
+      ),
+    );
     await tx
       .insert(sudokuGivens)
-      .values(givens.map((given) => ({ ...given, puzzleId })));
+      .values(givens.map((given) => ({ ...given, puzzleId })))
+      .onConflictDoUpdate({
+        target: [sudokuGivens.puzzleId, sudokuGivens.row, sudokuGivens.col],
+        set: { digit: sql`excluded.digit` },
+      });
   },
   async replaceAttemptState(tx, attemptId, { cells, notes }) {
     await tx

@@ -20,7 +20,7 @@ import {
   sudokuGivens,
   sudokuPuzzles,
 } from "@/db/schema";
-import { check, checkCell } from "./check";
+import { check } from "./check";
 import { givens, solution } from "./fixture";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
@@ -204,7 +204,6 @@ describe("sudoku module", () => {
     ]);
     expect(derived).toEqual(solution);
     expect(check(payload, derived, { cells: derived }).correct).toBe(true);
-    expect(checkCell(payload, derived, 0, 2, "4").correct).toBe(true);
   });
 
   it("re-seeding the same content leaves one row per given", async () => {
@@ -216,6 +215,26 @@ describe("sudoku module", () => {
       .from(sudokuGivens)
       .where(eq(sudokuGivens.puzzleId, puzzleId));
     expect(rows).toHaveLength(givens.length);
+  });
+
+  it("re-seeding changed content updates digits in place and removes dropped givens", async () => {
+    const [dropped, changed, ...rest] = givens;
+    await db.transaction((tx) =>
+      sudokuModule.upsertContent(tx, puzzleId, {
+        givens: [{ ...changed, digit: (changed.digit % 9) + 1 }, ...rest],
+      }),
+    );
+    const rows = await db
+      .select({ row: sudokuGivens.row, col: sudokuGivens.col, digit: sudokuGivens.digit })
+      .from(sudokuGivens)
+      .where(eq(sudokuGivens.puzzleId, puzzleId));
+    expect(rows).toHaveLength(givens.length - 1);
+    expect(rows).not.toContainEqual(dropped);
+    expect(rows).toContainEqual({ ...changed, digit: (changed.digit % 9) + 1 });
+
+    await db.transaction((tx) =>
+      sudokuModule.upsertContent(tx, puzzleId, { givens }),
+    );
   });
 
   it("replaces, reads back and clears digits and notes", async () => {

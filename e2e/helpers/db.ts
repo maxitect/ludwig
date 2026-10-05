@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import { verifyFullSsl } from "../../src/utils/verify-full-ssl";
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1"];
 
@@ -12,7 +13,9 @@ export const databaseAvailable =
 export type AttemptRow = { typeKey: string; slug: string; completed: boolean };
 
 export async function attemptsFor(email: string) {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
   try {
     const { rows } = await pool.query<AttemptRow>(
       `select p.type_key as "typeKey", p.slug, a.completed_at is not null as completed

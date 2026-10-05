@@ -6,6 +6,7 @@ import { DatabaseError, Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
 import { weekly } from "../content/weekly";
 import type { db as appDb } from "../src/db";
+import { verifyFullSsl } from "../src/utils/verify-full-ssl";
 import { relations } from "../src/db/relations";
 import {
   puzzleCategories,
@@ -239,7 +240,9 @@ export async function seed({
 
 async function main() {
   const { registry, contentDir } = await resolveCliOptions(process.argv.slice(2));
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL_UNPOOLED });
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL_UNPOOLED!),
+  });
   try {
     const db = drizzle({ client: pool, relations });
     const summary = await seed({ db, registry, contentDir });

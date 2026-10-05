@@ -87,6 +87,7 @@ export function Solver({
     onChange: setCrank,
   });
   const seeing = seeingCount(payload, crank, convergence);
+  const offConvergence = !solved && !atConvergence;
 
   return (
     <section className="flex flex-col gap-4">
@@ -140,7 +141,7 @@ export function Solver({
             <Button
               className="self-start"
               disabled={solved || !atConvergence}
-              aria-describedby={atConvergence ? undefined : accuseHint}
+              aria-describedby={offConvergence ? accuseHint : undefined}
             >
               Accuse
             </Button>
@@ -186,7 +187,7 @@ export function Solver({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        {!atConvergence && (
+        {offConvergence && (
           <p id={accuseHint} className="text-sm">
             Move the scrubber onto a convergence marker to accuse.
           </p>

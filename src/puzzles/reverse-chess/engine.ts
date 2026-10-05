@@ -176,7 +176,7 @@ export function applyRetro(
   return built.ok ? confirmPrior(position, retro, built.prior) : built;
 }
 
-const FILES = "abcdefgh";
+export const FILES = "abcdefgh";
 const UNCAPTURE_CHOICES = ["q", "r", "b", "n", "p"] as const;
 const KNIGHT_STEPS = [
   [1, 2],
@@ -200,7 +200,7 @@ const BISHOP_STEPS = [
   [-1, 1],
   [-1, -1],
 ] as const;
-const MAX_PAWNS = 8;
+export const MAX_PAWNS = 8;
 
 type Steps = readonly (readonly [number, number])[];
 type Origin = { from: Square; uncapture: "optional" | "required" | "never" };

@@ -1,13 +1,10 @@
 import { LETTER_BY_PIECE, fromFen, type Position } from "./derive";
-import { materialPlausible } from "./engine";
+import { FILES, MAX_PAWNS, materialPlausible } from "./engine";
 import type { Goal } from "./schema";
 
 type Colour = Position["pieces"][number]["colour"];
 type Kind = Position["pieces"][number]["piece"];
 type Coords = readonly [file: number, rank: number];
-
-const FILES = "abcdefgh";
-const MAX_PAWNS = 8;
 
 const opposite = (colour: Colour): Colour =>
   colour === "white" ? "black" : "white";
@@ -18,7 +15,10 @@ const stepsFor = (events: number, colour: Colour, first: Colour) => {
   return first === colour ? 2 * events - 1 : 2 * events;
 };
 
-/** Never more than the moves the piece itself needs to go from one square to another, so it may undercount. */
+const kingSteps = (from: Coords, to: Coords) =>
+  Math.max(Math.abs(from[0] - to[0]), Math.abs(from[1] - to[1]));
+
+/** Never more than the moves the piece itself needs to go from one square to another (a king may jump to e1/e8 by a retro castle), so it may undercount. */
 function distance(kind: Kind, colour: Colour, from: Coords, to: Coords) {
   const files = Math.abs(from[0] - to[0]);
   const ranks = Math.abs(from[1] - to[1]);
@@ -35,7 +35,13 @@ function distance(kind: Kind, colour: Colour, from: Coords, to: Coords) {
   }
   if (kind === "rook") return !files || !ranks ? 1 : 2;
   if (kind === "queen") return !files || !ranks || files === ranks ? 1 : 2;
-  if (kind === "king") return Math.max(files, ranks);
+  if (kind === "king") {
+    const home = colour === "white" ? 1 : 8;
+    const castle = Math.min(
+      ...[2, 6].map((file) => kingSteps(from, [file, home])),
+    );
+    return Math.min(kingSteps(from, to), castle + 1 + kingSteps([4, home], to));
+  }
   const back = colour === "white" ? from[1] - to[1] : to[1] - from[1];
   return back > 0 ? Math.max(files, Math.ceil(back / 2)) : Infinity;
 }

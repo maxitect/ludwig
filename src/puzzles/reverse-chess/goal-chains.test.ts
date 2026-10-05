@@ -27,12 +27,12 @@ const right = (
   side: "kingside" | "queenside",
 ): Goal => ({ kind: "castling_right", ...text, colour, side });
 
-/** The search `goalChains` replaced: every chain, no pruning, no memo. */
-function exhaustiveChains(fen: string, length: number, goal: Goal) {
-  const found: Retro[][] = [];
+/** The search `goalChains` replaced, without the goal: every chain of `length` retro moves with its last prior. */
+function allChains(fen: string, length: number) {
+  const found: { chain: Retro[]; prior: string }[] = [];
   const walk = (position: string, chain: Retro[]) => {
     if (chain.length === length) {
-      if (satisfiesGoal(position, goal)) found.push(chain);
+      found.push({ chain, prior: position });
       return;
     }
     for (const retro of enumerateRetro(position)) {
@@ -43,6 +43,11 @@ function exhaustiveChains(fen: string, length: number, goal: Goal) {
   walk(fen, []);
   return found;
 }
+
+const exhaustiveChains = (fen: string, length: number, goal: Goal) =>
+  allChains(fen, length)
+    .filter(({ prior }) => satisfiesGoal(prior, goal))
+    .map(({ chain }) => chain);
 
 const keys = (chains: Retro[][]) =>
   chains.map((chain) => chain.map(retroKey).join(" ")).sort();
@@ -58,6 +63,9 @@ const PROMOTED = "4Q3/8/8/8/8/8/8/k3K3 b - - 0 1";
 const CAPTURE = "4k3/5N2/8/8/8/8/8/4K3 b - - 0 1";
 const FULL_PAWNS = "4k3/pppppppp/8/8/8/8/PPPPPPPP/4K3 b - - 0 1";
 const KNIGHTS = "1n2k3/8/8/8/8/8/8/4K1N1 w - - 0 1";
+const SMALL_CASTLE = "6bk/5ppp/8/8/8/8/1PPPPPPP/2BQ1RK1 b - - 0 1";
+const SMALL_EN_PASSANT = "kb6/ppp5/8/8/8/3p4/5PPP/6BK w - - 0 1";
+const SMALL_PROMOTED = "N5bk/5ppp/8/8/8/8/PPP5/KB6 b - - 0 1";
 
 const CASES: [name: string, fen: string, goal: Goal, depth: number][] = [
   ["middlegame pawn home", MIDDLEGAME, onSquare("black", "pawn", "a", 7), 2],
@@ -75,6 +83,8 @@ const CASES: [name: string, fen: string, goal: Goal, depth: number][] = [
   ["en passant pawn count", EN_PASSANT, count("white", "pawn", 1), 2],
   ["white castle right", CASTLED, right("white", "kingside"), 2],
   ["white castle rook home", CASTLED, onSquare("white", "rook", "h", 1), 2],
+  ["white castle king home", CASTLED, onSquare("white", "king", "e", 1), 2],
+  ["black castle king home", BLACK_CASTLED, onSquare("black", "king", "e", 8), 2],
   ["black castle right", BLACK_CASTLED, right("black", "queenside"), 2],
   ["unpromote pawn square", PROMOTED, onSquare("white", "pawn", "e", 7), 2],
   ["unpromote queen count", PROMOTED, count("white", "queen", 0), 2],
@@ -86,6 +96,41 @@ const CASES: [name: string, fen: string, goal: Goal, depth: number][] = [
   ["knight route", KNIGHTS, onSquare("black", "knight", "a", 6), 2],
 ];
 
+const DEEP_CASES: [name: string, fen: string, goal: Goal][] = [
+  ["blocked pawn home", BLOCKED, onSquare("black", "pawn", "a", 7)],
+  ["blocked pawn back", BLOCKED, onSquare("black", "pawn", "a", 3)],
+  ["blocked king square", BLOCKED, onSquare("white", "king", "b", 2)],
+  ["blocked knight count", BLOCKED, count("white", "knight", 1)],
+  ["blocked unreachable", BLOCKED, onSquare("white", "knight", "h", 8)],
+  ["castle king home", SMALL_CASTLE, onSquare("white", "king", "e", 1)],
+  ["castle right", SMALL_CASTLE, right("white", "kingside")],
+  ["castle rook home", SMALL_CASTLE, onSquare("white", "rook", "h", 1)],
+  ["castle king corner", SMALL_CASTLE, onSquare("white", "king", "h", 1)],
+  ["castle uncapture", SMALL_CASTLE, count("black", "queen", 1)],
+  ["castle knight square", SMALL_CASTLE, onSquare("black", "knight", "e", 1)],
+  ["en passant capturer", SMALL_EN_PASSANT, onSquare("black", "pawn", "e", 4)],
+  ["en passant victim", SMALL_EN_PASSANT, onSquare("white", "pawn", "d", 4)],
+  ["en passant pawn count", SMALL_EN_PASSANT, count("white", "pawn", 4)],
+  ["en passant pawn walk", SMALL_EN_PASSANT, onSquare("black", "pawn", "d", 5)],
+  ["en passant queen count", SMALL_EN_PASSANT, count("white", "queen", 1)],
+  ["en passant other file", SMALL_EN_PASSANT, onSquare("black", "pawn", "c", 4)],
+  ["unpromote straight", SMALL_PROMOTED, onSquare("white", "pawn", "a", 7)],
+  ["unpromote diagonal", SMALL_PROMOTED, onSquare("white", "pawn", "b", 7)],
+  ["unpromote knight count", SMALL_PROMOTED, count("white", "knight", 0)],
+  ["promoted knight square", SMALL_PROMOTED, onSquare("white", "knight", "b", 6)],
+  ["promoted uncapture", SMALL_PROMOTED, count("black", "queen", 1)],
+  ["promoted pawn count", SMALL_PROMOTED, count("white", "pawn", 4)],
+];
+
+const deepChains = (() => {
+  const cache = new Map<string, ReturnType<typeof allChains>>();
+  return (fen: string, depth: number) => {
+    const key = `${fen}|${depth}`;
+    if (!cache.has(key)) cache.set(key, allChains(fen, depth));
+    return cache.get(key) ?? [];
+  };
+})();
+
 describe("goalChains", () => {
   it.each(CASES)(
     "AC1: matches the exhaustive search: %s",
@@ -95,14 +140,20 @@ describe("goalChains", () => {
     },
   );
 
-  it("AC1: matches the exhaustive search at every depth up to 3", { timeout: 60_000 }, () => {
-    for (const depth of [1, 2, 3]) {
-      const goal = onSquare("black", "pawn", "a", 7);
-      expect(keys(goalChains(BLOCKED, depth, goal, Infinity))).toEqual(
-        keys(exhaustiveChains(BLOCKED, depth, goal)),
-      );
-    }
-  });
+  it.each(DEEP_CASES)(
+    "AC1: matches the exhaustive search at depths 1-3: %s",
+    { timeout: 30_000 },
+    (_name, fen, goal) => {
+      for (const depth of [1, 2, 3]) {
+        const exhaustive = deepChains(fen, depth)
+          .filter(({ prior }) => satisfiesGoal(prior, goal))
+          .map(({ chain }) => chain);
+        expect(keys(goalChains(fen, depth, goal, Infinity))).toEqual(
+          keys(exhaustive),
+        );
+      }
+    },
+  );
 
   it("AC1: covers en passant, castling, uncapture and unpromotion chains", () => {
     const kinds = new Set<string>();

@@ -99,6 +99,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | done |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | todo |
 | [T074](./T074-crossword-enumeration-separators.md) | Crossword enumeration separators (hyphen or word break) | T045 | ✔ | | done |
+| [T080](./T080-crossword-separator-required.md) | Require a separator on every non-last crossword segment | T074 | ✔ | | todo |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
 
 ## M5: Polish and launch

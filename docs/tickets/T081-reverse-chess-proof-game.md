@@ -1,86 +1,86 @@
 ---
 id: T081
-title: "Reverse Chess Mode D: Proof Game"
+title: "Reverse Chess: Proof Game (unwind to the starting position)"
 milestone: M2
 epic: E6
 depends_on: [T032, T076]
 migrations: true
 requires_human: false
-spec: ["SPEC §5.1", "SPEC §7.4.4 (reverse-chess)", "SPEC §7.4.1", "PLAN §5.4"]
+spec: ["SPEC §5.1", "SPEC §7.4.4 (reverse-chess)", "SPEC §7.4.1", "SPEC §7.4.5", "PLAN §5.4"]
 skills: ["/db-trigger", "/zod4"]
 ---
 
-# T081: Reverse Chess Mode D: Proof Game
+# T081: Reverse Chess: Proof Game (unwind to the starting position)
 
 ## Context
 
-Modes A and B take back at most a few half-moves, because the verifier proves uniqueness by searching every retro chain, and that search grows too fast to go further (T076). The user wants a Reverse Chess puzzle that recovers a whole game. The classic form is the **proof game**: the player sees a position and "this arose after N half-moves", and finds the one game from the starting position that reaches it. Uniqueness is proven by a forward search from the start, which stays tractable for short games. This adds it as a fourth Reverse Chess mode, within the existing `reverse-chess` type.
+Modes A and B take back at most a few half-moves (T076). The user wants a Reverse Chess puzzle that recovers a whole game: a **proof game**. The player sees a position reached after N half-moves and takes back every move until they reach the starting position. There is exactly one way to do it. This is an Unwind puzzle (SPEC §5.1 Mode B) whose goal is the initial position. The player enters it backwards, with the existing Unwind solver. Only the goal and the verifier are new. User decision (2026-10-05): backward entry, not forward play.
 
 ## Scope
 
 **In**
 
-- **Mode.** Add `'proof_game'` to the `retro_mode` enum. For this mode, the existing columns hold the target position: `reverse_chess_pieces`, side to move, the castling flags, `en_passant_file`, halfmove and fullmove. `ply_count` is the length of the game, N.
-- **Solution and attempts.** A new (S) table, `reverse_chess_proof_plies`: `(puzzle_id, ply)` pk, from file and rank, to file and rank, and `promotion chess_piece null`. It stores forward moves; captures, en passant and castling follow from replaying them. Add the attempt mirror, `reverse_chess_attempt_proof_plies`, following the existing attempt-ply pattern: FK to the `<type>_attempts` row, deferred and non-cascading where it refers to content.
-- **Triggers.** Deferred constraint triggers so that:
-  - a `proof_game` puzzle has proof plies 1..`ply_count` and no retro solution plies and no goal;
-  - the other modes have no proof plies.
-
-  Extend the existing goal and solution-ply triggers rather than duplicating them.
-- **Schemas, load, check and derive.** Update `schema.ts` (content, payload, answer and attempt schemas for the mode), `load.ts` (the payload is the target position plus N, never the plies), `load-solution.ts`, and `check.ts`. `check` replays the answer from the standard starting position with chess.js. It is correct when there are exactly N legal plies and the final position equals the target in piece placement, side to move, castling rights and en passant file. Like Mode B, any game that does this is accepted; the authored game is not compared.
-- **Verifier.** Add a forward search in a new pure module, e.g. `proof-search.ts`, wired into `verify.ts`. It requires exactly one game of N plies from the start that reaches the target, and requires it to be the authored game. Different move orders count as different games, so a puzzle where moves can be transposed is not unique; that is the standard proof-game convention. Prune with admissible lower bounds on the plies each side still needs: for example, each piece away from its target square needs at least one move of its colour, and every capture the target's material implies needs a move. Memoise dead positions by (position key, plies left), as T076 does. Equivalence tests against an unpruned search at small N.
-- **Solver.** A Mode D view, alongside `last-move.tsx` and `unwind.tsx`:
-  - the target position on a smaller static board, with "White to move after N half-moves" (or the equivalent);
-  - a play board that starts from the initial position, where the player plays forward with legal moves only (chess.js), with promotion choice;
-  - the move list using the notation setting (`derive.ts`), Undo, and a counter "k of N". The play board locks at N.
-  - the solver saves only legal plies, as Mode A does.
-- **Hub.** A "Proof Game" section on `/reverse-chess` with a "How it works" note, matching the existing sections.
-- **Content.** At least 3 original proof games in `content/reverse-chess/`, covering a short one (N ≤ 8), a medium one, and one with a capture or castling the player must infer. Each has a `REVIEW.md` entry and a `sourceNote` starting "Original position".
-- **SPEC.** Add Mode D to SPEC §5.1, and update the reverse-chess row in §7.4.4, in the same PR.
+- **Goal kind.** Add `'initial_position'` to `retro_goal_kind`. It takes no parameters, so it has no subtype table. Exempt it in the trigger that requires a subtype row, as rota does for `adjacent_only`.
+- **Goal predicate.** The chain is reversed and replayed forward with chess.js from the standard starting FEN, and must reproduce the puzzle position exactly: piece placement, side to move, castling rights and en passant file. This one test covers the castling rights and en passant state that a piece-placement comparison would miss. Put it in `check.ts` / `load-solution.ts` alongside the existing goal predicates. Everything else about Unwind checking is unchanged (SPEC §5.1 Mode B "Checking").
+- **`ply_count` consistency.** For this goal, N is derivable from the position: `2 × (fullmove − 1) + (1 if Black to move)`. Enforce it with a deferred trigger, and add it to SPEC §7.4.5 with an integrity test (SPEC §7.4.1: redundancy only with a trigger).
+- **Verifier.** When the goal is `initial_position`, `verify.ts` uses a new forward search, a pure module such as `proof-search.ts`, instead of `goalChains`. It counts the N-ply games from the starting position that reach the puzzle position, and requires exactly one, equal to the authored chain reversed. Backward search from a mid-game position doesn't scale to these depths, but forward search from the start does, and a unique game forward is the same as a unique chain backward.
+  - Different move orders are different games, so a position reachable by transposed moves is not unique (the standard proof-game convention).
+  - Prune with admissible per-side lower bounds on the plies still needed. Each piece away from its target square needs at least one move of its colour. Captures implied by the target's material need moves. Pawns moving files need captures.
+  - Memoise dead positions by (position key, plies left), as T076 does.
+  - Add equivalence tests against an unpruned search at N ≤ 6.
+- **Solver.** Reuse the Unwind view (`unwind.tsx`). The goal text reads, for example, "Back to the starting position". The move list and its "k of N" heading already show progress, and the board already locks at N. Check that the uncapture tray, unpromote, en passant and retro castling hold up across a 10–16 ply chain, and that Undo works at every depth.
+- **Hub.** A "Proof Game" section on `/reverse-chess`, listing Unwind puzzles with the `initial_position` goal separately from other Unwind puzzles, with a short "How it works".
+- **Content.** At least 3 original proof games in `content/reverse-chess/`: one short (N ≤ 8), one medium, and one where the player must infer a capture or castling. Each needs a `REVIEW.md` entry and a `sourceNote` starting "Original position". The content file states the goal kind and nothing else, since the goal is fixed.
+- **SPEC.** In the same PR:
+  - add the `initial_position` goal and the Proof Game presentation to SPEC §5.1 Mode B;
+  - widen the N range for this goal;
+  - update the §7.4.4 reverse-chess row and §7.4.5.
 
 **Out**
 
-- The "board locked, goal not reached" message for Mode B. It's a separate small UX change and needs its own ticket; Mode D's counter makes the lock visible.
-- Generating proof games automatically, a daily proof game, and a longest-proof-game record mode.
-- An end-to-end Playwright flow. Add one in a later content or e2e ticket if wanted.
+- Forward-play entry (the user chose backward entry).
+- A "board locked, goal not reached" message for Unwind. That is a separate ticket.
+- Generated or daily proof games.
+- An end-to-end Playwright flow.
 
 ## Notes
 
-- **Backward compatibility (PLAN §5.1).** Adding an enum value and new tables is additive. The previous deploy's seed never writes `proof_game`. Postgres can't use a new enum value in the same transaction that adds it, so keep `ALTER TYPE ... ADD VALUE` in its own migration statement, before anything that refers to it. Check how drizzle-kit emits it.
-- **Target state.** Side to move and the castling and en passant fields are part of the target. Show them to the player as text, because a static board can't show them. The en passant file only matters when the last ply was a double pawn push.
-- **Search budget.** Proof games with unique solutions are usually 8–14 plies. Set a verify time budget, for example under 5 s per puzzle on CI hardware, and author within it. Report the measured time per puzzle.
-- **Chess.js.** Replaying forward needs no retro engine. Reuse `derive.ts` for the FEN of the target and for notation. The search should work on chess.js's move generation or a lighter internal one; measure before optimising.
-- **Mode name.** "Proof Game" is a working title. Confirm the display name with the user before writing hub copy, if the show suggests a better one.
+- **Backward compatibility (PLAN §5.1).** Adding an enum value and a trigger is additive, and the previous deploy's seed never writes the new kind. Postgres can't use a new enum value in the transaction that adds it, so put `ALTER TYPE ... ADD VALUE` in its own statement, before anything that refers to it. Check what drizzle-kit emits.
+- **Retro castling rights.** In the backward chain, castling rights must be restorable: un-moving a king or rook back to its home square can give a right back, and the starting position has all four. Check how the retro engine (`engine.ts`, `retro-ply.ts`) handles rights across a long chain. The forward-replay predicate is the source of truth for the final check. If the engine can't restore rights, a valid answer is unenterable: stop and report rather than working around it.
+- **Player-side cost.** The solver validates each retro step as it is entered. It doesn't search, so long chains are fine. Measure the time per step at 16 plies anyway.
+- **Search budget.** Unique proof games are usually 8–16 plies. Set a verify budget, for example under 5 s per puzzle on CI hardware, and author within it. Report the measured time per puzzle.
+- **Payload.** The goal's display text is already in the payload. The authored chain stays (S). The hub may read the goal kind server-side to group puzzles; it is not a secret.
+- **Name.** "Proof Game" is a working title. Confirm the display name with the user before writing the hub copy.
 
 ## Acceptance criteria
 
-- [ ] **AC1**: The schema supports Proof Game puzzles and enforces their shape.
+- [ ] **AC1**: The schema accepts an `initial_position` goal and enforces its rules.
   - _Verify (db):_ inside `BEGIN; … ROLLBACK;`:
-    - a `proof_game` puzzle with plies 1..N commits;
-    - one missing a ply, one with a goal row, and one with retro solution plies each fail at commit;
-    - a `last_move` puzzle with proof plies fails.
+    - an Unwind puzzle with an `initial_position` goal, no subtype row and a consistent `ply_count` commits;
+    - the same puzzle with a `ply_count` that disagrees with fullmove and side to move fails at commit;
+    - a `piece_count` goal without its subtype row still fails.
 - [ ] **AC2**: No solution data reaches the client.
-  - _Verify (unit):_ a payload-leak test shows that the Mode D payload contains the target and N, and no plies.
-  - _Verify (code):_ `grep` shows `reverse_chess_proof_plies` is read only in `load-solution.ts`, `check.ts` and the seed.
-- [ ] **AC3**: `check` accepts any legal N-ply game that reaches the target, and nothing else.
+  - _Verify (unit):_ the payload-leak test covers a Proof Game puzzle: its payload has the position, N and the goal text, and no plies.
+- [ ] **AC3**: `check` accepts any legal N-ply retro chain that ends at the starting position, and nothing else.
   - _Verify (unit):_ `check.test.ts` covers:
-    - the authored game is correct;
-    - a different legal game that reaches the same target is also correct;
-    - a game one ply short, one with an illegal ply, and one that ends in a different position (including wrong castling rights or en passant file) are all incorrect.
+    - the authored chain is correct;
+    - a chain one ply short is incorrect;
+    - a chain with an illegal step is incorrect;
+    - a chain that ends at the start's piece placement but not the puzzle position's forward replay (for example a wrong castling right or en passant file) is incorrect.
 - [ ] **AC4**: The verifier proves uniqueness and rejects ambiguous puzzles.
-  - _Verify (unit):_ `proof-search.test.ts` shows the pruned search matches the unpruned search at N ≤ 6 on several targets. It also shows a target reachable by two move orders is rejected, and a target with no game is rejected.
-  - _Verify (cli):_ `pnpm puzzles:verify` exits 0. Changing one authored ply in a copy of each content file makes it fail. Print the time per Proof Game puzzle.
+  - _Verify (unit):_ `proof-search.test.ts` shows the pruned search equals the unpruned one at N ≤ 6 on several targets. It also shows that a target reachable by two move orders is rejected, and that an unreachable target is rejected.
+  - _Verify (cli):_ `pnpm puzzles:verify` exits 0 and reports the time per Proof Game puzzle. Changing one authored ply in a copy of each file makes it fail.
 - [ ] **AC5**: The launch content meets the scope.
-  - _Verify (code):_ there are at least 3 `proof_game` files, with N values matching the scope, each with a `REVIEW.md` entry.
-  - _Verify (db):_ after `pnpm db:seed`, the published puzzles by mode include at least 3 `proof_game` rows.
-- [ ] **AC6**: A signed-in player can solve a Proof Game, and their progress persists.
-  - _Verify (browser):_ on a Proof Game puzzle, play the authored game forward. The counter reaches N, Check shows the Solved stamp, and the board locks at N.
+  - _Verify (code):_ at least 3 Proof Game files exist, with N values matching the scope, each with a `REVIEW.md` entry.
+  - _Verify (db):_ after `pnpm db:seed`, at least 3 published puzzles have the `initial_position` goal.
+- [ ] **AC6**: A signed-in player can unwind a Proof Game all the way back, and progress persists.
+  - _Verify (browser):_ on the medium puzzle, enter the authored chain backwards, including at least one uncapture. Check shows the Solved stamp.
   - _Verify (db):_ the attempt is complete.
-  - _Verify (browser):_ reloading mid-game restores the moves played.
+  - _Verify (browser):_ reloading at the halfway point restores the chain.
   - Take screenshots in both themes at 1280px and 390px, with no console errors.
-- [ ] **AC7**: The hub lists Proof Game puzzles with their copy.
-  - _Verify (browser):_ `/reverse-chess` shows the Proof Game section with its puzzles. Take screenshots in both themes at 1280px.
+- [ ] **AC7**: The hub lists Proof Game puzzles separately.
+  - _Verify (browser):_ `/reverse-chess` shows a Proof Game section with these puzzles, and they don't appear in the other Unwind list. Take screenshots in both themes at 1280px.
 - [ ] **AC8**: The preview has the migration and the content.
-  - _Verify (deploy):_ the preview build log shows migrations applied and the seed inserting the Proof Game puzzles. Neon MCP `run_sql` on `preview/ticket/t081-…` counts the `proof_game` rows.
+  - _Verify (deploy):_ the preview build log shows migrations applied and the seed inserting the Proof Game puzzles. Neon MCP `run_sql` on `preview/ticket/t081-…` counts the `initial_position` goals.
 - [ ] **AC9**: Gates pass.
   - _Verify (cli):_ `pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm puzzles:verify` exits 0.

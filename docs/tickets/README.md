@@ -56,6 +56,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | done |
 | [T076](./T076-retro-verify-pruning.md) | Prune the Mode B goal-chain search in the verifier | T030 | | | done |
 | [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073, T076 | | | done |
+| [T081](./T081-reverse-chess-proof-game.md) | Reverse Chess Mode D: Proof Game | T032, T076 | ✔ | | todo |
 
 ## M3: The Gear Puzzle
 

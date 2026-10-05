@@ -1,6 +1,7 @@
 import { and, eq, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
+import { check } from "./check";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
 import * as schema from "./schema";
@@ -22,9 +23,7 @@ export const gearsModule = {
   meta: { key: "gears" },
   load,
   loadSolution,
-  check() {
-    throw new Error("Gear checking is implemented in a later ticket");
-  },
+  check,
   async upsertContent(tx, puzzleId, { gears, meshes, solution, ...puzzle }) {
     const columns = {
       slotCount: puzzle.slotCount,

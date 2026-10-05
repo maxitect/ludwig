@@ -48,6 +48,8 @@ const attemptSwapSelect = createSelectSchema(gearAttemptSwaps).omit({
   puzzleId: true,
 });
 
+const convergence = z.number().int().min(1).max(8);
+
 const labelPair = z.object({ a: z.string(), b: z.string() });
 
 export const solutionSchema = z.object({
@@ -68,7 +70,7 @@ export const attemptSchema = z.object({
 
 export const answerSchema = z.object({
   crank: attemptSelect.shape.crank,
-  convergence: solutionSelect.shape.convergence,
+  convergence,
   accusedGearId: solutionSelect.shape.killerGearId,
   swaps: z.array(attemptSwapSelect),
 });
@@ -87,5 +89,6 @@ export const contentSchema = z.object({
 });
 
 export type Payload = z.infer<typeof payloadSchema>;
+export type Answer = z.infer<typeof answerSchema>;
 export type Solution = z.infer<typeof solutionSchema>;
 export type Content = z.infer<typeof contentSchema>;

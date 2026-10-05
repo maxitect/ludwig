@@ -279,6 +279,7 @@ export function SolveChrome({
             onStateChange={onStateChange}
             registerCheck={registerCheck}
             requestCheck={requestCheck}
+            solved={solved}
             chessNotation={chessNotation}
             checkCell={solved ? undefined : checkCell}
             revealCell={solved ? undefined : revealCellValue}

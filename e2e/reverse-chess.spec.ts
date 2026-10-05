@@ -72,7 +72,7 @@ test("sign up, solve a Reverse Chess uncapture and see it in the Casebook", asyn
     await expect(page.getByRole("button", { name: "Undo" })).toBeEnabled({
       timeout: 1000,
     });
-  }).toPass();
+  }).toPass({ timeout: 15_000 });
   await page
     .getByRole("radio", { name: `${puzzle.sideToMove} ${puzzle.uncapture}` })
     .click();

@@ -79,10 +79,10 @@ export async function uncapturePuzzle() {
       content.solutionPlies[0].uncapture &&
       !content.solutionPlies[0].unpromote,
   );
-  if (!found) {
+  const ply = found?.content.solutionPlies[0];
+  if (!found || !ply?.uncapture) {
     throw new Error("No published uncapture puzzle in content/reverse-chess");
   }
-  const [ply] = found.content.solutionPlies;
   return {
     typeKey: "reverse-chess",
     slug: found.meta.slug,
@@ -90,6 +90,6 @@ export async function uncapturePuzzle() {
     sideToMove: found.content.sideToMove,
     from: `${ply.fromFile}${ply.fromRank}`,
     to: `${ply.toFile}${ply.toRank}`,
-    uncapture: ply.uncapture!,
+    uncapture: ply.uncapture,
   };
 }

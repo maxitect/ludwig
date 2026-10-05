@@ -19,13 +19,13 @@ Mode A: `pawn-check`, `knight-taken`, `bishop-taken`, `underpromotion`, `promoti
 
 Position `rnbqkbnr/pppp1p2/7p/6p1/7P/4pPPN/PPPPPK2/RNBQ1B1R w kq - 0 6`.
 Proof game: 1.h4 g5 2.f3 e5 3.g3 h6 4.Nh3 e4 5.Kf2 e3+.
-White is in check from a pawn that has just arrived on e3; the only way to have given check is e4-e3. The king move Kf2 was legal because e1 and f2 were free, and no black piece had a check on f2 before.
+White is in check from a pawn that has just arrived on e3; the only way to have given check is e4-e3. 5.Kf2 was legal because no black piece attacked f2 at that point; the pawn on e3 is the only black unit giving check, so it must have moved last.
 
 ## knight-taken
 
 Position `r1bqk1nr/pppp1ppp/4p3/n7/3P4/P1bQ3N/1PP1PPPP/R1B1KB1R w KQkq - 0 6`.
 Proof game: 1.a3 Nc6 2.d4 e6 3.Nc3 Na5 4.Qd3 Bb4 5.Nh3 Bxc3+.
-Black's bishop took the knight on c3 with check. Black still has both knights (one on a5, one on g8), so the captured piece is White's knight and the uncapture is a white knight.
+Black's bishop took the knight on c3 with check. White has eight pawns, both bishops, both rooks and the queen, but only one knight (h3), so the captured piece was White's other knight and the uncapture is a white knight.
 
 ## bishop-taken
 
@@ -37,7 +37,7 @@ The e-pawn walked to e3 and captured the bishop on d2 with check. The white ligh
 
 Position `rnbq1Bnr/2ppk1pp/p3p3/1pb5/8/8/PP1P1PPP/RNBQKBNR b KQ - 0 8`.
 Proof game: 1.c4 e6 2.c5 Bxc5 3.e3 b6 4.e4 a6 5.e5 f6 6.exf6 b5 7.f7+ Ke7 8.f8=B+.
-White's c-pawn was captured on c5 (2...Bxc5) and the e-pawn promoted via f6-f7-f8 to a third bishop, so White has the six untouched pawns a2, b2, d2, f2, g2, h2 plus the promoted piece: eight pawns' worth in all. The new bishop stands on the dark square f8 beside White's original dark-squared bishop on c1, which is fine for a promoted piece. The promotion itself was a capture-free push to f8, so the unpromote has no uncapture.
+White's c-pawn was captured on c5 (2...Bxc5) and the e-pawn promoted via f6-f7-f8 to a third bishop, so White's eight pawns are accounted for: six on the board (a2, b2, d2, f2, g2, h2), the c-pawn captured and the e-pawn promoted. The new bishop stands on the dark square f8 beside White's original dark-squared bishop on c1, which is fine for a promoted piece. The promotion itself was a capture-free push to f8, so the unpromote has no uncapture.
 
 ## promotion-capture
 
@@ -67,10 +67,10 @@ The last two plies are 4.Nxh7 (White's knight takes the h7 pawn) and 4...Nxh7 (B
 
 Position `rnbq1bnr/1p2pkp1/p2P3p/2p2p2/P1B5/7N/1PPP1PPP/RNBQK2R b KQ - 0 7`, goal "a black pawn on d7".
 Proof game: 1.e4 c5 2.Bb5 h6 3.Nh3 f5 4.e5 a6 5.a4 Kf7 6.Bc4+ d5 7.exd6+.
-The last move is en passant (e5xd6) after Black's d7-d5. The d-pawn standing on d7 is reached only by undoing the en passant capture and then the double push. A plain capture on d6 would need a black pawn there, which the chain cannot end up with on d7.
+The last move is en passant (e5xd6) after Black's d7-d5. The d-pawn standing on d7 is reached only by undoing the en passant capture and then the double push. Undoing exd6 as a plain push d5-d6 instead leaves no black pawn that can reach d7 in one more take-back.
 
 ## last-castled (Mode B, two plies, castling)
 
 Position `rnbqk2r/ppppppbp/6p1/8/8/5NPP/PPPPPPBn/RNBQ1RK1 w kq - 3 6`, goal "White can still castle kingside".
 Proof game: 1.Nf3 Nf6 2.g3 g6 3.Bg2 Bg7 4.h3 Ng4 5.O-O Nh2.
-The last two plies are 5.O-O and 5...Nh2. Castling rights only come back by un-castling, so the second take-back must undo O-O; the first must be the knight leaving h2 for g4 (the only legal retro move for Black here).
+The last two plies are 5.O-O and 5...Nh2. Castling rights only come back by un-castling, so the second take-back must undo O-O; the first must take the knight back from h2 to g4, because a knight on h2 attacks f1 and White could not have castled across an attacked square.

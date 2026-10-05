@@ -154,23 +154,29 @@ export function replayMatches(prior: string, retro: Retro, position: string) {
   return fenKey(chess.fen()) === fenKey(target.fen());
 }
 
+function confirmPrior(
+  position: string,
+  retro: Retro,
+  prior: string,
+): Result<{ prior: string }> {
+  const valid = validatePrior(prior);
+  if (!valid.ok) return valid;
+
+  if (!replayMatches(prior, retro, position)) {
+    return { ok: false, reason: "replay_mismatch" };
+  }
+  return { ok: true, prior };
+}
+
 export function applyRetro(
   position: string,
   retro: Retro,
 ): Result<{ prior: string }> {
   const built = buildPrior(position, retro);
-  if (!built.ok) return built;
-
-  const valid = validatePrior(built.prior);
-  if (!valid.ok) return valid;
-
-  if (!replayMatches(built.prior, retro, position)) {
-    return { ok: false, reason: "replay_mismatch" };
-  }
-  return built;
+  return built.ok ? confirmPrior(position, retro, built.prior) : built;
 }
 
-const FILES = "abcdefgh";
+export const FILES = "abcdefgh";
 const UNCAPTURE_CHOICES = ["q", "r", "b", "n", "p"] as const;
 const KNIGHT_STEPS = [
   [1, 2],
@@ -194,7 +200,7 @@ const BISHOP_STEPS = [
   [-1, 1],
   [-1, -1],
 ] as const;
-const MAX_PAWNS = 8;
+export const MAX_PAWNS = 8;
 
 type Steps = readonly (readonly [number, number])[];
 type Origin = { from: Square; uncapture: "optional" | "required" | "never" };
@@ -274,40 +280,45 @@ function originsFor(chess: Chess, to: Square, type: PieceSymbol, mover: Color) {
   return pawnOrigins(chess, to, mover);
 }
 
+type Cell = { color: Color; type: PieceSymbol; square: string };
+
 /**
- * Pawn count, back-rank pawns and promotion budget (bishop colour included) of `prior`.
+ * Pawn count, back-rank pawns and promotion budget (bishop colour included) of `cells`.
  * Full reachability is not computed.
  */
+export function materialPlausible(cells: Iterable<Cell>) {
+  const count = {
+    w: { p: 0, n: 0, b: 0, r: 0, q: 0, k: 0 },
+    b: { p: 0, n: 0, b: 0, r: 0, q: 0, k: 0 },
+  };
+  const bishops = {
+    w: { light: 0, dark: 0 },
+    b: { light: 0, dark: 0 },
+  };
+  for (const { color, type, square } of cells) {
+    count[color][type] += 1;
+    if (type === "p" && (square[1] === "1" || square[1] === "8")) return false;
+    if (type === "b") {
+      const parity = (FILES.indexOf(square[0]) + Number(square[1])) % 2;
+      bishops[color][parity ? "light" : "dark"] += 1;
+    }
+  }
+  return (["w", "b"] as const).every((colour) => {
+    const own = count[colour];
+    const promotions =
+      Math.max(0, own.q - 1) +
+      Math.max(0, own.r - 2) +
+      Math.max(0, own.n - 2) +
+      Math.max(0, bishops[colour].light - 1) +
+      Math.max(0, bishops[colour].dark - 1);
+    return own.p <= MAX_PAWNS && own.p + promotions <= MAX_PAWNS;
+  });
+}
+
 function hasPlausibleMaterial(prior: string) {
   const chess = load(prior);
   if (!chess) return false;
-
-  for (const colour of ["w", "b"] as const) {
-    const count = { p: 0, n: 0, b: 0, r: 0, q: 0, k: 0 };
-    const bishops = { light: 0, dark: 0 };
-    for (const row of chess.board()) {
-      for (const cell of row) {
-        if (cell?.color !== colour) continue;
-        count[cell.type] += 1;
-        const { square } = cell;
-        if (cell.type === "p" && (square[1] === "1" || square[1] === "8")) {
-          return false;
-        }
-        if (cell.type === "b") {
-          const parity = (FILES.indexOf(square[0]) + Number(square[1])) % 2;
-          bishops[parity ? "light" : "dark"] += 1;
-        }
-      }
-    }
-    const promotions =
-      Math.max(0, count.q - 1) +
-      Math.max(0, count.r - 2) +
-      Math.max(0, count.n - 2) +
-      Math.max(0, bishops.light - 1) +
-      Math.max(0, bishops.dark - 1);
-    if (count.p > MAX_PAWNS || count.p + promotions > MAX_PAWNS) return false;
-  }
-  return true;
+  return materialPlausible(chess.board().flat().filter((cell) => cell !== null));
 }
 
 /** `applyRetro` plus the material rules that every enumerated retro move must also pass. */
@@ -322,11 +333,16 @@ export function stepRetro(
     : { ok: false, reason: "implausible_material" };
 }
 
-/** Every retro move that `stepRetro` accepts for `position`. */
-export function enumerateRetro(position: string): Retro[] {
+/**
+ * Every retro move that `stepRetro` accepts for `position`, with the prior position it produces.
+ * `admit` is tested on each built prior before the costly validation, so a caller that wants only some priors skips the rest.
+ */
+export function* enumerateRetroSteps(
+  position: string,
+  admit?: (prior: string) => boolean,
+): Generator<{ retro: Retro; prior: string }> {
   const chess = load(position);
-  if (!chess) return [];
-
+  if (!chess) return;
   const mover = other(chess.turn());
   const promotionRank = backRank(other(mover));
   const enPassantRank = mover === "w" ? "6" : "3";
@@ -378,13 +394,25 @@ export function enumerateRetro(position: string): Retro[] {
     }
   }
 
-  return candidates
-    .filter((retro) => stepRetro(position, retro).ok)
-    .map(({ from, to, uncapture, unpromote, special }) => ({
-      from,
-      to,
-      ...(uncapture && { uncapture }),
-      ...(unpromote && { unpromote }),
-      ...(special && { special }),
-    }));
+  for (const candidate of candidates) {
+    const built = buildPrior(position, candidate);
+    if (!built.ok || (admit && !admit(built.prior))) continue;
+    const step = confirmPrior(position, candidate, built.prior);
+    if (!step.ok || !hasPlausibleMaterial(step.prior)) continue;
+    const { from, to, uncapture, unpromote, special } = candidate;
+    yield {
+      retro: {
+        from,
+        to,
+        ...(uncapture && { uncapture }),
+        ...(unpromote && { unpromote }),
+        ...(special && { special }),
+      },
+      prior: step.prior,
+    };
+  }
 }
+
+/** Every retro move that `stepRetro` accepts for `position`. */
+export const enumerateRetro = (position: string) =>
+  Array.from(enumerateRetroSteps(position), ({ retro }) => retro);

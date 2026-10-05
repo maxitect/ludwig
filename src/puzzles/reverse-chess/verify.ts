@@ -1,11 +1,12 @@
 import { satisfiesGoal, toFen } from "./derive";
 import {
-  applyRetro,
   enumerateRetro,
+  enumerateRetroSteps,
   retroKey,
   toRetro,
   type Retro,
 } from "./engine";
+import { minRetroMoves } from "./goal-bound";
 import type { Content, Goal } from "./schema";
 
 const MAX_REPORTED_CHAINS = 2;
@@ -33,21 +34,47 @@ function verifyLastMove(fen: string, authored: Retro) {
   }
 }
 
-/** Every chain of `length` retro moves from `fen` whose last prior position meets `goal`, stopping after `limit`. */
-function goalChains(fen: string, length: number, goal: Goal, limit: number) {
+const positionKey = (fen: string) => fen.split(" ").slice(0, 4).join(" ");
+
+/**
+ * Every chain of `length` retro moves from `fen` whose last prior position meets `goal`, stopping after `limit`.
+ * Exact: a branch is dropped only when `minRetroMoves` proves the goal out of reach in the moves left,
+ * or when the same position was already searched to the same depth and held no chain.
+ */
+export function goalChains(
+  fen: string,
+  length: number,
+  goal: Goal,
+  limit: number,
+) {
   const found: Retro[][] = [];
-  const walk = (position: string, chain: Retro[]) => {
-    if (chain.length === length) {
-      if (satisfiesGoal(position, goal)) found.push(chain);
-      return;
+  const barren = new Set<string>();
+
+  const viable = (prior: string, left: number) =>
+    left === 0
+      ? satisfiesGoal(prior, goal)
+      : !barren.has(`${positionKey(prior)}|${left}`) &&
+        minRetroMoves(prior, goal) <= left;
+
+  const walk = (position: string, chain: Retro[], left: number) => {
+    let reached = false;
+    for (const step of enumerateRetroSteps(position, (prior) =>
+      viable(prior, left - 1),
+    )) {
+      if (found.length >= limit) return true;
+      const next = [...chain, step.retro];
+      if (left === 1) {
+        found.push(next);
+        reached = true;
+      } else if (walk(step.prior, next, left - 1)) {
+        reached = true;
+      }
     }
-    for (const retro of enumerateRetro(position)) {
-      if (found.length >= limit) return;
-      const result = applyRetro(position, retro);
-      if (result.ok) walk(result.prior, [...chain, retro]);
-    }
+    if (!reached) barren.add(`${positionKey(position)}|${left}`);
+    return reached;
   };
-  walk(fen, []);
+
+  if (minRetroMoves(fen, goal) <= length) walk(fen, [], length);
   return found;
 }
 

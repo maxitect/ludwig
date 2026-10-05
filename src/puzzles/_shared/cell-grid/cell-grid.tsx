@@ -34,11 +34,18 @@ export type CellGridProps = {
   onChange: (row: number, col: number, value: string) => void;
   /** Receives the typed character, uppercased. */
   accept: (char: string) => boolean;
-  direction: Direction;
-  onDirectionChange: (direction: Direction) => void;
+  /** Typing advances along it and Space toggles it. Omit it for grids where typing stays in the cell. */
+  direction?: Direction;
+  onDirectionChange?: (direction: Direction) => void;
+  /** Cells that show their value but cannot be typed into or erased, such as givens. */
+  readOnly?: ReadonlySet<CellKey>;
+  cellClassName?: (row: number, col: number) => string | undefined;
+  /** Decoration drawn behind the value of a cell, such as pencil marks. */
+  marks?: (row: number, col: number) => ReactNode;
+  inputMode?: "text" | "numeric";
   highlight?: ReadonlySet<CellKey>;
   annotation?: (row: number, col: number) => CellAnnotation | undefined;
-  /** When supplied, Tab and Shift+Tab move between the first cells of these words. */
+  /** When supplied, Tab and Shift+Tab move between the first cells of these words; an empty list lets Tab leave the grid. */
   words?: ReadonlyArray<ReadonlyArray<CellPosition>>;
   label: string;
   /** Controls the active cell; the grid tracks it itself when omitted. */
@@ -70,6 +77,10 @@ export function CellGrid({
   accept,
   direction,
   onDirectionChange,
+  readOnly,
+  cellClassName,
+  marks,
+  inputMode,
   highlight,
   annotation,
   words,
@@ -105,19 +116,24 @@ export function CellGrid({
     }
   }, [active.row, active.col]);
 
-  const toggleDirection = () =>
-    onDirectionChange(direction === "across" ? "down" : "across");
+  const toggleDirection = () => {
+    if (direction) onDirectionChange?.(direction === "across" ? "down" : "across");
+  };
+
+  const locked = () => readOnly?.has(cellKey(active.row, active.col));
 
   const enter = (char: string) => {
     const entry = char.toUpperCase();
-    if (!accept(entry)) return;
+    if (locked() || !accept(entry)) return;
     onChange(active.row, active.col, entry);
+    if (!direction) return;
     const next = stepToPlayable(bounds, active, DIRECTION_STEP[direction]);
     if (next) setActive(next);
   };
 
   const erase = () => {
-    if (value(active.row, active.col)) {
+    if (locked()) return;
+    if (!direction || value(active.row, active.col)) {
       onChange(active.row, active.col, "");
       return;
     }
@@ -146,7 +162,7 @@ export function CellGrid({
     } else if (event.key === " ") {
       event.preventDefault();
       toggleDirection();
-    } else if (event.key === "Backspace") {
+    } else if (event.key === "Backspace" || event.key === "Delete") {
       event.preventDefault();
       erase();
     } else if (event.key.length === 1) {
@@ -207,6 +223,7 @@ export function CellGrid({
               const entered = value(row, col);
               const note = annotation?.(row, col);
               const isActive = row === active.row && col === active.col;
+              const isLocked = readOnly?.has(key);
               return (
                 <div
                   key={key}
@@ -216,13 +233,20 @@ export function CellGrid({
                   }}
                   role="gridcell"
                   tabIndex={isActive ? 0 : -1}
-                  aria-label={[where, note?.label, entered || "empty"]
+                  aria-label={[
+                    where,
+                    note?.label,
+                    isLocked && "given",
+                    entered || "empty",
+                  ]
                     .filter(Boolean)
                     .join(", ")}
                   data-active={isActive}
                   className={cn(
                     "relative aspect-square cursor-pointer select-none border border-ink bg-paper font-hand text-crayon outline-0",
+                    isLocked && "font-display font-bold text-ink",
                     highlight?.has(key) && "bg-paper-deep",
+                    cellClassName?.(row, col),
                     "group-focus-within:data-[active=true]:z-10 group-focus-within:data-[active=true]:outline-2 group-focus-within:data-[active=true]:-outline-offset-2 group-focus-within:data-[active=true]:outline-ring",
                   )}
                   style={{ fontSize: `${70 / cols}cqw` }}
@@ -230,6 +254,7 @@ export function CellGrid({
                   onClick={() => select({ row, col })}
                   onFocus={() => setActive({ row, col })}
                 >
+                  {marks?.(row, col)}
                   {note && (
                     <span
                       aria-hidden
@@ -256,6 +281,7 @@ export function CellGrid({
         ref={inputRef}
         aria-label={`${label} input`}
         tabIndex={-1}
+        inputMode={inputMode}
         autoCapitalize="characters"
         autoComplete="off"
         autoCorrect="off"

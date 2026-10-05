@@ -219,3 +219,71 @@ describe("CellGrid accessibility", () => {
     expect(cell(2, 3).getAttribute("aria-label")).toBe("Row 2, column 3, empty");
   });
 });
+
+function Directionless({ readOnly }: { readOnly: ReadonlySet<CellKey> }) {
+  const [values, setValues] = useState<Record<string, string>>({
+    [cellKey(0, 1)]: "7",
+  });
+  return (
+    <CellGrid
+      label="Test grid"
+      rows={2}
+      cols={2}
+      cells={allCellsExcept(2, 2, [])}
+      value={(r, c) => values[cellKey(r, c)] ?? ""}
+      onChange={(r, c, v) =>
+        setValues((prev) => ({ ...prev, [cellKey(r, c)]: v }))
+      }
+      accept={DIGIT}
+      readOnly={readOnly}
+      marks={(r, c) => (r === 1 && c === 1 ? <i data-testid="marks" /> : null)}
+      cellClassName={(_r, c) => (c === 0 ? "border-r-2" : undefined)}
+    />
+  );
+}
+
+describe("CellGrid without a direction", () => {
+  const given = new Set<CellKey>([cellKey(0, 1)]);
+
+  it("types in place, replaces the digit and clears it with Backspace or Delete", async () => {
+    const user = userEvent.setup();
+    render(<Directionless readOnly={given} />);
+    await user.click(cell(2, 1));
+    await user.keyboard("3");
+    expect(cell(2, 1).textContent).toContain("3");
+    expect(cell(2, 1).getAttribute("data-active")).toBe("true");
+    await user.keyboard("4");
+    expect(cell(2, 1).textContent).toContain("4");
+    await user.keyboard("{Backspace}");
+    expect(cell(2, 1).getAttribute("aria-label")).toMatch(/empty$/);
+    await user.keyboard("5{Delete}");
+    expect(cell(2, 1).getAttribute("aria-label")).toMatch(/empty$/);
+  });
+
+  it("leaves read-only cells untouched and labels them as given", async () => {
+    const user = userEvent.setup();
+    render(<Directionless readOnly={given} />);
+    expect(cell(1, 2).getAttribute("aria-label")).toBe(
+      "Row 1, column 2, given, 7",
+    );
+    await user.click(cell(1, 2));
+    await user.keyboard("3");
+    await user.keyboard("{Backspace}");
+    expect(cell(1, 2).textContent).toContain("7");
+  });
+
+  it("does not toggle a direction on Space or on a second click", async () => {
+    const user = userEvent.setup();
+    render(<Directionless readOnly={given} />);
+    await user.click(cell(2, 1));
+    await user.click(cell(2, 1));
+    await user.keyboard(" ");
+    expect(cell(2, 1).getAttribute("data-active")).toBe("true");
+  });
+
+  it("renders marks and extra cell classes", () => {
+    render(<Directionless readOnly={given} />);
+    expect(screen.getByTestId("marks")).toBeTruthy();
+    expect(cell(2, 1).className).toContain("border-r-2");
+  });
+});

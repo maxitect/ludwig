@@ -1,0 +1,32 @@
+import type { Content, Solution } from "./schema";
+
+const parse = (lines: string[]) =>
+  lines.flatMap((line, row) =>
+    [...line].flatMap((char, col) =>
+      char === "." ? [] : [{ row, col, digit: Number(char) }],
+    ),
+  );
+
+export const givens: Content["givens"] = parse([
+  "53..7....",
+  "6..195...",
+  ".98....6.",
+  "8...6...3",
+  "4..8.3..1",
+  "7...2...6",
+  ".6....28.",
+  "...419..5",
+  "....8..79",
+]);
+
+export const solution: Solution = parse([
+  "534678912",
+  "672195348",
+  "198342567",
+  "859761423",
+  "426853791",
+  "713924856",
+  "961537284",
+  "287419635",
+  "345286179",
+]);

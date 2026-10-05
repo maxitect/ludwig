@@ -7,6 +7,7 @@ import { gearsModule } from "./gears/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
 import { spotDifferenceModule } from "./spot-difference/module";
+import { sudokuModule } from "./sudoku/module";
 
 export type Tx = Parameters<Parameters<(typeof db)["transaction"]>[0]>[0];
 
@@ -77,6 +78,7 @@ export const registry: PuzzleRegistry = {
   [reverseChessModule.meta.key]: reverseChessModule,
   [rotaModule.meta.key]: rotaModule,
   [spotDifferenceModule.meta.key]: spotDifferenceModule,
+  [sudokuModule.meta.key]: sudokuModule,
 };
 
 export function getPuzzleModule(

@@ -55,7 +55,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T030](./T030-reverse-chess-mode-b-notation.md) | Mode B "Unwind" plus descriptive notation | T029 | ✔ | | done |
 | [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | done |
 | [T076](./T076-retro-verify-pruning.md) | Prune the Mode B goal-chain search in the verifier | T030 | | | done |
-| [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073, T076 | | | in-progress |
+| [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073, T076 | | | done |
 
 ## M3: The Gear Puzzle
 

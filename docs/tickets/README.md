@@ -55,7 +55,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T030](./T030-reverse-chess-mode-b-notation.md) | Mode B "Unwind" plus descriptive notation | T029 | ✔ | | done |
 | [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | done |
 | [T076](./T076-retro-verify-pruning.md) | Prune the Mode B goal-chain search in the verifier | T030 | | | done |
-| [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073, T076 | | | todo |
+| [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073, T076 | | | in-progress |
 
 ## M3: The Gear Puzzle
 
@@ -68,7 +68,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T037](./T037-gear-board-prototype.md) | SVG gear board, prototype and parameter evaluation | T034, T018 | | | done |
 | [T038](./T038-gear-crank.md) | Crank interaction (drag, keyboard, ±) | T037 | | | done |
 | [T039](./T039-gear-scrubber-animation.md) | Dance scrubber, animation and sightlines | T038 | | | done |
-| [T040](./T040-gear-accuse-check.md) | Accuse flow and server check | T039 | | | todo |
+| [T040](./T040-gear-accuse-check.md) | Accuse flow and server check | T039 | | | done |
 | [T041](./T041-gear-fix-the-diagram-ui.md) | Fix the Diagram UI | T040, T035 | | | todo |
 | [T042](./T042-gear-state-table.md) | Accessible gear state table | T039 | | | todo |
 | [T043](./T043-gears-hub.md) | `/gears` hub and daily diagram | T036, T040 | | | todo |
@@ -80,7 +80,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
 | [T045](./T045-crossword-cryptic.md) | Crossword: cryptic style and content | T022 | | | done |
-| [T046](./T046-type-sudoku.md) | Puzzle type: sudoku (+ end-to-end flow 5, keyboard-only) | T021 | ✔ | | todo |
+| [T046](./T046-type-sudoku.md) | Puzzle type: sudoku (+ end-to-end flow 5, keyboard-only) | T021 | ✔ | | done |
 | [T047](./T047-type-futoshiki.md) | Puzzle type: futoshiki | T046 | ✔ | | todo |
 | [T048](./T048-type-logic-grid.md) | Puzzle type: logic grid (+ false-statement variant) | T021 | ✔ | | todo |
 | [T049](./T049-type-word-ladder.md) | Puzzle type: word ladder and the `words` dictionary | T019 | ✔ | | todo |
@@ -112,4 +112,4 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4 | | | todo |
 | [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067 | | | todo |
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |
-| [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | todo |
+| [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |

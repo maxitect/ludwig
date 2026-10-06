@@ -11,6 +11,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "preflight": "tsx scripts/preflight.ts",
+    "ticket:setup": "tsx scripts/ticket/setup.ts",
+    "ticket:gates": "tsx scripts/ticket/gates.ts",
     "ticket:cleanup": "tsx scripts/ticket/cleanup.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

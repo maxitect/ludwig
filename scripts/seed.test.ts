@@ -30,7 +30,7 @@ import { registry as realRegistry } from "@/puzzles/registry";
 import type { Content as ReverseChessContent } from "@/puzzles/reverse-chess/schema";
 import type { Content as RotaContent } from "@/puzzles/rota/schema";
 import * as defaultLookups from "../content/lookups";
-import { seed, upsertPuzzle } from "./seed";
+import { createConfirmRemoval, seed, upsertPuzzle } from "./seed";
 import { verifyPuzzles } from "./verify-puzzles";
 
 const lookups = {
@@ -164,6 +164,7 @@ describe("seed", () => {
     const summary = await run();
 
     expect(summary.types.__fixture.removed).toBe(1);
+    expect(summary.blockedRemovals).toEqual([]);
     expect(await countPuzzles()).toBe(1);
     expect(
       await db.select().from(fixturePuzzles).where(eq(fixturePuzzles.puzzleId, removedPuzzle.id)),
@@ -620,5 +621,132 @@ describe("in-place content updates", () => {
       .from(gearPuzzleGears)
       .where(and(eq(gearPuzzleGears.puzzleId, gearsRun.puzzleId), eq(gearPuzzleGears.label, "c")));
     expect(gearC.teeth).toBe(12);
+  });
+});
+
+describe("removal of puzzles with attempts", () => {
+  const answers: string[] = [];
+  const questions: string[] = [];
+  const ask = async (question: string) => {
+    questions.push(question);
+    return answers.shift() ?? "";
+  };
+
+  async function seedGoneWithAttempts() {
+    write("a", contentFile("a", items));
+    write("b", contentFile("b", items));
+    await run();
+    const userId = await createTestUser("t079");
+    const [{ id: puzzleId }] = await db
+      .select({ id: puzzles.id })
+      .from(puzzles)
+      .where(and(eq(puzzles.typeKey, "__fixture"), eq(puzzles.slug, "b")));
+    await db.insert(attempts).values({ userId, puzzleId, typeKey: "__fixture" });
+    rmSync(path.join(contentDir, "__fixture", "b.ts"));
+    return puzzleId;
+  }
+  const attemptCount = async (puzzleId: string) =>
+    (
+      await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(attempts)
+        .where(eq(attempts.puzzleId, puzzleId))
+    )[0].n;
+  const withConfirm = (options: Parameters<typeof createConfirmRemoval>[0]) =>
+    seed({
+      db,
+      registry,
+      contentDir,
+      lookups,
+      confirmRemoval: createConfirmRemoval({ ask, ...options }),
+    });
+
+  beforeEach(() => {
+    answers.length = 0;
+    questions.length = 0;
+  });
+  afterAll(deleteTestUsers);
+
+  it("refuses non-interactively, naming the puzzle and count, and removes nothing", async () => {
+    const puzzleId = await seedGoneWithAttempts();
+
+    const summary = await withConfirm({ confirmList: "", interactive: false });
+
+    expect(summary.blockedRemovals).toEqual([
+      { typeKey: "__fixture", slug: "b", attempts: 1 },
+    ]);
+    expect(summary.types.__fixture.removed).toBe(0);
+    expect(await countPuzzles()).toBe(2);
+    expect(await attemptCount(puzzleId)).toBe(1);
+    expect(questions).toEqual([]);
+  });
+
+  it("refuses by default when no confirmation is supplied", async () => {
+    await seedGoneWithAttempts();
+
+    const summary = await run();
+
+    expect(summary.blockedRemovals).toHaveLength(1);
+    expect(await countPuzzles()).toBe(2);
+  });
+
+  it.each(["__fixture/b", "all", "__fixture/x, __fixture/b"])(
+    "removes the puzzle and its attempts when SEED_CONFIRM_REMOVE is %s",
+    async (confirmList) => {
+      const puzzleId = await seedGoneWithAttempts();
+
+      const summary = await withConfirm({ confirmList, interactive: false });
+
+      expect(summary.blockedRemovals).toEqual([]);
+      expect(summary.types.__fixture.removed).toBe(1);
+      expect(await countPuzzles()).toBe(1);
+      expect(await attemptCount(puzzleId)).toBe(0);
+    },
+  );
+
+  it("refuses when the list leaves a puzzle with attempts out", async () => {
+    await seedGoneWithAttempts();
+
+    const summary = await withConfirm({ confirmList: "__fixture/other", interactive: false });
+
+    expect(summary.blockedRemovals).toHaveLength(1);
+    expect(await countPuzzles()).toBe(2);
+  });
+
+  it("prompts interactively, listing puzzles with counts, and removes on y", async () => {
+    const puzzleId = await seedGoneWithAttempts();
+    answers.push("y");
+
+    const summary = await withConfirm({ confirmList: "", interactive: true });
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0]).toContain("__fixture/b: 1 attempts");
+    expect(summary.blockedRemovals).toEqual([]);
+    expect(await countPuzzles()).toBe(1);
+    expect(await attemptCount(puzzleId)).toBe(0);
+  });
+
+  it.each(["n", ""])("leaves everything in place when the prompt is answered %j", async (answer) => {
+    const puzzleId = await seedGoneWithAttempts();
+    answers.push(answer);
+
+    const summary = await withConfirm({ confirmList: "", interactive: true });
+
+    expect(summary.blockedRemovals).toHaveLength(1);
+    expect(await countPuzzles()).toBe(2);
+    expect(await attemptCount(puzzleId)).toBe(1);
+  });
+
+  it("does not prompt or require confirmation when the removed puzzle has no attempts", async () => {
+    write("a", contentFile("a", items));
+    write("b", contentFile("b", items));
+    await run();
+    rmSync(path.join(contentDir, "__fixture", "b.ts"));
+
+    const summary = await withConfirm({ confirmList: "", interactive: true });
+
+    expect(questions).toEqual([]);
+    expect(summary.blockedRemovals).toEqual([]);
+    expect(summary.types.__fixture.removed).toBe(1);
   });
 });

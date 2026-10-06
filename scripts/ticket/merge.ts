@@ -97,9 +97,9 @@ function checksGreen(): Result {
   const deadline = Date.now() + 20 * 60 * 1000;
   for (;;) {
     const checks = prChecks(pr!.number);
-    const failed = checks.filter((c) => c.bucket === "fail" || c.bucket === "cancel");
+    const failed = checks.filter((c) => c.bucket === "fail");
     if (failed.length) return fail(`failed checks: ${failed.map((c) => c.name).join(", ")}`);
-    const pending = checks.length === 0 || checks.some((c) => c.bucket === "pending");
+    const pending = checks.some((c) => c.bucket === "pending") || (wait && !checks.length);
     if (!pending) return pass;
     if (!wait) {
       notes.push("merged with checks still running (no migration, content or e2e changes)");

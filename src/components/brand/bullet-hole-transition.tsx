@@ -5,6 +5,8 @@ import "./bullet-hole.css";
 
 const BULLET_HOLE_TYPE = "bullet-hole";
 
+const ROOT_HIDERS = new Set(["::view-transition", "::view-transition-group(root)"]);
+
 const onlyForBulletHole = {
   [BULLET_HOLE_TYPE]: "bullet-hole-page",
   default: "none",
@@ -20,10 +22,10 @@ function revealRootSnapshot(_: unknown, types: string[]) {
   root.dataset.vt = BULLET_HOLE_TYPE;
   if (getComputedStyle(root).viewTransitionName !== "root") return;
   for (const animation of root.getAnimations({ subtree: true })) {
+    const { effect } = animation;
     if (animation instanceof CSSAnimation) continue;
-    const target = (animation.effect as KeyframeEffect | null)?.pseudoElement;
-    if (target === "::view-transition" || target === "::view-transition-group(root)")
-      animation.cancel();
+    if (!(effect instanceof KeyframeEffect)) continue;
+    if (ROOT_HIDERS.has(effect.pseudoElement ?? "")) animation.cancel();
   }
 }
 

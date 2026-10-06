@@ -44,6 +44,7 @@ const prodPaths = [
 ];
 
 let prFiles: string[] = [];
+let unpushedDocs: string[] = [];
 const touches = (prefixes: string[], files = prFiles) =>
   files.filter((f) => prefixes.some((p) => f.startsWith(p)));
 
@@ -65,6 +66,7 @@ function unpushedDocsOnly(): Result {
   const unpushed = changedFiles(remote, branch);
   const code = unpushed.filter((f) => !f.startsWith("docs/") && !f.endsWith(".md"));
   if (code.length) return fail(`unpushed code on ${branch}: ${code.join(", ")}`);
+  unpushedDocs = unpushed;
   return pass;
 }
 
@@ -132,11 +134,9 @@ function syncMain(): Result {
 }
 
 function carryUnpushedDocs(): Result {
-  if (!text(`git branch --list "${branch}"`)) return pass;
-  const docs = changedFiles(remote, branch);
-  if (!docs.length) return pass;
-  const res = sh(`git checkout "${branch}" -- ${docs.map((f) => `"${f}"`).join(" ")}`);
-  if (res.ok) notes.push(`staged unpushed reviewer docs on main: ${docs.join(", ")}`);
+  if (!unpushedDocs.length) return pass;
+  const res = sh(`git checkout "${branch}" -- ${unpushedDocs.map((f) => `"${f}"`).join(" ")}`);
+  if (res.ok) notes.push(`staged unpushed reviewer docs on main: ${unpushedDocs.join(", ")}`);
   return res;
 }
 

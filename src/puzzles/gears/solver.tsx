@@ -21,6 +21,11 @@ import { markerOf } from "./dance";
 import { applySwaps, lcmTeeth, seeingCount } from "./engine";
 import { Scrubber } from "./scrubber";
 import type * as schema from "./schema";
+import {
+  StateTable,
+  StateTableToggle,
+  useStateTableToggle,
+} from "./state-table";
 import { SwapPanel } from "./swap-panel";
 import { pickGear, undoSwapOf } from "./swaps";
 
@@ -49,6 +54,7 @@ export function Solver({
   const adjustable = payload.maxAdjustments > 0;
   const [picked, setPicked] = useState(accusedGearId);
   const [accusations, setAccusations] = useState(0);
+  const table = useStateTableToggle();
   const accuseHint = useId();
   const position = useMotionValue(markerOf(convergence));
   const [atConvergence, setAtConvergence] = useState(true);
@@ -157,6 +163,10 @@ export function Solver({
           </>
         ) : null}
       </p>
+      <StateTableToggle shown={table.shown} onToggle={table.toggle} />
+      {table.shown && (
+        <StateTable diagram={diagram} crank={crank} convergence={convergence} />
+      )}
       {adjustable && (
         <SwapPanel
           gears={payload.gears}

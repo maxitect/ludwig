@@ -66,9 +66,11 @@ const SEPARATOR_MARK = { word: ",", hyphen: "-" } as const;
 /** The "(3,4-5)" enumeration of a clue's segments, each followed by its separator. */
 export function deriveEnumeration(segments: Clue["segments"]) {
   const body = segments
-    .map(({ length, separator }, i) =>
-      i === segments.length - 1 ? length : `${length}${SEPARATOR_MARK[separator ?? "word"]}`,
-    )
+    .map(({ length, separator }, i) => {
+      if (i === segments.length - 1) return length;
+      if (!separator) throw new Error("a segment before the last has no separator");
+      return `${length}${SEPARATOR_MARK[separator]}`;
+    })
     .join("");
   return `(${body})`;
 }

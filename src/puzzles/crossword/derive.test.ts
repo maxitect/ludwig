@@ -76,8 +76,8 @@ describe("deriveEnumeration", () => {
     ).toBe("(3,4-5)");
   });
 
-  it("reads a missing separator before the last segment as a word break", () => {
-    expect(deriveEnumeration(segments([2, null], [2, null]))).toBe("(2,2)");
+  it("throws on a missing separator before the last segment", () => {
+    expect(() => deriveEnumeration(segments([2, null], [2, null]))).toThrow();
   });
 });
 

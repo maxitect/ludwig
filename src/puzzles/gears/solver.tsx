@@ -1,7 +1,7 @@
 "use client";
 
 import { useMotionValue } from "motion/react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,9 +18,11 @@ import type { SolverProps } from "../solver-types";
 import { GearBoard } from "./board";
 import { useCrank } from "./crank";
 import { markerOf } from "./dance";
-import { lcmTeeth, seeingCount } from "./engine";
+import { applySwaps, lcmTeeth, seeingCount } from "./engine";
 import { Scrubber } from "./scrubber";
 import type * as schema from "./schema";
+import { SwapPanel } from "./swap-panel";
+import { pickGear, undoSwapOf } from "./swaps";
 
 /** The crank, the dance scrubber and the accuse flow are live. */
 export function Solver({
@@ -38,8 +40,13 @@ export function Solver({
     crank: initialState?.crank ?? 0,
     convergence: initialState?.convergence ?? 1,
     accusedGearId: initialState?.accusedGearId ?? null,
+    swaps: initialState?.swaps ?? [],
   });
-  const { crank, convergence, accusedGearId } = state;
+  const { crank, convergence, accusedGearId, swaps } = state;
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const diagram = useMemo(() => applySwaps(payload, swaps), [payload, swaps]);
+  const adjustable = payload.maxAdjustments > 0;
   const [picked, setPicked] = useState(accusedGearId);
   const [accusations, setAccusations] = useState(0);
   const accuseHint = useId();
@@ -49,10 +56,31 @@ export function Solver({
   function update(next: Partial<typeof state>) {
     const merged = { ...state, ...next };
     setState(merged);
-    onStateChange({
-      swaps: initialState?.swaps ?? [],
-      ...merged,
-    });
+    onStateChange(merged);
+  }
+
+  const labelOf = (id: string) =>
+    payload.gears.find((gear) => gear.id === id)!.label;
+
+  function pick(gearId: string) {
+    if (solved) return;
+    const result = pickGear(
+      swaps,
+      selectedId,
+      gearId,
+      payload.maxAdjustments,
+      labelOf,
+    );
+    setSelectedId(result.selectedId);
+    setNotice(result.notice);
+    if (result.swaps !== swaps) update({ swaps: result.swaps });
+  }
+
+  function undo(gearId: string) {
+    if (solved) return;
+    setSelectedId(null);
+    setNotice(null);
+    update({ swaps: undoSwapOf(swaps, gearId) });
   }
 
   useEffect(() => {
@@ -62,11 +90,11 @@ export function Solver({
             crank,
             convergence,
             accusedGearId,
-            swaps: initialState?.swaps ?? [],
+            swaps,
           }
         : null,
     );
-  }, [registerCheck, crank, convergence, accusedGearId, initialState]);
+  }, [registerCheck, crank, convergence, accusedGearId, swaps]);
 
   useEffect(() => {
     if (accusations > 0) requestCheck?.();
@@ -86,17 +114,32 @@ export function Solver({
     crank,
     onChange: setCrank,
   });
-  const seeing = seeingCount(payload, crank, convergence);
+  const seeing = seeingCount(diagram, crank, convergence);
   const offConvergence = !solved && !atConvergence;
 
   return (
     <section className="flex flex-col gap-4">
+      {adjustable && (
+        <blockquote className="border-l-4 border-border pl-4">
+          &ldquo;100% solvable if we adjust a couple of the starting
+          positions.&rdquo;
+          <p className="mt-1 text-sm">
+            This diagram as printed has no solution. Swap up to{" "}
+            {payload.maxAdjustments} {payload.maxAdjustments === 1 ? "pair" : "pairs"} of starting
+            slots to fix it, then find the crank, the convergence and the
+            killer.
+          </p>
+        </blockquote>
+      )}
       <GearBoard
-        diagram={payload}
+        diagram={diagram}
         crank={crank}
         convergence={convergence}
         position={position}
         crankProps={crankProps}
+        adjustments={
+          adjustable ? { swaps, selectedId, onPick: pick } : undefined
+        }
       />
       <Scrubber position={position} onSettle={settle} />
       <p
@@ -114,6 +157,17 @@ export function Solver({
           </>
         ) : null}
       </p>
+      {adjustable && (
+        <SwapPanel
+          gears={payload.gears}
+          swaps={swaps}
+          max={payload.maxAdjustments}
+          selectedId={selectedId}
+          notice={notice}
+          onPick={pick}
+          onUndo={undo}
+        />
+      )}
       <div className="flex items-center gap-2">
         <Button
           variant="secondary"

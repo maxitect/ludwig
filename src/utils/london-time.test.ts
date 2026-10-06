@@ -78,6 +78,10 @@ describe("londonDate", () => {
     expect(londonDate(new Date("2026-07-05T23:00:00Z"))).toBe("2026-07-06");
   });
 
+  it("returns the London date on the day BST ends", () => {
+    expect(londonDate(new Date("2026-10-25T00:30:00Z"))).toBe("2026-10-25");
+  });
+
   it("follows the clock changes", () => {
     expect(londonDate(new Date("2026-03-28T23:30:00Z"))).toBe("2026-03-28");
     expect(londonDate(new Date("2026-03-29T23:30:00Z"))).toBe("2026-03-30");

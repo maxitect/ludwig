@@ -1,0 +1,15 @@
+@keyframes hub-gear-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-reduce-motion]) .hub-gear {
+    animation: hub-gear-spin 40s linear infinite;
+  }
+
+  :root:not([data-reduce-motion]) .hub-gear-reverse {
+    animation-direction: reverse;
+  }
+}

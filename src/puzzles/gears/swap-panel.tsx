@@ -89,7 +89,12 @@ export function SwapPanel({
           );
         })}
       </div>
-      <p role="status" aria-live="polite" className="min-h-6 text-sm">
+      <p
+        role="status"
+        aria-live="polite"
+        data-testid="swap-notice"
+        className="min-h-6 text-sm"
+      >
         {notice}
       </p>
     </fieldset>

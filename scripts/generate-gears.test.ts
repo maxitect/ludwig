@@ -6,7 +6,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import { gearDaily, gearPuzzleGears, gearPuzzles, puzzles } from "@/db/schema";
 import { registry } from "@/puzzles/registry";
-import { generateDailies, parseOptions, UsageError } from "./generate-gears";
+import { generateDailies } from "@/lib/data/gear-dailies";
+import { parseOptions, UsageError } from "./generate-gears";
 import { generateDiagram } from "@/puzzles/gears/generate";
 import { seed, upsertPuzzle } from "./seed";
 

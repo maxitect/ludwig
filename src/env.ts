@@ -7,6 +7,7 @@ const envSchema = z
     DATABASE_URL_UNPOOLED: z.string().min(1),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url().optional(),
+    CRON_SECRET: z.string().min(16).optional(),
     VERCEL_ENV: z.string().optional(),
     VERCEL_URL: z.string().optional(),
   })

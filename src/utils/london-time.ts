@@ -38,3 +38,8 @@ export function londonMidnight(date: string) {
     utcMidnight.getTime() - londonOffsetMinutes(utcMidnight) * 60_000,
   );
 }
+
+/** The `YYYY-MM-DD` calendar date in Europe/London at the instant `at`. */
+export function londonDate(at: Date) {
+  return londonDateFormat.format(at);
+}

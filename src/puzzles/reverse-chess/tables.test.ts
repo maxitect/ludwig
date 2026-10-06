@@ -22,6 +22,7 @@ import {
   reverseChessAttemptPlies,
   reverseChessAttempts,
   reverseChessGoalCastlingRight,
+  reverseChessGoalPieceCount,
   reverseChessGoalPieceOnSquare,
   reverseChessGoals,
   reverseChessPieces,

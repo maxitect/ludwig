@@ -5,7 +5,7 @@ import { content as longWalk } from "../../../content/reverse-chess/the-long-wal
 import { content as twoPromotions } from "../../../content/reverse-chess/two-promotions";
 import { check } from "./check";
 import { fromFen } from "./derive";
-import { solutionSchema, type Answer, type Content, type Payload } from "./schema";
+import { solutionSchema, type Answer, type Content, type Payload, type Solution } from "./schema";
 import { verifyReverseChess } from "./verify";
 
 const PROOF_GAMES = { fourSteps, twoPromotions, longWalk };
@@ -26,10 +26,16 @@ const payloadOf = (content: Content): Payload => ({
 });
 
 const answerOf = (content: Content): Answer["plies"] =>
-  content.solutionPlies.map((ply) => ({ uncapture: null, ...ply }));
+  content.solutionPlies.map((ply) => ({
+    ...ply,
+    uncapture: ply.uncapture ?? null,
+  }));
 
-const solutionOf = (content: Content) => ({
-  plies: answerOf(content),
+const solutionOf = (content: Content): Solution => ({
+  plies: content.solutionPlies.map((ply) => ({
+    ...ply,
+    uncapture: ply.uncapture ?? null,
+  })),
   goal: solutionSchema.shape.goal.parse({ kind: "initial_position" }),
 });
 

@@ -74,3 +74,17 @@ The last move is en passant (e5xd6) after Black's d7-d5. The d-pawn standing on 
 Position `rnbqk2r/ppppppbp/6p1/8/8/5NPP/PPPPPPBn/RNBQ1RK1 w kq - 3 6`, goal "White can still castle kingside".
 Proof game: 1.Nf3 Nf6 2.g3 g6 3.Bg2 Bg7 4.h3 Ng4 5.O-O Nh2.
 The last two plies are 5.O-O and 5...Nh2. Castling rights only come back by un-castling, so the second take-back must undo O-O; the first must take the knight back from h2 to g4, because a knight on h2 attacks f1 and White could not have castled across an attacked square.
+
+## Proof Game (T081)
+
+Each position below is the end of a game of exactly N plies from the standard starting position, replayed in chess.js while the content file was generated, so it is reachable by construction. `pnpm puzzles:verify` runs a forward search from the starting position and proves the game is the only one of N plies that ends at the position (move order included). All three are original, found by randomised search over games whose side moves one piece or pawn at a time and kept only when the search found exactly one game.
+
+| Slug | N | Position | Game |
+| --- | --- | --- | --- |
+| `four-steps` | 8 | `rnbqkbnr/ppp1pppp/4P3/8/8/3p4/PPPP1PPP/RNBQKBNR w KQkq - 0 5` | 1.e3 d6 2.e4 d5 3.e5 d4 4.e6 d3 |
+| `two-promotions` | 10 | `rnbNkbnr/pp1p1ppp/8/8/8/8/P1P1PPPP/RNbQKBNR w KQkq - 0 6` | 1.d4 c5 2.d5 c4 3.d6 c3 4.dxe7 cxb2 5.exd8=N bxc1=B |
+| `the-long-walk` | 14 | `rn1qkbnr/p1p2ppp/8/1n1N4/8/8/1P1PPPPP/RNB1KBNR w KQkq - 3 8` | 1.a4 d5 2.a5 d4 3.a6 d3 4.axb7 dxc2 5.bxc8=N cxd1=N 6.Nxe7 Nc3 7.Nd5 Nb5 |
+
+- `four-steps` (short, no captures): two pawns walk up the board, one each. Every white move is the e-pawn, so the order is forced, and the same holds for Black's d-pawn.
+- `two-promotions` (medium): the player must infer four captures (a pawn on e7, a queen on d8, a pawn on b2 and a bishop on c1 stand where something was taken), two promotions to undo and the pieces that come back.
+- `the-long-walk` (14 plies, the longest): the same ideas as `two-promotions` over two more moves, with a promoted knight walking on. Castling rights stay as at the start in all three, so the forward replay confirms `KQkq` in each.

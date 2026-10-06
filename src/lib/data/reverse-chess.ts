@@ -11,16 +11,28 @@ export async function getReverseChessHub() {
     where: { typeKey: "reverse-chess", RAW: isPublished },
     columns: { id: true, slug: true, title: true, difficulty: true },
     orderBy: { difficulty: "asc", title: "asc" },
-    with: { reverseChess: { columns: { mode: true } } },
+    with: {
+      reverseChess: {
+        columns: { mode: true },
+        with: { goal: { columns: { kind: true } } },
+      },
+    },
   });
   const puzzles = rows.map(({ reverseChess, ...puzzle }) => {
     if (!reverseChess) {
       throw new Error(`Reverse chess puzzle ${puzzle.slug} has no subtype row`);
     }
-    return { ...puzzle, mode: reverseChess.mode };
+    return {
+      ...puzzle,
+      mode: reverseChess.mode,
+      proofGame: reverseChess.goal?.kind === "initial_position",
+    };
   });
   return {
     lastMove: puzzles.filter(({ mode }) => mode === "last_move"),
-    unwind: puzzles.filter(({ mode }) => mode === "unwind"),
+    unwind: puzzles.filter(
+      ({ mode, proofGame }) => mode === "unwind" && !proofGame,
+    ),
+    proofGame: puzzles.filter(({ proofGame }) => proofGame),
   };
 }

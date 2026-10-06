@@ -34,6 +34,13 @@ const SECTIONS = [
     title: "Unwind",
     blurb: "Take back several moves to reach an earlier position.",
   },
+  {
+    key: "proofGame",
+    id: "proof-game",
+    top: "Mode B",
+    title: "Proof Game",
+    blurb: "Take back every move, all the way to the starting position.",
+  },
 ] as const satisfies readonly {
   key: keyof Hub;
   id: string;
@@ -59,6 +66,13 @@ const UNWIND_HOW_IT_WORKS = [
   "Take back several moves in a row, one at a time, and the last position you reach must meet the goal.",
   "Wrong steps are allowed until you press Check, which flags the first one that could not have happened.",
   "Only one chain of take-backs gets there.",
+];
+
+const PROOF_GAME_HOW_IT_WORKS = [
+  "You are shown a position reached by a real game from the starting position, and told how many half-moves it took.",
+  "Take every move back, one at a time, until the board is the starting position again.",
+  "Castling rights and the en passant square must come out right as well, not only the pieces.",
+  "Only one game gets there. Move order matters.",
 ];
 
 export default async function ReverseChessPage() {
@@ -113,6 +127,14 @@ export default async function ReverseChessPage() {
         </h3>
         <ol className="flex list-decimal flex-col gap-1 pl-6">
           {UNWIND_HOW_IT_WORKS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <h3 className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+          Proof Game
+        </h3>
+        <ol className="flex list-decimal flex-col gap-1 pl-6">
+          {PROOF_GAME_HOW_IT_WORKS.map((step) => (
             <li key={step}>{step}</li>
           ))}
         </ol>

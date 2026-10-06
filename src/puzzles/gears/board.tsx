@@ -227,10 +227,10 @@ export function GearBoard({
             y1={y1}
             x2={x2}
             y2={y2}
-            className="stroke-foreground/60"
-            strokeWidth={0.8}
+            className="stroke-foreground"
+            strokeWidth={1}
             strokeLinecap="round"
-            strokeDasharray="0.1 2"
+            strokeDasharray="3 1.5"
           />
         );
       })}

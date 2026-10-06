@@ -14,6 +14,7 @@ import {
   runSteps,
   sh,
   text,
+  worktrees,
 } from "./lib";
 import { sweep } from "./sweep";
 
@@ -78,9 +79,28 @@ function upToDate(): Result {
     return fail("main gained a migration since this branch: rebase, run gates, push");
   }
   const overlap = prFiles.filter((f) => mainFiles.includes(f));
-  if (overlap.length) {
-    return fail(`main changed files this PR touches: ${overlap.join(", ")}. Rebase, run gates, push`);
+  if (overlap.length) return rebaseOntoMain(overlap);
+  return pass;
+}
+
+function rebaseOntoMain(overlap: string[]): Result {
+  const manual = `main changed files this PR touches: ${overlap.join(", ")}`;
+  const tree = worktrees(root).find((w) => w.branch === branch)?.path;
+  if (!tree) return fail(`${manual}. No worktree for ${branch}: rebase, run gates, push`);
+  if (text("git status --porcelain", tree)) return fail(`${manual}. ${tree} has uncommitted changes`);
+  if (!sh("git rebase origin/main", tree).ok) {
+    sh("git rebase --abort", tree);
+    return fail(`${manual}. Rebase conflicts: resolve in ${tree}, run gates, push`);
   }
+  const gates = sh("pnpm -s ticket:gates", tree);
+  if (!gates.ok) return fail(`${manual}. Gates fail after rebase in ${tree}:\n${gates.out}`);
+  const push = sh(`git push --force-with-lease origin "${branch}"`, tree);
+  if (!push.ok) return push;
+  notes.push(`rebased ${branch} onto main, gates passed, pushed`);
+  unpushedDocs = [];
+  sh("git fetch origin --prune");
+  prFiles = changedFiles(text(`git merge-base origin/main ${remote}`), remote);
+  spawnSync("sleep", ["20"]);
   return pass;
 }
 

@@ -5,9 +5,12 @@ const pairKey = ({ gearAId, gearBId }: Solution["swaps"][number]) =>
   [gearAId, gearBId].sort().join("|");
 
 const sameSwapSet = (a: Solution["swaps"], b: Solution["swaps"]) => {
+  const given = new Set(a.map(pairKey));
   const expected = new Set(b.map(pairKey));
   return (
-    a.length === b.length && a.every((pair) => expected.has(pairKey(pair)))
+    a.length === given.size &&
+    given.size === expected.size &&
+    [...given].every((key) => expected.has(key))
   );
 };
 

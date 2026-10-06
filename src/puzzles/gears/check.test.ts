@@ -97,6 +97,35 @@ describe("check swaps", () => {
     ).toBe(false);
   });
 
+  it("rejects a repeated pair standing in for a second swap", () => {
+    const twoSwaps: Solution = {
+      ...fixSolution,
+      swaps: [
+        { gearAId: "C", gearBId: "E" },
+        { gearAId: "A", gearBId: "B" },
+      ],
+    };
+    const correct = (swaps: Answer["swaps"]) =>
+      check({ ...fixPayload, maxAdjustments: 2 }, twoSwaps, {
+        crank: 4,
+        convergence: 5,
+        accusedGearId: "B",
+        swaps,
+      }).correct;
+    expect(
+      correct([
+        { gearAId: "C", gearBId: "E" },
+        { gearAId: "E", gearBId: "C" },
+      ]),
+    ).toBe(false);
+    expect(
+      correct([
+        { gearAId: "B", gearBId: "A" },
+        { gearAId: "E", gearBId: "C" },
+      ]),
+    ).toBe(true);
+  });
+
   it("rejects a swap on a puzzle with none", () => {
     expect(
       check(payload, solution, {

@@ -48,6 +48,11 @@ if (!prs.ok || prs.out.trim() === "[]") {
   block("open the PR with /pr-prep (INSTRUCTIONS §2.4).");
 }
 
+const body = text(`gh pr view "${branch}" --json body --jq .body`, cwd);
+if (/Generated with \[?Claude|Co-Authored-By: Claude/i.test(body)) {
+  block("remove the AI attribution from the PR description (`gh pr edit --body-file`); /pr-prep bans it.");
+}
+
 if (text(`git log @{u}..HEAD --oneline -- . ':(exclude)docs' ':(exclude)*.md'`, cwd)) {
   block("code commits are not pushed.");
 }

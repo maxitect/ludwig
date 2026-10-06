@@ -62,6 +62,13 @@ function reviewVerdict(): Result {
     : fail("report has no `Verdict: ALL CLEAR`: the reviewer has not cleared it");
 }
 
+function noAttribution(): Result {
+  const body = text(`gh pr view ${pr!.number} --json body --jq .body`);
+  return /Generated with \[?Claude|Co-Authored-By: Claude/i.test(body)
+    ? fail("PR description carries AI attribution: remove it (gh pr edit --body-file)")
+    : pass;
+}
+
 function unpushedDocsOnly(): Result {
   if (!text(`git branch --list "${branch}"`)) return pass;
   const unpushed = changedFiles(remote, branch);
@@ -185,6 +192,7 @@ runSteps(
   "MERGE",
   [
     { name: "review verdict", run: reviewVerdict },
+    { name: "no AI attribution", run: noAttribution },
     { name: "no unpushed code", run: unpushedDocsOnly },
     { name: "up to date with main", run: upToDate },
     { name: "mergeable", run: mergeable },

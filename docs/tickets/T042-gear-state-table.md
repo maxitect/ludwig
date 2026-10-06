@@ -38,11 +38,12 @@ The gear puzzle must be fully solvable without seeing the SVG. A toggleable text
 
 - [ ] **AC1**: The table matches the engine.
   - _Verify (browser):_ on F3 at crank 4, marker 2, the table rows read:
-    - A: 8 teeth, with driver, slot 4, 45°, yes;
-    - B: 12 teeth, against driver, slot 5, 90°, yes;
-    - C: 16 teeth, with driver, slot 6, 202.5°, no.
+    - A: 8 teeth, with driver, slot 5, 45°, yes;
+    - B: 12 teeth, against driver, slot 6, 90°, yes;
+    - C: 16 teeth, with driver, slot 7, 202.5°, no.
+  - Slots step by S/2+1 per figure (SPEC §5.2.4), matching `engine.test.ts` AC4.
 - [ ] **AC2**: The table updates live.
-  - _Verify (browser):_ scrub to marker 5. Only B's row says "yes".
+  - _Verify (browser):_ scrub to marker 5. Only A's row says "yes" (`engine.test.ts` AC5).
 - [ ] **AC3**: The puzzle can be solved with the table alone.
   - _Verify (browser):_ with the SVG hidden (`aria-hidden` plus `display:none`, via `browser_evaluate`), solve the dev puzzle using only the crank keys, the scrubber keys, the table and Accuse. The stamp appears.
 - [ ] **AC4**: Semantics.

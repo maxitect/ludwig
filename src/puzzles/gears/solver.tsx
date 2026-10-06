@@ -163,9 +163,18 @@ export function Solver({
           </>
         ) : null}
       </p>
-      <StateTableToggle shown={table.shown} onToggle={table.toggle} />
+      <StateTableToggle
+        shown={table.shown}
+        onToggle={table.toggle}
+        tableId={table.tableId}
+      />
       {table.shown && (
-        <StateTable diagram={diagram} crank={crank} convergence={convergence} />
+        <StateTable
+          id={table.tableId}
+          diagram={diagram}
+          crank={crank}
+          convergence={convergence}
+        />
       )}
       {adjustable && (
         <SwapPanel

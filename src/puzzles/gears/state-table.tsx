@@ -1,12 +1,13 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useId, useSyncExternalStore } from "react";
 import { Toggle } from "@/components/ui/toggle";
 import { type Diagram, signsOf, stateAt } from "./engine";
 
 const STORAGE_KEY = "gears-state-table";
 
 const listeners = new Set<() => void>();
+let unsaved: boolean | null = null;
 
 function subscribe(notify: () => void) {
   listeners.add(notify);
@@ -18,6 +19,7 @@ function subscribe(notify: () => void) {
 }
 
 function readStored() {
+  if (unsaved !== null) return unsaved;
   try {
     return localStorage.getItem(STORAGE_KEY) === "1";
   } catch {
@@ -25,32 +27,41 @@ function readStored() {
   }
 }
 
-/** Server and hydration render the table hidden; the stored choice applies right after. */
+/** Server and hydration render the table hidden; the stored choice applies right after. Blocked storage keeps the choice in memory. */
 export function useStateTableToggle() {
   const shown = useSyncExternalStore(subscribe, readStored, () => false);
+  const tableId = useId();
 
   function toggle(next: boolean) {
     try {
       localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
-    } catch {}
+      unsaved = null;
+    } catch {
+      unsaved = next;
+    }
     listeners.forEach((notify) => notify());
   }
 
-  return { shown, toggle };
+  return { shown, toggle, tableId };
 }
 
 type StateTableToggleProps = {
   shown: boolean;
   onToggle: (shown: boolean) => void;
+  tableId: string;
 };
 
-export function StateTableToggle({ shown, onToggle }: StateTableToggleProps) {
+export function StateTableToggle({
+  shown,
+  onToggle,
+  tableId,
+}: StateTableToggleProps) {
   return (
     <Toggle
       className="self-start"
       pressed={shown}
       onPressedChange={onToggle}
-      aria-controls="gear-state-table"
+      aria-controls={shown ? tableId : undefined}
     >
       Show as table
     </Toggle>
@@ -58,6 +69,7 @@ export function StateTableToggle({ shown, onToggle }: StateTableToggleProps) {
 }
 
 type StateTableProps = {
+  id: string;
   diagram: Diagram;
   crank: number;
   convergence: number;
@@ -66,12 +78,17 @@ type StateTableProps = {
 const degrees = (value: number) => `${Number(value.toFixed(1))}°`;
 
 /** Text mirror of the board at the settled convergence, from the same engine state. */
-export function StateTable({ diagram, crank, convergence }: StateTableProps) {
+export function StateTable({
+  id,
+  diagram,
+  crank,
+  convergence,
+}: StateTableProps) {
   const signs = signsOf(diagram);
   const states = stateAt(diagram, crank, convergence);
 
   return (
-    <div id="gear-state-table" className="w-0 min-w-full overflow-x-auto bg-background">
+    <div id={id} className="w-0 min-w-full overflow-x-auto bg-background">
       <table className="w-full border-2 border-border text-left">
         <caption className="p-3 text-left font-display text-sm uppercase">
           Gear state at crank {crank}, convergence {convergence}

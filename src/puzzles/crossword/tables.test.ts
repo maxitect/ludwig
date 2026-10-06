@@ -204,10 +204,10 @@ describe("crossword clue segment separators", () => {
     ).toBe("23000");
   });
 
-  it("rejects moving a separated segment to another clue as its last", async () => {
+  it("rejects moving a segment after the last of another clue, leaving a null before it", async () => {
     expect(
       await pgErrorCode(async (tx) => {
-        const key = await insertClue(tx, "t080-move-last");
+        const key = await insertClue(tx, "t080-move-after-last");
         await tx
           .insert(crosswordClues)
           .values({ ...key, direction: "down", clueText: "y" });
@@ -219,10 +219,8 @@ describe("crossword clue segment separators", () => {
         await forceDeferred(tx);
         await tx
           .update(crosswordClueSegments)
-          .set({ direction: "down", position: 1 })
-          .where(
-            sql`${crosswordClueSegments.direction} = 'across' and ${crosswordClueSegments.position} = 0`,
-          );
+          .set({ direction: "across", position: 2 })
+          .where(eq(crosswordClueSegments.direction, "down"));
         await forceDeferred(tx);
       }),
     ).toBe("23000");

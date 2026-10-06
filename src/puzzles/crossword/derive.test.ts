@@ -77,7 +77,9 @@ describe("deriveEnumeration", () => {
   });
 
   it("throws on a missing separator before the last segment", () => {
-    expect(() => deriveEnumeration(segments([2, null], [2, null]))).toThrow();
+    expect(() => deriveEnumeration(segments([2, null], [2, null]))).toThrow(
+      "a segment before the last has no separator",
+    );
   });
 });
 

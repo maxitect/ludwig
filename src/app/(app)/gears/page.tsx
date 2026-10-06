@@ -41,12 +41,17 @@ export default async function GearsPage() {
       <header className="relative flex flex-col gap-2">
         <Credit level={1} top="The" bottom="Gear Puzzle" />
         <p className="text-sm text-muted-foreground italic">
-          (definitely not &ldquo;Slidey Circles&rdquo;)
+          <a
+            href="#show-quote"
+            className="underline underline-offset-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            (definitely not &ldquo;Slidey Circles&rdquo;)
+          </a>
         </p>
       </header>
       <Card className="relative max-w-2xl">
         <CardContent>
-          <blockquote className="flex flex-col gap-2">
+          <blockquote id="show-quote" className="flex flex-col gap-2">
             <p className="font-display text-2xl font-bold tracking-[0.04em] uppercase">
               &ldquo;Gears usually just rotate, but these rotate AND move in and
               out.&rdquo;

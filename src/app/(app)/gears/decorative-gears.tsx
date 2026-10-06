@@ -24,7 +24,7 @@ function cogPath(teeth: number) {
 const GEARS = [
   {
     teeth: 16,
-    className: "top-2 right-2 w-24 sm:top-0 sm:right-6 sm:w-52",
+    className: "top-1 right-2 w-14 sm:top-0 sm:right-6 sm:w-52",
   },
   {
     teeth: 8,

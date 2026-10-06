@@ -1,10 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Toggle } from "@/components/ui/toggle";
 import { type Diagram, signsOf, stateAt } from "./engine";
 
 const STORAGE_KEY = "gears-state-table";
+
+const listeners = new Set<() => void>();
+
+function subscribe(notify: () => void) {
+  listeners.add(notify);
+  window.addEventListener("storage", notify);
+  return () => {
+    listeners.delete(notify);
+    window.removeEventListener("storage", notify);
+  };
+}
 
 function readStored() {
   try {
@@ -14,14 +25,15 @@ function readStored() {
   }
 }
 
+/** Server and hydration render the table hidden; the stored choice applies right after. */
 export function useStateTableToggle() {
-  const [shown, setShown] = useState(readStored);
+  const shown = useSyncExternalStore(subscribe, readStored, () => false);
 
   function toggle(next: boolean) {
-    setShown(next);
     try {
       localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
     } catch {}
+    listeners.forEach((notify) => notify());
   }
 
   return { shown, toggle };
@@ -59,7 +71,7 @@ export function StateTable({ diagram, crank, convergence }: StateTableProps) {
   const states = stateAt(diagram, crank, convergence);
 
   return (
-    <div id="gear-state-table" className="overflow-x-auto bg-background">
+    <div id="gear-state-table" className="w-0 min-w-full overflow-x-auto bg-background">
       <table className="w-full border-2 border-border text-left">
         <caption className="p-3 text-left font-display text-sm uppercase">
           Gear state at crank {crank}, convergence {convergence}

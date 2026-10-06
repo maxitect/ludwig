@@ -41,7 +41,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T072](./T072-seed-update-in-place.md) | Seed updates content in place and never touches attempt data | T016, T022 | | | done |
 | [T073](./T073-seed-clears-omitted-meta.md) | Seed clears optional meta fields that a content file omits | T072 | | | done |
 | [T075](./T075-flush-pending-save.md) | Flush the pending autosave on check, navigation and page hide | T030 | | | done |
-| [T079](./T079-seed-confirm-removal.md) | Confirm before the seed removes a puzzle that has attempts | T073 | | | todo |
+| [T079](./T079-seed-confirm-removal.md) | Confirm before the seed removes a puzzle that has attempts | T073 | | | done |
 
 ## M2: Reverse Chess
 
@@ -56,7 +56,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T031](./T031-reverse-chess-hub.md) | `/reverse-chess` hub | T029 | | | done |
 | [T076](./T076-retro-verify-pruning.md) | Prune the Mode B goal-chain search in the verifier | T030 | | | done |
 | [T032](./T032-reverse-chess-content-e2e.md) | Reverse Chess content ×10 and end-to-end flow 3 | T027, T030, T031, T073, T076 | | | done |
-| [T081](./T081-reverse-chess-proof-game.md) | Reverse Chess: Proof Game (unwind to the starting position) | T032, T076 | ✔ | | todo |
+| [T081](./T081-reverse-chess-proof-game.md) | Reverse Chess: Proof Game (unwind to the starting position) | T032, T076 | ✔ | | done |
 
 ## M3: The Gear Puzzle
 
@@ -70,7 +70,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T038](./T038-gear-crank.md) | Crank interaction (drag, keyboard, ±) | T037 | | | done |
 | [T039](./T039-gear-scrubber-animation.md) | Dance scrubber, animation and sightlines | T038 | | | done |
 | [T040](./T040-gear-accuse-check.md) | Accuse flow and server check | T039 | | | done |
-| [T041](./T041-gear-fix-the-diagram-ui.md) | Fix the Diagram UI | T040, T035 | | | todo |
+| [T041](./T041-gear-fix-the-diagram-ui.md) | Fix the Diagram UI | T040, T035 | | | done |
 | [T042](./T042-gear-state-table.md) | Accessible gear state table | T039 | | | todo |
 | [T043](./T043-gears-hub.md) | `/gears` hub and daily diagram | T036, T040 | | | todo |
 | [T044](./T044-gear-content-e2e-perf.md) | Gear content ×12, end-to-end flow 4, performance budget | T041, T042, T043 | | | todo |

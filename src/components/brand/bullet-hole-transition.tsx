@@ -10,8 +10,21 @@ const onlyForBulletHole = {
   default: "none",
 };
 
-function markTransition() {
-  document.documentElement.dataset.vt = BULLET_HOLE_TYPE;
+/**
+ * React hides the root snapshot with zero-length Web Animations when no named
+ * `<ViewTransition>` covers the change. The tear animates that snapshot, so drop them.
+ */
+function revealRootSnapshot(_: unknown, types: string[]) {
+  if (!types.includes(BULLET_HOLE_TYPE)) return;
+  const root = document.documentElement;
+  root.dataset.vt = BULLET_HOLE_TYPE;
+  if (getComputedStyle(root).viewTransitionName !== "root") return;
+  for (const animation of root.getAnimations({ subtree: true })) {
+    if (animation instanceof CSSAnimation) continue;
+    const target = (animation.effect as KeyframeEffect | null)?.pseudoElement;
+    if (target === "::view-transition" || target === "::view-transition-group(root)")
+      animation.cancel();
+  }
 }
 
 /**
@@ -25,7 +38,7 @@ export function BulletHoleTransition() {
       enter={onlyForBulletHole}
       exit={onlyForBulletHole}
       default="none"
-      onEnter={markTransition}
+      onEnter={revealRootSnapshot}
     >
       <div aria-hidden="true" className="pointer-events-none fixed inset-0" />
     </ViewTransition>

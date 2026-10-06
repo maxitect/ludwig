@@ -30,10 +30,10 @@
 }
 
 :root:active-view-transition-type(bullet-hole)::view-transition-group(root) {
-  background-color: var(--color-paper);
+  background-color: var(--color-background);
   background-image:
-    linear-gradient(var(--color-grid-blue) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-grid-blue) 1px, transparent 1px);
+    linear-gradient(var(--color-ring) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-ring) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
@@ -50,10 +50,10 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-color: var(--color-paper);
+  background-color: var(--color-background);
   background-image:
-    linear-gradient(var(--color-grid-blue) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-grid-blue) 1px, transparent 1px);
+    linear-gradient(var(--color-ring) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-ring) 1px, transparent 1px);
   background-size: 24px 24px;
   animation: 700ms ease-out both bullet-hole-open;
 }

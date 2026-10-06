@@ -46,6 +46,7 @@ describe("proofGames", () => {
     [2, 7],
     [3, 97],
     [4, 997],
+    [5, 3001],
   ] as const) {
     it(`finds as many games as the unpruned count at ${plies} plies`, () => {
       const counts = exactCounts(plies);

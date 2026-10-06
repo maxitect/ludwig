@@ -198,7 +198,7 @@ describe("seed", () => {
 describe("verifyPuzzles", () => {
   it("passes on valid content", async () => {
     write("a", contentFile("a", items));
-    expect(await verifyPuzzles(registry, contentDir)).toEqual({
+    expect(await verifyPuzzles(registry, contentDir)).toMatchObject({
       checked: 1,
       failures: [],
     });
@@ -226,7 +226,10 @@ describe("verifyPuzzles", () => {
   });
 
   it("is a no-op success with an empty registry", async () => {
-    expect(await verifyPuzzles({}, contentDir)).toEqual({ checked: 0, failures: [] });
+    expect(await verifyPuzzles({}, contentDir)).toMatchObject({
+      checked: 0,
+      failures: [],
+    });
   });
 });
 

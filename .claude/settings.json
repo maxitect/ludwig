@@ -1,0 +1,5 @@
+{
+  "permissions": {
+    "allow": ["Bash(pnpm -s ticket:merge:*)", "Bash(pnpm ticket:merge:*)"]
+  }
+}

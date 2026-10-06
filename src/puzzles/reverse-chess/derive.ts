@@ -1,6 +1,6 @@
-import { Chess } from "chess.js";
+import { Chess, DEFAULT_POSITION } from "chess.js";
 import type { Move } from "chess.js";
-import type { Goal, Payload } from "./schema";
+import type { Payload, PositionGoal } from "./schema";
 
 export type Position = Pick<
   Payload,
@@ -120,7 +120,7 @@ export function fromFen(fen: string): Position {
 }
 
 /** True when the position described by `fen` satisfies the Mode B goal. */
-export function satisfiesGoal(fen: string, goal: Goal) {
+export function satisfiesGoal(fen: string, goal: PositionGoal) {
   const position = fromFen(fen);
   if (goal.kind === "piece_on_square") {
     return position.pieces.some(
@@ -151,7 +151,37 @@ export function satisfiesGoal(fen: string, goal: Goal) {
   );
 }
 
-type ForwardMove = Pick<Move, "from" | "to" | "promotion">;
+export type ForwardMove = Pick<Move, "from" | "to" | "promotion">;
+
+/** The forward move that a retro move takes back: `position` is the one shown, with the promoted piece still on `to`. */
+export function toForward(
+  retro: Pick<Move, "from" | "to"> & { unpromote?: boolean },
+  position: string,
+): ForwardMove {
+  return {
+    from: retro.from,
+    to: retro.to,
+    promotion: retro.unpromote ? new Chess(position).get(retro.to)?.type : undefined,
+  };
+}
+
+const fenKey = (fen: string) => fen.split(" ").slice(0, 4).join(" ");
+
+/** True when `moves`, legal from the standard starting position, end exactly at `fen`: placement, side to move, castling rights and en passant square. */
+export function reproducesFromStart(moves: readonly ForwardMove[], fen: string) {
+  const chess = new Chess();
+  try {
+    for (const move of moves) chess.move(move);
+  } catch {
+    return false;
+  }
+  return fenKey(chess.fen()) === fenKey(fen);
+}
+
+/** True when `fen` has the standard starting placement and White to move. */
+export const isStartingPlacement = (fen: string) =>
+  fen.split(" ").slice(0, 2).join(" ") ===
+  DEFAULT_POSITION.split(" ").slice(0, 2).join(" ");
 
 function forwardMove(prior: string, { from, to, promotion }: ForwardMove) {
   const moves = new Chess(prior).moves({ verbose: true });
@@ -225,8 +255,5 @@ export function notateRetro(
   position: string,
   prior: string,
 ) {
-  const promotion = retro.unpromote
-    ? new Chess(position).get(retro.to)?.type
-    : undefined;
-  return NOTATORS[notation]({ from: retro.from, to: retro.to, promotion }, prior);
+  return NOTATORS[notation](toForward(retro, position), prior);
 }

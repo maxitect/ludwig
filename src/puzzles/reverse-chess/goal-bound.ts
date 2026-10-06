@@ -1,6 +1,6 @@
 import { LETTER_BY_PIECE, fromFen, type Position } from "./derive";
 import { FILES, MAX_PAWNS, materialPlausible } from "./engine";
-import type { Goal } from "./schema";
+import type { PositionGoal } from "./schema";
 
 type Colour = Position["pieces"][number]["colour"];
 type Kind = Position["pieces"][number]["piece"];
@@ -53,7 +53,7 @@ const coords = (file: string, rank: number): Coords => [
 
 function countBound(
   position: Position,
-  goal: Extract<Goal, { kind: "piece_count" }>,
+  goal: Extract<PositionGoal, { kind: "piece_count" }>,
   first: Colour,
 ) {
   const current = position.pieces.filter(
@@ -72,7 +72,7 @@ function countBound(
 
 function castlingBound(
   position: Position,
-  goal: Extract<Goal, { kind: "castling_right" }>,
+  goal: Extract<PositionGoal, { kind: "castling_right" }>,
   first: Colour,
 ) {
   const rights = {
@@ -110,7 +110,7 @@ function canGain(
 
 function squareBound(
   position: Position,
-  goal: Extract<Goal, { kind: "piece_on_square" }>,
+  goal: Extract<PositionGoal, { kind: "piece_on_square" }>,
   first: Colour,
 ) {
   const { colour, piece, file, rank } = goal;
@@ -141,7 +141,7 @@ function squareBound(
  * A lower bound on the retro moves needed before `fen` can meet `goal`: it is never more than the true number,
  * so a position whose bound exceeds the moves left can be dropped without losing a chain.
  */
-export function minRetroMoves(fen: string, goal: Goal) {
+export function minRetroMoves(fen: string, goal: PositionGoal) {
   const position = fromFen(fen);
   const first = opposite(position.sideToMove);
   if (goal.kind === "piece_count") return countBound(position, goal, first);

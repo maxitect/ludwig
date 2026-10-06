@@ -25,9 +25,12 @@ export async function verifyPuzzles(
 ) {
   const { files, failures } = await loadContentFiles(registry, contentDir);
   const all: ContentFailure[] = [...failures];
+  const durations = new Map<string, number>();
   for (const { typeKey, slug, file, content } of files) {
+    const started = performance.now();
     try {
       registry[typeKey].verify?.(content);
+      durations.set(`${typeKey}/${slug}`, Math.round(performance.now() - started));
     } catch (error) {
       all.push({
         typeKey,
@@ -37,7 +40,7 @@ export async function verifyPuzzles(
       });
     }
   }
-  return { checked: files.length + failures.length, failures: all };
+  return { checked: files.length + failures.length, failures: all, durations };
 }
 
 /** Re-solves every generated daily diagram stored in the DB and compares it with its stored solution. */
@@ -74,7 +77,10 @@ export async function verifyGeneratedRows() {
 
 async function main() {
   const { registry, contentDir } = await resolveCliOptions(process.argv.slice(2));
-  const { checked, failures } = await verifyPuzzles(registry, contentDir);
+  const { checked, failures, durations } = await verifyPuzzles(
+    registry,
+    contentDir,
+  );
   for (const failure of failures) {
     console.error(
       `FAIL ${failure.typeKey}/${failure.slug} (${path.relative(process.cwd(), failure.file)}): ${failure.error}`,
@@ -83,7 +89,10 @@ async function main() {
   const { files } = await loadContentFiles(registry, contentDir);
   for (const { typeKey, slug } of files) {
     const reminder = MANUAL_REVIEW[typeKey];
-    if (reminder) console.log(`${typeKey}/${slug}: ${reminder}`);
+    if (reminder) {
+      const ms = durations.get(`${typeKey}/${slug}`);
+      console.log(`${typeKey}/${slug}: ${reminder}${ms === undefined ? "" : ` (verified in ${ms} ms)`}`);
+    }
   }
   console.log(`puzzles:verify: ${checked - failures.length}/${checked} files ok`);
 

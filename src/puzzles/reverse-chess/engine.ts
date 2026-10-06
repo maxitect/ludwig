@@ -1,6 +1,6 @@
 import { Chess } from "chess.js";
 import type { Color, PieceSymbol, Square } from "chess.js";
-import { LETTER_BY_PIECE } from "./derive";
+import { LETTER_BY_PIECE, toForward, type ForwardMove } from "./derive";
 import type { Content, SolutionPly } from "./schema";
 
 export type Retro = {
@@ -36,8 +36,6 @@ function load(fen: string) {
 
 const other = (colour: Color): Color => (colour === "w" ? "b" : "w");
 const backRank = (colour: Color) => (colour === "w" ? "1" : "8");
-const fenKey = (fen: string) =>
-  fen.split(" ").slice(0, COMPARED_FEN_FIELDS).join(" ");
 
 /** Builds the position before `retro`, or says why `retro` cannot have been the last move. */
 function buildPrior(position: string, retro: Retro): Result<{ prior: string }> {
@@ -138,8 +136,16 @@ export function validatePrior(prior: string): Result<unknown> {
   return { ok: true };
 }
 
-/** Plays `retro` forward from `prior` and compares placement, side to move, castling and en passant with `position`. */
-export function replayMatches(prior: string, retro: Retro, position: string) {
+/**
+ * Plays `retro` forward from `prior` and compares placement, side to move, castling and en passant with `position`.
+ * A `position` built by an earlier retro step has no en passant square of its own, so its "-" matches any square when `chained`.
+ */
+export function replayMatches(
+  prior: string,
+  retro: Retro,
+  position: string,
+  chained = false,
+) {
   const chess = load(prior);
   const target = load(position);
   if (!chess || !target) return false;
@@ -151,18 +157,24 @@ export function replayMatches(prior: string, retro: Retro, position: string) {
     return false;
   }
 
-  return fenKey(chess.fen()) === fenKey(target.fen());
+  const compared =
+    chained && target.fen().split(" ")[3] === "-"
+      ? COMPARED_FEN_FIELDS - 1
+      : COMPARED_FEN_FIELDS;
+  const key = (fen: string) => fen.split(" ").slice(0, compared).join(" ");
+  return key(chess.fen()) === key(target.fen());
 }
 
 function confirmPrior(
   position: string,
   retro: Retro,
   prior: string,
+  chained = false,
 ): Result<{ prior: string }> {
   const valid = validatePrior(prior);
   if (!valid.ok) return valid;
 
-  if (!replayMatches(prior, retro, position)) {
+  if (!replayMatches(prior, retro, position, chained)) {
     return { ok: false, reason: "replay_mismatch" };
   }
   return { ok: true, prior };
@@ -171,9 +183,10 @@ function confirmPrior(
 export function applyRetro(
   position: string,
   retro: Retro,
+  chained = false,
 ): Result<{ prior: string }> {
   const built = buildPrior(position, retro);
-  return built.ok ? confirmPrior(position, retro, built.prior) : built;
+  return built.ok ? confirmPrior(position, retro, built.prior, chained) : built;
 }
 
 export const FILES = "abcdefgh";
@@ -325,8 +338,9 @@ function hasPlausibleMaterial(prior: string) {
 export function stepRetro(
   position: string,
   retro: Retro,
+  chained = false,
 ): Result<{ prior: string }> {
-  const result = applyRetro(position, retro);
+  const result = applyRetro(position, retro, chained);
   if (!result.ok) return result;
   return hasPlausibleMaterial(result.prior)
     ? result
@@ -334,12 +348,35 @@ export function stepRetro(
 }
 
 /**
+ * Takes `retros` back one after another from `shown`, the position on the board.
+ * Gives the position reached and the forward moves that the chain undoes, in the order they were played, or the first step that cannot be taken back.
+ */
+export function unwindChain(
+  shown: string,
+  retros: readonly Retro[],
+):
+  | { ok: true; last: string; forward: ForwardMove[] }
+  | { ok: false; index: number; reason: RetroRejection } {
+  let position = shown;
+  const forward: ForwardMove[] = [];
+  for (const [index, retro] of retros.entries()) {
+    const result = stepRetro(position, retro, index > 0);
+    if (!result.ok) return { ok: false, index, reason: result.reason };
+    forward.unshift(toForward(retro, position));
+    position = result.prior;
+  }
+  return { ok: true, last: position, forward };
+}
+
+/**
  * Every retro move that `stepRetro` accepts for `position`, with the prior position it produces.
  * `admit` is tested on each built prior before the costly validation, so a caller that wants only some priors skips the rest.
+ * `chained` is passed on to `stepRetro`, for a `position` built by an earlier take-back.
  */
 export function* enumerateRetroSteps(
   position: string,
   admit?: (prior: string) => boolean,
+  chained = false,
 ): Generator<{ retro: Retro; prior: string }> {
   const chess = load(position);
   if (!chess) return;
@@ -397,7 +434,7 @@ export function* enumerateRetroSteps(
   for (const candidate of candidates) {
     const built = buildPrior(position, candidate);
     if (!built.ok || (admit && !admit(built.prior))) continue;
-    const step = confirmPrior(position, candidate, built.prior);
+    const step = confirmPrior(position, candidate, built.prior, chained);
     if (!step.ok || !hasPlausibleMaterial(step.prior)) continue;
     const { from, to, uncapture, unpromote, special } = candidate;
     yield {
@@ -414,5 +451,8 @@ export function* enumerateRetroSteps(
 }
 
 /** Every retro move that `stepRetro` accepts for `position`. */
-export const enumerateRetro = (position: string) =>
-  Array.from(enumerateRetroSteps(position), ({ retro }) => retro);
+export const enumerateRetro = (position: string, chained = false) =>
+  Array.from(
+    enumerateRetroSteps(position, undefined, chained),
+    ({ retro }) => retro,
+  );

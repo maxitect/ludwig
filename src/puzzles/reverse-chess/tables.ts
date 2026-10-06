@@ -24,6 +24,7 @@ export const retroGoalKindEnum = pgEnum("retro_goal_kind", [
   "piece_on_square",
   "castling_right",
   "piece_count",
+  "initial_position",
 ]);
 export const retroCastleSideEnum = pgEnum("retro_castle_side", [
   "kingside",

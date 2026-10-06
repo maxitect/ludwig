@@ -1,0 +1,1 @@
+ALTER TYPE "retro_goal_kind" ADD VALUE 'initial_position';

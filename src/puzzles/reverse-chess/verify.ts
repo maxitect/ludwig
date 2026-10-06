@@ -1,15 +1,23 @@
-import { satisfiesGoal, toFen } from "./derive";
+import {
+  isStartingPlacement,
+  reproducesFromStart,
+  satisfiesGoal,
+  toFen,
+} from "./derive";
 import {
   enumerateRetro,
   enumerateRetroSteps,
   retroKey,
   toRetro,
+  unwindChain,
   type Retro,
 } from "./engine";
 import { minRetroMoves } from "./goal-bound";
-import type { Content, Goal } from "./schema";
+import { proofGames } from "./proof-search";
+import type { Content, PositionGoal } from "./schema";
 
 const MAX_REPORTED_CHAINS = 2;
+const MAX_PROOF_POSITIONS = 5_000_000;
 
 function mismatch(
   label: "ply" | "chain",
@@ -44,7 +52,7 @@ const positionKey = (fen: string) => fen.split(" ").slice(0, 4).join(" ");
 export function goalChains(
   fen: string,
   length: number,
-  goal: Goal,
+  goal: PositionGoal,
   limit: number,
 ) {
   const found: Retro[][] = [];
@@ -58,8 +66,10 @@ export function goalChains(
 
   const walk = (position: string, chain: Retro[], left: number) => {
     let reached = false;
-    for (const step of enumerateRetroSteps(position, (prior) =>
-      viable(prior, left - 1),
+    for (const step of enumerateRetroSteps(
+      position,
+      (prior) => viable(prior, left - 1),
+      chain.length > 0,
     )) {
       if (found.length >= limit) return true;
       const next = [...chain, step.retro];
@@ -79,7 +89,7 @@ export function goalChains(
 }
 
 /** Exactly one chain of the authored length may reach the goal, and it must be the authored one. */
-function verifyUnwind(fen: string, chain: Retro[], goal: Goal) {
+function verifyUnwind(fen: string, chain: Retro[], goal: PositionGoal) {
   const chains = goalChains(fen, chain.length, goal, MAX_REPORTED_CHAINS);
   if (chains.length !== 1) {
     const count = chains.length ? `at least ${chains.length}` : "0";
@@ -93,6 +103,56 @@ function verifyUnwind(fen: string, chain: Retro[], goal: Goal) {
   }
 }
 
+/** Plies from the starting position to a position, which is all that its move number and side to move say. */
+const plyCountOf = ({ fullmove, sideToMove }: Content) =>
+  2 * (fullmove - 1) + (sideToMove === "black" ? 1 : 0);
+
+const gameKey = (game: { from: string; to: string; promotion?: string }[]) =>
+  game
+    .map(({ from, to, promotion }) => `${from}${to}${promotion ?? ""}`)
+    .join(" ");
+
+/**
+ * Exactly one game from the standard start may reach the position in the authored number of plies, and it must be the authored one.
+ * Searching forward from the start finds it where a backward search from a middle game would not finish.
+ */
+function verifyProofGame(content: Content, fen: string, chain: Retro[]) {
+  const plies = plyCountOf(content);
+  if (chain.length !== plies) {
+    throw new Error(
+      `a proof game needs ${plies} plies (2 * (fullmove - 1), plus 1 when Black is to move), found ${chain.length}`,
+    );
+  }
+  const unwound = unwindChain(fen, chain);
+  if (!unwound.ok) {
+    throw new Error(
+      `authored ply ${unwound.index + 1} cannot be taken back (${unwound.reason})`,
+    );
+  }
+  if (
+    !isStartingPlacement(unwound.last) ||
+    !reproducesFromStart(unwound.forward, fen)
+  ) {
+    throw new Error(
+      "authored chain, read forward from the starting position, does not reproduce the position",
+    );
+  }
+  const games = proofGames(fen, plies, MAX_REPORTED_CHAINS, {
+    maxPositions: MAX_PROOF_POSITIONS,
+  });
+  if (games.length !== 1) {
+    const count = games.length ? `at least ${games.length}` : "0";
+    throw new Error(
+      `expected exactly 1 game of ${plies} plies from the starting position, found ${count}`,
+    );
+  }
+  if (gameKey(games[0]) !== gameKey(unwound.forward)) {
+    throw new Error(
+      `authored chain does not match the unique game (authored ${gameKey(unwound.forward)}, found ${gameKey(games[0])})`,
+    );
+  }
+}
+
 /** Throws unless the puzzle's authored retro moves are its unique solution. */
 export function verifyReverseChess(content: Content) {
   const fen = toFen({
@@ -102,7 +162,9 @@ export function verifyReverseChess(content: Content) {
   const chain = content.solutionPlies.map(toRetro);
   if (content.mode === "unwind") {
     if (!content.goal) throw new Error("unwind puzzles need a goal");
-    return verifyUnwind(fen, chain, content.goal);
+    return content.goal.kind === "initial_position"
+      ? verifyProofGame(content, fen, chain)
+      : verifyUnwind(fen, chain, content.goal);
   }
   if (chain.length !== 1) {
     throw new Error("last_move puzzles need exactly 1 solution ply");

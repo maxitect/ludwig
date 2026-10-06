@@ -63,7 +63,7 @@ export const reverseChessModule = {
         await tx
           .insert(reverseChessGoalCastlingRight)
           .values({ puzzleId, colour, side });
-      } else {
+      } else if (params.kind === "piece_count") {
         const { colour, piece, count } = params;
         await tx
           .insert(reverseChessGoalPieceCount)

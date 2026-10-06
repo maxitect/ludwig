@@ -32,11 +32,16 @@ const pieceCount = createSelectSchema(reverseChessGoalPieceCount, {
   count: (schema) => schema.min(0).max(10),
 }).pick({ kind: true, colour: true, piece: true, count: true });
 
+const initialPosition = createSelectSchema(reverseChessGoals, {
+  kind: z.literal("initial_position"),
+}).pick({ kind: true });
+
 /** The condition a Mode B chain must reach, a predicate on the final position. */
 export const goalSchema = z.discriminatedUnion("kind", [
   pieceOnSquare,
   castlingRight,
   pieceCount,
+  initialPosition,
 ]);
 
 const puzzleSelect = createSelectSchema(reverseChessPuzzles).omit({
@@ -100,3 +105,5 @@ export type Content = z.infer<typeof contentSchema>;
 export type SolutionPly = z.infer<typeof solutionPlySchema>;
 export type Solution = z.infer<typeof solutionSchema>;
 export type Goal = z.infer<typeof goalSchema>;
+/** A goal that is a predicate on the final position alone, searched backwards by `goalChains`. */
+export type PositionGoal = Exclude<Goal, { kind: "initial_position" }>;

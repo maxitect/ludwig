@@ -1,5 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
+import { content as proofContent } from "../../../content/reverse-chess/two-promotions";
 import { content as unwind } from "./fixtures/dev-unwind";
 import { content, meta } from "./fixtures/content/reverse-chess/dev-rook-check";
 import { db } from "@/db";
@@ -21,6 +22,7 @@ import {
   reverseChessAttemptPlies,
   reverseChessAttempts,
   reverseChessGoalCastlingRight,
+  reverseChessGoalPieceCount,
   reverseChessGoalPieceOnSquare,
   reverseChessGoals,
   reverseChessPieces,
@@ -306,7 +308,8 @@ describe("reverse_chess_goals", () => {
       await reverseChessModule.upsertContent(tx, puzzleId, castling);
       return tx.execute(sql`
         select g.kind, g.display_text,
-          (select count(*)::int from reverse_chess_goal_piece_on_square) as squares,
+          (select count(*)::int from reverse_chess_goal_piece_on_square s
+            where s.puzzle_id = g.puzzle_id) as squares,
           (select count(*)::int from reverse_chess_goal_castling_right) as castles
         from reverse_chess_goals g where g.puzzle_id = ${puzzleId}`);
     });
@@ -317,6 +320,119 @@ describe("reverse_chess_goals", () => {
         squares: 0,
         castles: 1,
       },
+    ]);
+  });
+});
+
+describe("initial_position goal", () => {
+  const columns = { ...unwindColumns, sideToMove: "white", fullmove: 6 } as const;
+
+  async function proofGame(tx: Tx, plyCount: number, kind = "initial_position" as const) {
+    await ensureTypes(tx);
+    const puzzleId = await insertPuzzle(tx, "reverse-chess");
+    await tx
+      .insert(reverseChessPuzzles)
+      .values({ ...columns, puzzleId, plyCount });
+    await tx
+      .insert(reverseChessGoals)
+      .values({ puzzleId, kind, displayText: "Back to the starting position" });
+    return puzzleId;
+  }
+
+  it("commits with no subtype row and a ply_count that matches the position", async () => {
+    expect(
+      await pgError(async (tx) => {
+        await proofGame(tx, 10);
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+  });
+
+  it("commits a Black to move position whose ply_count is odd", async () => {
+    expect(
+      await pgError(async (tx) => {
+        const puzzleId = await proofGame(tx, 11);
+        await tx
+          .update(reverseChessPuzzles)
+          .set({ sideToMove: "black" })
+          .where(eq(reverseChessPuzzles.puzzleId, puzzleId));
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+  });
+
+  it("rejects a ply_count that disagrees with the move number at commit", async () => {
+    const error = await pgError(async (tx) => {
+      await proofGame(tx, 9);
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/has ply_count 9 but its initial_position goal needs 10/);
+  });
+
+  it("rejects changing the side to move so ply_count no longer matches", async () => {
+    const error = await pgError(async (tx) => {
+      const puzzleId = await proofGame(tx, 10);
+      await forceDeferred(tx);
+      await tx
+        .update(reverseChessPuzzles)
+        .set({ sideToMove: "black" })
+        .where(eq(reverseChessPuzzles.puzzleId, puzzleId));
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/needs 11/);
+  });
+
+  it("leaves other goal kinds free of the ply_count rule", async () => {
+    expect(
+      await pgError(async (tx) => {
+        const puzzleId = await unwindPuzzleFor(tx);
+        await tx
+          .insert(reverseChessGoals)
+          .values({ puzzleId, kind: "piece_count", displayText: "goal" });
+        await tx
+          .insert(reverseChessGoalPieceCount)
+          .values({ puzzleId, colour: "black", piece: "pawn", count: 8 });
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+  });
+
+  it("still rejects a piece_count goal without its subtype row", async () => {
+    const error = await pgError(async (tx) => {
+      const puzzleId = await unwindPuzzleFor(tx);
+      await tx
+        .insert(reverseChessGoals)
+        .values({ puzzleId, kind: "piece_count", displayText: "goal" });
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/of kind piece_count has no subtype row/);
+  });
+
+  async function unwindPuzzleFor(tx: Tx) {
+    await ensureTypes(tx);
+    const puzzleId = await insertPuzzle(tx, "reverse-chess");
+    await tx
+      .insert(reverseChessPuzzles)
+      .values({ ...unwindColumns, puzzleId, plyCount: 2 });
+    return puzzleId;
+  }
+
+  it("is seeded with no subtype row and keeps its goal on re-seed", async () => {
+    const stored = await rolledBack(async (tx) => {
+      await ensureTypes(tx);
+      const puzzleId = await insertPuzzle(tx, "reverse-chess");
+      await reverseChessModule.upsertContent(tx, puzzleId, proofContent);
+      await reverseChessModule.upsertContent(tx, puzzleId, proofContent);
+      return tx.execute(sql`
+        select g.kind, p.ply_count,
+          (select count(*)::int from reverse_chess_goal_piece_on_square s
+            where s.puzzle_id = g.puzzle_id) as squares
+        from reverse_chess_goals g
+        join reverse_chess_puzzles p using (puzzle_id)
+        where g.puzzle_id = ${puzzleId}`);
+    });
+    expect(stored.rows).toEqual([
+      { kind: "initial_position", ply_count: 10, squares: 0 },
     ]);
   });
 });
@@ -371,6 +487,7 @@ describe("play payload", () => {
   afterAll(async () => {
     await db.delete(puzzles).where(eq(puzzles.slug, "t030-goal-leak-test"));
     await db.delete(puzzles).where(eq(puzzles.slug, "t025-leak-test"));
+    await db.delete(puzzles).where(eq(puzzles.slug, "t081-proof-leak-test"));
     await db.execute(
       sql`delete from puzzle_types where key in ('reverse-chess', 'anagram') and category_key = 'rc-test'`,
     );
@@ -450,5 +567,35 @@ describe("play payload", () => {
       file: "a",
       rank: 7,
     });
+  });
+
+  it("shows a proof game's position, ply count and goal text but no plies", async () => {
+    let proofId = "";
+    await db.transaction(async (tx) => {
+      await ensureTypes(tx);
+      const [row] = await tx
+        .insert(puzzles)
+        .values({
+          typeKey: "reverse-chess",
+          slug: "t081-proof-leak-test",
+          title: "proof",
+          difficulty: 1,
+        })
+        .returning({ id: puzzles.id });
+      proofId = row.id;
+      await reverseChessModule.upsertContent(tx, proofId, proofContent);
+    });
+
+    const payload = await load(proofId);
+
+    expect(payloadSchema.strict().safeParse(payload).success).toBe(true);
+    expect(payload.plyCount).toBe(10);
+    expect(payload.goalText).toBe("Back to the starting position");
+    expect(payload.pieces.length).toBeGreaterThan(0);
+    expect(JSON.stringify(payload)).not.toContain("initial_position");
+    for (const key of ["solutionPlies", "plies", "fromFile", "toFile", "uncapture"]) {
+      expect(JSON.stringify(payload)).not.toContain(`"${key}"`);
+    }
+    expect((await loadSolution(proofId)).goal).toEqual({ kind: "initial_position" });
   });
 });

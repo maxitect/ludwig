@@ -201,6 +201,7 @@ describe("verifyPuzzles", () => {
     expect(await verifyPuzzles(registry, contentDir)).toEqual({
       checked: 1,
       failures: [],
+      durations: new Map([["__fixture/a", expect.any(Number)]]),
     });
   });
 
@@ -226,7 +227,11 @@ describe("verifyPuzzles", () => {
   });
 
   it("is a no-op success with an empty registry", async () => {
-    expect(await verifyPuzzles({}, contentDir)).toEqual({ checked: 0, failures: [] });
+    expect(await verifyPuzzles({}, contentDir)).toEqual({
+      checked: 0,
+      failures: [],
+      durations: new Map(),
+    });
   });
 });
 

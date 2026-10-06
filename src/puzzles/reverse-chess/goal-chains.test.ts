@@ -5,6 +5,7 @@ import {
   enumerateRetro,
   retroKey,
   stepRetro,
+  unwindChain,
   type Retro,
 } from "./engine";
 import type { PositionGoal } from "./schema";
@@ -35,8 +36,9 @@ function allChains(fen: string, length: number) {
       found.push({ chain, prior: position });
       return;
     }
-    for (const retro of enumerateRetro(position)) {
-      const result = applyRetro(position, retro);
+    const chained = chain.length > 0;
+    for (const retro of enumerateRetro(position, chained)) {
+      const result = applyRetro(position, retro, chained);
       if (result.ok) walk(result.prior, [...chain, retro]);
     }
   };
@@ -176,6 +178,18 @@ describe("goalChains", () => {
       "uncapture",
       "unpromote",
     ]);
+  });
+
+  it("counts a chain that takes back a double push beside an enemy pawn, which check accepts", () => {
+    const fen = "7k/8/8/3pP3/8/5N2/8/K7 b - - 1 2";
+    const chain: Retro[] = [
+      { from: "g1", to: "f3" },
+      { from: "d7", to: "d5" },
+    ];
+    expect(unwindChain(fen, chain).ok).toBe(true);
+    expect(
+      keys(goalChains(fen, 2, onSquare("black", "pawn", "d", 7), Infinity)),
+    ).toContain(chain.map(retroKey).join(" "));
   });
 
   it("stops after the limit", () => {

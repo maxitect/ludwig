@@ -66,8 +66,10 @@ export function goalChains(
 
   const walk = (position: string, chain: Retro[], left: number) => {
     let reached = false;
-    for (const step of enumerateRetroSteps(position, (prior) =>
-      viable(prior, left - 1),
+    for (const step of enumerateRetroSteps(
+      position,
+      (prior) => viable(prior, left - 1),
+      chain.length > 0,
     )) {
       if (found.length >= limit) return true;
       const next = [...chain, step.retro];

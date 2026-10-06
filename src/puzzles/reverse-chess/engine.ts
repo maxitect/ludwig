@@ -371,10 +371,12 @@ export function unwindChain(
 /**
  * Every retro move that `stepRetro` accepts for `position`, with the prior position it produces.
  * `admit` is tested on each built prior before the costly validation, so a caller that wants only some priors skips the rest.
+ * `chained` is passed on to `stepRetro`, for a `position` built by an earlier take-back.
  */
 export function* enumerateRetroSteps(
   position: string,
   admit?: (prior: string) => boolean,
+  chained = false,
 ): Generator<{ retro: Retro; prior: string }> {
   const chess = load(position);
   if (!chess) return;
@@ -432,7 +434,7 @@ export function* enumerateRetroSteps(
   for (const candidate of candidates) {
     const built = buildPrior(position, candidate);
     if (!built.ok || (admit && !admit(built.prior))) continue;
-    const step = confirmPrior(position, candidate, built.prior);
+    const step = confirmPrior(position, candidate, built.prior, chained);
     if (!step.ok || !hasPlausibleMaterial(step.prior)) continue;
     const { from, to, uncapture, unpromote, special } = candidate;
     yield {
@@ -449,5 +451,8 @@ export function* enumerateRetroSteps(
 }
 
 /** Every retro move that `stepRetro` accepts for `position`. */
-export const enumerateRetro = (position: string) =>
-  Array.from(enumerateRetroSteps(position), ({ retro }) => retro);
+export const enumerateRetro = (position: string, chained = false) =>
+  Array.from(
+    enumerateRetroSteps(position, undefined, chained),
+    ({ retro }) => retro,
+  );

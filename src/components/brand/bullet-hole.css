@@ -1,0 +1,106 @@
+/* Torn-circle polygons are generated: 36 points each so clip-path interpolates. Only clip-path or opacity animates; no SVG filters. */
+@keyframes bullet-hole-open {
+  from {
+    clip-path: polygon(50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%);
+  }
+  to {
+    clip-path: polygon(134.6% 50.0%, 140.2% 65.9%, 137.9% 82.0%, 132.1% 97.4%, 122.7% 111.0%, 107.5% 118.5%, 96.3% 130.1%, 80.9% 134.9%, 65.3% 136.6%, 50.0% 135.8%, 36.2% 128.3%, 21.4% 128.6%, 8.0% 122.7%, -4.8% 115.3%, -16.9% 106.1%, -23.6% 92.5%, -36.4% 81.5%, -42.4% 66.3%, -44.8% 50.0%, -43.5% 33.5%, -33.8% 19.5%, -29.8% 3.9%, -18.9% -7.8%, -6.3% -17.1%, 7.3% -24.0%, 22.9% -24.5%, 35.5% -32.3%, 50.0% -34.1%, 64.9% -34.3%, 80.0% -32.4%, 92.7% -23.9%, 109.3% -20.7%, 122.0% -10.5%, 132.2% 2.5%, 139.1% 17.6%, 137.6% 34.6%);
+  }
+}
+
+@keyframes bullet-hole-tear {
+  from {
+    clip-path: polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%);
+  }
+  to {
+    clip-path: polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 134.6% 50.0%, 140.2% 65.9%, 137.9% 82.0%, 132.1% 97.4%, 122.7% 111.0%, 107.5% 118.5%, 96.3% 130.1%, 80.9% 134.9%, 65.3% 136.6%, 50.0% 135.8%, 36.2% 128.3%, 21.4% 128.6%, 8.0% 122.7%, -4.8% 115.3%, -16.9% 106.1%, -23.6% 92.5%, -36.4% 81.5%, -42.4% 66.3%, -44.8% 50.0%, -43.5% 33.5%, -33.8% 19.5%, -29.8% 3.9%, -18.9% -7.8%, -6.3% -17.1%, 7.3% -24.0%, 22.9% -24.5%, 35.5% -32.3%, 50.0% -34.1%, 64.9% -34.3%, 80.0% -32.4%, 92.7% -23.9%, 109.3% -20.7%, 122.0% -10.5%, 132.2% 2.5%, 139.1% 17.6%, 137.6% 34.6%, 134.6% 50.0%);
+  }
+}
+
+@keyframes bullet-hole-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes bullet-hole-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+:root:active-view-transition-type(bullet-hole)::view-transition-group(root) {
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(var(--color-grid-blue) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-blue) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+:root:active-view-transition-type(bullet-hole)::view-transition-old(root) {
+  animation: 600ms ease-in both bullet-hole-tear;
+}
+
+:root:active-view-transition-type(bullet-hole)::view-transition-new(root) {
+  animation: 500ms ease-out 200ms both bullet-hole-open;
+}
+
+.bullet-hole {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(var(--color-grid-blue) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-blue) 1px, transparent 1px);
+  background-size: 24px 24px;
+  animation: 700ms ease-out both bullet-hole-open;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:active-view-transition-type(bullet-hole)::view-transition-group(root) {
+    background: none;
+  }
+
+  :root:active-view-transition-type(bullet-hole)::view-transition-old(root) {
+    animation: 150ms linear both bullet-hole-fade-out;
+  }
+
+  :root:active-view-transition-type(bullet-hole)::view-transition-new(root) {
+    animation: 150ms linear both bullet-hole-fade-in;
+  }
+
+  .bullet-hole {
+    animation: 150ms linear both bullet-hole-fade-in;
+  }
+}
+
+:root[data-reduce-motion]:active-view-transition-type(bullet-hole)::view-transition-group(root) {
+  background: none;
+}
+
+:root[data-reduce-motion]:active-view-transition-type(bullet-hole)::view-transition-old(root) {
+  animation: 150ms linear both bullet-hole-fade-out;
+}
+
+:root[data-reduce-motion]:active-view-transition-type(bullet-hole)::view-transition-new(root) {
+  animation: 150ms linear both bullet-hole-fade-in;
+}
+
+:root[data-reduce-motion] .bullet-hole {
+  animation: 150ms linear both bullet-hole-fade-in;
+}
+
+::view-transition-group(.bullet-hole-page) {
+  animation: none;
+}
+
+:root:active-view-transition-type(bullet-hole) {
+  view-transition-name: root !important;
+}
+
+:root:active-view-transition-type(bullet-hole)::view-transition-old(root),
+:root:active-view-transition-type(bullet-hole)::view-transition-new(root) {
+  mix-blend-mode: normal;
+}

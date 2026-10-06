@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
+  BulletHole,
+  BulletHoleTransition,
   Credit,
   GridPaper,
   InkSplat,
@@ -199,6 +201,10 @@ export default function KitchenSinkPage() {
             <SolvedStamp />
             <Walker />
           </div>
+          <div className="relative isolate h-24 w-64 border-2 border-border">
+            <BulletHole />
+          </div>
+          <BulletHoleTransition />
           <GridPaper className="border-2 border-border p-6">
             <p className="font-mono text-sm">GridPaper</p>
           </GridPaper>

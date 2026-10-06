@@ -92,6 +92,7 @@
   animation: 150ms linear both bullet-hole-fade-in;
 }
 
+:root:active-view-transition-type(bullet-hole)::view-transition-group(root),
 ::view-transition-group(.bullet-hole-page) {
   animation: none;
 }

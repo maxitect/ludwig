@@ -7,25 +7,25 @@ import {
   stepRetro,
   type Retro,
 } from "./engine";
-import type { Goal } from "./schema";
+import type { PositionGoal } from "./schema";
 import { goalChains } from "./verify";
 
 const text = { displayText: "goal" } as const;
 const onSquare = (
   colour: "white" | "black",
-  piece: Extract<Goal, { kind: "piece_on_square" }>["piece"],
-  file: Extract<Goal, { kind: "piece_on_square" }>["file"],
+  piece: Extract<PositionGoal, { kind: "piece_on_square" }>["piece"],
+  file: Extract<PositionGoal, { kind: "piece_on_square" }>["file"],
   rank: number,
-): Goal => ({ kind: "piece_on_square", ...text, colour, piece, file, rank });
+): PositionGoal => ({ kind: "piece_on_square", ...text, colour, piece, file, rank });
 const count = (
   colour: "white" | "black",
-  piece: Extract<Goal, { kind: "piece_count" }>["piece"],
+  piece: Extract<PositionGoal, { kind: "piece_count" }>["piece"],
   total: number,
-): Goal => ({ kind: "piece_count", ...text, colour, piece, count: total });
+): PositionGoal => ({ kind: "piece_count", ...text, colour, piece, count: total });
 const right = (
   colour: "white" | "black",
   side: "kingside" | "queenside",
-): Goal => ({ kind: "castling_right", ...text, colour, side });
+): PositionGoal => ({ kind: "castling_right", ...text, colour, side });
 
 /** The search `goalChains` replaced, without the goal: every chain of `length` retro moves with its last prior. */
 function allChains(fen: string, length: number) {
@@ -44,7 +44,7 @@ function allChains(fen: string, length: number) {
   return found;
 }
 
-const exhaustiveChains = (fen: string, length: number, goal: Goal) =>
+const exhaustiveChains = (fen: string, length: number, goal: PositionGoal) =>
   allChains(fen, length)
     .filter(({ prior }) => satisfiesGoal(prior, goal))
     .map(({ chain }) => chain);
@@ -67,7 +67,7 @@ const SMALL_CASTLE = "6bk/5ppp/8/8/8/8/1PPPPPPP/2BQ1RK1 b - - 0 1";
 const SMALL_EN_PASSANT = "kb6/ppp5/8/8/8/3p4/5PPP/6BK w - - 0 1";
 const SMALL_PROMOTED = "N5bk/5ppp/8/8/8/8/PPP5/KB6 b - - 0 1";
 
-const CASES: [name: string, fen: string, goal: Goal, depth: number][] = [
+const CASES: [name: string, fen: string, goal: PositionGoal, depth: number][] = [
   ["middlegame pawn home", MIDDLEGAME, onSquare("black", "pawn", "a", 7), 2],
   ["middlegame knight home", MIDDLEGAME, onSquare("white", "knight", "b", 1), 2],
   ["middlegame castling right", MIDDLEGAME, right("white", "kingside"), 2],
@@ -96,7 +96,7 @@ const CASES: [name: string, fen: string, goal: Goal, depth: number][] = [
   ["knight route", KNIGHTS, onSquare("black", "knight", "a", 6), 2],
 ];
 
-const DEEP_CASES: [name: string, fen: string, goal: Goal][] = [
+const DEEP_CASES: [name: string, fen: string, goal: PositionGoal][] = [
   ["blocked pawn home", BLOCKED, onSquare("black", "pawn", "a", 7)],
   ["blocked pawn back", BLOCKED, onSquare("black", "pawn", "a", 3)],
   ["blocked king square", BLOCKED, onSquare("white", "king", "b", 2)],
@@ -157,7 +157,7 @@ describe("goalChains", () => {
 
   it("AC1: covers en passant, castling, uncapture and unpromotion chains", () => {
     const kinds = new Set<string>();
-    const note = (fen: string, goal: Goal, depth: number) => {
+    const note = (fen: string, goal: PositionGoal, depth: number) => {
       for (const chain of goalChains(fen, depth, goal, Infinity)) {
         for (const retro of chain) {
           if (retro.special) kinds.add(retro.special);

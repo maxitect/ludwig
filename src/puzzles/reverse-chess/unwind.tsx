@@ -24,7 +24,7 @@ type Invalid = { index: number; reason: RetroRejection };
 function walk(fen: string, plies: readonly Ply[]) {
   const positions = [fen];
   for (const [index, ply] of plies.entries()) {
-    const result = stepRetro(positions[index], toRetro(ply));
+    const result = stepRetro(positions[index], toRetro(ply), index > 0);
     if (!result.ok) {
       return { positions, invalid: { index, reason: result.reason } as Invalid };
     }

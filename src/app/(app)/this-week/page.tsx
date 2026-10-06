@@ -1,9 +1,9 @@
-import { Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { Credit, Walker } from "@/components/brand";
+import { SolvedBadge, type SolvedIds } from "@/components/puzzle/solved-badge";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -23,7 +23,6 @@ export const metadata: Metadata = {
 
 type Week = Awaited<ReturnType<typeof getWeeklySchedule>>[number];
 type WeekPuzzle = Week["puzzles"][number];
-type SolvedIds = Promise<Set<string>>;
 
 const headingClass =
   "border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase";
@@ -147,23 +146,5 @@ async function Schedule() {
         </section>
       )}
     </>
-  );
-}
-
-async function SolvedBadge({
-  puzzleId,
-  solved,
-  className,
-}: {
-  puzzleId: string;
-  solved: SolvedIds;
-  className?: string;
-}) {
-  if (!(await solved).has(puzzleId)) return null;
-  return (
-    <Badge variant="outline" className={className}>
-      <Check aria-hidden="true" />
-      Solved
-    </Badge>
   );
 }

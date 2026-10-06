@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Check } from "lucide-react";
 import { Credit } from "@/components/brand";
+import { SolvedBadge, type SolvedIds } from "@/components/puzzle/solved-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
@@ -17,7 +17,6 @@ export const metadata: Metadata = {
 };
 
 type Hub = Awaited<ReturnType<typeof getReverseChessHub>>;
-type SolvedIds = ReturnType<typeof getSolvedPuzzleIds>;
 
 const SECTIONS = [
   {
@@ -187,20 +186,4 @@ function ModeSections({ hub, solved }: { hub: Hub; solved: SolvedIds }) {
       )}
     </section>
   ));
-}
-
-async function SolvedBadge({
-  puzzleId,
-  solved,
-}: {
-  puzzleId: string;
-  solved: SolvedIds;
-}) {
-  if (!(await solved).has(puzzleId)) return null;
-  return (
-    <Badge variant="outline">
-      <Check aria-hidden="true" />
-      Solved
-    </Badge>
-  );
 }

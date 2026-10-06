@@ -173,6 +173,59 @@ describe("crossword clue segment separators", () => {
     ).toBeUndefined();
   });
 
+  it("rejects a null separator before the last segment", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t080-null");
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: null },
+          { ...key, position: 1, length: 1, separator: null },
+        ]);
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
+  it("rejects clearing the separator of a non-last segment", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t080-clear");
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "word" },
+          { ...key, position: 1, length: 1, separator: null },
+        ]);
+        await forceDeferred(tx);
+        await tx
+          .update(crosswordClueSegments)
+          .set({ separator: null })
+          .where(eq(crosswordClueSegments.position, 0));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
+  it("rejects moving a segment after the last of another clue, leaving a null before it", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const key = await insertClue(tx, "t080-move-after-last");
+        await tx
+          .insert(crosswordClues)
+          .values({ ...key, direction: "down", clueText: "y" });
+        await tx.insert(crosswordClueSegments).values([
+          { ...key, position: 0, length: 1, separator: "word" },
+          { ...key, position: 1, length: 1, separator: null },
+          { ...key, direction: "down", position: 0, length: 1, separator: null },
+        ]);
+        await forceDeferred(tx);
+        await tx
+          .update(crosswordClueSegments)
+          .set({ direction: "across", position: 2 })
+          .where(eq(crosswordClueSegments.direction, "down"));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23000");
+  });
+
   it("rejects a separator on the last segment", async () => {
     expect(
       await pgErrorCode(async (tx) => {

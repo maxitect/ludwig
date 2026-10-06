@@ -5,6 +5,7 @@ import { useLayoutEffect, useRef } from "react";
 import type { CrankProps } from "./crank";
 import { convergenceAt, type DanceGear, danceAt, markerOf } from "./dance";
 import { type Diagram, stateAt } from "./engine";
+import type { Swaps } from "./swaps";
 
 type Gear = Diagram["gears"][number];
 
@@ -142,6 +143,13 @@ function paint(
   );
 }
 
+/** Fix the Diagram state on the board. `diagram` already has the swaps applied; tapping a gear calls `onPick`. */
+export type Adjustments = {
+  swaps: Swaps;
+  selectedId: string | null;
+  onPick(gearId: string): void;
+};
+
 /**
  * `position` is the dance timeline in half-phases. The board repaints itself on every frame, so
  * playing the dance renders no React: React renders only when the crank or the settled convergence changes.
@@ -152,12 +160,14 @@ export function GearBoard({
   convergence,
   position,
   crankProps,
+  adjustments,
 }: {
   diagram: Diagram;
   crank: number;
   convergence: number;
   position: MotionValue<number>;
   crankProps?: CrankProps;
+  adjustments?: Adjustments;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const scale = toothScale(diagram);
@@ -167,6 +177,8 @@ export function GearBoard({
   const states = engineStateAt(diagram, crank, now);
   const settled = danceAt(diagram, crank, markerOf(convergence));
   const settledStates = stateAt(diagram, crank, convergence);
+  const startOf = (id: string) =>
+    diagram.gears.find((gear) => gear.id === id)!.startSlot;
 
   useLayoutEffect(() => {
     const svg = svgRef.current;
@@ -204,6 +216,25 @@ export function GearBoard({
         );
       })}
 
+      {adjustments?.swaps.map(({ gearAId, gearBId }) => {
+        const [x1, y1] = pointOf(startOf(gearAId), false, slotCount);
+        const [x2, y2] = pointOf(startOf(gearBId), false, slotCount);
+        return (
+          <line
+            key={`${gearAId}-${gearBId}`}
+            data-pencil={`${gearAId}-${gearBId}`}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            className="stroke-foreground/60"
+            strokeWidth={0.8}
+            strokeLinecap="round"
+            strokeDasharray="0.1 2"
+          />
+        );
+      })}
+
       {diagram.meshes.map(({ gearAId, gearBId }) => {
         const [x1, y1] = centreOf(dances[gearAId]!, slotCount);
         const [x2, y2] = centreOf(dances[gearBId]!, slotCount);
@@ -237,7 +268,9 @@ export function GearBoard({
             states?.[gear.id]!.sees ?? false,
           )}
           radius={gear.teeth * scale}
+          crank={crank}
           crankProps={gear.isDriver ? crankProps : undefined}
+          adjustments={adjustments}
         />
       ))}
 
@@ -274,25 +307,46 @@ function GearGlyph({
   gear,
   view,
   radius,
+  crank,
   crankProps,
+  adjustments,
 }: {
   gear: Gear;
   view: ReturnType<typeof gearView>;
   radius: number;
+  crank: number;
   crankProps?: CrankProps;
+  adjustments?: Adjustments;
 }) {
+  const downCrank = useRef(crank);
+  const swapped = adjustments?.swaps.some(
+    ({ gearAId, gearBId }) => gearAId === gear.id || gearBId === gear.id,
+  );
+  const selected = adjustments?.selectedId === gear.id;
   return (
     <g
       transform={view.transform}
       className={
         crankProps
           ? "group cursor-grab outline-none active:cursor-grabbing"
-          : undefined
+          : adjustments
+            ? "cursor-pointer"
+            : undefined
       }
       {...(crankProps ?? {
         role: "img",
         "aria-label": `Gear ${gear.label}, ${gear.teeth} teeth`,
       })}
+      onPointerDownCapture={() => {
+        downCrank.current = crank;
+      }}
+      onClick={
+        adjustments
+          ? () => {
+              if (crank === downCrank.current) adjustments.onPick(gear.id);
+            }
+          : undefined
+      }
       data-gear={gear.label}
       data-slot={view.slot}
       data-facing-deg={view.facingDeg}
@@ -304,6 +358,19 @@ function GearGlyph({
         strokeWidth={0.5}
         data-vision
       />
+      {swapped || selected ? (
+        <circle
+          r={radius + TOOTH_DEPTH + 3.5}
+          className={
+            selected
+              ? "pointer-events-none fill-none stroke-ludwig-red"
+              : "pointer-events-none fill-none stroke-foreground"
+          }
+          strokeWidth={1.6}
+          strokeDasharray={selected ? "2 1.5" : undefined}
+          data-swap-mark={selected ? "selected" : "swapped"}
+        />
+      ) : null}
       {crankProps ? (
         <circle
           r={radius + TOOTH_DEPTH + 1.5}

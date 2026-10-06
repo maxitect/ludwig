@@ -686,7 +686,9 @@ describe("removal of puzzles with attempts", () => {
 
     const summary = await run();
 
-    expect(summary.blockedRemovals).toHaveLength(1);
+    expect(summary.blockedRemovals).toEqual([
+      { typeKey: "__fixture", slug: "b", attempts: 1 },
+    ]);
     expect(await countPuzzles()).toBe(2);
   });
 
@@ -709,13 +711,15 @@ describe("removal of puzzles with attempts", () => {
 
     const summary = await withConfirm({ confirmList: "__fixture/other", interactive: false });
 
-    expect(summary.blockedRemovals).toHaveLength(1);
+    expect(summary.blockedRemovals).toEqual([
+      { typeKey: "__fixture", slug: "b", attempts: 1 },
+    ]);
     expect(await countPuzzles()).toBe(2);
   });
 
-  it("prompts interactively, listing puzzles with counts, and removes on y", async () => {
+  it.each(["y", " Yes "])("prompts interactively, listing puzzles with counts, and removes on %j", async (answer) => {
     const puzzleId = await seedGoneWithAttempts();
-    answers.push("y");
+    answers.push(answer);
 
     const summary = await withConfirm({ confirmList: "", interactive: true });
 
@@ -732,9 +736,40 @@ describe("removal of puzzles with attempts", () => {
 
     const summary = await withConfirm({ confirmList: "", interactive: true });
 
-    expect(summary.blockedRemovals).toHaveLength(1);
+    expect(summary.blockedRemovals).toEqual([
+      { typeKey: "__fixture", slug: "b", attempts: 1 },
+    ]);
     expect(await countPuzzles()).toBe(2);
     expect(await attemptCount(puzzleId)).toBe(1);
+  });
+
+  it("keeps an unlisted gone puzzle that gains an attempt while the prompt is open", async () => {
+    const puzzleId = await seedGoneWithAttempts();
+    write("c", contentFile("c", items));
+    await run();
+    const [{ id: lateId }] = await db
+      .select({ id: puzzles.id })
+      .from(puzzles)
+      .where(and(eq(puzzles.typeKey, "__fixture"), eq(puzzles.slug, "c")));
+    rmSync(path.join(contentDir, "__fixture", "c.ts"));
+    const [{ userId }] = await db
+      .select({ userId: attempts.userId })
+      .from(attempts)
+      .where(eq(attempts.puzzleId, puzzleId));
+
+    const summary = await withConfirm({
+      confirmList: "",
+      interactive: true,
+      ask: async () => {
+        await db.insert(attempts).values({ userId, puzzleId: lateId, typeKey: "__fixture" });
+        return "y";
+      },
+    });
+
+    expect(summary.blockedRemovals).toEqual([]);
+    expect(summary.types.__fixture.removed).toBe(1);
+    expect(await attemptCount(puzzleId)).toBe(0);
+    expect(await attemptCount(lateId)).toBe(1);
   });
 
   it("does not prompt or require confirmation when the removed puzzle has no attempts", async () => {
@@ -750,3 +785,4 @@ describe("removal of puzzles with attempts", () => {
     expect(summary.types.__fixture.removed).toBe(1);
   });
 });
+

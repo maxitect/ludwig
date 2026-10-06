@@ -1,7 +1,7 @@
 import path from "node:path";
 import { createInterface } from "node:readline/promises";
 import { pathToFileURL } from "node:url";
-import { and, count, eq, inArray, notInArray, or, sql } from "drizzle-orm";
+import { and, count, eq, inArray, notExists, notInArray, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { DatabaseError, Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
@@ -172,7 +172,8 @@ async function writePuzzle(
 
 /**
  * Upserts lookups, then every valid content file (supertype, subtype and children in one
- * transaction per puzzle), then removes puzzles of registered types that no longer have a file.
+ * transaction per puzzle), then removes puzzles of registered types that no longer have a file,
+ * asking `confirmRemoval` first when any of them have attempts.
  * Generated daily diagrams (linked in `gear_daily`) have no file and are never removed.
  */
 export async function seed({
@@ -241,14 +242,13 @@ export async function seed({
           db.select({ id: gearDaily.puzzleId }).from(gearDaily),
         ),
         or(
-          ...Object.keys(registry).map((typeKey) =>
-            and(
+          ...Object.keys(registry).map((typeKey) => {
+            const slugs = discoveredSlugs.get(typeKey) ?? [];
+            return and(
               eq(puzzles.typeKey, typeKey),
-              discoveredSlugs.get(typeKey)?.length
-                ? notInArray(puzzles.slug, discoveredSlugs.get(typeKey)!)
-                : undefined,
-            ),
-          ),
+              slugs.length ? notInArray(puzzles.slug, slugs) : undefined,
+            );
+          }),
         ),
       ),
     )
@@ -261,13 +261,27 @@ export async function seed({
     pending.length && !(await confirmRemoval(pending)) ? pending : [];
 
   if (!blockedRemovals.length && gone.length) {
-    await db.delete(puzzles).where(
-      inArray(
-        puzzles.id,
-        gone.map((puzzle) => puzzle.id),
-      ),
-    );
-    for (const { typeKey } of gone) types[typeKey].removed += 1;
+    const removed = await db
+      .delete(puzzles)
+      .where(
+        and(
+          inArray(
+            puzzles.id,
+            gone.map((puzzle) => puzzle.id),
+          ),
+          or(
+            inArray(
+              puzzles.id,
+              gone.filter((puzzle) => puzzle.attempts > 0).map((puzzle) => puzzle.id),
+            ),
+            notExists(
+              db.select().from(attempts).where(eq(attempts.puzzleId, puzzles.id)),
+            ),
+          ),
+        ),
+      )
+      .returning({ typeKey: puzzles.typeKey });
+    for (const { typeKey } of removed) types[typeKey].removed += 1;
   }
 
   return { lookups: lookupSummary, types, failures, blockedRemovals };
@@ -312,7 +326,7 @@ export function createConfirmRemoval({
     const answer = await ask(
       `These puzzles have no content file and their attempts will be deleted:\n${describePending(pending)}\nRemove them? (y/N) `,
     );
-    return answer.trim().toLowerCase() === "y";
+    return ["y", "yes"].includes(answer.trim().toLowerCase());
   };
 }
 

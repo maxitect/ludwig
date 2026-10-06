@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { isMonday, londonMidnight, londonWeekStart } from "./london-time";
+import {
+  addDays,
+  daysSinceEpoch,
+  isMonday,
+  londonDate,
+  londonMidnight,
+  londonWeekStart,
+} from "./london-time";
 
 describe("londonWeekStart", () => {
   it("returns the Monday of the week", () => {
@@ -57,5 +64,38 @@ describe("londonMidnight", () => {
     expect(londonMidnight("2026-10-25").toISOString()).toBe(
       "2026-10-24T23:00:00.000Z",
     );
+  });
+});
+
+describe("londonDate", () => {
+  it("uses GMT in winter", () => {
+    expect(londonDate(new Date("2026-01-15T23:59:59Z"))).toBe("2026-01-15");
+    expect(londonDate(new Date("2026-01-16T00:00:00Z"))).toBe("2026-01-16");
+  });
+
+  it("uses BST in summer", () => {
+    expect(londonDate(new Date("2026-07-05T22:59:59Z"))).toBe("2026-07-05");
+    expect(londonDate(new Date("2026-07-05T23:00:00Z"))).toBe("2026-07-06");
+  });
+
+  it("follows the clock changes", () => {
+    expect(londonDate(new Date("2026-03-28T23:30:00Z"))).toBe("2026-03-28");
+    expect(londonDate(new Date("2026-03-29T23:30:00Z"))).toBe("2026-03-30");
+    expect(londonDate(new Date("2026-10-24T23:30:00Z"))).toBe("2026-10-25");
+    expect(londonDate(new Date("2026-10-25T23:30:00Z"))).toBe("2026-10-25");
+  });
+});
+
+describe("addDays and daysSinceEpoch", () => {
+  it("steps calendar dates across month, year and leap boundaries", () => {
+    expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
+    expect(addDays("2028-02-28", 1)).toBe("2028-02-29");
+    expect(addDays("2026-10-06", 365)).toBe("2027-10-06");
+  });
+
+  it("counts whole days from 1970-01-01", () => {
+    expect(daysSinceEpoch("1970-01-01")).toBe(0);
+    expect(daysSinceEpoch("1970-01-05")).toBe(4);
+    expect(daysSinceEpoch(addDays("2026-10-06", 1)) - daysSinceEpoch("2026-10-06")).toBe(1);
   });
 });

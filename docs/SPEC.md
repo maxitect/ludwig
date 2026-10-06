@@ -380,7 +380,7 @@ Layout: gears sit on distinct slots; the spin sign is the slot parity, so every 
 
 Curated diagrams live in the DB like any other puzzle. Generated ones are materialised into `puzzles`, `gear_puzzles` and their child tables by a script, so checking stays server-side.
 
-**Daily diagrams (T036).** `pnpm puzzles:gen-gears --from YYYY-MM-DD --days N [--difficulty-cycle easy,medium,hard,expert]` generates with `seed = date`, writes slug `daily-<date>` through the seed module's per-puzzle transaction (`upsertPuzzle`) and links it in `gear_daily` in the same transaction. Daily puzzles belong to no volume, have `published_at` at the start of that date in `Europe/London` (future dailies stay hidden), and their difficulty column is the preset index plus 2 (easy 2 to expert 5). `db:seed` never removes a puzzle linked in `gear_daily`; any other puzzle without a content file is removed. A date that already has a `gear_daily` row is skipped, so a published daily never changes. `puzzles:verify` also re-solves every `gear_daily` puzzle in the database and compares it with its stored solution.
+**Daily diagrams (T036).** `pnpm puzzles:gen-gears --from YYYY-MM-DD --days N [--difficulty-cycle easy,medium,hard,expert]` generates with `seed = date`, writes slug `daily-<date>` through the seed module's per-puzzle transaction (`upsertPuzzle`) and links it in `gear_daily` in the same transaction. Daily puzzles belong to no volume, have `published_at` at the start of that date in `Europe/London` (future dailies stay hidden), and their difficulty column is the preset index plus 2 (easy 2 to expert 5). The difficulty cycles by date (days since 1970-01-01 modulo the cycle length), so a date's difficulty doesn't depend on which run generated it. `db:seed` never removes a puzzle linked in `gear_daily`; any other puzzle without a content file is removed. A date that already has a `gear_daily` row is skipped, so a published daily never changes. `puzzles:verify` also re-solves every `gear_daily` puzzle in the database and compares it with its stored solution. In production a daily Vercel cron (`vercel.json`, 00:05 UTC) calls `GET /api/cron/daily-gears` with `Authorization: Bearer <CRON_SECRET>` (T078); it runs the same `generateDailies` code path for today (London) through today + 365 days, so a year of dailies always exists and only missing dates are written.
 
 **Preset evaluation (T037).** `pnpm puzzles:gears-report` measures every preset over 500 seeds (`playtest-0` to `playtest-499`) and exits non-zero if any threshold fails:
 
@@ -786,6 +786,7 @@ How this looks in code:
 | `DATABASE_URL_UNPOOLED` | same as `DATABASE_URL` | Neon **direct** URL, used only by drizzle-kit migrations |
 | `BETTER_AUTH_SECRET` | any random 32+ bytes | per environment, set in Vercel |
 | `BETTER_AUTH_URL` | `http://localhost:3000` | production domain. On previews, derive it from `VERCEL_URL` |
+| `CRON_SECRET` | optional, 16+ characters, to call the daily-gears cron route by hand | per environment, set in Vercel; Vercel cron sends it as `Authorization: Bearer`. Unset, the route returns 401 |
 
 These are validated with Zod in `src/env.ts`. A local Postgres runs through `docker compose` (`compose.yaml` with `postgres:17`), and needs no Neon account.
 

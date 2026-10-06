@@ -43,3 +43,15 @@ export function londonMidnight(date: string) {
 export function londonDate(at: Date) {
   return londonDateFormat.format(at);
 }
+
+/** The `YYYY-MM-DD` calendar date `days` days after `date`. */
+export function addDays(date: string, days: number) {
+  return new Date(new Date(`${date}T00:00:00Z`).getTime() + days * DAY_MS)
+    .toISOString()
+    .slice(0, 10);
+}
+
+/** Whole days from 1970-01-01 to a `YYYY-MM-DD` calendar date. */
+export function daysSinceEpoch(date: string) {
+  return new Date(`${date}T00:00:00Z`).getTime() / DAY_MS;
+}

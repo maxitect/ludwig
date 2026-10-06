@@ -3,18 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 import { z } from "zod";
-import { puzzleInsertSchema } from "../src/db/schema/core";
+import { contentMetaSchema } from "../src/lib/data/puzzle-upsert";
 import type { PuzzleRegistry } from "../src/puzzles/registry";
-
-export const contentMetaSchema = puzzleInsertSchema
-  .pick({
-    slug: true,
-    title: true,
-    difficulty: true,
-    sourceNote: true,
-    publishedAt: true,
-  })
-  .extend({ volume: z.string().optional() });
 
 export type ContentMeta = z.infer<typeof contentMetaSchema>;
 

@@ -30,7 +30,8 @@ import { registry as realRegistry } from "@/puzzles/registry";
 import type { Content as ReverseChessContent } from "@/puzzles/reverse-chess/schema";
 import type { Content as RotaContent } from "@/puzzles/rota/schema";
 import * as defaultLookups from "../content/lookups";
-import { createConfirmRemoval, seed, upsertPuzzle } from "./seed";
+import { upsertPuzzle } from "@/lib/data/puzzle-upsert";
+import { createConfirmRemoval, seed } from "./seed";
 import { verifyPuzzles } from "./verify-puzzles";
 
 const lookups = {

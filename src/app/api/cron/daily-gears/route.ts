@@ -1,17 +1,28 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { db } from "@/db";
 import { env } from "@/env";
-import { addDays, generateDailies } from "@/lib/data/gear-dailies";
+import { generateDailies } from "@/lib/data/gear-dailies";
 import { difficulties } from "@/puzzles/gears/presets";
 import { registry } from "@/puzzles/registry";
-import { londonDate } from "@/utils/london-time";
+import { addDays, londonDate } from "@/utils/london-time";
 
 export const maxDuration = 300;
 
 const WINDOW_DAYS = 366;
 
-export async function GET(request: Request) {
+const digest = (value: string) => createHash("sha256").update(value).digest();
+
+function isAuthorised(request: Request) {
   const secret = env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!secret) return false;
+  return timingSafeEqual(
+    digest(request.headers.get("authorization") ?? ""),
+    digest(`Bearer ${secret}`),
+  );
+}
+
+export async function GET(request: Request) {
+  if (!isAuthorised(request)) {
     return new Response("Unauthorized", { status: 401 });
   }
 

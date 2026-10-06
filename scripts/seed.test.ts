@@ -198,9 +198,10 @@ describe("seed", () => {
 describe("verifyPuzzles", () => {
   it("passes on valid content", async () => {
     write("a", contentFile("a", items));
-    expect(await verifyPuzzles(registry, contentDir)).toMatchObject({
+    expect(await verifyPuzzles(registry, contentDir)).toEqual({
       checked: 1,
       failures: [],
+      durations: new Map([["__fixture/a", expect.any(Number)]]),
     });
   });
 
@@ -226,9 +227,10 @@ describe("verifyPuzzles", () => {
   });
 
   it("is a no-op success with an empty registry", async () => {
-    expect(await verifyPuzzles({}, contentDir)).toMatchObject({
+    expect(await verifyPuzzles({}, contentDir)).toEqual({
       checked: 0,
       failures: [],
+      durations: new Map(),
     });
   });
 });

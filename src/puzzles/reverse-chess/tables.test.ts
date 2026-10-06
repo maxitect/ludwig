@@ -308,7 +308,8 @@ describe("reverse_chess_goals", () => {
       await reverseChessModule.upsertContent(tx, puzzleId, castling);
       return tx.execute(sql`
         select g.kind, g.display_text,
-          (select count(*)::int from reverse_chess_goal_piece_on_square) as squares,
+          (select count(*)::int from reverse_chess_goal_piece_on_square s
+            where s.puzzle_id = g.puzzle_id) as squares,
           (select count(*)::int from reverse_chess_goal_castling_right) as castles
         from reverse_chess_goals g where g.puzzle_id = ${puzzleId}`);
     });
@@ -424,7 +425,8 @@ describe("initial_position goal", () => {
       await reverseChessModule.upsertContent(tx, puzzleId, proofContent);
       return tx.execute(sql`
         select g.kind, p.ply_count,
-          (select count(*)::int from reverse_chess_goal_piece_on_square) as squares
+          (select count(*)::int from reverse_chess_goal_piece_on_square s
+            where s.puzzle_id = g.puzzle_id) as squares
         from reverse_chess_goals g
         join reverse_chess_puzzles p using (puzzle_id)
         where g.puzzle_id = ${puzzleId}`);

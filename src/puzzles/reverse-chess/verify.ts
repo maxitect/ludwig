@@ -17,6 +17,7 @@ import { proofGames } from "./proof-search";
 import type { Content, PositionGoal } from "./schema";
 
 const MAX_REPORTED_CHAINS = 2;
+const MAX_PROOF_POSITIONS = 5_000_000;
 
 function mismatch(
   label: "ply" | "chain",
@@ -134,7 +135,9 @@ function verifyProofGame(content: Content, fen: string, chain: Retro[]) {
       "authored chain, read forward from the starting position, does not reproduce the position",
     );
   }
-  const games = proofGames(fen, plies, MAX_REPORTED_CHAINS);
+  const games = proofGames(fen, plies, MAX_REPORTED_CHAINS, {
+    maxPositions: MAX_PROOF_POSITIONS,
+  });
   if (games.length !== 1) {
     const count = games.length ? `at least ${games.length}` : "0";
     throw new Error(

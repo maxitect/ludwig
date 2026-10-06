@@ -175,15 +175,20 @@ export function proofGames(
   fen: string,
   plies: number,
   limit: number,
-  prune = true,
+  { prune = true, maxPositions = Infinity } = {},
 ) {
   const goal = fen.split(" ").slice(0, 4).join(" ");
   const target = targetOf(fen);
   const found: ForwardMove[][] = [];
   const barren = new Set<string>();
   const game: number[] = [];
+  let visited = 0;
 
   const walk = (position: Position, left: number) => {
+    visited += 1;
+    if (visited > maxPositions) {
+      throw new Error(`search gave up after ${maxPositions} positions`);
+    }
     if (left === 0) {
       if (positionKey(position) !== goal) return false;
       found.push(game.map(forwardMove));

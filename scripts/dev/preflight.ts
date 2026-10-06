@@ -7,8 +7,8 @@ import {
   type Result,
   runSteps,
   sh,
-} from "./ticket/lib";
-import { sweep } from "./ticket/sweep";
+} from "./lib";
+import { sweep } from "./sweep";
 
 const root = mainCheckout();
 const notes: string[] = [];

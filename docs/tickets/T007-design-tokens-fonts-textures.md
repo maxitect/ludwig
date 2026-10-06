@@ -28,7 +28,7 @@ This is the visual foundation. Every later UI ticket composes these tokens and n
   - `:root[data-theme="ink"]` and `:root[data-theme="paper"]`;
   - `@media (prefers-color-scheme: dark)` applying Ink when there is no `data-theme`.
 - Fonts in `src/app/fonts.ts` through `next/font/google`: Yesteryear, Josefin Sans (300/600/700), Jost, Barlow Semi Condensed 600, Caveat Brush and JetBrains Mono. They are exposed as the SPEC §6.1 CSS variables and Tailwind `font-*` utilities.
-- `public/textures/grain.png`, a tileable noise image of about 512px and under 40 KB. Commit the generator script as `scripts/make-grain.ts`.
+- `public/textures/grain.png`, a tileable noise image of about 512px and under 40 KB. Commit the generator script as `scripts/dev/make-grain.ts`.
 - The `body::before` grain overlay per SPEC §6.3.
 - Utilities `.grid-paper` and `.raking`.
 - A `src/app/layout.tsx` update: font variables on `<html>`, `lang="en-GB"`, and replaced metadata (title "Ludwig.", description).
@@ -43,7 +43,7 @@ This is the visual foundation. Every later UI ticket composes these tokens and n
 ## Notes
 
 - **Wordmark script.** SPEC §6.1 says to compare Yesteryear and Norican. Render both on the test sheet, pick one, and record the choice in SPEC §6.1 (one line). The losing font isn't loaded in the final code.
-- **Contrast.** Check contrast with a script, not by eye: `scripts/contrast.ts` computes the WCAG ratio for each foreground and background pair in both themes, and exits 1 below 4.5 for text pairs. `crayon` is exempt only for large text (3:1).
+- **Contrast.** Check contrast with a script, not by eye: `scripts/dev/contrast.ts` computes the WCAG ratio for each foreground and background pair in both themes, and exits 1 below 4.5 for text pairs. `crayon` is exempt only for large text (3:1).
 - **Flash of the wrong theme.** `node_modules/next/dist/docs/01-app/02-guides/preventing-flash-before-hydration.md` is needed by T015. Here, only make sure no hard-coded theme class is set.
 
 ## Acceptance criteria
@@ -61,7 +61,7 @@ This is the visual foundation. Every later UI ticket composes these tokens and n
 - [ ] **AC6**: The grain texture is under 40 KB and applied as a static overlay.
   - _Verify (cli + code):_ `stat -f%z public/textures/grain.png` is below 40960. `grep -n "feTurbulence" src/` returns nothing, so no live filters are used.
 - [ ] **AC7**: Text colour pairs meet WCAG AA in both themes.
-  - _Verify (cli):_ `pnpm tsx scripts/contrast.ts` exits 0 and prints each pair with its ratio.
+  - _Verify (cli):_ `pnpm tsx scripts/dev/contrast.ts` exits 0 and prints each pair with its ratio.
 - [ ] **AC8**: The wordmark font choice is recorded.
   - _Verify (code):_ the SPEC §6.1 wordmark row names a single font.
 - [ ] **AC9**: Gates pass.

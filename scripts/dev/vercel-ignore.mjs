@@ -1,14 +1,6 @@
 import { execSync } from "node:child_process";
 
-const tooling = [
-  /^docs\//,
-  /\.md$/,
-  /^\.claude\//,
-  /^scripts\/ticket\//,
-  /^scripts\/preflight\.ts$/,
-  /^scripts\/vercel-ignore\.mjs$/,
-];
-const toolingScript = /^(ticket:|preflight$)/;
+const tooling = [/^docs\//, /\.md$/, /^\.claude\//, /^scripts\/dev\//];
 
 const run = (command) =>
   execSync(command, {
@@ -40,8 +32,8 @@ function baseCommit() {
 
 function withoutToolingScripts(json) {
   const pkg = JSON.parse(json);
-  for (const key of Object.keys(pkg.scripts ?? {})) {
-    if (toolingScript.test(key)) delete pkg.scripts[key];
+  for (const [key, command] of Object.entries(pkg.scripts ?? {})) {
+    if (command.includes("scripts/dev/")) delete pkg.scripts[key];
   }
   return JSON.stringify(pkg);
 }
@@ -60,7 +52,7 @@ try {
     );
   });
   if (app.length) decide(false, `app files changed (${app.slice(0, 5).join(", ")})`);
-  decide(true, `only docs and agent tooling changed since ${base.slice(0, 7)}`);
+  decide(true, `only docs and dev tooling changed since ${base.slice(0, 7)}`);
 } catch (error) {
   decide(false, `could not compute the diff (${error.message.split("\n")[0]})`);
 }

@@ -168,3 +168,17 @@ export function solveAll(diagram: Diagram): Win[] {
   }
   return wins;
 }
+
+/** Exchanges the starting slots of each pair; the pairs must be disjoint. */
+export function applySwaps(diagram: Diagram, swaps: Solution["swaps"]): Diagram {
+  const slots = new Map(diagram.gears.map((g) => [g.id, g.startSlot]));
+  for (const { gearAId, gearBId } of swaps) {
+    const a = slots.get(gearAId)!;
+    slots.set(gearAId, slots.get(gearBId)!);
+    slots.set(gearBId, a);
+  }
+  return {
+    ...diagram,
+    gears: diagram.gears.map((g) => ({ ...g, startSlot: slots.get(g.id)! })),
+  };
+}

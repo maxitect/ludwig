@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { check } from "./check";
-import { answerSchema, type Payload, type Solution } from "./schema";
+import {
+  type Answer,
+  answerSchema,
+  type Payload,
+  type Solution,
+} from "./schema";
 
 const gear = (label: string, teeth: number, isDriver = false) => ({
   id: label,
@@ -49,6 +54,58 @@ describe("check", () => {
 
   it("throws for a gear that is not in the puzzle", () => {
     expect(() => run(4, 5, "Z")).toThrow(/does not belong/);
+  });
+});
+
+describe("check swaps", () => {
+  const fixPayload: Payload = {
+    ...payload,
+    maxAdjustments: 1,
+    gears: [
+      gear("A", 8, true),
+      gear("B", 12),
+      gear("C", 16),
+      gear("D", 8),
+      gear("E", 8),
+    ],
+  };
+  const fixSolution: Solution = {
+    ...solution,
+    swaps: [{ gearAId: "C", gearBId: "E" }],
+  };
+  const runSwaps = (swaps: Answer["swaps"]) =>
+    check(fixPayload, fixSolution, {
+      crank: 4,
+      convergence: 5,
+      accusedGearId: "B",
+      swaps,
+    }).correct;
+
+  it("AC1: accepts the solution swap in either order", () => {
+    expect(runSwaps([{ gearAId: "C", gearBId: "E" }])).toBe(true);
+    expect(runSwaps([{ gearAId: "E", gearBId: "C" }])).toBe(true);
+  });
+
+  it("AC1: rejects another pair, no swaps and extra swaps", () => {
+    expect(runSwaps([{ gearAId: "C", gearBId: "D" }])).toBe(false);
+    expect(runSwaps([])).toBe(false);
+    expect(
+      runSwaps([
+        { gearAId: "C", gearBId: "E" },
+        { gearAId: "A", gearBId: "B" },
+      ]),
+    ).toBe(false);
+  });
+
+  it("rejects a swap on a puzzle with none", () => {
+    expect(
+      check(payload, solution, {
+        crank: 4,
+        convergence: 5,
+        accusedGearId: "B",
+        swaps: [{ gearAId: "A", gearBId: "B" }],
+      }).correct,
+    ).toBe(false);
   });
 });
 

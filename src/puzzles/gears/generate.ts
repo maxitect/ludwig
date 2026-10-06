@@ -34,6 +34,7 @@
  */
 import { hashSeed, mulberry32 } from "../_shared/prng";
 import {
+  applySwaps,
   type Diagram,
   lcmTeeth,
   solveAll,
@@ -93,19 +94,6 @@ export function diagramOf(
 
 const orderedPair = (a: string, b: string) =>
   a < b ? { gearAId: a, gearBId: b } : { gearAId: b, gearBId: a };
-
-export function applySwaps(diagram: Diagram, swaps: Swaps): Diagram {
-  const slots = new Map(diagram.gears.map((g) => [g.id, g.startSlot]));
-  for (const { gearAId, gearBId } of swaps) {
-    const a = slots.get(gearAId)!;
-    slots.set(gearAId, slots.get(gearBId)!);
-    slots.set(gearBId, a);
-  }
-  return {
-    ...diagram,
-    gears: diagram.gears.map((g) => ({ ...g, startSlot: slots.get(g.id)! })),
-  };
-}
 
 type Preset = (typeof presets)[Difficulty];
 

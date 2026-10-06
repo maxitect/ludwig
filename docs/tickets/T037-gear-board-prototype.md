@@ -36,7 +36,7 @@ PLAN §7 calls "the gear puzzle isn't fun" the biggest product risk. This ticket
 
 ## Parameter evaluation (replaces a human playtest)
 
-- **Report script.** Add `scripts/gears-playtest-report.ts` (`pnpm puzzles:gears-report`). For each difficulty preset in `presets.ts`, over 500 seeds, it outputs:
+- **Report script.** Add `scripts/dev/gears-playtest-report.ts` (`pnpm puzzles:gears-report`). For each difficulty preset in `presets.ts`, over 500 seeds, it outputs:
   1. **near misses:** the mean number of (c, f) pairs where exactly 0 or exactly 2 gears see the victim;
   2. **solution spread:** the distribution of the solution's convergence index f, and the share of solutions with c = 0;
   3. **churn:** the mean number of gears whose `sees` flips between consecutive convergences;

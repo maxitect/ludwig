@@ -1,9 +1,9 @@
-import { type Diagram, lcmTeeth, stateAt } from "../src/puzzles/gears/engine";
+import { type Diagram, lcmTeeth, stateAt } from "../../src/puzzles/gears/engine";
 import {
   diagramOf,
   generateDiagramWithAttempts,
-} from "../src/puzzles/gears/generate";
-import { type Difficulty, difficulties } from "../src/puzzles/gears/presets";
+} from "../../src/puzzles/gears/generate";
+import { type Difficulty, difficulties } from "../../src/puzzles/gears/presets";
 
 const SEEDS = 500;
 const FIGURES = 8;

@@ -128,6 +128,7 @@ Never use `any`. Use the `/zod4` skill for Zod syntax: `z.email()`, not `z.strin
 - **`src/components/brand/`:** Wordmark, Credit, InkSplat, Walker, Grain, SolvedStamp, BulletHole.
 - **`src/config/`:** constants and option maps used in more than one file.
 - **`src/lib/`:** wrappers around external systems (auth, db) only. Plain helpers go in `src/utils/`.
+- **`scripts/dev/`:** agent and developer tooling that neither the build nor CI runs (ticket scripts, preflight, one-off generators and reports). CI and Vercel skip pushes that touch only this folder, docs and markdown. Scripts the build or CI runs (`seed.ts`, `verify-puzzles.ts`) stay in `scripts/`.
 - **`content/<type>/<slug>.ts`:** curated puzzles, typed by `contentSchema`. Content is code; never insert puzzle content into the DB by hand.
 
 ## Available Skills

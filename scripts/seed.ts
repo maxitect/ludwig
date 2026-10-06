@@ -1,6 +1,7 @@
 import path from "node:path";
+import { createInterface } from "node:readline/promises";
 import { pathToFileURL } from "node:url";
-import { and, eq, notInArray, sql } from "drizzle-orm";
+import { and, count, eq, inArray, notExists, notInArray, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { DatabaseError, Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
@@ -8,6 +9,7 @@ import { weekly } from "../content/weekly";
 import type { db as appDb } from "../src/db";
 import { verifyFullSsl } from "../src/utils/verify-full-ssl";
 import { relations } from "../src/db/relations";
+import { attempts } from "../src/db/schema/progress";
 import {
   puzzleCategories,
   puzzleTypes,
@@ -29,6 +31,9 @@ type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 type Lookups = typeof defaultLookups;
 
 export type SeedCounts = { inserted: number; updated: number; removed: number };
+
+export type PendingRemoval = { typeKey: string; slug: string; attempts: number };
+export type ConfirmRemoval = (pending: PendingRemoval[]) => boolean | Promise<boolean>;
 
 const insertedFlag = sql<boolean>`(xmax = 0)`;
 
@@ -167,7 +172,8 @@ async function writePuzzle(
 
 /**
  * Upserts lookups, then every valid content file (supertype, subtype and children in one
- * transaction per puzzle), then removes puzzles of registered types that no longer have a file.
+ * transaction per puzzle), then removes puzzles of registered types that no longer have a file,
+ * asking `confirmRemoval` first when any of them have attempts.
  * Generated daily diagrams (linked in `gear_daily`) have no file and are never removed.
  */
 export async function seed({
@@ -175,11 +181,13 @@ export async function seed({
   registry,
   contentDir,
   lookups = defaultLookups,
+  confirmRemoval = () => false,
 }: {
   db: Db;
   registry: PuzzleRegistry;
   contentDir: string;
   lookups?: Lookups;
+  confirmRemoval?: ConfirmRemoval;
 }) {
   const lookupSummary = await seedLookups(db, lookups);
   const { files, failures: parseFailures } = await loadContentFiles(
@@ -217,25 +225,112 @@ export async function seed({
   for (const { typeKey, slug } of [...files, ...parseFailures]) {
     discoveredSlugs.set(typeKey, [...(discoveredSlugs.get(typeKey) ?? []), slug]);
   }
-  for (const typeKey of Object.keys(registry)) {
-    const slugs = discoveredSlugs.get(typeKey) ?? [];
+  const gone = await db
+    .select({
+      id: puzzles.id,
+      typeKey: puzzles.typeKey,
+      slug: puzzles.slug,
+      attempts: count(attempts.id),
+    })
+    .from(puzzles)
+    .leftJoin(attempts, eq(attempts.puzzleId, puzzles.id))
+    .where(
+      and(
+        inArray(puzzles.typeKey, Object.keys(registry)),
+        notInArray(
+          puzzles.id,
+          db.select({ id: gearDaily.puzzleId }).from(gearDaily),
+        ),
+        or(
+          ...Object.keys(registry).map((typeKey) => {
+            const slugs = discoveredSlugs.get(typeKey) ?? [];
+            return and(
+              eq(puzzles.typeKey, typeKey),
+              slugs.length ? notInArray(puzzles.slug, slugs) : undefined,
+            );
+          }),
+        ),
+      ),
+    )
+    .groupBy(puzzles.id);
+
+  const goneWithAttempts = gone.filter((puzzle) => puzzle.attempts > 0);
+  const pending = goneWithAttempts.map(({ typeKey, slug, attempts }) => ({
+    typeKey,
+    slug,
+    attempts,
+  }));
+  const blockedRemovals =
+    pending.length && !(await confirmRemoval(pending)) ? pending : [];
+
+  if (!blockedRemovals.length && gone.length) {
     const removed = await db
       .delete(puzzles)
       .where(
         and(
-          eq(puzzles.typeKey, typeKey),
-          notInArray(
+          inArray(
             puzzles.id,
-            db.select({ id: gearDaily.puzzleId }).from(gearDaily),
+            gone.map((puzzle) => puzzle.id),
           ),
-          slugs.length ? notInArray(puzzles.slug, slugs) : undefined,
+          or(
+            inArray(
+              puzzles.id,
+              goneWithAttempts.map((puzzle) => puzzle.id),
+            ),
+            notExists(
+              db.select().from(attempts).where(eq(attempts.puzzleId, puzzles.id)),
+            ),
+          ),
         ),
       )
-      .returning({ id: puzzles.id });
-    types[typeKey].removed = removed.length;
+      .returning({ typeKey: puzzles.typeKey });
+    for (const { typeKey } of removed) types[typeKey].removed += 1;
   }
 
-  return { lookups: lookupSummary, types, failures };
+  return { lookups: lookupSummary, types, failures, blockedRemovals };
+}
+
+const describePending = (pending: PendingRemoval[]) =>
+  pending
+    .map(({ typeKey, slug, attempts }) => `  ${typeKey}/${slug}: ${attempts} attempts`)
+    .join("\n");
+
+/**
+ * Removal with attempts is confirmed by `SEED_CONFIRM_REMOVE` (comma-separated `<type>/<slug>` or
+ * `all`) covering every pending puzzle, else by a y/N prompt when interactive, else refused.
+ */
+export function createConfirmRemoval({
+  confirmList = process.env.SEED_CONFIRM_REMOVE,
+  interactive = Boolean(process.stdin.isTTY),
+  ask = async (question: string) => {
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    try {
+      return await rl.question(question);
+    } finally {
+      rl.close();
+    }
+  },
+}: {
+  confirmList?: string;
+  interactive?: boolean;
+  ask?: (question: string) => Promise<string>;
+} = {}): ConfirmRemoval {
+  const confirmed = new Set(
+    (confirmList ?? "").split(",").map((entry) => entry.trim()),
+  );
+  return async (pending) => {
+    if (
+      confirmed.has("all") ||
+      pending.every(({ typeKey, slug }) => confirmed.has(`${typeKey}/${slug}`))
+    ) {
+      return true;
+    }
+    if (!interactive) return false;
+    const answer = await ask(
+      `These puzzles have no content file and their attempts will be deleted:\n${describePending(pending)}\nRemove them? (y/N) `,
+    );
+    return ["y", "yes"].includes(answer.trim().toLowerCase());
+  };
 }
 
 async function main() {
@@ -245,7 +340,12 @@ async function main() {
   });
   try {
     const db = drizzle({ client: pool, relations });
-    const summary = await seed({ db, registry, contentDir });
+    const summary = await seed({
+      db,
+      registry,
+      contentDir,
+      confirmRemoval: createConfirmRemoval(),
+    });
     for (const [name, counts] of Object.entries(summary.lookups)) {
       console.log(`lookups ${name}: ${counts.inserted} inserted, ${counts.updated} updated`);
     }
@@ -259,13 +359,22 @@ async function main() {
         `FAIL ${path.relative(process.cwd(), failure.file)}: ${failure.error}`,
       );
     }
+    if (summary.blockedRemovals.length) {
+      console.error(
+        `FAIL removal not confirmed, nothing removed. Puzzles with no content file have attempts:\n${describePending(summary.blockedRemovals)}\nSet SEED_CONFIRM_REMOVE to a comma-separated list of <type>/<slug>, or all, to confirm.`,
+      );
+    }
     const weeklySummary = await seedWeekly(db, weekly);
     console.log(`weekly: ${weeklySummary.weeks} weeks`);
     for (const failure of weeklySummary.failures) {
       console.error(`FAIL content/weekly.ts: ${failure}`);
     }
     process.exitCode =
-      summary.failures.length || weeklySummary.failures.length ? 1 : 0;
+      summary.failures.length ||
+      summary.blockedRemovals.length ||
+      weeklySummary.failures.length
+        ? 1
+        : 0;
   } finally {
     await pool.end();
   }

@@ -10,7 +10,9 @@ const previewURL =
     ? `https://${env.VERCEL_URL}`
     : undefined;
 
-export const authBaseURL = env.BETTER_AUTH_URL ?? previewURL;
+const configuredURL = env.BETTER_AUTH_URL ?? previewURL;
+
+export const authBaseURL = configuredURL?.replace(/\/+$/, "");
 
 export const auth = betterAuth({
   baseURL: authBaseURL,

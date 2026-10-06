@@ -254,9 +254,12 @@ export async function seed({
     )
     .groupBy(puzzles.id);
 
-  const pending = gone
-    .filter((puzzle) => puzzle.attempts > 0)
-    .map(({ typeKey, slug, attempts }) => ({ typeKey, slug, attempts }));
+  const goneWithAttempts = gone.filter((puzzle) => puzzle.attempts > 0);
+  const pending = goneWithAttempts.map(({ typeKey, slug, attempts }) => ({
+    typeKey,
+    slug,
+    attempts,
+  }));
   const blockedRemovals =
     pending.length && !(await confirmRemoval(pending)) ? pending : [];
 
@@ -272,7 +275,7 @@ export async function seed({
           or(
             inArray(
               puzzles.id,
-              gone.filter((puzzle) => puzzle.attempts > 0).map((puzzle) => puzzle.id),
+              goneWithAttempts.map((puzzle) => puzzle.id),
             ),
             notExists(
               db.select().from(attempts).where(eq(attempts.puzzleId, puzzles.id)),

@@ -1,4 +1,4 @@
-import type { Answer, ClueParams, Payload } from "./schema";
+import type { Answer, ClueParams, Payload, Solution } from "./schema";
 
 type Worker = Payload["workers"][number];
 export type Square = Pick<Worker["squares"][number], "file" | "rank">;
@@ -167,7 +167,7 @@ export function solve(
 export function openingGambit({
   swaps: [swap],
   instigatorWorkerId,
-}: Pick<Answer, "swaps" | "instigatorWorkerId">) {
+}: Pick<Solution, "swaps" | "instigatorWorkerId">) {
   if (
     !swap ||
     (swap.workerAId !== instigatorWorkerId &&

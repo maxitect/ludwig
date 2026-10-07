@@ -50,3 +50,32 @@ export async function attemptsFor(email: string) {
     await pool.end();
   }
 }
+
+export async function rotaAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{
+      completed: boolean;
+      steps: number[];
+      pairs: string[];
+    }>(
+      `select a.completed_at is not null as completed,
+              coalesce(array_agg(s.step order by s.step) filter (where s.step is not null), '{}') as steps,
+              coalesce(array_agg(wa.name || '-' || wb.name order by s.step) filter (where s.step is not null), '{}') as pairs
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join puzzles p on p.id = a.puzzle_id
+         left join rota_attempt_swaps s on s.attempt_id = a.id
+         left join rota_workers wa on wa.id = s.worker_a_id
+         left join rota_workers wb on wb.id = s.worker_b_id
+        where u.email = $1 and p.type_key = 'rota'
+        group by a.id`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}

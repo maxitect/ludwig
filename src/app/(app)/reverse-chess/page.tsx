@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Suspense } from "react";
 import { Credit } from "@/components/brand";
 import { SolvedBadge, type SolvedIds } from "@/components/puzzle/solved-badge";
@@ -74,6 +75,13 @@ const PROOF_GAME_HOW_IT_WORKS = [
   "Only one game gets there. Move order matters.",
 ];
 
+const ROTA_HOW_IT_WORKS = [
+  "You are shown where each worker ended up on the site, and where the rota meant them to be.",
+  "Pick two workers to unswap them, one step at a time, until everyone is back on the intended rota.",
+  "Every clue must hold for the whole sequence of swaps, and no longer sequence fits them.",
+  "Then name the opening gambit: which of the first two workers to swap started it.",
+];
+
 export default async function ReverseChessPage() {
   const hub = await getReverseChessHub();
   const solved = getSolvedPuzzleIds(
@@ -137,8 +145,40 @@ export default async function ReverseChessPage() {
             <li key={step}>{step}</li>
           ))}
         </ol>
+        <h3 className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+          The Rota
+        </h3>
+        <ol className="flex list-decimal flex-col gap-1 pl-6">
+          {ROTA_HOW_IT_WORKS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
       </section>
       <ModeSections hub={hub} solved={solved} />
+      <section aria-labelledby="rota" className="relative flex flex-col gap-4">
+        <div className="flex flex-col gap-1 border-b-2 border-border pb-1">
+          <Credit
+            id="rota"
+            level={2}
+            top="Mode C"
+            bottom="The Rota"
+            className="[&>span:last-child]:text-3xl"
+          />
+          <p className="text-sm text-muted-foreground">
+            Unpick a swapped duty roster, one unswap at a time, from the clues
+            that remain.
+          </p>
+        </div>
+        <Link
+          href="/puzzles/rota"
+          className="flex items-center justify-between gap-4 border-2 border-border p-4 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
+            Play The Rota
+          </span>
+          <ArrowRight aria-hidden="true" />
+        </Link>
+      </section>
     </main>
   );
 }

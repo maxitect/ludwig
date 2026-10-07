@@ -92,6 +92,7 @@ export function SolveChrome({
   nextHref,
 }: SolveChromeProps) {
   const [solvedMs, setSolvedMs] = useState<number | null>(null);
+  const [epilogue, setEpilogue] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [attempt, setAttempt] = useState(0);
   const hydrated = useSyncExternalStore(
@@ -108,9 +109,9 @@ export function SolveChrome({
   const timer = usePuzzleTimer(solvedMs === null);
   const readAnswer = useRef<ReadAnswer | null>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const pendingState = useRef<Parameters<
-    SolverProps["onStateChange"]
-  >[0] | null>(null);
+  const pendingState = useRef<
+    Parameters<SolverProps["onStateChange"]>[0] | null
+  >(null);
   const latestCheck = useRef<() => void>(undefined);
   const solved = solvedMs !== null;
 
@@ -176,6 +177,7 @@ export function SolveChrome({
         if (response.result.correct) {
           if (!signedIn) completeProgress(puzzleId, durationMs);
           setNotice(null);
+          setEpilogue(response.result.epilogue ?? null);
           setSolvedMs(durationMs);
         } else {
           setNotice("wrong");
@@ -225,6 +227,7 @@ export function SolveChrome({
     readAnswer.current = null;
     setNotice(null);
     setSolvedMs(null);
+    setEpilogue(null);
     setAttempt((value) => value + 1);
     timer.reset();
     if (!signedIn) return clearProgress(puzzleId);
@@ -308,7 +311,9 @@ export function SolveChrome({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => setNotice("reveal-unavailable")}>
+              <AlertDialogAction
+                onClick={() => setNotice("reveal-unavailable")}
+              >
                 Reveal
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -342,6 +347,7 @@ export function SolveChrome({
               {formatDuration(solvedMs)}
             </span>
           </p>
+          {epilogue && <p data-testid="epilogue">{epilogue}</p>}
           {nextHref && (
             <Button asChild variant="secondary">
               <Link href={nextHref}>Next in volume</Link>

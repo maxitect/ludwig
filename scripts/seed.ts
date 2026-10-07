@@ -116,7 +116,6 @@ export async function seed({
     contentDir,
   );
   const failures: ContentFailure[] = [...parseFailures];
-  const bookTextFailures = bookTextSummary.failures;
   const types: Record<string, SeedCounts> = Object.fromEntries(
     Object.keys(registry).map((key) => [
       key,
@@ -214,7 +213,6 @@ export async function seed({
     bookTexts: bookTextSummary,
     types,
     failures,
-    bookTextFailures,
     blockedRemovals,
   };
 }
@@ -279,7 +277,7 @@ async function main() {
       console.log(`lookups ${name}: ${counts.inserted} inserted, ${counts.updated} updated`);
     }
     console.log(`book texts: ${summary.bookTexts.texts}`);
-    for (const failure of summary.bookTextFailures) {
+    for (const failure of summary.bookTexts.failures) {
       console.error(`FAIL ${failure}`);
     }
     for (const [typeKey, counts] of Object.entries(summary.types)) {
@@ -304,7 +302,7 @@ async function main() {
     }
     process.exitCode =
       summary.failures.length ||
-      summary.bookTextFailures.length ||
+      summary.bookTexts.failures.length ||
       summary.blockedRemovals.length ||
       weeklySummary.failures.length
         ? 1

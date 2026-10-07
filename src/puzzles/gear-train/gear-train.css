@@ -1,0 +1,12 @@
+@keyframes gear-train-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gear-train-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gear-train-spin var(--period) linear infinite;
+  animation-direction: var(--direction);
+}

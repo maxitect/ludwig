@@ -74,7 +74,7 @@ export function collisions(board: Board, placement: Placement): Collision[] {
   return found;
 }
 
-function reachableFrom(start: Cog, cogs: Cog[]) {
+export function reachableFrom(start: Cog, cogs: Cog[]) {
   const seen = new Map<string, Cog>([[pegKey(start), start]]);
   const queue = [start];
   for (const current of queue) {

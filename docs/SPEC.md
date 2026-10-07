@@ -447,7 +447,7 @@ Randomising and accepting does not work: a random diagram has a win (exactly one
 5. **Fix the Diagram.** Take a unique diagram, swap the starting slots of K disjoint gear pairs, and accept if the printed diagram has zero solutions **and** that swap set is the only set of at most K disjoint swaps (`repairsOf`) giving exactly one solution.
 6. Seed with mulberry32 over a string hash of the seed, so a daily diagram is reproducible from its date seed.
 
-Layout: gears sit on distinct slots; the spin sign is the slot parity, so every mesh joins slots an odd number apart. Meshes are ring edges (adjacent slots) plus the fewest, shortest, non-crossing chords that connect the gears. Presets (`presets.ts`) use 12 slots and the teeth 8 and 16 with an odd gear count, the sizes that the covering step was measured to handle; see the ticket report.
+Layout: gears sit on distinct slots; the spin sign is the slot parity, so every mesh joins slots an odd number apart. Meshes are ring edges (adjacent slots) plus the fewest, shortest, non-crossing chords that connect the gears. Presets (`presets.ts`) use 12 slots and the teeth 8 and 16 with an odd gear count, the sizes that the covering step was measured to handle; see the ticket report. The board's performance budget was measured on 11 gears, so `limits.ts` caps every stored diagram (curated or daily) at 11 gears with 8 or 16 teeth, enforced by `puzzles:verify`, and the `preview` e2e check guards the layout count while the dance plays (`e2e/gears-layout.spec.ts`).
 
 Curated diagrams live in the DB like any other puzzle. Generated ones are materialised into `puzzles`, `gear_puzzles` and their child tables by a script, so checking stays server-side.
 

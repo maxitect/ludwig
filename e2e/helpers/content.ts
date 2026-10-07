@@ -133,3 +133,17 @@ export async function gearPuzzle(fix: boolean) {
     swaps: content.solution.swaps,
   };
 }
+
+/** The published curated gear diagram with the most gears. */
+export async function largestGearPuzzle() {
+  const all = await loadPublished<GearContent>("gears");
+  const found = all.sort(
+    (a, b) => b.content.gears.length - a.content.gears.length,
+  )[0];
+  if (!found) throw new Error("No published curated gear diagram");
+  return {
+    typeKey: "gears",
+    slug: found.meta.slug,
+    gearCount: found.content.gears.length,
+  };
+}

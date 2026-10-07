@@ -1,5 +1,7 @@
 /**
  * T044 AC4/AC5: frame deltas, long tasks and LayoutCount on a gear board at 390x844 with a 4x CPU throttle.
+ * The manual frame-time check: CI runners are too noisy for frame times, so CI only guards LayoutCount
+ * (e2e/gears-layout.spec.ts). Run this after any change to board.tsx, scrubber.tsx, crank.ts or presets.ts.
  * Run against `pnpm start`: BASE=http://localhost:3044 [SLUG=final-curtain] [PLAY=key] node scripts/dev/gears-perf.mjs
  */
 import { chromium } from "@playwright/test";

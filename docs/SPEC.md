@@ -273,11 +273,24 @@ This mode is non-chess retro deduction on an 8×8 site grid. The board is drawn 
 
 - the final positions of 6–10 named workers (tokens);
 - their **intended** rota positions;
-- 4–8 clue statements, for example "G5 had no power all morning", "Only adjacent zones can swap", "Ojay never worked a zone in row 1", "Each worker swapped at most once".
+- 4–8 clue statements, for example "G5 had no power all morning", "Only adjacent zones can swap", "Ojay never worked a zone in row 1", "No more than 5 swaps were made".
 
 **Goal:** reconstruct the **ordered sequence of swaps**, backwards from the final state, that turns the intended rota into the final state, and identify the **opening gambit**: the first swap and the worker who instigated it.
 
 **UI:** drag two tokens to "unswap" them. Each unswap pushes a step onto a visible stack, drawn as a red pencil line between the cells. Undo pops a step.
+
+**Clue meanings** (all evaluated on the sequence applied forwards from the intended rota, and all prefix-checkable so `solve` can prune):
+
+- `adjacent_only`: every swap is between workers in orthogonally neighbouring zones at the time of the swap.
+- `unpowered_square`: no swap involves a worker standing on that zone at the time of the swap.
+- `never_in_rank`: the named worker is never in that row, in any state, the intended and final rotas included.
+- `max_swaps`: a cap on the total length of the sequence (not per worker), for example "No more than 5 swaps were made". A per-worker cap of 1 would make every swap disjoint and the order could never be deduced.
+
+**Uniqueness:** the answer is the one shortest valid sequence. `solve` returns only the shortest sequences, and `check` requires the stored length, so undo-padded sequences are neither counted nor accepted. `puzzles:verify` (the `verify` hook) requires that `solve` returns exactly the stored sequence (each swap compared as an unordered pair), that every worker has an intended and a final zone, that the two rotas use the same set of zones, and that the instigator is in the first swap.
+
+**Opening gambit:** the instigator is authored data. The picker offers the two workers of the first swap of the player's own sequence, and the instigator must be one of the two workers of step 1.
+
+**Solver:** the board shows the final rota. Each unswap is pushed on the stack, which is kept in forward order (the newest unswap is the first forward swap). Clues are evaluated in the browser once every worker is back on the intended rota, and a broken clue is marked "Broken". `check` also returns the position of the first broken clue as `violatedClue`.
 
 **Check:** the sequence, applied forwards from the intended rota, must yield the final state and satisfy every clue predicate. Clues are stored as typed predicates: one subtype table per clue kind (section 7.4.4), not free text, so the checker can evaluate them. Each clue row also carries its display text.
 

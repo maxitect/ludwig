@@ -132,3 +132,9 @@ Not on the launch path (PLAN §3 M6).
 | [T090](./T090-type-word-wheel.md) | Puzzle type: word wheel | T049 | ✔ | | todo |
 | [T091](./T091-type-detective-scene.md) | Puzzle type: detective scene (engine, hit-test and solver) | T061 | ✔ | | todo |
 | [T092](./T092-detective-scene-content.md) | Detective scene: artwork and launch content | T091 | | ✔ | todo |
+| [T093](./T093-sudoku-killer-xv.md) | Sudoku: killer and XV constraint variants | T084 | ✔ | | todo |
+| [T094](./T094-type-nonogram.md) | Puzzle type: nonogram (Ludwig picture reveals) | T021 | ✔ | | todo |
+| [T095](./T095-type-kakuro.md) | Puzzle type: kakuro | T021 | ✔ | | todo |
+| [T096](./T096-type-fillomino.md) | Puzzle type: fillomino | T021 | ✔ | | todo |
+| [T097](./T097-type-norinori.md) | Puzzle type: norinori | T084 | ✔ | | todo |
+| [T098](./T098-type-reflections.md) | Puzzle type: reflections (mirrors and beams) | T021 | ✔ | | todo |

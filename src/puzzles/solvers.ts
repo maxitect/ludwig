@@ -3,6 +3,7 @@ import { Solver as anagramSolver } from "./anagram/solver";
 import { Solver as crosswordSolver } from "./crossword/solver";
 import { Solver as gearsSolver } from "./gears/solver";
 import { Solver as reverseChessSolver } from "./reverse-chess/solver";
+import { Solver as rotaSolver } from "./rota/solver";
 import { Solver as spotDifferenceSolver } from "./spot-difference/solver";
 import { Solver as sudokuSolver } from "./sudoku/solver";
 import type { SolverComponent } from "./solver-types";
@@ -14,7 +15,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   crossword: crosswordSolver,
   gears: gearsSolver,
   "reverse-chess": reverseChessSolver,
-  rota: null,
+  rota: rotaSolver,
   "spot-difference": spotDifferenceSolver,
   sudoku: sudokuSolver,
 };

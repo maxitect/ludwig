@@ -2,6 +2,7 @@ import { attemptSchema as anagramAttempt } from "./anagram/schema";
 import { attemptSchema as crosswordAttempt } from "./crossword/schema";
 import { attemptSchema as gearsAttempt } from "./gears/schema";
 import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
+import { attemptSchema as rotaAttempt } from "./rota/schema";
 import { attemptSchema as spotDifferenceAttempt } from "./spot-difference/schema";
 import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
 
@@ -11,6 +12,7 @@ const attemptSchemas = {
   crossword: crosswordAttempt,
   gears: gearsAttempt,
   "reverse-chess": reverseChessAttempt,
+  rota: rotaAttempt,
   "spot-difference": spotDifferenceAttempt,
   sudoku: sudokuAttempt,
 } as const;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { check } from "./check";
+import { check, violatedClue } from "./check";
 import type { Answer, Payload, Solution } from "./schema";
 
 const worker = (
@@ -71,7 +71,12 @@ describe("rota check", () => {
     ).toEqual({ correct: true });
     expect(check(payload, solution, { ...answer, swaps: farApart })).toEqual({
       correct: false,
+      violatedClue: 0,
     });
+    expect(violatedClue(payload, farApart)?.displayText).toBe(
+      "Only neighbours swap",
+    );
+    expect(violatedClue(payload, swaps)).toBeUndefined();
   });
 
   it("rejects a longer sequence padded with an undo pair", () => {

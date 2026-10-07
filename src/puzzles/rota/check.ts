@@ -7,6 +7,12 @@ import {
 } from "./engine";
 import type { Answer, Payload, Solution } from "./schema";
 
+/** The first clue the swaps break, applied forwards from the intended rota, or undefined when none is broken. */
+export function violatedClue(payload: Payload, swaps: Answer["swaps"]) {
+  const intended = placementFor(payload.workers, "intended");
+  return payload.clues.find((clue) => !validateClues(intended, swaps, [clue]));
+}
+
 export function check(payload: Payload, solution: Solution, answer: Answer) {
   const known = new Set(payload.workers.map((worker) => worker.id));
   if (
@@ -22,8 +28,8 @@ export function check(payload: Payload, solution: Solution, answer: Answer) {
   }
   const intended = placementFor(payload.workers, "intended");
   const final = placementFor(payload.workers, "final");
+  const broken = violatedClue(payload, answer.swaps);
   const correct =
-    samePlacement(applySwaps(intended, answer.swaps), final) &&
-    validateClues(intended, answer.swaps, payload.clues);
-  return { correct };
+    samePlacement(applySwaps(intended, answer.swaps), final) && !broken;
+  return { correct, violatedClue: broken?.position };
 }

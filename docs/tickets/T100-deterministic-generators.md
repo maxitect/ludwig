@@ -28,14 +28,16 @@ T099 recommends how to generate grid puzzles. This ticket builds the shared pipe
 - **Generators:**
   - sudoku: a full grid from the seed, then clues removed while uniqueness holds and the target difficulty is met. 180° symmetry by default.
   - futoshiki: a Latin square from the seed, then signs and givens added or removed while uniqueness holds and the target difficulty is met.
-- **CLI:** `pnpm puzzles:gen <type> --seed <text> --difficulty <1-5> [--slug <slug>]`. It writes `content/<type>/<slug>.ts`, recording the seed and generator version in `meta` as provenance, and the file then goes through `puzzles:verify` like any other.
-- **SPEC §4.6 update:** generated grid puzzles are committed content files with seed provenance, unless T099 recommends otherwise.
+- **CLI:** `pnpm puzzles:gen <type> --seed <text> --difficulty <1-5> [--slug <slug>]`. It writes `content/<type>/<slug>.ts`, recording the provenance as a typed export beside `meta` and `content`, `export const generated = { generator, version, seed }`, which `puzzles:verify` reads and `db:seed` ignores. The difficulty is `meta.difficulty`, not repeated, and `meta.sourceNote` stays human prose (a parseable line there would be an encoded text column, against `.claude/rules/database.md`). The file then goes through `puzzles:verify` like any other.
+- **Regeneration check:** when a content file exports `generated`, `puzzles:verify` regenerates the puzzle from it and `meta.difficulty` and fails on any difference. This catches an edited, supposedly frozen generator (research section 5.5).
+- **Grader audit of hand-written content:** run the grader over the existing hand-written sudoku and futoshiki and list the results in the report. Where the grader and `meta.difficulty` differ by two or more, update `meta.difficulty`. The T099 prototype found the hand-written "difficulty 5" sudoku solvable by singles alone and the "difficulty 2" one not (research section 4.3), so expect changes. Hand-written puzzles are not gated by the grader, only generated ones.
+- **Yield:** record accepted candidates per candidate, per difficulty, in the report. Difficulty 5 is expected to be the thinnest tier (research section 5.3).
+- **SPEC §2.3 and §4.6:** T099 already updated the authoring rule and §4.6 (committed generated files, materialised dailies). Edit them only if the implementation diverges.
 - **Content:** 5 generated sudoku and 5 generated futoshiki, across difficulties 1–5, added alongside the hand-written ones.
 
 **Out**
 
-- Generators for the other types; T099 creates their tickets.
-- Daily seeded grid puzzles, unless T099 recommends them, in which case it creates a ticket.
+- Generators for the other types (T101 to T110) and daily seeded grid puzzles (T111).
 - Changing the solvers' existing `countSolutions`, except for performance fixes the generators need. Those must keep the existing tests green.
 
 ## Acceptance criteria
@@ -48,8 +50,8 @@ T099 recommends how to generate grid puzzles. This ticket builds the shared pipe
   - _Verify (unit):_ fixture puzzles that need only singles grade 1, and one that needs an X-wing grades at least 4.
 - [ ] **AC4**: The CLI writes content files that pass verification and seed.
   - _Verify (cli):_ `pnpm puzzles:gen sudoku --seed test --difficulty 2 --slug gen-test` writes a file, `pnpm puzzles:verify` passes, and the file is then deleted.
-- [ ] **AC5**: The 10 generated content files verify and seed.
-  - _Verify (cli):_ `pnpm puzzles:verify && pnpm db:seed` exit 0.
+- [ ] **AC5**: The 10 generated content files verify and seed, and verification regenerates them.
+  - _Verify (cli):_ `pnpm puzzles:verify && pnpm db:seed` exit 0; editing one value in a generated file's `content` makes `puzzles:verify` fail with a regeneration mismatch naming that file.
 - [ ] **AC6**: Generation time is recorded.
   - _Verify (cli):_ the report records the median and worst time per difficulty over 50 seeds for each type.
 - [ ] **AC7**: Gates pass.

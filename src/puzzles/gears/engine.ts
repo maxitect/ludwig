@@ -1,9 +1,6 @@
 import { type Signs, type Spin, spinSigns } from "../_shared/spin-signs";
 import type { Payload, Solution } from "./schema";
 
-export { spinSigns };
-export type { SpinResult } from "../_shared/spin-signs";
-
 export type Diagram = Pick<
   Payload,
   "slotCount" | "mIn" | "mOut" | "gears" | "meshes"

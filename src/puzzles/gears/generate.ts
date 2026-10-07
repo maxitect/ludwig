@@ -33,12 +33,12 @@
  * Seeds are strings such as '2026-11-01'; `hashSeed` turns them into a uint32 for mulberry32.
  */
 import { hashSeed, mulberry32 } from "../_shared/prng";
+import { spinSigns } from "../_shared/spin-signs";
 import {
   applySwaps,
   type Diagram,
   lcmTeeth,
   solveAll,
-  spinSigns,
   type Win,
 } from "./engine";
 import {

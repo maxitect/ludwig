@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { applySwaps, solveAll, spinSigns } from "./engine";
+import { spinSigns } from "../_shared/spin-signs";
+import { applySwaps, solveAll } from "./engine";
 import {
   diagramOf,
   generateDiagram,

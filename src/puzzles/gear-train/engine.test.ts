@@ -133,6 +133,13 @@ describe("validate", () => {
     expect(rule(open, chain)).toBe(0);
     expect(rule(open, [...chain, cog(5, 3, 8)])).toBe(7);
   });
+
+  it("names rule 7 for a second chain running parallel to the first", () => {
+    const stocked: Board = { ...open, inventory: [{ teeth: 8, count: 6 }] };
+    const parallel = [cog(5, 1, 8), cog(5, 3, 8), cog(5, 5, 8), cog(5, 7, 8)];
+    expect(rule(stocked, plantedSolution)).toBe(0);
+    expect(rule(stocked, [cog(3, 3, 8), cog(3, 5, 8), ...parallel])).toBe(7);
+  });
 });
 
 describe("solve", () => {

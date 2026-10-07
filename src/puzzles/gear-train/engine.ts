@@ -27,10 +27,8 @@ export type Train = {
   unreachable: Cog[];
 };
 
-export type Verdict =
-  { ok: true } | { ok: false; rule: 1 | 2 | 3 | 4 | 5 | 6 | 7 };
-
-const TEETH = [8, 16, 24] as const;
+export type Rule = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type Verdict = { ok: true } | { ok: false; rule: Rule };
 
 export const radius = ({ teeth }: Pick<Cog, "teeth">) => teeth / 8;
 export const pegKey = ({ row, col }: Peg) => `${row},${col}`;
@@ -178,9 +176,8 @@ export function solve(board: Board, cap = 2): Placement[] {
     const sign = chain.length % 2 === 0 ? -1 : 1;
     for (let row = 0; row < board.rows; row++) {
       for (let col = 0; col < board.cols; col++) {
-        for (const teeth of TEETH) {
+        for (const [teeth, left] of stock) {
           if (found.length >= cap) return;
-          const left = stock.get(teeth) ?? 0;
           const next = { row, col, teeth };
           if (left < 1 || !meshes(end, next) || offBoard(board, next)) continue;
           if (board.bolts.some((bolt) => hitsBolt(next, bolt))) continue;

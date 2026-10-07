@@ -2,10 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { db as appDb } from "../src/db";
 import { bookTextLines, bookTexts } from "../src/db/schema";
-import {
-  bookTextFileSchema,
-  type BookTextFile,
-} from "../src/puzzles/book-cipher/book-text";
+import { bookTextFileSchema } from "../src/puzzles/book-cipher/book-text";
 import { paginate } from "../src/puzzles/book-cipher/derive";
 
 type Db = typeof appDb;
@@ -25,7 +22,7 @@ export async function seedBookTexts(db: Db, files: unknown) {
     };
   }
   const failures: string[] = [];
-  for (const { meta, paragraphs } of parsed.data as BookTextFile[]) {
+  for (const { meta, paragraphs } of parsed.data) {
     try {
       await db.transaction(async (tx) => {
         const [{ id }] = await tx

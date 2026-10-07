@@ -70,7 +70,10 @@ export async function attemptsFor(email: string) {
   }
 }
 
-export async function cipherAttemptFor(email: string, typeKey: string) {
+export async function cipherAttemptFor(
+  email: string,
+  typeKey: "caesar" | "keyword",
+) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),
   });

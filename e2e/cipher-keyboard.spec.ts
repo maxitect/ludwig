@@ -37,13 +37,13 @@ async function tabIntoPanel(page: Page) {
 
 const cases = [
   {
-    typeKey: "caesar",
+    typeKey: "caesar" as const,
     slug: "notebook-margin",
     plaintext: caesarContent.plaintext,
     ciphertext: caesarCipher(caesarContent.plaintext, caesarContent.shift),
   },
   {
-    typeKey: "keyword",
+    typeKey: "keyword" as const,
     slug: "inkwell",
     plaintext: keywordContent.plaintext,
     ciphertext: keywordCipher(keywordContent.plaintext, keywordContent.keyword),

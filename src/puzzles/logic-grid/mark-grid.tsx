@@ -25,7 +25,7 @@ const NEXT: Record<Mark | "blank", Mark | undefined> = {
 
 const SYMBOL: Record<Mark, string> = { no: "✕", yes: "●" };
 
-const CELL = "size-10 shrink-0";
+const CELL = "size-9 shrink-0";
 
 /**
  * The staircase of every pair of categories: columns are the items of every category but the last, rows the items of every
@@ -112,7 +112,7 @@ export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
     row === 0 || rows[row].category !== rows[row - 1].category;
 
   return (
-    <div className="max-w-full overflow-x-auto border-2 border-ink bg-paper text-ink">
+    <div className="w-fit max-w-full overflow-x-auto border-2 border-ink bg-paper text-ink">
       <div
         ref={gridRef}
         role="grid"
@@ -148,7 +148,7 @@ export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
           >
             <div
               role="rowheader"
-              className="flex h-10 w-32 shrink-0 items-center px-2 font-display text-sm font-bold uppercase"
+              className="flex h-9 w-32 shrink-0 items-center px-2 font-display text-sm font-bold uppercase"
             >
               {item.label}
             </div>
@@ -183,7 +183,6 @@ export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
                       "border-l-2",
                     state === "yes" && "text-ludwig-red",
                   )}
-                  onMouseDown={(event) => event.preventDefault()}
                   onFocus={() => setActive({ row, col })}
                   onClick={() => {
                     setActive({ row, col });

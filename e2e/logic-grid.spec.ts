@@ -126,6 +126,13 @@ test("the grid is keyboard-operable and each cell names its pair", async ({
   await page.keyboard.press("Space");
   await expect(grid.getByRole("gridcell", { name: /: no$/ })).toHaveCount(2);
   await expect(grid.getByRole("gridcell", { name: /: yes$/ })).toHaveCount(1);
+
+  const [person, , last] = puzzle.households[puzzle.households.length - 1];
+  const clicked = pair(page, person, last);
+  await clicked.click();
+  await expect(clicked).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(clicked).toHaveAttribute("aria-label", /: yes$/);
 });
 
 test("the page never scrolls sideways", async ({ page }) => {

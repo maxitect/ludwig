@@ -4,6 +4,8 @@ import { pathToFileURL } from "node:url";
 import type { ContentMeta } from "../../scripts/content-files";
 import type { Content as AnagramContent } from "../../src/puzzles/anagram/schema";
 import type { Content as CrosswordContent } from "../../src/puzzles/crossword/schema";
+import { lcmTeeth } from "../../src/puzzles/gears/engine";
+import type { Content as GearContent } from "../../src/puzzles/gears/schema";
 import type { Content as ReverseChessContent } from "../../src/puzzles/reverse-chess/schema";
 import { solve as solveFutoshiki } from "../../src/puzzles/futoshiki/engine";
 import type { Content as FutoshikiContent } from "../../src/puzzles/futoshiki/schema";
@@ -108,5 +110,28 @@ export async function uncapturePuzzle() {
     from: `${ply.fromFile}${ply.fromRank}`,
     to: `${ply.toFile}${ply.toRank}`,
     uncapture: ply.uncapture,
+  };
+}
+
+/** The easiest published curated gear diagram, plain or Fix the Diagram, with its solution from the content file. */
+export async function gearPuzzle(fix: boolean) {
+  const all = await loadPublished<GearContent>("gears");
+  const found = all
+    .filter(({ content }) => content.maxAdjustments > 0 === fix)
+    .sort((a, b) => a.meta.difficulty - b.meta.difficulty)[0];
+  if (!found) throw new Error("No published curated gear diagram");
+  const { content } = found;
+  const killer = content.gears.find(
+    ({ label }) => label === content.solution.killerLabel,
+  )!;
+  return {
+    typeKey: "gears",
+    slug: found.meta.slug,
+    title: found.meta.title,
+    cranks: lcmTeeth(content.gears),
+    crank: content.solution.crank,
+    convergence: content.solution.convergence,
+    killer: `Gear ${killer.label}, ${killer.teeth} teeth`,
+    swaps: content.solution.swaps,
   };
 }

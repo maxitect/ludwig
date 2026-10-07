@@ -11,7 +11,6 @@ async function main() {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
     options: { write: { type: "boolean", default: false } },
-    strict: false,
   });
   const types = positionals.filter((type) => gradedTypes.includes(type));
   if (!types.length || types.length !== positionals.length) {

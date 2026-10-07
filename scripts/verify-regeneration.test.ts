@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { registry } from "@/puzzles/registry";
 import { sudokuGenerators } from "@/puzzles/sudoku/generate";
-import { formatContentFile } from "./dev/format-content";
+import { formatContentFile } from "./format-content";
 import { verifyPuzzles } from "./verify-puzzles";
 
 let dir: string;
@@ -38,7 +38,7 @@ describe("verifyPuzzles regeneration", () => {
     expect(failures).toEqual([]);
   });
 
-  it("fails a file whose content, seed or generator version no longer regenerates", async () => {
+  it("fails a file whose content or seed no longer regenerates", async () => {
     const { content } = sudokuGenerators[1](generated.seed, 2);
     write("edited", { givens: content.givens.slice(1) });
     write("reseeded", content, "another");

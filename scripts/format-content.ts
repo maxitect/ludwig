@@ -1,3 +1,6 @@
+import type { Difficulty } from "../src/puzzles/_shared/generate/pipeline";
+import type { Provenance } from "../src/puzzles/generators";
+
 const WIDTH = 120;
 
 function literal(value: unknown): string {
@@ -47,10 +50,10 @@ export type GeneratedFile = {
   typeKey: string;
   slug: string;
   title: string;
-  difficulty: number;
+  difficulty: Difficulty;
   publishedAt: string;
   content: object;
-  generated: { generator: string; version: number; seed: string };
+  generated: Provenance;
 };
 
 export function formatContentFile(file: GeneratedFile) {

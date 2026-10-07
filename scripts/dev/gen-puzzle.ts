@@ -3,7 +3,7 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { isDifficulty } from "../../src/puzzles/_shared/generate/pipeline";
 import { generators, regenerate } from "../../src/puzzles/generators";
-import { formatContentFile } from "./format-content";
+import { formatContentFile } from "../format-content";
 
 const usage =
   "usage: pnpm puzzles:gen <type> --seed <text> --difficulty <1-5> [--slug <slug>] [--title <title>] [--version <n>]";

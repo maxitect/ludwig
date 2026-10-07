@@ -29,6 +29,20 @@ const linkClass =
 
 const gearHref = (slug: string) => `/puzzles/gears/${slug}`;
 
+const HOW_IT_WORKS = [
+  "The victim stands at the centre. Each dancer is a gear that watches through its wedge of red Xs.",
+  "Turn the crank to set the gears before the dance. Meshed gears turn together, neighbours in opposite directions.",
+  "Scrub through the dance. At each of the 8 convergences the dancers close in, and the counter shows how many of them see the victim.",
+  "Only one crank setting and one convergence leave a single dancer watching while everyone else looks away. That dancer is the killer.",
+  "Leave the crank and the scrubber on that moment, then accuse. The crank, the convergence and the gear must all be right.",
+];
+
+const FIX_HOW_IT_WORKS = [
+  "As printed, the diagram has no moment where exactly one dancer sees the victim.",
+  "Tap two gears to swap their starting slots, up to the number of adjustments allowed.",
+  "Only one set of swaps makes the diagram solvable. Then find the crank, the convergence and the killer as usual.",
+];
+
 export default async function GearsPage() {
   const { diagrams, fixes } = await getGearsCatalogue();
   const solved = getSolvedPuzzleIds(
@@ -60,6 +74,27 @@ export default async function GearsPage() {
           </blockquote>
         </CardContent>
       </Card>
+      <section
+        aria-labelledby="how-it-works"
+        className="relative flex max-w-2xl flex-col gap-4"
+      >
+        <h2 id="how-it-works" className={headingClass}>
+          How it works
+        </h2>
+        <ol className="flex list-decimal flex-col gap-1 pl-6">
+          {HOW_IT_WORKS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <h3 className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+          Fix the Diagram
+        </h3>
+        <ol className="flex list-decimal flex-col gap-1 pl-6">
+          {FIX_HOW_IT_WORKS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </section>
       <section aria-labelledby="today" className="relative flex flex-col gap-4">
         <h2 id="today" className={headingClass}>
           Today&rsquo;s diagram

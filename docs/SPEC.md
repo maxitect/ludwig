@@ -35,7 +35,7 @@ A puzzle-solving web app inspired by the BBC One drama _Ludwig_ (Big Talk / That
 | S1E6 | Book cipher | The "Bowerbird" bird book is the source key for James's notebook cipher | Book cipher puzzles |
 | S2E1 | Knights and Knaves | "One truth, one lie", which John then subverts | Truth-teller/liar logic puzzles |
 | S2E1 | "Two puzzles a week" | Ludwig supplies the local paper | Weekly-pair cadence (see section 4.4) |
-| S2E2 | **Gear puzzle** | A cèilidh diagram: dancers are gears that "rotate AND move in and out". Each has a field of vision marked with Xs. There are eight convergences. It is "100% solvable if we adjust a couple of the starting positions". Lucy names it "Slidey Circles" | **Headline feature B** |
+| S2E2 | **Gear puzzle** | A cèilidh diagram: dancers are gears that "rotate AND move in and out". Each has a field of vision marked with Xs. There are eight convergences. It is "100% solvable if we adjust a couple of the starting positions". Lucy names it "Slidey Circles". Before John invents it, "gear puzzle" means the classic kind, which the detectives at the station play: connect a driver to a target with the right cogs | **Headline feature B** (Mode B: the classic gear train) |
 | S2E3 | Maze | The Cambridge street maze overlaid with the sightlines of 48 CCTV cameras. Also: "don't let him fob me off with a word search" | CCTV maze. Word search included as a deliberately jokey filler type |
 | S2E4 | "Knight's Path" | A coded phrase that turns out to be a street name | Folded into the cipher set |
 | S2E5 | Napkin maths | "Not a code… shorthand" | Arithmetic deduction puzzles |
@@ -62,6 +62,8 @@ The on-screen board was reportedly not a valid position, so our puzzles must be 
 - As drawn, the puzzle had no solution. It is solvable once a couple of starting positions are adjusted.
 
 The show never gives exact rules, so section 5.2 defines our own. They stay faithful to every stated property.
+
+**The classic gear puzzle (S2E2).** When John first talks about gear puzzles, he means the familiar kind, which the detectives at the station play: a driver and a target cog on a board, and a handful of cogs to place between them. The dancer diagram is his reinvention of it. The app offers the classic kind as the Gear Puzzle's Mode B (section 5.2.5). It is not John's puzzle, so it carries no John quote.
 
 ### 1.4 Visual identity
 
@@ -107,7 +109,8 @@ The show never gives exact rules, so section 5.2 defines our own. They stay fait
 |---|---|---|
 | **Flagship** | `reverse-chess` | Modes A and B (section 5.1) |
 | **Flagship** | `rota` | Reverse Chess Mode C. It is a separate type because it shares no data shape with chess, and it is presented inside the Reverse Chess hub (section 5.1) |
-| **Flagship** | `gears` | Engine-driven, generated plus curated (section 5.2) |
+| **Flagship** | `gears` | Engine-driven, generated plus curated (section 5.2). The dancer diagrams are the main version |
+| **Flagship** | `gear-train` | Gear Puzzle Mode B, "Classic Gear Train". It is a separate type because it shares no data shape with the dancer diagrams, and it is presented inside the gears hub (section 5.2.5) |
 | Word | `crossword` | One type with a `style` of `cryptic` (13×13 or 15×15) or `quick` (11×11). They share every table. Both have original clues, checking and reveal. The UI shows them as "Cryptic" and "Quick" shelves |
 | Word | `anagram` | Single words and phrase anagrams, letter-tile UI |
 | Word | `word-ladder` | Change one letter per rung |
@@ -139,7 +142,7 @@ The show never gives exact rules, so section 5.2 defines our own. They stay fait
 /puzzles/[type]            Category index (volumes, difficulty filter)
 /puzzles/[type]/[slug]     Solve page
 /reverse-chess             Flagship hub (modes, intro "how it works")
-/gears                     Flagship hub (curated diagrams, daily diagram)
+/gears                     Flagship hub (intro "how it works", daily diagram, curated diagrams, Mode B: Classic Gear Train)
 /this-week                 "Two puzzles a week": the current weekly pair
 /casebook                  Progress: solved, times, streaks, per-category stats
 /settings                  Display name, theme (paper/ink), notation (algebraic/descriptive)
@@ -432,6 +435,66 @@ Tuning result: gear counts (7, 9, 9, 11), half-widths (45, 45, 30, 30), 12 slots
 **Accessibility:** a fully keyboard-operable crank and scrubber, a textual state table ("Gear C: facing 135°, sees victim: no") behind a toggle, and colour that is never the only signal (Xs versus dots).
 
 **Show-accurate copy:** the intro card quotes John: _"Gears usually just rotate, but these rotate AND move in and out."_
+
+#### 5.2.5 Mode B: "Classic Gear Train"
+
+The dancer diagrams (sections 5.2.1 to 5.2.4) stay the main version of the Gear Puzzle. Mode B is the classic gear puzzle the detectives play at the station (section 1.3). It is its own `gear-train` type, presented inside the gears hub after the dancer sections, the way the Rota sits inside Reverse Chess.
+
+**Payload:**
+
+- a pegboard of `rows × cols` pegs (4 to 12 each way);
+- the **driver**, a fixed cog that always turns clockwise, and the **target**, a fixed cog with a required direction (clockwise or anticlockwise);
+- **bolts**, pegs that block placement;
+- an **inventory**: how many cogs of each size the player may place. It usually holds more than the answer needs.
+
+**Goal:** place cogs from the inventory on free pegs so that the driver turns the target in the required direction. Every cog placed must be needed.
+
+**Formal model** (integers only, in peg units):
+
+```
+Cog:
+  T          teeth ∈ {8, 16, 24}
+  r          pitch radius = T / 8 pegs (1, 2 or 3)
+  (row, col) the peg it sits on
+
+Two cogs a, b, with d² = Δrow² + Δcol²:
+  mesh       d² = (r_a + r_b)²       (axis-aligned, or a 3-4-5 diagonal for r_a + r_b = 5)
+  collide    d² < (r_a + r_b)²
+
+A cog collides with a bolt when the bolt's distance² from its peg is ≤ r².
+Every disc lies on the board: r ≤ row ≤ rows - 1 - r, and the same for col.
+
+Train: the mesh graph over the driver, the target and every placed cog.
+  spin signs by 2-colouring from the driver (the shared spinSigns used by gears)
+  jammed     the graph is not bipartite
+
+A placement (a set of (row, col, teeth)) is valid when:
+  1. every cog is on a free peg (not a bolt, not the driver's or target's peg), one cog per peg
+  2. no more cogs of each size than the inventory holds
+  3. no two cogs collide (the driver and target included), no cog collides with a bolt, every disc is on the board
+  4. every placed cog and the target are reachable from the driver
+  5. the train is not jammed
+  6. the target's spin sign matches the required direction
+  7. minimal: removing any one placed cog disconnects the target from the driver
+```
+
+Rules 4 and 7 together mean a valid placement is an induced path from the driver to the target: no cog meshes with anything but its two neighbours on the chain. The target's direction then comes from the chain's length alone.
+
+**Speed is not a goal.** In a simple train the ratio between the driver and the target depends only on their own teeth, whatever the idlers between them. A speed goal would need compound cogs (two on one axle), which v1 leaves out.
+
+**Uniqueness:** exactly one valid placement, compared as a set of (row, col, teeth). The `verify` hook runs `solve`, a depth-first search over induced paths that grows a chain from the driver one meshing cog at a time, prunes by collision, bolts and the remaining inventory, and records each chain that reaches the target with the right sign. It caps the count at 2 and requires exactly the stored placement. Authoring follows Mr Todd's principle: plant the chain, then add bolts and decoy cogs until every other chain is gone.
+
+**Answer and check:** the answer is the placement. `check` validates rules 1 to 7 against the payload and compares the set with the stored solution. Uniqueness makes the two agree, so a valid placement is never rejected. Every rule can be checked from the payload alone, so the solver evaluates them live without any solution data.
+
+**Interaction:**
+
+- **Board:** an SVG pegboard on textured paper. Pegs are small ink dots and bolts are ink hex heads. The driver carries a red crank handle, and the target shows its required direction as a hand-drawn arrow. Cogs reuse the gears board's cog drawing, with the tooth count visible.
+- **Place:** drag a cog from the inventory tray onto a peg. With the keyboard, choose a size in the tray, move a peg cursor with the arrow keys and press Enter. Select a placed cog and press Delete, or tap it, to return it to the tray. A placement that breaks rule 1, 2 or 3 is refused with an `aria-live` notice naming the reason.
+- **Live train:** every cog connected to the driver turns, at its own speed and direction (`motion`). A jammed train does not turn, and the cogs on its odd cycle are marked with a red X. A status line reads, for example, "The target turns anticlockwise. Cog at C4 isn't needed." With reduced motion, direction arrows replace the spinning.
+- **Check** submits the placement.
+
+**Engine:** a pure `engine.ts` with `meshes`, `collisions`, `trainOf` (signs, jam and reachability), `validate` (rules 1 to 7, naming the first broken one) and `solve`. `spinSigns` moves from `gears/engine.ts` to `src/puzzles/_shared/` now that a second type uses it.
+
 
 ---
 
@@ -733,6 +796,7 @@ The conventions:
 | **reverse-chess** (Modes A and B) | `reverse_chess_puzzles`: mode `retro_mode`('last_move','unwind'), side_to_move, four castling-right bools, en_passant_file `chess_file` null, halfmove smallint, fullmove smallint, ply_count smallint<br>`reverse_chess_goals` **(S)** (Mode B only, `display_text` is shown to the player): puzzle_id pk, kind `retro_goal_kind`('piece_on_square','castling_right','piece_count','initial_position'), display_text. Unique `(puzzle_id, kind)`<br>`reverse_chess_goal_piece_on_square`, `reverse_chess_goal_castling_right`, `reverse_chess_goal_piece_count` **(S)**: puzzle_id pk, kind (generated, fixed per table). FK `(puzzle_id, kind)` to `reverse_chess_goals`, so a goal can only have the subtype row of its own kind. Columns: colour with piece, file and rank (1–8); colour with side `retro_castle_side`('kingside','queenside'); colour with piece and count (0–10). A deferred trigger requires the subtype row of the goal's kind (`initial_position` has none), another requires a goal exactly when mode is 'unwind', and a third requires `ply_count = 2 * (fullmove - 1) + (1 if side_to_move is black)` when the goal is `initial_position`<br>`reverse_chess_pieces`: (puzzle_id, file `chess_file`, rank 1–8) pk, colour, piece `chess_piece`<br>`reverse_chess_solution_plies` **(S)**: (puzzle_id, ply) pk, from_file, from_rank, to_file, to_rank, uncapture `chess_piece` null, unpromote bool, special `retro_special`('none','en_passant','castle') | `reverse_chess_attempt_plies`, mirroring the solution plies |
 | **rota** (Reverse Chess Mode C, its own type) | `rota_puzzles`<br>`rota_workers`: id, puzzle_id, name, unique (puzzle_id, name)<br>`rota_worker_squares`: (puzzle_id, worker_id, phase `rota_phase`('intended','final')) pk, file, rank 1–8, unique (puzzle_id, phase, file, rank) so no two workers share a zone in one phase. `puzzle_id` is part of that candidate key, so it is not redundancy<br>`rota_clues`: id, puzzle_id, position, kind `rota_clue_kind`('unpowered_square','adjacent_only','never_in_rank','max_swaps'), display_text. The deferred constraint trigger `rota_clues_require_subtype` requires a subtype row for every kind except `adjacent_only`<br>One subtype table per parameterised clue kind, pinned by a generated `kind` and composite FK (clue_id, kind) → `rota_clues` (id, kind): `rota_clue_unpowered_square`(clue_id, file, rank), `rota_clue_never_in_rank`(clue_id, worker_id, rank), `rota_clue_max_swaps`(clue_id, max_swaps smallint)<br>`rota_solution_swaps` **(S)**: (puzzle_id, step) pk, worker_a_id, worker_b_id<br>`rota_solutions` **(S)**: puzzle_id pk, instigator_worker_id. The deferred constraint trigger `rota_instigator_in_first_swap` requires the instigator to be one of the two workers of step 1<br>Every worker reference is a composite FK (puzzle_id, worker_id) → `rota_workers` (puzzle_id, id) | `rota_attempts`: instigator_worker_id null (no longer written; the instigator is not part of the answer)<br>`rota_attempt_swaps`, mirroring the solution swaps |
 | **gears** | `gear_puzzles`: slot_count, m_in, m_out, max_adjustments smallint (0 = normal), occlusion bool, generator_seed text null (provenance only)<br>`gear_puzzle_gears`: id, puzzle_id, label, teeth smallint check (8, 12, 16, 24), start_slot, initial_offset, half_width_deg, is_driver bool. Partial unique index on (puzzle_id) where is_driver, plus a deferred constraint trigger requiring exactly one driver<br>`gear_meshes`: (puzzle_id, gear_a_id, gear_b_id) pk, check (gear_a_id < gear_b_id), both FKs composite (puzzle_id, id)<br>`gear_solutions` **(S)**: puzzle_id pk, crank, convergence 1–8, killer_gear_id<br>`gear_solution_swaps` **(S)**: (puzzle_id, gear_a_id, gear_b_id)<br>`gear_daily`: date pk, puzzle_id unique | `gear_attempts`: crank, convergence null, accused_gear_id null<br>`gear_attempt_swaps` |
+| **gear-train** (Gear Puzzle Mode B, its own type) | `gear_train_puzzles`: rows smallint check (4–12), cols smallint check (4–12), target_clockwise bool. The driver always turns clockwise<br>`gear_train_fixed_cogs`: (puzzle_id, role `gear_train_role`('driver','target')) pk, row, col, teeth smallint check (8, 16, 24), unique (puzzle_id, row, col). The deferred constraint trigger `gear_train_requires_fixed_cogs` requires both roles<br>`gear_train_bolts`: (puzzle_id, row, col) pk<br>`gear_train_inventory`: (puzzle_id, teeth) pk, count smallint check (1–6)<br>`gear_train_solution_cogs` **(S)**: (puzzle_id, row, col) pk, teeth. Composite FK (puzzle_id, teeth) → `gear_train_inventory`. Board bounds, bolts, collisions and the inventory count are checked by `puzzles:verify`, not the database | `gear_train_attempts`<br>`gear_train_attempt_cogs`: (attempt_id, row, col) pk, puzzle_id, teeth. Composite FK (puzzle_id, teeth) → `gear_train_inventory`. Saved state may be any work in progress, so only `check` applies the placement rules |
 | **crossword** (cryptic and quick merged, see section 2.3) | `crossword_puzzles`: style `crossword_style`('cryptic','quick'), rows, cols<br>`crossword_cells`: (puzzle_id, row, col) pk, letter char(1) **(S)**, upper-case A to Z. Blocks are the absence of a row<br>`crossword_clues`: (puzzle_id, direction `clue_direction`('across','down'), row, col) pk, clue_text. FK to the start cell<br>`crossword_clue_segments`: (puzzle_id, direction, row, col, position) pk, length, separator `segment_separator`('word','hyphen'), the break after the segment. These give the "(4,3)" or "(5-4)" enumeration. A deferred trigger requires a separator on every segment but the last and rejects one on the last (null is never a word break). Content states `separators` only for hyphens | `crossword_attempts`: puzzle_id (redundant, section 7.4.5)<br>`crossword_attempt_cells`: (attempt_id, row, col) pk, puzzle_id (redundant, section 7.4.5), letter char(1). FK `(puzzle_id, row, col)` → `crossword_cells`, so an entry can only sit on a cell of its own puzzle. That FK is `DEFERRABLE INITIALLY DEFERRED` with no cascade, so a content edit that removes a filled cell fails the seed at commit instead of deleting saved letters |
 | **anagram** | `anagram_puzzles`: answer **(S)**, definition_hint null, scramble_seed. Tiles are derived from the answer and seed | `anagram_attempts`: answer text null |
 | **word-ladder** | `words`: word pk (dictionary lookup)<br>`word_ladder_puzzles`: start_word fk→words, end_word fk→words, rung_count<br>`word_ladder_solution_rungs` **(S)**: (puzzle_id, position) pk, word fk→words (a reference ladder) | `word_ladder_attempt_rungs` |
@@ -762,6 +826,8 @@ The conventions:
 | `puzzle_id` on attempt rows that reference puzzle children (the general rule; each case has its own row below) | `attempts.puzzle_id` | The attempt subtype FKs `(attempt_id, puzzle_id, type_key)` → `attempts (id, puzzle_id, type_key)`, since `attempts` has no unique `(id, puzzle_id)`; its children FK `(attempt_id, puzzle_id)` → the subtype. Each column has a `BEFORE INSERT` fill trigger |
 | `gear_attempts.puzzle_id` | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id, type_key)` → `attempts (id, puzzle_id, type_key)`, where `type_key` is generated as `'gears'`, plus the `BEFORE INSERT` trigger `gear_attempts_fill_puzzle_id`. The trigger fills only a NULL, so an explicit mismatch reaches the FK and fails |
 | `gear_attempt_swaps.puzzle_id` | `gear_attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `gear_attempts (attempt_id, puzzle_id)`, plus the `BEFORE INSERT` trigger `gear_attempt_swaps_fill_puzzle_id`. Both gears are then scoped to the puzzle by `(puzzle_id, gear_*_id)` → `gear_puzzle_gears (puzzle_id, id)` |
+| `gear_train_attempts.puzzle_id` | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id, type_key)` → `attempts (id, puzzle_id, type_key)`, where `type_key` is generated as `'gear-train'`, plus the `BEFORE INSERT` trigger `gear_train_attempts_fill_puzzle_id`. The trigger fills only a NULL, so an explicit mismatch reaches the FK and fails |
+| `gear_train_attempt_cogs.puzzle_id` | `gear_train_attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `gear_train_attempts (attempt_id, puzzle_id)`, plus the `BEFORE INSERT` trigger `gear_train_attempt_cogs_fill_puzzle_id`. The cog size is then scoped to the puzzle by `(puzzle_id, teeth)` → `gear_train_inventory (puzzle_id, teeth)` |
 | `crossword_attempts.puzzle_id` | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id, type_key)` → `attempts (id, puzzle_id, type_key)`, where `type_key` is generated as `'crossword'`, plus the `BEFORE INSERT` trigger `crossword_attempts_fill_puzzle_id`. The trigger fills only a NULL, so an explicit mismatch reaches the FK and fails |
 | `crossword_attempt_cells.puzzle_id` | `crossword_attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `crossword_attempts (attempt_id, puzzle_id)`, plus the `BEFORE INSERT` trigger `crossword_attempt_cells_fill_puzzle_id`. The cell is then scoped to the puzzle by `(puzzle_id, row, col)` → `crossword_cells (puzzle_id, row, col)` |
 | `rota_attempts.puzzle_id` | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id, type_key)` → `attempts (id, puzzle_id, type_key)`, where `type_key` is generated as `'rota'`, plus the `BEFORE INSERT` trigger `rota_attempts_fill_puzzle_id`. The trigger fills only a NULL, so an explicit mismatch reaches the FK and fails |
@@ -860,6 +926,7 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
   - Positions that would leave the non-moving side in check are rejected.
   - Every seeded puzzle has exactly one surviving retro move.
 - **Rota:** clue predicates, swap application, and a uniqueness BFS.
+- **Gear train:** mesh, collision and bolt geometry, jam detection, the minimality rule, and a uniqueness search that finds exactly one valid placement per content file.
 - **Database integrity** (Vitest against local Postgres):
   - inserting a wrong-type subtype row fails;
   - a puzzle with no subtype fails at commit;
@@ -898,7 +965,7 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 | **M1 Framework** | Registry, solve-page chrome, `checkAnswer`/`saveState` actions, localStorage merge, Casebook basics. First types: anagram and crossword (quick style), as in `PLAN.md` |
 | **M2 Reverse Chess** | Engine plus verify script. Modes A and B. Descriptive notation. Ten curated puzzles |
 | **M3 Gear Puzzle** | Engine, generator, SVG board, crank, scrubber, accuse. Fix the Diagram. Twelve curated diagrams plus a daily seed |
-| **M4 Library** | Cryptic crosswords (the `crossword` type's cryptic style), logic grid (with false-statement variant), knights and knaves, futoshiki, acrostic, ciphers, sightlines, CCTV maze, spot the difference, word search, odd-one-out, napkin maths. Reverse Chess Mode C (the `rota` type) |
+| **M4 Library** | Cryptic crosswords (the `crossword` type's cryptic style), logic grid (with false-statement variant), knights and knaves, futoshiki, acrostic, ciphers, sightlines, CCTV maze, spot the difference, word search, odd-one-out, napkin maths. Reverse Chess Mode C (the `rota` type). Gear Puzzle Mode B (the `gear-train` type) |
 | **M5 Polish** | Bullet-hole transitions, landing title sequence (scroll-driven grid rooms, walker, toppled pieces), This Week, accessibility audit, performance pass |
 
 ---

@@ -95,7 +95,7 @@ export function RotaBoard({
           FILES.map((file, column) => {
             const zone = `${file.toUpperCase()}${rank}`;
             const token = at.get(zone);
-            const dark = (column + rank) % 2 === 0;
+            const dark = (column + rank) % 2 === 1;
             return (
               <div
                 key={zone}

@@ -46,9 +46,11 @@ test("today's daily stays under the layout budget while playing", async ({
 }) => {
   await page.goto("/gears");
   const daily = page.locator('a[href^="/puzzles/gears/daily-"]').first();
+  const undrawn = page.getByText("Today’s diagram hasn’t been drawn yet");
+  await expect(daily.or(undrawn)).toBeVisible();
   test.skip(
-    (await daily.count()) === 0,
-    "no daily diagram on this deployment (no database)",
+    await undrawn.isVisible(),
+    "today's diagram hasn't been drawn on this deployment",
   );
   const href = (await daily.getAttribute("href"))!;
   await page.goto(href);

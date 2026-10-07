@@ -10,7 +10,7 @@ function assertWithinCap({ gears }: Diagram) {
     );
   }
   const bad = gears.find(
-    ({ teeth }) => !(gearCap.teeth as readonly number[]).includes(teeth),
+    ({ teeth }) => !gearCap.teeth.some((allowed) => allowed === teeth),
   );
   if (bad) {
     throw new Error(

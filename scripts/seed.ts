@@ -26,10 +26,11 @@ import {
   resolveCliOptions,
 } from "./content-files";
 import { seedBookTexts } from "./seed-book-texts";
+import { seedPictogramGlyphs } from "./seed-pictogram-glyphs";
 import { seedWeekly } from "./seed-weekly";
 
 type Db = typeof appDb;
-type Lookups = typeof defaultLookups;
+type Lookups = Pick<typeof defaultLookups, "categories" | "types" | "volumes">;
 
 export type SeedCounts = { inserted: number; updated: number; removed: number };
 
@@ -100,6 +101,7 @@ export async function seed({
   contentDir,
   lookups = defaultLookups,
   bookTexts = defaultBookTexts,
+  pictogramGlyphs = defaultLookups.pictogramGlyphs,
   confirmRemoval = () => false,
 }: {
   db: Db;
@@ -107,9 +109,11 @@ export async function seed({
   contentDir: string;
   lookups?: Lookups;
   bookTexts?: unknown;
+  pictogramGlyphs?: Parameters<typeof seedPictogramGlyphs>[1];
   confirmRemoval?: ConfirmRemoval;
 }) {
   const lookupSummary = await seedLookups(db, lookups);
+  const glyphSummary = await seedPictogramGlyphs(db, pictogramGlyphs);
   const bookTextSummary = await seedBookTexts(db, bookTexts);
   const { files, failures: parseFailures } = await loadContentFiles(
     registry,
@@ -209,7 +213,7 @@ export async function seed({
   }
 
   return {
-    lookups: lookupSummary,
+    lookups: { ...lookupSummary, pictogramGlyphs: glyphSummary },
     bookTexts: bookTextSummary,
     types,
     failures,

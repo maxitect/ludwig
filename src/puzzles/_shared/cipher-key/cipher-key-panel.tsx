@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 import { cellRotation } from "../cell-grid/cell-grid";
@@ -17,6 +17,10 @@ type Props = {
   /** Assigns `plainLetter` to `cipherLetter`, or clears the slot when it is null. Both are lowercase a-z. */
   onGuess(cipherLetter: string, plainLetter: string | null): void;
   onClear(): void;
+  /** Draws each cipher letter as a symbol instead of a letter. `name` is its accessible name and must not reveal the plain letter. */
+  symbols?: { render(cipherLetter: string): ReactNode; name(cipherLetter: string): string };
+  /** Guesses that are given: shown, counted as guesses, not editable, and skipped by Tab and by the advance after typing. */
+  locked?: Guesses;
 };
 
 /**
@@ -24,22 +28,26 @@ type Props = {
  * under it, and an A to Z row of slots, one per cipher letter, where guesses are assigned. A letter
  * that does not occur in the ciphertext has a disabled slot. Typing a letter fills the slot and
  * Backspace clears it. Guesses are controlled by the parent and never leave the browser on their own.
+ * With `symbols` the cipher letters are drawn as symbols and only the symbols that occur get a slot.
  */
 export function CipherKeyPanel({
   ciphertext,
   guesses,
   onGuess,
   onClear,
+  symbols,
+  locked = {},
 }: Props) {
   const slots = useRef<Record<string, HTMLInputElement | null>>({});
-  const present = new Set(cipherLettersIn(ciphertext));
+  const occurring = cipherLettersIn(ciphertext);
+  const present = new Set(occurring);
   const duplicated = duplicatedGuesses(guesses);
 
-  function focusNeighbour(letter: string, step: 1 | -1) {
+  function focusNeighbour(letter: string, step: 1 | -1, skipLocked = false) {
     let index = ALPHABET.indexOf(letter) + step;
     while (index >= 0 && index < ALPHABET.length) {
       const next = ALPHABET[index];
-      if (present.has(next)) {
+      if (present.has(next) && !(skipLocked && next in locked)) {
         slots.current[next]?.focus();
         return;
       }
@@ -49,7 +57,7 @@ export function CipherKeyPanel({
 
   function enter(letter: string, typed: string) {
     onGuess(letter, typed.toLowerCase());
-    focusNeighbour(letter, 1);
+    focusNeighbour(letter, 1, true);
   }
 
   function onKeyDown(event: React.KeyboardEvent, letter: string) {
@@ -60,6 +68,10 @@ export function CipherKeyPanel({
     } else if (event.key === "ArrowLeft") {
       event.preventDefault();
       focusNeighbour(letter, -1);
+    } else if (letter in locked) {
+      if (/^[a-z]$/i.test(event.key) || event.key === "Backspace") {
+        event.preventDefault();
+      }
     } else if (event.key === "Backspace" || event.key === "Delete") {
       event.preventDefault();
       onGuess(letter, null);
@@ -68,6 +80,10 @@ export function CipherKeyPanel({
       enter(letter, event.key);
     }
   }
+
+  const slotLetters = symbols ? occurring : [...ALPHABET];
+  const nameOf = (letter: string) =>
+    symbols ? symbols.name(letter) : `Cipher letter ${letter.toUpperCase()}`;
 
   const words = ciphertext.split(/\s+/).filter(Boolean);
   let letterIndex = 0;
@@ -81,7 +97,21 @@ export function CipherKeyPanel({
         it stands for, and Backspace clears it. The message below updates as you
         go.
       </p>
-      <p className="sr-only">{`Ciphertext: ${ciphertext}`}</p>
+      <p className="sr-only">{`Ciphertext: ${
+        symbols
+          ? words
+              .map((word) =>
+                [...word]
+                  .map((character) =>
+                    /^[a-z]$/i.test(character)
+                      ? symbols.name(character.toLowerCase())
+                      : character,
+                  )
+                  .join(", "),
+              )
+              .join("; ")
+          : ciphertext
+      }`}</p>
       <div
         aria-hidden="true"
         className="flex flex-wrap gap-x-6 gap-y-3 leading-none"
@@ -99,9 +129,13 @@ export function CipherKeyPanel({
                   key={index}
                   className="flex min-w-[1.5ch] flex-col items-center"
                 >
-                  <span className="font-mono text-lg uppercase">
-                    {character}
-                  </span>
+                  {symbols && isLetter ? (
+                    symbols.render(lower)
+                  ) : (
+                    <span className="font-mono text-lg uppercase">
+                      {character}
+                    </span>
+                  )}
                   <span
                     className="h-8 font-hand text-2xl text-crayon uppercase"
                     style={
@@ -139,8 +173,9 @@ export function CipherKeyPanel({
         aria-label="Cipher key"
         className="flex flex-wrap gap-x-1 gap-y-3"
       >
-        {[...ALPHABET].map((letter) => {
+        {slotLetters.map((letter) => {
           const guess = guesses[letter];
+          const isLocked = letter in locked;
           return (
             <label
               key={letter}
@@ -149,9 +184,16 @@ export function CipherKeyPanel({
                 !present.has(letter) && "opacity-30",
               )}
             >
-              <span aria-hidden="true" className="font-mono text-sm uppercase">
-                {letter}
-              </span>
+              {symbols ? (
+                symbols.render(letter)
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="font-mono text-sm uppercase"
+                >
+                  {letter}
+                </span>
+              )}
               <input
                 ref={(node) => {
                   slots.current[letter] = node;
@@ -162,9 +204,13 @@ export function CipherKeyPanel({
                 autoCapitalize="off"
                 spellCheck={false}
                 disabled={!present.has(letter)}
+                readOnly={isLocked}
+                tabIndex={isLocked ? -1 : undefined}
                 value={guess ?? ""}
-                aria-label={`Cipher letter ${letter.toUpperCase()}, ${
-                  guess ? `guess ${guess.toUpperCase()}` : "no guess"
+                aria-label={`${nameOf(letter)}, ${
+                  guess
+                    ? `${isLocked ? "given" : "guess"} ${guess.toUpperCase()}`
+                    : "no guess"
                 }`}
                 aria-invalid={guess !== undefined && duplicated.has(guess)}
                 onKeyDown={(event) => onKeyDown(event, letter)}
@@ -174,7 +220,10 @@ export function CipherKeyPanel({
                   const typed = value.replace(guess ?? "", "").slice(-1);
                   if (/^[a-z]$/i.test(typed)) enter(letter, typed);
                 }}
-                className="size-9 border-2 border-ink bg-paper text-center font-hand text-2xl text-crayon uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive"
+                className={cn(
+                  "size-9 border-2 border-ink text-center font-hand text-2xl uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive",
+                  isLocked ? "bg-paper-shade text-ink" : "bg-paper text-crayon",
+                )}
               />
             </label>
           );

@@ -1,8 +1,10 @@
 import type * as core from "../src/db/schema/core";
+import type * as pictogram from "../src/puzzles/pictogram-cipher/tables";
 
 type Category = typeof core.puzzleCategories.$inferInsert;
 type PuzzleType = typeof core.puzzleTypes.$inferInsert;
 type Volume = typeof core.volumes.$inferInsert;
+type PictogramGlyph = typeof pictogram.pictogramGlyphs.$inferInsert;
 
 export const categories = [
   { key: "flagship", name: "Flagship", sort: 1 },
@@ -189,3 +191,33 @@ export const volumes = [
   { slug: "pocket-collection-2", title: "Pocket Puzzle Collection 2", cover: "red", sort: 2 },
   { slug: "pocket-collection-3", title: "Pocket Puzzle Collection 3", cover: "ink", sort: 3 },
 ] satisfies Volume[];
+
+/** Keys are neutral and shuffled against the alphabet, so neither the file name nor the order gives a letter away. */
+export const pictogramGlyphs = [
+  { id: 1, assetKey: "glyph-01", letter: "q" },
+  { id: 2, assetKey: "glyph-02", letter: "h" },
+  { id: 3, assetKey: "glyph-03", letter: "x" },
+  { id: 4, assetKey: "glyph-04", letter: "l" },
+  { id: 5, assetKey: "glyph-05", letter: "b" },
+  { id: 6, assetKey: "glyph-06", letter: "d" },
+  { id: 7, assetKey: "glyph-07", letter: "v" },
+  { id: 8, assetKey: "glyph-08", letter: "t" },
+  { id: 9, assetKey: "glyph-09", letter: "j" },
+  { id: 10, assetKey: "glyph-10", letter: "w" },
+  { id: 11, assetKey: "glyph-11", letter: "o" },
+  { id: 12, assetKey: "glyph-12", letter: "s" },
+  { id: 13, assetKey: "glyph-13", letter: "f" },
+  { id: 14, assetKey: "glyph-14", letter: "a" },
+  { id: 15, assetKey: "glyph-15", letter: "c" },
+  { id: 16, assetKey: "glyph-16", letter: "z" },
+  { id: 17, assetKey: "glyph-17", letter: "r" },
+  { id: 18, assetKey: "glyph-18", letter: "k" },
+  { id: 19, assetKey: "glyph-19", letter: "m" },
+  { id: 20, assetKey: "glyph-20", letter: "e" },
+  { id: 21, assetKey: "glyph-21", letter: "i" },
+  { id: 22, assetKey: "glyph-22", letter: "n" },
+  { id: 23, assetKey: "glyph-23", letter: "p" },
+  { id: 24, assetKey: "glyph-24", letter: "g" },
+  { id: 25, assetKey: "glyph-25", letter: "y" },
+  { id: 26, assetKey: "glyph-26", letter: "u" },
+] satisfies PictogramGlyph[];

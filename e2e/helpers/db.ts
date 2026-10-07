@@ -123,3 +123,24 @@ export async function rotaAttemptFor(email: string) {
     await pool.end();
   }
 }
+
+export async function pictogramAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ guesses: number; completed: boolean }>(
+      `select count(g.glyph_id)::int as guesses, a.completed_at is not null as completed
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join pictogram_cipher_attempts c on c.attempt_id = a.id
+         left join pictogram_cipher_attempt_guesses g on g.attempt_id = c.attempt_id
+        where u.email = $1 and a.type_key = 'pictogram-cipher'
+        group by a.id`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}

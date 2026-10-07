@@ -5,7 +5,6 @@ import {
   animate,
   type MotionValue,
   motion,
-  useMotionValue,
   useTransform,
 } from "motion/react";
 import {
@@ -76,22 +75,7 @@ export function Scrubber({
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const cogTurn = useTransform(position, (latest) => latest * 45);
-  const trackWidth = useMotionValue(0);
-  const cogX = useTransform(
-    [position, trackWidth],
-    ([latest, width]: number[]) => (latest / HALF_PHASES) * width,
-  );
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const measure = () => trackWidth.set(track.getBoundingClientRect().width);
-    measure();
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(track);
-    return () => observer.disconnect();
-  }, [trackWidth]);
+  const cogX = useTransform(position, percent);
 
   useEffect(() => {
     const slider = sliderRef.current;
@@ -248,10 +232,15 @@ export function Scrubber({
           ))}
           <motion.div
             aria-hidden
-            className="absolute top-0 left-0 -ml-3 size-6 text-ludwig-red"
-            style={{ x: cogX, rotate: cogTurn }}
+            className="pointer-events-none absolute inset-x-0 top-0"
+            style={{ x: cogX }}
           >
-            <Cog />
+            <motion.div
+              className="-ml-3 size-6 text-ludwig-red"
+              style={{ rotate: cogTurn }}
+            >
+              <Cog />
+            </motion.div>
           </motion.div>
         </div>
       </div>

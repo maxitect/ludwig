@@ -12,65 +12,19 @@ export const meta = {
 
 export const content = {
   workers: [
-    {
-      name: "Bridget",
-      intended: { file: "e", rank: 3 },
-      final: { file: "e", rank: 3 },
-    },
-    {
-      name: "Colm",
-      intended: { file: "d", rank: 4 },
-      final: { file: "d", rank: 2 },
-    },
-    {
-      name: "Dessa",
-      intended: { file: "d", rank: 3 },
-      final: { file: "c", rank: 3 },
-    },
-    {
-      name: "Ewan",
-      intended: { file: "c", rank: 2 },
-      final: { file: "d", rank: 4 },
-    },
-    {
-      name: "Fenn",
-      intended: { file: "c", rank: 4 },
-      final: { file: "c", rank: 2 },
-    },
-    {
-      name: "Gwyn",
-      intended: { file: "c", rank: 3 },
-      final: { file: "c", rank: 4 },
-    },
-    {
-      name: "Hobb",
-      intended: { file: "d", rank: 2 },
-      final: { file: "d", rank: 3 },
-    },
+    { name: "Bridget", intended: { file: "e", rank: 3 }, final: { file: "e", rank: 3 } },
+    { name: "Colm", intended: { file: "d", rank: 4 }, final: { file: "d", rank: 2 } },
+    { name: "Dessa", intended: { file: "d", rank: 3 }, final: { file: "c", rank: 3 } },
+    { name: "Ewan", intended: { file: "c", rank: 2 }, final: { file: "d", rank: 4 } },
+    { name: "Fenn", intended: { file: "c", rank: 4 }, final: { file: "c", rank: 2 } },
+    { name: "Gwyn", intended: { file: "c", rank: 3 }, final: { file: "c", rank: 4 } },
+    { name: "Hobb", intended: { file: "d", rank: 2 }, final: { file: "d", rank: 3 } },
   ],
   clues: [
-    {
-      displayText:
-        "Workers only ever swapped with a neighbour, one zone across or one zone up or down.",
-      kind: "adjacent_only",
-    },
-    {
-      displayText: "No more than 6 swaps were made.",
-      kind: "max_swaps",
-      maxSwaps: 6,
-    },
-    {
-      displayText: "Colm never stood in a zone in row 5, at any point.",
-      kind: "never_in_rank",
-      rank: 5,
-      workerName: "Colm",
-    },
-    {
-      displayText: "Fenn never stood in a zone in row 5, at any point.",
-      kind: "never_in_rank",
-      rank: 5,
-      workerName: "Fenn",
-    },
+    { displayText: "Workers only ever swapped with a neighbour, one zone across or one zone up or down.", kind: "adjacent_only" },
+    { displayText: "No more than 6 swaps were made.", kind: "max_swaps", maxSwaps: 6 },
+    { displayText: "Colm never stood in a zone in row 5, at any point.", kind: "never_in_rank", rank: 5, workerName: "Colm" },
+    { displayText: "Fenn never stood in a zone in row 5, at any point.", kind: "never_in_rank", rank: 5, workerName: "Fenn" },
   ],
   solution: {
     instigatorName: "Fenn",

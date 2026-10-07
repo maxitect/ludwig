@@ -72,7 +72,7 @@ export async function attemptsFor(email: string) {
 
 export async function cipherAttemptFor(
   email: string,
-  typeKey: "caesar" | "keyword",
+  typeKey: "caesar" | "keyword" | "book-cipher",
 ) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),
@@ -85,7 +85,7 @@ export async function cipherAttemptFor(
       `select c.answer, a.completed_at is not null as completed
          from attempts a
          join "user" u on u.id = a.user_id
-         join ${typeKey}_attempts c on c.attempt_id = a.id
+         join ${typeKey.replace("-", "_")}_attempts c on c.attempt_id = a.id
         where u.email = $1 and a.type_key = $2`,
       [email, typeKey],
     );

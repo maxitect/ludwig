@@ -10,7 +10,12 @@ import {
 const decoded = (schema: z.ZodString) => schema.regex(/^[a-z_ ]*$/).max(400);
 
 const refSelect = createSelectSchema(bookCipherRefs);
-const refInsert = createInsertSchema(bookCipherRefs);
+const positive = (schema: z.ZodNumber) => schema.min(1);
+const refInsert = createInsertSchema(bookCipherRefs, {
+  page: positive,
+  line: positive,
+  wordIndex: positive,
+});
 const lineSelect = createSelectSchema(bookTextLines);
 const textSelect = createSelectSchema(bookTexts);
 const attemptSelect = createSelectSchema(bookCipherAttempts, {

@@ -180,7 +180,7 @@ The reason for the "clues first, then repair" fallback is that regions and layou
 
 ### 5.2 The bar: unique, and solvable without trial and error
 
-**Adopt KrazyDad's bar for every generated grid puzzle: `countSolutions === 1` and the type's technique grader solves it.** His books claim exactly this ([blog](https://blog.krazydad.com/2020/09/19/diabolical-two-not-touch/), [Lime](https://krazydad.com/limesudoku/)). It protects players from a puzzle where the only way forward is a guess, and it gives difficulty a definition.
+**Adopt KrazyDad's bar for every generated grid puzzle: `countSolutions === 1` and the type's technique grader solves it.** His Star Battle books and Lime Sudoku claim exactly this ([blog](https://blog.krazydad.com/2020/09/19/diabolical-two-not-touch/), [Lime](https://krazydad.com/limesudoku/)). It protects players from a puzzle where the only way forward is a guess, and it gives difficulty a definition.
 
 - The grader is a second solver, and the two have different jobs, which KrazyDad's history also shows ([Dancing Links](https://blog.krazydad.com/2005/08/13/dancing-links/)): `countSolutions` is a fast exhaustive solver for uniqueness, and the grader is a slower human-style solver that records which techniques it needed.
 - A puzzle that is unique but needs a guess is **rejected**, not published at the top tier. We do not copy KrazyDad's Insane tier: our 5 is the hardest technique set, not trial and error.
@@ -215,7 +215,7 @@ Weighting: solvers prefer easier tiers ([comfort solvers](https://blog.krazydad.
 
 ### 5.5 Determinism and version pinning
 
-- One entry point per type: `generate(seed: string, difficulty: 1..5, version: number)`. The PRNG is `mulberry32(hashSeed(\`${seed}:${difficulty}\`))` from `src/puzzles/_shared/prng.ts`, the same form `generateDiagramWithAttempts` already uses.
+- One entry point per generator (a type, or a variant such as jigsaw sudoku): `generate(seed: string, difficulty: 1..5, version: number)`. The PRNG is `mulberry32(hashSeed(\`${seed}:${difficulty}\`))` from `src/puzzles/_shared/prng.ts`, the same form `generateDiagramWithAttempts` already uses.
 - **No other source of randomness or ordering.** No `Math.random`, no unseeded `Date`, and no iteration over unordered collections whose order depends on insertion hazards. Shuffles use one Fisher-Yates over the seeded generator. (SPEC §5.2.3 and `.claude/rules/puzzles.md` already require seeded PRNGs.)
 - **Version pinning like spot-difference.** Its `engines` map is `Record<number, generator>` and `generateScene` throws on an unknown version. Each entry is frozen: a change to any step is a new version. T100 follows this.
 - **`puzzles:verify` should regenerate and compare.** When a content file exports provenance (generator, version and seed), `puzzles:verify` regenerates from it and `meta.difficulty`, and fails if the output differs. This catches an edited frozen generator. It is not what gears do today (their `sourceNote` is prose and `generator_seed` is NULL), so it needs a typed provenance export (5.6).

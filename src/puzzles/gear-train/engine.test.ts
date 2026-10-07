@@ -128,7 +128,7 @@ describe("validate", () => {
     expect(rule(contradictory, plantedSolution)).toBe(6);
   });
 
-  it("names rule 7 for an unneeded cog on a parallel branch", () => {
+  it("names rule 7 for an unneeded cog on a side branch", () => {
     const chain = [cog(3, 3, 8), cog(3, 5, 8)];
     expect(rule(open, chain)).toBe(0);
     expect(rule(open, [...chain, cog(5, 3, 8)])).toBe(7);

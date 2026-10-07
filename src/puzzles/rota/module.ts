@@ -18,6 +18,7 @@ import {
   rotaWorkerSquares,
   rotaWorkers,
 } from "./tables";
+import { verifyRota } from "./verify";
 
 export const rotaModule = {
   schema,
@@ -25,6 +26,7 @@ export const rotaModule = {
   load,
   loadSolution,
   check,
+  verify: verifyRota,
   async upsertContent(tx, puzzleId, { workers, clues, solution }) {
     await tx.insert(rotaPuzzles).values({ puzzleId }).onConflictDoNothing();
     await tx

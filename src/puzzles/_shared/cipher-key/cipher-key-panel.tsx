@@ -18,11 +18,6 @@ type Props = {
   onClear(): void;
 };
 
-const ruledPaper = {
-  backgroundImage:
-    "repeating-linear-gradient(to bottom, transparent 0, transparent calc(2.5rem - 1px), var(--color-paper-shade) calc(2.5rem - 1px), var(--color-paper-shade) 2.5rem)",
-};
-
 /**
  * A notebook page for substitution ciphers: the ciphertext with the player's guesses written
  * under it, and an A to Z row of slots, one per cipher letter, where guesses are assigned. A letter
@@ -73,8 +68,7 @@ export function CipherKeyPanel({
 
   return (
     <div
-      style={ruledPaper}
-      className="flex flex-col gap-6 border-2 border-border bg-paper p-4 shadow-[3px_3px_0_var(--color-shadow)] sm:p-6"
+      className="flex flex-col gap-6 border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] sm:p-6"
     >
       <p className="sr-only">
         Each slot stands for one letter of the cipher. Type the letter you think
@@ -86,7 +80,10 @@ export function CipherKeyPanel({
         className="flex flex-wrap gap-x-6 gap-y-3 leading-none"
       >
         {words.map((word, wordIndex) => (
-          <span key={wordIndex} className="flex">
+          <span
+            key={wordIndex}
+            className="flex border-b-2 border-paper-shade"
+          >
             {[...word].map((character, index) => {
               const lower = character.toLowerCase();
               const isLetter = /^[a-z]$/.test(lower);
@@ -157,7 +154,7 @@ export function CipherKeyPanel({
                 aria-invalid={guess !== undefined && duplicated.has(guess)}
                 onKeyDown={(event) => onKeyDown(event, letter)}
                 onChange={() => {}}
-                className="size-9 border-2 border-border bg-background text-center font-hand text-2xl text-crayon uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive"
+                className="size-9 border-2 border-ink bg-paper text-center font-hand text-2xl text-crayon uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive"
               />
             </label>
           );

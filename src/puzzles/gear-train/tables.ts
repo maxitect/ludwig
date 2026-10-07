@@ -65,7 +65,10 @@ export const gearTrainFixedCogs = pgTable(
       table.row,
       table.col,
     ),
-    check("gear_train_fixed_cogs_teeth_check", sql`${table.teeth} in (8, 16, 24)`),
+    check(
+      "gear_train_fixed_cogs_teeth_check",
+      sql`${table.teeth} in (8, 16, 24)`,
+    ),
   ],
 );
 
@@ -106,7 +109,10 @@ export const gearTrainInventory = pgTable(
       columns: [table.puzzleId],
       foreignColumns: [gearTrainPuzzles.puzzleId],
     }).onDelete("cascade"),
-    check("gear_train_inventory_teeth_check", sql`${table.teeth} in (8, 16, 24)`),
+    check(
+      "gear_train_inventory_teeth_check",
+      sql`${table.teeth} in (8, 16, 24)`,
+    ),
     check(
       "gear_train_inventory_count_check",
       sql`${table.count} between 1 and 6`,
@@ -183,10 +189,7 @@ export const gearTrainAttemptCogs = pgTable(
     foreignKey({
       name: "gear_train_attempt_cogs_attempt_id_puzzle_id_fk",
       columns: [table.attemptId, table.puzzleId],
-      foreignColumns: [
-        gearTrainAttempts.attemptId,
-        gearTrainAttempts.puzzleId,
-      ],
+      foreignColumns: [gearTrainAttempts.attemptId, gearTrainAttempts.puzzleId],
     }).onDelete("cascade"),
     foreignKey({
       name: "gear_train_attempt_cogs_inventory_fk",

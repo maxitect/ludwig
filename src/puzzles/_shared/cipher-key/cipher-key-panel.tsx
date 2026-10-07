@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
+import { cellRotation } from "../cell-grid/cell-grid";
 import {
   ALPHABET,
   cipherLettersIn,
@@ -46,6 +47,11 @@ export function CipherKeyPanel({
     }
   }
 
+  function enter(letter: string, typed: string) {
+    onGuess(letter, typed.toLowerCase());
+    focusNeighbour(letter, 1);
+  }
+
   function onKeyDown(event: React.KeyboardEvent, letter: string) {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === "ArrowRight") {
@@ -59,12 +65,12 @@ export function CipherKeyPanel({
       onGuess(letter, null);
     } else if (/^[a-z]$/i.test(event.key)) {
       event.preventDefault();
-      onGuess(letter, event.key.toLowerCase());
-      focusNeighbour(letter, 1);
+      enter(letter, event.key);
     }
   }
 
   const words = ciphertext.split(/\s+/).filter(Boolean);
+  let letterIndex = 0;
 
   return (
     <div
@@ -75,6 +81,7 @@ export function CipherKeyPanel({
         it stands for, and Backspace clears it. The message below updates as you
         go.
       </p>
+      <p className="sr-only">{`Ciphertext: ${ciphertext}`}</p>
       <div
         aria-hidden="true"
         className="flex flex-wrap gap-x-6 gap-y-3 leading-none"
@@ -95,7 +102,16 @@ export function CipherKeyPanel({
                   <span className="font-mono text-lg uppercase">
                     {character}
                   </span>
-                  <span className="h-8 font-hand text-2xl text-crayon uppercase">
+                  <span
+                    className="h-8 font-hand text-2xl text-crayon uppercase"
+                    style={
+                      isLetter
+                        ? {
+                            transform: `rotate(${cellRotation(letterIndex++)}deg)`,
+                          }
+                        : undefined
+                    }
+                  >
                     {isLetter ? (guesses[lower] ?? "") : ""}
                   </span>
                 </span>
@@ -145,7 +161,6 @@ export function CipherKeyPanel({
                 autoComplete="off"
                 autoCapitalize="off"
                 spellCheck={false}
-                maxLength={1}
                 disabled={!present.has(letter)}
                 value={guess ?? ""}
                 aria-label={`Cipher letter ${letter.toUpperCase()}, ${
@@ -153,7 +168,12 @@ export function CipherKeyPanel({
                 }`}
                 aria-invalid={guess !== undefined && duplicated.has(guess)}
                 onKeyDown={(event) => onKeyDown(event, letter)}
-                onChange={() => {}}
+                onChange={(event) => {
+                  const typed = event.currentTarget.value
+                    .replace(guess ?? "", "")
+                    .slice(-1);
+                  if (/^[a-z]$/i.test(typed)) enter(letter, typed);
+                }}
                 className="size-9 border-2 border-ink bg-paper text-center font-hand text-2xl text-crayon uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive"
               />
             </label>

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AttemptState } from "./schema";
@@ -52,6 +52,21 @@ describe("cipher key panel in the caesar solver", () => {
     await user.click(slot("D"));
     await user.keyboard("{Backspace}");
     expect(onStateChange).toHaveBeenLastCalledWith({ answer: null });
+  });
+
+  it("accepts input from virtual keyboards that send no letter keydown", () => {
+    const { onStateChange } = renderSolver();
+    fireEvent.change(slot("D"), { target: { value: "q" } });
+    expect(slot("D").getAttribute("aria-label")).toBe(
+      "Cipher letter D, guess Q",
+    );
+    fireEvent.change(slot("D"), { target: { value: "rq" } });
+    expect(onStateChange).toHaveBeenLastCalledWith({ answer: "r__r__r__r__" });
+  });
+
+  it("gives screen readers the ciphertext", () => {
+    renderSolver();
+    expect(screen.getByText("Ciphertext: DWWDFN DW GDZQ")).toBeTruthy();
   });
 
   it("moves between slots with the arrow keys, skipping absent letters", async () => {

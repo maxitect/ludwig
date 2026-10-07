@@ -1,4 +1,8 @@
+import { type Signs, type Spin, spinSigns } from "../_shared/spin-signs";
 import type { Payload, Solution } from "./schema";
+
+export { spinSigns };
+export type { SpinResult } from "../_shared/spin-signs";
 
 export type Diagram = Pick<
   Payload,
@@ -6,13 +10,6 @@ export type Diagram = Pick<
 >;
 
 type Gear = Diagram["gears"][number];
-type Mesh = Diagram["meshes"][number];
-type Spin = 1 | -1;
-type Signs = Record<string, Spin>;
-
-export type SpinResult =
-  | { ok: true; signs: Signs }
-  | { ok: false; error: "not_bipartite" | "disconnected" };
 
 export type GearState = {
   slot: number;
@@ -29,36 +26,6 @@ const FIGURES = 8;
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
-
-/** 2-colours the mesh graph from the driver; every gear must be reachable from it. */
-export function spinSigns(
-  gears: Gear[],
-  meshes: Mesh[],
-  driverId: string,
-): SpinResult {
-  const neighbours = new Map<string, string[]>(gears.map((g) => [g.id, []]));
-  for (const { gearAId, gearBId } of meshes) {
-    neighbours.get(gearAId)?.push(gearBId);
-    neighbours.get(gearBId)?.push(gearAId);
-  }
-  const signs: Signs = { [driverId]: 1 };
-  const queue = [driverId];
-  for (const current of queue) {
-    const next: Spin = signs[current] === 1 ? -1 : 1;
-    for (const other of neighbours.get(current) ?? []) {
-      if (!(other in signs)) {
-        signs[other] = next;
-        queue.push(other);
-      } else if (signs[other] !== next) {
-        return { ok: false, error: "not_bipartite" };
-      }
-    }
-  }
-  if (gears.some((g) => !(g.id in signs))) {
-    return { ok: false, error: "disconnected" };
-  }
-  return { ok: true, signs };
-}
 
 export function lcmTeeth(gears: Gear[]) {
   return gears.reduce((l, g) => (l * g.teeth) / gcd(l, g.teeth), 1);

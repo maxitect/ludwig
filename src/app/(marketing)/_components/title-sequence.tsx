@@ -58,7 +58,7 @@ export function TitleSequence() {
               of the BBC One drama Ludwig.
             </p>
             <Button asChild size="lg">
-              <Link href="/puzzles">Enter the Collection</Link>
+              <Link href="/puzzles" transitionTypes={["bullet-hole"]}>Enter the Collection</Link>
             </Button>
           </div>
           <Walker
@@ -83,7 +83,7 @@ export function TitleSequence() {
         <div className="seq-finale-copy">
           <Credit level={2} top="Take a seat" bottom="Begin" />
           <Button asChild size="lg">
-            <Link href="/puzzles">Open the Collection</Link>
+            <Link href="/puzzles" transitionTypes={["bullet-hole"]}>Open the Collection</Link>
           </Button>
         </div>
       </section>

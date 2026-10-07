@@ -8,7 +8,7 @@ export function Desk({ name }: { name: string }) {
       <Credit level={1} top="Welcome back" bottom={name} />
       <div className="flex flex-wrap gap-4">
         <Button asChild size="lg">
-          <Link href="/puzzles">The Collection</Link>
+          <Link href="/puzzles" transitionTypes={["bullet-hole"]}>The Collection</Link>
         </Button>
         <Button asChild size="lg" variant="secondary">
           <Link href="/casebook">Casebook</Link>

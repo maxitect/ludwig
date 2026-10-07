@@ -23,13 +23,14 @@ describe("verifyRota", () => {
   it.each(Object.entries(puzzles))(
     "rejects %s with a clue removed that it needs",
     (_slug, content) => {
-      const failing = content.clues.filter((_, index) => {
+      const failing = content.clues.filter((clue, index) => {
+        if (clue.kind === "max_swaps") return false;
         const clues = content.clues.filter((_, other) => other !== index);
         try {
           verifyRota({ ...content, clues });
           return false;
-        } catch {
-          return true;
+        } catch (error) {
+          return /shortest sequence/.test(String(error));
         }
       });
       expect(failing.length).toBeGreaterThan(0);
@@ -53,6 +54,25 @@ describe("verifyRota", () => {
         solution: { ...buildingSite.solution, instigatorName: "Bridget" },
       }),
     ).toThrow(/instigator/);
+  });
+
+  it("rejects a cap that would let a longer sequence satisfy every clue", () => {
+    const loosen = (maxSwaps?: number): Content => ({
+      ...buildingSite,
+      clues: buildingSite.clues.flatMap((clue): Content["clues"] =>
+        clue.kind !== "max_swaps"
+          ? [clue]
+          : maxSwaps === undefined
+            ? []
+            : [{ ...clue, maxSwaps }],
+      ),
+    });
+    const length = buildingSite.solution.swaps.length;
+    expect(() => verifyRota(loosen(length + 1))).not.toThrow();
+    expect(() => verifyRota(loosen(length + 2))).toThrow(
+      /max_swaps/,
+    );
+    expect(() => verifyRota(loosen())).toThrow(/max_swaps/);
   });
 
   it("rejects a final rota on different zones", () => {

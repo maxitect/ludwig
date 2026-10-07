@@ -68,6 +68,17 @@ export function verifyRota({ workers, clues, solution }: Content) {
     throw new Error("the instigator is not in the first swap");
   }
 
+  const cap = Math.min(
+    ...clues.map((clue) =>
+      clue.kind === "max_swaps" ? clue.maxSwaps : Infinity,
+    ),
+  );
+  if (cap >= swaps.length + 2) {
+    throw new Error(
+      `a max_swaps clue must cap the sequence below ${swaps.length + 2} swaps, so no longer sequence satisfies every clue`,
+    );
+  }
+
   const params = clues.map(({ displayText, ...clue }): ClueParams => {
     void displayText;
     if (clue.kind !== "never_in_rank") return clue;

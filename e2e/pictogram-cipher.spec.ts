@@ -1,9 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { content } from "../content/pictogram-cipher/pin-men";
 import { pictogramGlyphs } from "../content/lookups";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, pictogramAttemptFor } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
 
 const slug = "pin-men";
 const keyOf = Object.fromEntries(
@@ -20,8 +19,21 @@ const slots = [...new Set(content.plaintext.replace(/ /g, ""))]
   }))
   .sort((a, b) => a.number - b.number);
 const toGuess = slots.filter(({ given }) => !given);
+const MAX_TABS = 80;
 
-const slot = (page: import("@playwright/test").Page, number: number) =>
+/** Tabs from the top of the page until a cipher-key slot holds focus. */
+async function tabIntoPanel(page: Page) {
+  for (let i = 0; i < MAX_TABS; i++) {
+    await page.keyboard.press("Tab");
+    const inPanel = await page.evaluate(() =>
+      document.activeElement?.getAttribute("aria-label")?.startsWith("Symbol "),
+    );
+    if (inPanel) return;
+  }
+  throw new Error("The cipher key never received keyboard focus");
+}
+
+const slot = (page: Page, number: number) =>
   page.getByRole("textbox", { name: new RegExp(`^Symbol ${number},`) });
 
 test("solve a pictogram cipher with the keyboard, keeping guesses across a reload", async ({
@@ -50,16 +62,18 @@ test("solve a pictogram cipher with the keyboard, keeping guesses across a reloa
     );
   }
 
-  for (const { letter, number, given } of slots.filter(({ given }) => !given)) {
-    expect(html).not.toContain(`glyph-${String(number).padStart(2, "0")}","letter":"${letter}"`);
+  const flight = html.replaceAll('\\"', '"');
+  const pairOf = (letter: string) => `"assetKey":"${keyOf[letter]}","letter":"${letter}"`;
+  for (const { letter, given } of slots) {
+    if (given) expect(flight).toContain(pairOf(letter));
+    else expect(flight).not.toContain(pairOf(letter));
   }
   expect(html).not.toContain("wait for the whistle");
 
-  const [first, second, third, ...rest] = toGuess;
-  for (const { letter, number } of [first, second, third]) {
-    await slot(page, number).click();
-    await page.keyboard.type(letter);
-  }
+  const [first, second, third] = toGuess;
+  await tabIntoPanel(page);
+  await expect(slot(page, first.number)).toBeFocused();
+  await page.keyboard.type(first.letter + second.letter + third.letter);
   if (databaseAvailable) {
     await expect
       .poll(async () => (await pictogramAttemptFor(email))?.guesses)
@@ -74,15 +88,8 @@ test("solve a pictogram cipher with the keyboard, keeping guesses across a reloa
     );
   }
 
-  await slot(page, slots[0].number).focus();
-  for (const { letter, given } of slots) {
-    if (given || [first, second, third].some((glyph) => glyph.letter === letter)) {
-      await page.keyboard.press("ArrowRight");
-    } else {
-      await page.keyboard.type(letter);
-    }
-  }
-  expect(rest.length + 3).toBe(toGuess.length);
+  await tabIntoPanel(page);
+  await page.keyboard.type(toGuess.map(({ letter }) => letter).join(""));
 
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByText(/Solved in/)).toBeVisible();

@@ -96,6 +96,25 @@ describe("pictogram cipher solver", () => {
     expect(document.activeElement).toBe(slot(3));
   });
 
+  it("skips given glyphs when tabbing in and when typing on from slot to slot", async () => {
+    const user = userEvent.setup();
+    const onStateChange = vi.fn();
+    render(
+      <Solver
+        payload={{ ...payload, given: [{ assetKey: "glyph-05", letter: "h" }] }}
+        initialState={null}
+        onStateChange={onStateChange}
+        registerCheck={vi.fn()}
+      />,
+    );
+    await user.tab();
+    expect(document.activeElement).toBe(slot(3));
+    await user.keyboard("es");
+    expect(slot(3).getAttribute("aria-label")).toBe("Symbol 3, guess E");
+    expect(slot(9).getAttribute("aria-label")).toBe("Symbol 9, guess S");
+    expect(slot(5).getAttribute("aria-label")).toBe("Symbol 5, given H");
+  });
+
   it("offers the decoded message only once every glyph has a letter", async () => {
     const user = userEvent.setup();
     const { registerCheck } = renderSolver();

@@ -19,7 +19,7 @@ type Props = {
   onClear(): void;
   /** Draws each cipher letter as a symbol instead of a letter. `name` is its accessible name and must not reveal the plain letter. */
   symbols?: { render(cipherLetter: string): ReactNode; name(cipherLetter: string): string };
-  /** Guesses that are given: shown, counted as guesses, and not editable. */
+  /** Guesses that are given: shown, counted as guesses, not editable, and skipped by Tab and by the advance after typing. */
   locked?: Guesses;
 };
 
@@ -43,11 +43,11 @@ export function CipherKeyPanel({
   const present = new Set(occurring);
   const duplicated = duplicatedGuesses(guesses);
 
-  function focusNeighbour(letter: string, step: 1 | -1) {
+  function focusNeighbour(letter: string, step: 1 | -1, skipLocked = false) {
     let index = ALPHABET.indexOf(letter) + step;
     while (index >= 0 && index < ALPHABET.length) {
       const next = ALPHABET[index];
-      if (present.has(next)) {
+      if (present.has(next) && !(skipLocked && next in locked)) {
         slots.current[next]?.focus();
         return;
       }
@@ -57,7 +57,7 @@ export function CipherKeyPanel({
 
   function enter(letter: string, typed: string) {
     onGuess(letter, typed.toLowerCase());
-    focusNeighbour(letter, 1);
+    focusNeighbour(letter, 1, true);
   }
 
   function onKeyDown(event: React.KeyboardEvent, letter: string) {
@@ -205,6 +205,7 @@ export function CipherKeyPanel({
                 spellCheck={false}
                 disabled={!present.has(letter)}
                 readOnly={isLocked}
+                tabIndex={isLocked ? -1 : undefined}
                 value={guess ?? ""}
                 aria-label={`${nameOf(letter)}, ${
                   guess

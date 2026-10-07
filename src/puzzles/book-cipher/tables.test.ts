@@ -290,6 +290,37 @@ describe("book cipher module", () => {
     );
   });
 
+  it("moves a puzzle and its references to another text", async () => {
+    await db.transaction(async (tx) => {
+      await insertText(tx, otherSlug);
+    });
+    try {
+      await db.transaction((tx) =>
+        bookCipherModule.upsertContent(tx, puzzleId, {
+          ...content,
+          textSlug: otherSlug,
+        }),
+      );
+      const other = await db.query.bookTexts.findFirst({
+        where: { slug: otherSlug },
+        columns: { id: true },
+      });
+      const refTexts = await db
+        .selectDistinct({ textId: bookCipherRefs.textId })
+        .from(bookCipherRefs)
+        .where(eq(bookCipherRefs.puzzleId, puzzleId));
+      expect(refTexts).toEqual([{ textId: other!.id }]);
+      expect((await loadSolution(puzzleId)).plaintext).toBe(
+        "dawn again lantern",
+      );
+    } finally {
+      await db.transaction((tx) =>
+        bookCipherModule.upsertContent(tx, puzzleId, content),
+      );
+      await db.delete(bookTexts).where(eq(bookTexts.slug, otherSlug));
+    }
+  });
+
   it("replaces, reads back and clears the attempt state", async () => {
     const [attempt] = await db
       .insert(attempts)

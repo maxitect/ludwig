@@ -138,3 +138,5 @@ Not on the launch path (PLAN §3 M6).
 | [T096](./T096-type-fillomino.md) | Puzzle type: fillomino | T021 | ✔ | | todo |
 | [T097](./T097-type-norinori.md) | Puzzle type: norinori | T084 | ✔ | | todo |
 | [T098](./T098-type-reflections.md) | Puzzle type: reflections (mirrors and beams) | T021 | ✔ | | todo |
+| [T099](./T099-research-generators-krazydad.md) | Research: puzzle generation and grading, KrazyDad's blog against our pipeline | — | | | todo |
+| [T100](./T100-deterministic-generators.md) | Deterministic generator pipeline, plus sudoku and futoshiki generators | T099, T046, T047 | | | todo |

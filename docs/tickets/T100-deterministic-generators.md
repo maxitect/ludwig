@@ -1,0 +1,56 @@
+---
+id: T100
+title: "Deterministic generator pipeline, plus sudoku and futoshiki generators"
+milestone: M6
+epic: E11
+depends_on: [T099, T046, T047]
+migrations: false
+requires_human: false
+spec: ["SPEC §2.3 (authoring rule)", "SPEC §4.6", "SPEC §7.4.4 (sudoku, futoshiki)", "PLAN §3 M6 (Generators)", "docs/research/generators.md (from T099)"]
+skills: ["/zod4"]
+---
+
+# T100: Deterministic generator pipeline, plus sudoku and futoshiki generators
+
+## Context
+
+T099 recommends how to generate grid puzzles. This ticket builds the shared pipeline and the first two generators, for the types where generation is best understood: sudoku and futoshiki. **Read `docs/research/generators.md` first. Where it conflicts with this ticket, it wins**, and the conflict is noted in the report.
+
+## Scope
+
+**In**
+
+- **A shared pipeline** in `src/puzzles/_shared/generate/`, pure with no DB or Next imports:
+  - seeding from `hashSeed(seed)` with `mulberry32` (`_shared/prng.ts`), so the same seed and generator version always give the same puzzle;
+  - a version-pinned registry of generators per type, as `engines` is in spot-difference;
+  - uniqueness proven with the type's own `countSolutions`;
+  - a logical-technique grader that publishes only puzzles solvable without trial and error, and maps the hardest technique used to difficulty 1–5. Techniques are per type: for sudoku at least singles, pairs, pointing and box/line, X-wing and XY-wing; for futoshiki, inequality chains and Latin-square singles.
+- **Generators:**
+  - sudoku: a full grid from the seed, then clues removed while uniqueness holds and the target difficulty is met. 180° symmetry by default.
+  - futoshiki: a Latin square from the seed, then signs and givens added or removed while uniqueness holds and the target difficulty is met.
+- **CLI:** `pnpm puzzles:gen <type> --seed <text> --difficulty <1-5> [--slug <slug>]`. It writes `content/<type>/<slug>.ts`, recording the seed and generator version in `meta` as provenance, and the file then goes through `puzzles:verify` like any other.
+- **SPEC §4.6 update:** generated grid puzzles are committed content files with seed provenance, unless T099 recommends otherwise.
+- **Content:** 5 generated sudoku and 5 generated futoshiki, across difficulties 1–5, added alongside the hand-written ones.
+
+**Out**
+
+- Generators for the other types; T099 creates their tickets.
+- Daily seeded grid puzzles, unless T099 recommends them, in which case it creates a ticket.
+- Changing the solvers' existing `countSolutions`, except for performance fixes the generators need. Those must keep the existing tests green.
+
+## Acceptance criteria
+
+- [ ] **AC1**: Generation is deterministic and version-pinned.
+  - _Verify (unit):_ the same seed, version and difficulty give an identical puzzle; a different seed gives a different one; an unknown version throws.
+- [ ] **AC2**: Every generated puzzle is unique and solvable without trial and error.
+  - _Verify (unit):_ a property test over 200 seeds per type. Every output has `countSolutions === 1`, and the grader solves it using techniques only.
+- [ ] **AC3**: The grader's difficulty is consistent.
+  - _Verify (unit):_ fixture puzzles that need only singles grade 1, and one that needs an X-wing grades at least 4.
+- [ ] **AC4**: The CLI writes content files that pass verification and seed.
+  - _Verify (cli):_ `pnpm puzzles:gen sudoku --seed test --difficulty 2 --slug gen-test` writes a file, `pnpm puzzles:verify` passes, and the file is then deleted.
+- [ ] **AC5**: The 10 generated content files verify and seed.
+  - _Verify (cli):_ `pnpm puzzles:verify && pnpm db:seed` exit 0.
+- [ ] **AC6**: Generation time is recorded.
+  - _Verify (cli):_ the report records the median and worst time per difficulty over 50 seeds for each type.
+- [ ] **AC7**: Gates pass.
+  - _Verify (cli):_ `pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm puzzles:verify` exits 0.

@@ -75,6 +75,13 @@ const PROOF_GAME_HOW_IT_WORKS = [
   "Only one game gets there. Move order matters.",
 ];
 
+const ROTA_HOW_IT_WORKS = [
+  "You are shown where each worker ended up on the site, and where the rota meant them to be.",
+  "Pick two workers to unswap them, one step at a time, until everyone is back on the intended rota.",
+  "Every clue must hold for the whole sequence of swaps, and no longer sequence fits them.",
+  "Then name the opening gambit: which of the first two workers to swap started it.",
+];
+
 export default async function ReverseChessPage() {
   const hub = await getReverseChessHub();
   const solved = getSolvedPuzzleIds(
@@ -135,6 +142,14 @@ export default async function ReverseChessPage() {
         </h3>
         <ol className="flex list-decimal flex-col gap-1 pl-6">
           {PROOF_GAME_HOW_IT_WORKS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <h3 className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+          The Rota
+        </h3>
+        <ol className="flex list-decimal flex-col gap-1 pl-6">
+          {ROTA_HOW_IT_WORKS.map((step) => (
             <li key={step}>{step}</li>
           ))}
         </ol>

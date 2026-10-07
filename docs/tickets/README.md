@@ -140,3 +140,14 @@ Not on the launch path (PLAN §3 M6).
 | [T098](./T098-type-reflections.md) | Puzzle type: reflections (mirrors and beams) | T021 | ✔ | | todo |
 | [T099](./T099-research-generators-krazydad.md) | Research: puzzle generation and grading, KrazyDad's blog against our pipeline | — | | | todo |
 | [T100](./T100-deterministic-generators.md) | Deterministic generator pipeline, plus sudoku and futoshiki generators | T099, T046, T047 | | | todo |
+| [T101](./T101-troix-generator.md) | Troix generator | T100, T088 | | | todo |
+| [T102](./T102-star-battle-generator.md) | Star battle generator | T100, T087 | | | todo |
+| [T103](./T103-kakuro-generator.md) | Kakuro generator | T100, T095 | | | todo |
+| [T104](./T104-fillomino-generator.md) | Fillomino generator | T100, T096 | | | todo |
+| [T105](./T105-norinori-generator.md) | Norinori generator | T100, T097 | | | todo |
+| [T106](./T106-railroad-generator.md) | Railroad generator | T100, T086 | | | todo |
+| [T107](./T107-reflections-generator.md) | Reflections generator | T100, T098 | | | todo |
+| [T108](./T108-jigsaw-rainbow-generators.md) | Jigsaw and rainbow sudoku generators | T100, T084 | | | todo |
+| [T109](./T109-killer-xv-generators.md) | Killer and XV sudoku generators | T100, T093 | | | todo |
+| [T110](./T110-circle9-generator.md) | Circle9 generator | T100, T089 | | | todo |
+| [T111](./T111-daily-grid-puzzles.md) | Daily seeded grid puzzles | T100 | ✔ | | todo |

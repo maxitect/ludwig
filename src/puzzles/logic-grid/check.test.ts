@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { check, wrongPairs } from "./check";
+import { check } from "./check";
 import {
   classic,
   classicSolution,
@@ -32,10 +32,11 @@ describe("check", () => {
   it("accepts the full matching, as links from one category or across all of them", () => {
     expect(check(payloadOf(classic), classicSolution, { links: correct })).toEqual({
       correct: true,
+      wrongPairs: [],
     });
     expect(
       check(payloadOf(classic), classicSolution, { links: classicSolution.links }),
-    ).toEqual({ correct: true });
+    ).toEqual({ correct: true, wrongPairs: [] });
   });
 
   it("rejects two hats swapped, and names the category pairs that differ", () => {
@@ -44,12 +45,13 @@ describe("check", () => {
       [1, 2, 1],
       [2, 1, 2],
     ]);
-    const answer = { links: swapped };
-    expect(check(payloadOf(classic), classicSolution, answer).correct).toBe(false);
-    expect(wrongPairs(payloadOf(classic), classicSolution, answer)).toEqual([
-      { first: 0, second: 2 },
-      { first: 1, second: 2 },
-    ]);
+    expect(check(payloadOf(classic), classicSolution, { links: swapped })).toEqual({
+      correct: false,
+      wrongPairs: [
+        { first: 0, second: 2 },
+        { first: 1, second: 2 },
+      ],
+    });
   });
 
   it("names the pairs that differ when two pets are swapped and the hats stay put", () => {
@@ -60,7 +62,7 @@ describe("check", () => {
         [1, 2, 2],
       ]),
     };
-    expect(wrongPairs(payloadOf(classic), classicSolution, answer)).toEqual([
+    expect(check(payloadOf(classic), classicSolution, answer).wrongPairs).toEqual([
       { first: 0, second: 1 },
       { first: 1, second: 2 },
     ]);
@@ -91,11 +93,15 @@ describe("check in the variant", () => {
   it("accepts the matching with the false clue flagged", () => {
     expect(check(payload, solution, { links: correct, falseCluePosition: 4 })).toEqual({
       correct: true,
+      wrongPairs: [],
     });
   });
 
   it("rejects the right matching with the wrong clue, or no clue, flagged", () => {
-    expect(check(payload, solution, { links: correct, falseCluePosition: 0 }).correct).toBe(false);
+    expect(check(payload, solution, { links: correct, falseCluePosition: 0 })).toEqual({
+      correct: false,
+      wrongPairs: [],
+    });
     expect(check(payload, solution, { links: correct, falseCluePosition: null }).correct).toBe(false);
     expect(check(payload, solution, { links: correct }).correct).toBe(false);
   });

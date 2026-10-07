@@ -73,7 +73,17 @@ test("solve a pictogram cipher with the keyboard, keeping guesses across a reloa
   const [first, second, third] = toGuess;
   await tabIntoPanel(page);
   await expect(slot(page, first.number)).toBeFocused();
+  const saved = page.waitForResponse((response) => {
+    const request = response.request();
+    const body = request.postData() ?? "";
+    return (
+      request.method() === "POST" &&
+      "next-action" in request.headers() &&
+      [first, second, third].every(({ letter }) => body.includes(keyOf[letter]))
+    );
+  });
   await page.keyboard.type(first.letter + second.letter + third.letter);
+  await saved;
   if (databaseAvailable) {
     await expect
       .poll(async () => (await pictogramAttemptFor(email))?.guesses)

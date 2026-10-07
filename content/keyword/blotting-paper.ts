@@ -10,5 +10,5 @@ export const meta = {
 
 export const content = {
   plaintext: "she kept every secret folded inside her glove",
-  keyword: "blotter",
+  keyword: "harbour",
 } satisfies Content;

@@ -10,5 +10,5 @@ export const meta = {
 
 export const content = {
   plaintext: "nobody reads the last page of a borrowed book",
-  keyword: "margin",
+  keyword: "quiver",
 } satisfies Content;

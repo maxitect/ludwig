@@ -2,9 +2,11 @@ import type { z } from "zod";
 import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
 import { anagramModule } from "./anagram/module";
+import { caesarModule } from "./caesar/module";
 import { crosswordModule } from "./crossword/module";
 import { futoshikiModule } from "./futoshiki/module";
 import { gearsModule } from "./gears/module";
+import { keywordModule } from "./keyword/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
 import { spotDifferenceModule } from "./spot-difference/module";
@@ -74,9 +76,11 @@ export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 
 export const registry: PuzzleRegistry = {
   [anagramModule.meta.key]: anagramModule,
+  [caesarModule.meta.key]: caesarModule,
   [crosswordModule.meta.key]: crosswordModule,
   [futoshikiModule.meta.key]: futoshikiModule,
   [gearsModule.meta.key]: gearsModule,
+  [keywordModule.meta.key]: keywordModule,
   [reverseChessModule.meta.key]: reverseChessModule,
   [rotaModule.meta.key]: rotaModule,
   [spotDifferenceModule.meta.key]: spotDifferenceModule,

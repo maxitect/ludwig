@@ -9,7 +9,7 @@ export const categories = [
   { key: "word", name: "Word", sort: 2 },
   { key: "logic", name: "Logic", sort: 3 },
   { key: "spatial", name: "Spatial", sort: 4 },
-  { key: "cipher", name: "Cipher", sort: 5 },
+  { key: "cipher", name: "James's Notebooks", sort: 5 },
   { key: "numbers", name: "Numbers", sort: 6 },
 ] satisfies Category[];
 

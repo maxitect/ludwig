@@ -87,6 +87,29 @@ describe("verifyLogicGrid, structure", () => {
     ).toThrow(/clue 1: the text never mentions "Ann"/);
   });
 
+  it("rejects a label found only inside another word", () => {
+    expect(() =>
+      verifyLogicGrid(withClue(classic, 0, { content: "Annie owns the Dog." })),
+    ).toThrow(/clue 1: the text never mentions "Ann"/);
+  });
+
+  it("rejects clue text whose polarity disagrees with its rule", () => {
+    expect(() =>
+      verifyLogicGrid(withClue(classic, 3, { content: "Cat wears the Blue hat." })),
+    ).toThrow(/clue 4: the text does not read as isNot/);
+    expect(() =>
+      verifyLogicGrid(withClue(classic, 0, { content: "Ann never owns the Dog." })),
+    ).toThrow(/clue 1: the text does not read as is/);
+    expect(() =>
+      verifyLogicGrid(
+        withClue(classic, 0, {
+          content: "Ann owns the Dog, and the Eel too.",
+          rule: { kind: "either", a: "Ann", b: "Dog", c: "Eel" },
+        }),
+      ),
+    ).toThrow(/clue 1: the text does not read as either/);
+  });
+
   it("rejects a rule between two items of one category", () => {
     expect(() =>
       verifyLogicGrid(

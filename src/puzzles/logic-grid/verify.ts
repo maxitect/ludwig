@@ -4,6 +4,17 @@ import type { Content, Rule } from "./schema";
 const labelsOf = (rule: Rule) =>
   rule.kind === "either" ? [rule.a, rule.b, rule.c] : [rule.a, rule.b];
 
+const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const names = (content: string, phrase: string) =>
+  new RegExp(`\\b${escape(phrase)}\\b`, "i").test(content);
+
+const NEGATION = /\b(not|never|nothing|nowhere|apart|different|separate|rules out)\b|n't\b/i;
+
+/** Whether the clue text reads with the rule's polarity: a negation exactly for `isNot`, and "or" for `either`. */
+const readsAs = (content: string, rule: Rule) =>
+  NEGATION.test(content) === (rule.kind === "isNot") &&
+  (rule.kind !== "either" || names(content, "or"));
+
 function structure({ categories, solution, clues }: Content) {
   const problems: string[] = [];
   const size = categories[0].items.length;
@@ -46,9 +57,12 @@ function structure({ categories, solution, clues }: Content) {
     for (const label of labelsOf(rule)) {
       if (categoryOf(label) < 0) {
         problems.push(`${where}: unknown item "${label}"`);
-      } else if (!content.toLowerCase().includes(label.toLowerCase())) {
+      } else if (!names(content, label)) {
         problems.push(`${where}: the text never mentions "${label}"`);
       }
+    }
+    if (!readsAs(content, rule)) {
+      problems.push(`${where}: the text does not read as ${rule.kind}`);
     }
     if (rule.kind === "either") {
       if (categoryOf(rule.b) !== categoryOf(rule.c) || rule.b === rule.c) {

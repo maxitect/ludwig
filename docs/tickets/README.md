@@ -73,7 +73,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T041](./T041-gear-fix-the-diagram-ui.md) | Fix the Diagram UI | T040, T035 | | | done |
 | [T042](./T042-gear-state-table.md) | Accessible gear state table | T039 | | | done |
 | [T043](./T043-gears-hub.md) | `/gears` hub and daily diagram | T036, T040 | | | done |
-| [T044](./T044-gear-content-e2e-perf.md) | Gear content ×12, end-to-end flow 4, performance budget | T041, T042, T043 | | | todo |
+| [T044](./T044-gear-content-e2e-perf.md) | Gear content ×12, end-to-end flow 4, performance budget | T041, T042, T043 | | | done |
 | [T078](./T078-daily-gears-production.md) | Keep a year of daily gear diagrams generated in production (Vercel cron) | T036 | | | done |
 
 ## M4: Library breadth
@@ -82,14 +82,14 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 |---|---|---|---|---|---|
 | [T045](./T045-crossword-cryptic.md) | Crossword: cryptic style and content | T022 | | | done |
 | [T046](./T046-type-sudoku.md) | Puzzle type: sudoku (+ end-to-end flow 5, keyboard-only) | T021 | ✔ | | done |
-| [T047](./T047-type-futoshiki.md) | Puzzle type: futoshiki | T046 | ✔ | | todo |
+| [T047](./T047-type-futoshiki.md) | Puzzle type: futoshiki | T046 | ✔ | | done |
 | [T048](./T048-type-logic-grid.md) | Puzzle type: logic grid (+ false-statement variant) | T021 | ✔ | | todo |
 | [T049](./T049-type-word-ladder.md) | Puzzle type: word ladder and the `words` dictionary | T019 | ✔ | | todo |
 | [T050](./T050-type-acrostic.md) | Puzzle type: acrostic | T019 | ✔ | | todo |
 | [T051](./T051-type-word-search.md) | Puzzle type: word search ("The Fob-Off") | T021 | ✔ | | todo |
-| [T052](./T052-type-caesar-keyword.md) | Puzzle types: caesar and keyword (shared cipher-key panel) | T019 | ✔ | | todo |
-| [T053](./T053-type-book-cipher.md) | Puzzle type: book cipher and `book_texts` | T052 | ✔ | | todo |
-| [T054](./T054-type-pictogram-cipher.md) | Puzzle type: pictogram cipher and glyph set | T052 | ✔ | | todo |
+| [T052](./T052-type-caesar-keyword.md) | Puzzle types: caesar and keyword (shared cipher-key panel) | T019 | ✔ | | done |
+| [T053](./T053-type-book-cipher.md) | Puzzle type: book cipher and `book_texts` | T052 | ✔ | | done |
+| [T054](./T054-type-pictogram-cipher.md) | Puzzle type: pictogram cipher and glyph set | T052 | ✔ | | done |
 | [T055](./T055-type-knights-knaves.md) | Puzzle type: knights and knaves | T019 | ✔ | | todo |
 | [T056](./T056-type-odd-one-out.md) | Puzzle type: odd one out | T019 | ✔ | | todo |
 | [T057](./T057-type-napkin-maths.md) | Puzzle type: napkin maths | T019 | ✔ | | todo |
@@ -138,7 +138,7 @@ Not on the launch path (PLAN §3 M6).
 | [T096](./T096-type-fillomino.md) | Puzzle type: fillomino | T021 | ✔ | | todo |
 | [T097](./T097-type-norinori.md) | Puzzle type: norinori | T084 | ✔ | | todo |
 | [T098](./T098-type-reflections.md) | Puzzle type: reflections (mirrors and beams) | T021 | ✔ | | todo |
-| [T099](./T099-research-generators-krazydad.md) | Research: puzzle generation and grading, KrazyDad's blog against our pipeline | — | | | todo |
+| [T099](./T099-research-generators-krazydad.md) | Research: puzzle generation and grading, KrazyDad's blog against our pipeline | — | | | done |
 | [T100](./T100-deterministic-generators.md) | Deterministic generator pipeline, plus sudoku and futoshiki generators | T099, T046, T047 | | | todo |
 | [T101](./T101-troix-generator.md) | Troix generator | T100, T088 | | | todo |
 | [T102](./T102-star-battle-generator.md) | Star battle generator | T100, T087 | | | todo |

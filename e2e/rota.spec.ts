@@ -63,12 +63,16 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
   }
 });
 
-test("an incomplete or wrong stack is not accepted and reveals no gambit", async ({
+test("a wrong sequence is not accepted and reveals no gambit", async ({
   page,
 }) => {
   await page.goto(URL);
-  for (const { a, b } of unswaps.slice(0, 4)) await unswap(page, a, b);
+  const [{ a, b }] = unswaps;
+  await unswap(page, a, b);
+  await unswap(page, a, b);
+  for (const step of unswaps) await unswap(page, step.a, step.b);
   await page.getByRole("button", { name: "Check", exact: true }).click();
+  await expect(page.getByText("Not quite. Keep going.")).toBeVisible();
   await expect(page.getByText(/Solved in/)).toHaveCount(0);
   await expect(page.getByTestId("epilogue")).toHaveCount(0);
 });

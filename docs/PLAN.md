@@ -176,6 +176,13 @@ Plus **This Week**: the `weekly_pairs` seed and the `/this-week` page.
 - **Accessibility audit:** axe in Playwright on every route type, and a manual screen-reader pass of one solver per group.
 - **Performance pass:** Lighthouse targets from spec section 8.3, font subsetting, grain PNG size.
 - **Settings page** (theme, notation, reduced motion).
+- **Phones and PWA** (T112–T117, research in `docs/research/mobile.md`):
+  - the PWA baseline (manifest, icons, theme colour, safe areas, install hint);
+  - solve mode, a full-height layout for the solve page on touch phones;
+  - a shared on-screen `PuzzleKeyboard`, so the clue and the grid stay in view while typing, adopted by the crossword, sudoku, futoshiki and the ciphers;
+  - a touch pass (44px targets, chess tap-to-move, a WebKit iPhone project).
+
+  These land before the accessibility audit and the performance pass, so both cover the layout we launch with.
 - **Footer** with the cburnett attribution and the not-affiliated note.
 - **Production domain,** a final seed, launch.
 
@@ -201,6 +208,14 @@ Plus **This Week**: the `weekly_pairs` seed and the `/this-week` page.
 
 **Exit criteria:** every M6 type has at least 5 curated puzzles passing `puzzles:verify`, or 1 scene for `detective-scene`. Each type passes the accessibility checks that T068 applied to M4.
 
+### M7: Offline PWA (native deferred)
+
+**Goal.** An installed Ludwig opens its shell and visited public pages on a bad connection, and says clearly when it is offline (T118, a Serwist service worker). It never caches anything that depends on the session.
+
+**Native apps** stay out of scope. The open options (licence, a generic store app, or web only), the prerequisites (public HTTP API, token auth, account deletion) and the recommended stack (Expo / React Native sharing the pure engines) are recorded in `docs/research/native-app.md`. No native ticket is written until that decision is made.
+
+**Exit criteria:** T118's acceptance criteria hold on production.
+
 ---
 
 ## 4. Dependency graph
@@ -220,6 +235,7 @@ graph LR
   GU --> M5
   M4 --> M5
   M1 --> M6[M6 Radio Times set]
+  M5 --> M7[M7 Offline PWA]
 ```
 
 **Parallelism.** Both flagship engines depend only on the M1 framework contract (and strictly, only on `schema.ts` shapes). They can be built alongside M1 UI work, or alongside each other. M4 groups are independent of each other and of M2 and M3. With more than one contributor, the critical path is M0 → M1 → Gear UI → M5.
@@ -285,6 +301,7 @@ Each epic below becomes a set of tickets. The candidate tickets are only a start
 | **E9 This Week** | M4 | `weekly_pairs` seed and page |
 | **E10 Polish and launch** | M5 | View transitions. Landing sequence. Settings page. Accessibility audit. Performance pass. Footer and attribution. Production domain and launch |
 | **E11 Radio Times set** | M6 | Sudoku region variants. Chess problem. Railroad. Star battle. Troix. Circle9. Word wheel. Detective scene engine and UI. Detective scene artwork and content. Killer and XV sudoku. Nonogram. Kakuro. Fillomino. Norinori. Reflections. Generator research (KrazyDad blog). Deterministic generator pipeline |
+| **E12 Mobile and PWA** | M5, M7 | PWA baseline. Solve mode. `PuzzleKeyboard`. Crossword on phones. Keyboard for the other typed types. Touch pass. Service worker and offline |
 
 **Ticket template:** context (with a link to the spec section), scope (in and out), acceptance criteria (testable), docs to read (Next, library), test plan, dependencies.
 
@@ -302,4 +319,6 @@ Each epic below becomes a set of tickets. The candidate tickets are only a start
 | Texture and animation performance on mobile | Medium | Medium | Static grain PNG rather than live filters, no SVG filters in animation loops, a performance budget checked in M3 and M5 |
 | react-chessboard v5 API gaps (backwards arrows, uncapture tray) | Low | Medium | Custom overlay layer on top of the board. Board component isolated behind our own props |
 | Strict 3NF means about 100 tables and many custom trigger migrations, which slows schema work | High | Medium | One folder per type keeps it modular. Each `tables.ts` follows one copyable pattern. The integrity harness catches mistakes early. Payloads are assembled with RQBv2 queries, so app code stays simple |
+| The on-screen keyboard is worse for screen-reader users than the system keyboard | Medium | Medium | Keys are labelled buttons, the hidden input stays focused, "Use my device's keyboard" is one tap away in the solve menu, and T068 does a real-iPhone VoiceOver pass |
+| A store app under the show's name is rejected or removed (Apple 5.2.1, Google impersonation policy) | High, if attempted | High | Native is deferred. The options are recorded in `docs/research/native-app.md` and decided before any native work |
 | Neon free-tier cold starts hurt first-load feel | Low | Low | Accept for v1. The walker loading state covers it, and the plan can be upgraded if it matters |

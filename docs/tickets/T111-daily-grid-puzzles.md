@@ -20,7 +20,7 @@ T099 recommends daily seeded puzzles for grid types, like `gear_daily` (`docs/re
 
 **In**
 
-- A generic daily table: one row per (type key, date) pointing to a puzzle, with a trigger that rejects a puzzle of another type, and the generator version stored in the row. Strict 3NF (`.claude/rules/database.md`); add any redundancy to SPEC §7.4.5 with its FK, trigger and integrity test.
+- A generic daily table: one row per (type key, date) pointing to a puzzle, with a composite FK `(puzzle_id, type_key)` → `puzzles (id, type_key)` so a puzzle of another type is rejected, and the generator version stored in the row. Strict 3NF (`.claude/rules/database.md`); add the `type_key` redundancy to SPEC §7.4.5 with its composite FK and integrity test.
 - `pnpm puzzles:gen-daily --type sudoku --from YYYY-MM-DD --days N`, using the T100 registry: `seed = date`, difficulty cycled by days since 1970-01-01, slug `daily-<type>-<date>`, `published_at` at the start of that date in `Europe/London`, a date with a row skipped, written through the per-puzzle transaction `db:seed` uses (`upsertPuzzle`).
 - `db:seed` never removes a puzzle linked in the daily table.
 - A cron route that keeps a year of sudoku dailies, as T078 does for gears, and `puzzles:verify` re-solves and regenerates every daily row.

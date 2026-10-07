@@ -20,9 +20,9 @@ T099 recommends a deterministic generator for this type (`docs/research/generato
 
 **In**
 
-- A generator for `sudoku` in the T100 pipeline (`src/puzzles/_shared/generate/`), registered version 1, seeded by `mulberry32(hashSeed(...))`: for jigsaw, nine edge-connected regions of nine cells grown from the seed, then a full grid, then clue removal; for rainbow, the boxes plus nine seeded colour groups of nine cells, then the same.
+- A generator for each `sudoku` region variant in the T100 pipeline (`src/puzzles/_shared/generate/`), registered as its own entry (`sudoku-jigsaw`, `sudoku-rainbow`) at version 1, separate from T100's classic `sudoku` generator, seeded by `mulberry32(hashSeed(...))`: for jigsaw, nine edge-connected regions of nine cells grown from the seed, then a full grid, then clue removal; for rainbow, the boxes plus nine seeded colour groups of nine cells, then the same.
 - A technique grader for the type, using the T100 grader interface. Publication needs `countSolutions === 1` and a grade, so no puzzle needs trial and error. Techniques: the T100 sudoku techniques extended with region-based locked candidates, plus the 'law of leftovers' for jigsaw ([blog](https://blog.krazydad.com/2012/09/07/get-started-with-jigsaw-sudoku/)).
-- `pnpm puzzles:gen sudoku --seed <text> --difficulty <1-5>` writes `content/sudoku/<slug>.ts` with the parseable provenance line in `meta.sourceNote`.
+- `pnpm puzzles:gen sudoku --variant <jigsaw|rainbow> --seed <text> --difficulty <1-5>` writes `content/sudoku/<slug>.ts` with the `generated` provenance export (T100).
 - Sizes: 9×9.
 - 5 generated content files across difficulties 1 to 5, alongside any hand-written ones.
 - Generation time and acceptance rate per difficulty over 50 seeds, in the report.

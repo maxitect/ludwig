@@ -22,7 +22,7 @@ T099 recommends a deterministic generator for this type (`docs/research/generato
 
 - A generator for `kakuro` in the T100 pipeline (`src/puzzles/_shared/generate/`), registered version 1, seeded by `mulberry32(hashSeed(...))`: a black-cell layout (optionally 180° symmetric, as in KrazyDad's printing of symmetric kakuro, [blog](https://blog.krazydad.com/2005/12/08/krazy-kakuro-puzzles/)), a digit fill with no repeat in a run, clues derived from the fill, then repair (change a digit, add or move a black cell) until `countSolutions === 1`.
 - A technique grader for the type, using the T100 grader interface. Publication needs `countSolutions === 1` and a grade, so no puzzle needs trial and error. Techniques: combination-table singles, then run intersections, then implicit pairs ([blog](https://blog.krazydad.com/2017/01/18/an-advanced-kakuro-technique/)). Difficulty by the hardest rule needed.
-- `pnpm puzzles:gen kakuro --seed <text> --difficulty <1-5>` writes `content/kakuro/<slug>.ts` with the parseable provenance line in `meta.sourceNote`.
+- `pnpm puzzles:gen kakuro --seed <text> --difficulty <1-5>` writes `content/kakuro/<slug>.ts` with the `generated` provenance export (T100).
 - Sizes: the sizes T095 supports.
 - 5 generated content files across difficulties 1 to 5, alongside any hand-written ones.
 - Generation time and acceptance rate per difficulty over 50 seeds, in the report.

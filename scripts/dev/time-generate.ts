@@ -223,4 +223,7 @@ async function reportContent() {
   }
 }
 
-reportContent();
+reportContent().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

@@ -22,7 +22,7 @@ T099 recommends a deterministic generator for this type (`docs/research/generato
 
 - A generator for `norinori` in the T100 pipeline (`src/puzzles/_shared/generate/`), registered version 1, seeded by `mulberry32(hashSeed(...))`: place a valid set of non-touching dominoes, draw edge-connected regions that each hold exactly two shaded cells, then repair region boundaries until `countSolutions === 1`.
 - A technique grader for the type, using the T100 grader interface. Publication needs `countSolutions === 1` and a grade, so no puzzle needs trial and error. Techniques: regions with exactly two candidate cells, domino completion forced by a single free neighbour, and the no-touching rule. Difficulty by the hardest rule needed.
-- `pnpm puzzles:gen norinori --seed <text> --difficulty <1-5>` writes `content/norinori/<slug>.ts` with the parseable provenance line in `meta.sourceNote`.
+- `pnpm puzzles:gen norinori --seed <text> --difficulty <1-5>` writes `content/norinori/<slug>.ts` with the `generated` provenance export (T100).
 - Sizes: the sizes T097 supports.
 - 5 generated content files across difficulties 1 to 5, alongside any hand-written ones.
 - Generation time and acceptance rate per difficulty over 50 seeds, in the report.

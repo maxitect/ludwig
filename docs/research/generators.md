@@ -7,9 +7,9 @@ Where a recommendation rests on general puzzle-generation practice rather than o
 ## 1. Summary
 
 1. **Generate from the solution backwards, then remove or derive clues, gated by the type's existing `countSolutions`.** This is already how gears work (plant, cover, gate on `solveAll(...).length === 1`) and it matches Mr Todd's principle in SPEC §2.3. For types whose clues are derived rather than removed (kakuro, norinori, star battle), the structure is drawn first, then filled, then repaired until unique.
-2. **Add a technique grader as a second gate, for generated grid puzzles only.** A generated puzzle is published only if it is unique and a fixed set of logical techniques solves it. The hardest technique needed sets difficulty 1 to 5. This is the bar KrazyDad states for his books ([blog](https://blog.krazydad.com/2020/09/19/diabolical-two-not-touch/)). Hand-written puzzles stay at "exactly one solution", with the grader run over them as an audit (section 7).
+2. **Add a technique grader as a second gate, for generated grid puzzles only.** A generated puzzle is published only if it is unique and a fixed set of logical techniques solves it. The hardest technique needed sets difficulty 1 to 5. This is the bar KrazyDad states for his Star Battle books ([blog](https://blog.krazydad.com/2020/09/19/diabolical-two-not-touch/)) and his Lime Sudoku ([Lime Sudoku, krazydad.com](https://krazydad.com/limesudoku/)). Hand-written puzzles stay at "exactly one solution", with the grader run over them as an audit (section 7).
 3. **Keep generated grid puzzles as committed content files with seed provenance.** Only daily puzzles are materialised at seed or cron time, as gears are. SPEC §4.6 gets a bullet for this.
-4. **Our hand-assigned difficulties look unreliable.** A prototype singles-only solver solves the hand-written "difficulty 5" sudoku and leaves 25 cells open on a "difficulty 2" one (section 4.3). A grader fixes this for generated and hand-written content alike.
+4. **Our hand-assigned difficulties look unreliable, on the evidence of a prototype only.** A prototype singles-only solver solves the hand-written "difficulty 5" sudoku and leaves 25 cells open on a "difficulty 2" one (section 4.3). A grader fixes this for generated and hand-written content alike.
 5. **Build generators in this order:** sudoku and futoshiki (T100), then Troix, star battle, kakuro, fillomino, norinori, railroad, reflections, jigsaw and rainbow sudoku, killer and XV sudoku, Circle9, and daily seeded grid puzzles (T101 to T111). Word, cipher, retro and art types stay hand-written, and the reasons are in the table in section 3.
 
 ## 2. What the KrazyDad material says
@@ -33,12 +33,12 @@ The blog never says whether he removes clues from a full grid or builds clues fi
 
 | Claim | Source |
 |---|---|
-| "All of the puzzles in my Star Battle books can be solved without resorting to trial and error." Some free-site puzzles (books 50 to 100) deliberately include puzzles that need guessing, to help find new strategies. The books "start at the same difficulty as my puzzles in The New York Times and then get increasingly more difficult". | [Diabolical Two Not Touch](https://blog.krazydad.com/2020/09/19/diabolical-two-not-touch/) |
+| "All of the puzzles in my Star Battle books can be solved without resorting to trial and error." That is not necessarily true of his free website puzzles, particularly books 50 to 100, where he "originally included many puzzles I can not personally solve without trial and error" to help identify new strategies. The books "start at the same difficulty as my puzzles in The New York Times and then get increasingly more difficult". | [Diabolical Two Not Touch](https://blog.krazydad.com/2020/09/19/diabolical-two-not-touch/) |
 | Lime sudoku: each puzzle "has a unique solution, which can be found without guessing nor making use of trial-and-error", at Easy, Medium and Hard. | [Lime Sudoku, krazydad.com](https://krazydad.com/limesudoku/) |
-| His sudoku strategy index lists 27 techniques in an order of rising difficulty, from hidden and naked singles through locked candidates, pairs, X-wing, XY-wing, XYZ-wing, coloring, forcing chains and almost-locked sets, ending with trial and error. Easy, Novice and Intermediate need only the first two (singles). More techniques "become increasingly necessary" from Challenging. | [Sudoku strategy, krazydad.com](https://krazydad.com/sudokustrategy/) |
+| His sudoku strategy index (based on tips by Simon Armstrong, which he updated and edited) lists 27 techniques in "roughly increasing order of complexity", from hidden and naked singles through locked candidates, pairs, X-wing, XY-wing, XYZ-wing, coloring, forcing chains and almost-locked sets, ending with trial and error. Easy, Novice and Intermediate need only the first two (singles), and "the main differences between these levels are the number of extra clues". More techniques "become increasingly necessary" from Challenging. | [Sudoku strategy, krazydad.com](https://krazydad.com/sudokustrategy/) |
 | The Insane tier "generally require[s] at least some trial and error, or longer forcing chains", and was first not published and later released after reader requests. | [Trial and error, krazydad.com](https://krazydad.com/sudokustrategy/trialanderror/) |
 | XY-wing "crops up pretty frequently in the Tough puzzles" (book 40, puzzles 2, 3 and 4). XYZ-wing "is fairly rare, and only occurs in 8 of my tough puzzles, as compared to XY-wing, which occurs 10 times more often". Technique frequency is one visible measure of difficulty. | [Troubleshooter #2](https://blog.krazydad.com/2011/08/24/sudoku-troubleshooter-2/), [Troubleshooter #4](https://blog.krazydad.com/2011/11/24/sudoku-troubleshooter-4-xyz-wing/) |
-| The row/column/block technique ("locked candidates") is taught first. I did not read the X-wing post (#3) directly. | [Troubleshooter #1](https://blog.krazydad.com/2011/08/23/sudoku-troubleshooter-1/) |
+| The row/column/block technique ("locked candidates") is taught first, then X-wing, on a Tough puzzle (book 7, puzzle 7) where it unlocks the next placement. | [Troubleshooter #1](https://blog.krazydad.com/2011/08/23/sudoku-troubleshooter-1/), [Troubleshooter #3](https://blog.krazydad.com/2011/08/29/sudoku-troubleshooter-3-x-wing/) |
 | "Sudoku difficulty is hard to measure and describe", and publications use different metrics. His "Super Tough" puzzles are compared with other publishers' "Diabolical" in John Welch's analysis. | [Systematic Sudoku](https://blog.krazydad.com/2013/03/19/systematic-sudoku/) |
 | Kakuro tiers are regular, Tough and Insane. The 2017 post on "implicit pairs" (sums of overlapping runs) says it appears in a hard puzzle from a book "arranged by difficulty". | [Kakuro, krazydad.com](https://krazydad.com/kakuro/), [An advanced kakuro technique](https://blog.krazydad.com/2017/01/18/an-advanced-kakuro-technique/) |
 | Jigsaw sudoku has its own technique, the "Law of Leftovers" (innies and outies), on top of standard ones. | [Jigsaw sudoku](https://blog.krazydad.com/2012/09/07/get-started-with-jigsaw-sudoku/) |
@@ -47,7 +47,7 @@ The blog never says whether he removes clues from a full grid or builds clues fi
 | Binox has four levels (Easy, Novice, Challenging, Toughest) from 6×6 to 14×14. Its rules add "each row must be unique" and "each column must be unique", which our Troix rules do not have (SPEC §2.4). | [Binox puzzles are here](https://blog.krazydad.com/2018/04/30/binox-puzzles-are-here/) |
 | "The majority of puzzle solvers are ... comfort solvers" who prefer easy and intermediate puzzles. | [Where have all the Kakuro books gone?](https://blog.krazydad.com/2008/01/06/where-have-all-the-kakuro-books-gone/) |
 
-So KrazyDad's published practice has two parts: a unique solution always, and "no trial and error" for the books and the tiers up to Hard or Toughest, with a separate Insane tier that allows it. Difficulty is a technique ladder. He states the ladder (the strategy index) and which tiers need which rungs only loosely ("starting with the Challenging level"). He does not publish the grader.
+So KrazyDad's published practice has two parts: a unique solution always, and "no trial and error" where he states it (his Star Battle books, Lime Sudoku), with a separate Insane sudoku tier that allows it and free Star Battle books that may need it. He does not say every other tier meets the bar. Difficulty is a technique ladder. He states the ladder (the strategy index) and which tiers need which rungs only loosely ("starting with the Challenging level"). He does not publish the grader.
 
 ### 2.3 Formats, interfaces and things that do not apply
 
@@ -55,7 +55,7 @@ So KrazyDad's published practice has two parts: a unique solution always, and "n
 - The interactive page says only that there are 13 interactive types, with pencil marks, multi-select and a menu to change variety, size and difficulty ([Interactive puzzles are here](https://blog.krazydad.com/2015/01/10/interactive-puzzles-are-here/)). It has no generation content.
 - The 2023 post on pictures says his puzzle pictures are made with Midjourney, and that he holds a database of about 30,000 public-domain quotes ([About those pictures](https://blog.krazydad.com/2023/07/19/about-those-pictures/)). This is illustration for solved puzzles, not generation. It does not inform our nonogram pictures, which are hand-drawn Ludwig motifs (SPEC §2.4).
 - The futoshiki post is a popularity measurement using Google Trends and says nothing about generation ([Comparing apples, oranges and futoshikis](https://blog.krazydad.com/2018/05/18/comparing-apples-oranges-and-futoshikis-using-google-trends/)).
-- Nothing was read on sudoku "pairs", "x-wing" or "xyz-wing" beyond the posts cited above, and no post gives clue counts or a symmetry policy for sudoku. Symmetry appears only as a printing choice for kakuro.
+- Nothing was read on sudoku "pairs", "x-wing" or "xyz-wing" beyond the posts cited above, and no page gives clue counts or a symmetry policy for sudoku. Symmetry appears only as a printing choice for kakuro.
 
 ## 3. Our pipeline today, per type
 
@@ -200,7 +200,7 @@ Difficulty is the **hardest technique the grader needed**, with a tie-break on h
 | 4 | Plus X-wing, XY-wing, XYZ-wing, swordfish | Plus hidden pairs and longer sign chains | Plus overlap reasoning (for kakuro, implicit pairs: [post](https://blog.krazydad.com/2017/01/18/an-advanced-kakuro-technique/)) |
 | 5 | Plus chains (simple colouring, XY-chain, almost-locked sets) with no trial and error | Plus combined chains | Hardest overlap and chain reasoning |
 
-Within a tier, clue count is a secondary dial (more givens, easier). KrazyDad's own Easy to Intermediate puzzles share a technique set ([strategy index](https://krazydad.com/sudokustrategy/)), so some of the difference between his easy tiers must come from something else; the blog does not say what, and I assume step count or clue count.
+Within a tier, clue count is a secondary dial (more givens, easier). KrazyDad does the same: his Easy, Novice and Intermediate sudoku share a technique set, and "the main differences between these levels are the number of extra clues" ([strategy index](https://krazydad.com/sudokustrategy/)).
 
 Two limits. The grader is only as good as its techniques: a puzzle that needs a technique the grader lacks is rejected, which costs yield, not correctness. And KrazyDad's data on technique frequency ([#2](https://blog.krazydad.com/2011/08/24/sudoku-troubleshooter-2/), [#4](https://blog.krazydad.com/2011/11/24/sudoku-troubleshooter-4-xyz-wing/)) says XY-wing is common in "Tough" and XYZ-wing is rare, so our tier 5 will be the thinnest to fill. T100 should record yield per tier.
 
@@ -209,7 +209,7 @@ Weighting: solvers prefer easier tiers ([comfort solvers](https://blog.krazydad.
 ### 5.4 Symmetry and aesthetics
 
 - **Sudoku and variants: 180° rotational symmetry of givens by default.** The cost is about four extra clues (section 4.2). KrazyDad mentions symmetry only for kakuro, as a printing choice that he thinks makes puzzles "far more attractive" ([post](https://blog.krazydad.com/2005/12/08/krazy-kakuro-puzzles/)). Symmetry for sudoku rests on general practice.
-- **Kakuro: symmetric black-cell layout** as an option for the same reason.
+- **Kakuro: symmetric black-cell layout** as an option. This is general practice, not KrazyDad's point: his kakuro "symmetry" is a print format that shows each clue twice, once on each side of the run ([kakuro, krazydad.com](https://krazydad.com/kakuro/)).
 - **Star battle, norinori, fillomino, railroad, reflections:** no symmetry, but region shapes need a sanity check. Reject regions that are one cell, a single long line, or all of one colour, and jigsaw regions must remain edge-connected (SPEC §2.4).
 - Make symmetry a generator option and a seed-independent flag in the content provenance, not a global rule.
 
@@ -218,12 +218,14 @@ Weighting: solvers prefer easier tiers ([comfort solvers](https://blog.krazydad.
 - One entry point per type: `generate(seed: string, difficulty: 1..5, version: number)`. The PRNG is `mulberry32(hashSeed(\`${seed}:${difficulty}\`))` from `src/puzzles/_shared/prng.ts`, the same form `generateDiagramWithAttempts` already uses.
 - **No other source of randomness or ordering.** No `Math.random`, no unseeded `Date`, and no iteration over unordered collections whose order depends on insertion hazards. Shuffles use one Fisher-Yates over the seeded generator. (SPEC §5.2.3 and `.claude/rules/puzzles.md` already require seeded PRNGs.)
 - **Version pinning like spot-difference.** Its `engines` map is `Record<number, generator>` and `generateScene` throws on an unknown version. Each entry is frozen: a change to any step is a new version. T100 follows this.
-- **`puzzles:verify` should regenerate and compare.** When a content file's provenance names `generator`, `version` and `seed`, `puzzles:verify` regenerates and fails if the output differs. This catches an edited frozen generator. It is not what gears do today (their `sourceNote` is prose and `generator_seed` is NULL), so it needs a parseable provenance format (5.6).
+- **`puzzles:verify` should regenerate and compare.** When a content file exports provenance (generator, version and seed), `puzzles:verify` regenerates from it and `meta.difficulty`, and fails if the output differs. This catches an edited frozen generator. It is not what gears do today (their `sourceNote` is prose and `generator_seed` is NULL), so it needs a typed provenance export (5.6).
 - A solver change cannot change a generated puzzle unless it changes which candidate is accepted. Treat solver edits as generator edits for versioning, and let the regeneration check enforce it.
 
 ### 5.6 How generated puzzles enter the content-as-code pipeline
 
-**Default: committed content files with seed provenance.** `pnpm puzzles:gen <type> --seed <text> --difficulty <n>` writes `content/<type>/<slug>.ts`. Provenance goes in `meta.sourceNote` as a parseable line, for example `generator sudoku@1 seed=cold-case difficulty=3`, which is the field gears already use. The file is the artefact; the seed is provenance.
+**Default: committed content files with seed provenance.** `pnpm puzzles:gen <type> --seed <text> --difficulty <n>` writes `content/<type>/<slug>.ts`. Provenance is a third typed export beside `meta` and `content`, for example `export const generated = { generator: "sudoku", version: 1, seed: "cold-case" }`. It is read by `puzzles:verify` and never seeded. The difficulty is `meta.difficulty`, not repeated. The file is the artefact; the seed is provenance.
+
+Provenance does not go in `meta.sourceNote` as a parseable line. That field is the `source_note` column, and a machine-read encoded string there breaks the atomic-cells rule (`.claude/rules/database.md`), while a `difficulty=` field in it would duplicate `puzzles.difficulty`. `sourceNote` stays human prose, as the gear content uses it.
 
 Why committed, not materialised at seed time:
 
@@ -239,7 +241,7 @@ Why committed, not materialised at seed time:
 Yes, for sudoku first, then Troix and star battle if they prove fun. Generation takes milliseconds (section 4.2), so the cost of the gears model is mostly plumbing.
 
 - Same design as `gear_daily`: seed = date, difficulty cycles by days since 1970-01-01, `published_at` at the start of that date in `Europe/London`, a date with a row is skipped so a published daily never changes, the daily Vercel cron fills a year ahead, and `db:seed` never removes a daily puzzle.
-- `gear_daily` is gear-specific. A generic daily table needs a migration (T111): a row per (type key, date) pointing to a puzzle, with a trigger enforcing that the puzzle's type matches the row's.
+- `gear_daily` is gear-specific. A generic daily table needs a migration (T111): a row per (type key, date) pointing to a puzzle, with a composite FK `(puzzle_id, type_key)` → `puzzles (id, type_key)` so the puzzle's type always matches the row's (the controlled-redundancy pattern in `.claude/rules/database.md`).
 - **Store the generator version in the row** (unlike `gear_daily` today), as spot-difference does with `generator_version`. A daily is never regenerated, so its version only matters for audit and for `puzzles:verify`'s regeneration check.
 - Daily grid puzzles should come from the same version-pinned registry as the committed ones, so one grader and one generator serve both.
 
@@ -271,7 +273,7 @@ Not recommended: nonogram, chess problem, crossword, logic grid, knights and kna
 
 **T100 changes** (made in the ticket file):
 
-- Provenance is a parseable `generator <type>@<version> seed=<text> difficulty=<n>` line in `meta.sourceNote`, and `puzzles:verify` regenerates and compares (5.5).
+- Provenance is a typed `generated` export (generator, version, seed) in the content file, not seeded, with the difficulty taken from `meta.difficulty`, and `puzzles:verify` regenerates and compares (5.5, 5.6).
 - The grader also runs over the hand-written sudoku and futoshiki as a report; where the grader and the hand difficulty differ by two or more, update `meta.difficulty` (section 4.3).
 - Record yield (accepted per candidate) per difficulty, because tier 5 may be thin (5.3).
 
@@ -280,6 +282,6 @@ Not recommended: nonogram, chess problem, crossword, logic grid, knights and kna
 ## 8. Limits of this research
 
 - The blog gives little method. Everything about algorithms in sections 5.1 to 5.5 beyond the cited statements is general practice, and I have said so where it applies.
-- Fetching used a summarising tool, so quoted phrases come from its extraction of each page. I did not read the X-wing post (#3) or most of the 2005 to 2008 kakuro and slitherlink archives line by line. Nothing in the pages read contradicts the recommendations, but a human skim of the archive is cheap and could add detail.
+- Fetching first used a summarising tool. At review, every cited page was re-read as plain text, including the X-wing post (#3) and the 2005 to 2008 posts cited here (Dancing Links, Krazy Kakuro, Krypto Kakuros, Slitherlink, the kakuro-books post and Killer Sudoku), and three claims were corrected against them. The rest of the 2005 to 2008 archive was not read; nothing read contradicts the recommendations.
 - Section 4.3's sudoku grading uses a minimal solver. T100's grader is the authority.
 - No KrazyDad puzzle, grid, layout or code was copied (SPEC §10, decision 6). Tatham's puzzle collection is open-source, but its licence has not been checked and no code is proposed for reuse.

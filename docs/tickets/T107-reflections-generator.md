@@ -22,7 +22,7 @@ T099 recommends a deterministic generator for this type (`docs/research/generato
 
 - A generator for `reflections` in the T100 pipeline (`src/puzzles/_shared/generate/`), registered version 1, seeded by `mulberry32(hashSeed(...))`: random fixed and slot mirrors, trace beams from random edge ports, label the port pairs the traces join, then remove labels and slots while `countSolutions === 1`.
 - A technique grader for the type, using the T100 grader interface. Publication needs `countSolutions === 1` and a grade, so no puzzle needs trial and error. Techniques: single-slot forcing from a labelled beam, then slot interactions along a beam. Difficulty by the hardest rule needed.
-- `pnpm puzzles:gen reflections --seed <text> --difficulty <1-5>` writes `content/reflections/<slug>.ts` with the parseable provenance line in `meta.sourceNote`.
+- `pnpm puzzles:gen reflections --seed <text> --difficulty <1-5>` writes `content/reflections/<slug>.ts` with the `generated` provenance export (T100).
 - Sizes: 4×4 to 10×10.
 - 5 generated content files across difficulties 1 to 5, alongside any hand-written ones.
 - Generation time and acceptance rate per difficulty over 50 seeds, in the report.

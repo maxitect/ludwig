@@ -22,7 +22,7 @@ T099 recommends a deterministic generator for this type (`docs/research/generato
 
 - A generator for `circle9` in the T100 pipeline (`src/puzzles/_shared/generate/`), registered version 1, seeded by `mulberry32(hashSeed(...))`: a solved sudoku fixes the circled cells, the other cells are filled with seeded decoy digits, and decoys are changed until `countSolutions === 1`.
 - A technique grader for the type, using the T100 grader interface. Publication needs `countSolutions === 1` and a grade, so no puzzle needs trial and error. Techniques: exact-cover forcing: a digit that has one candidate cell in a row, column or box. Difficulty by the hardest rule needed.
-- `pnpm puzzles:gen circle9 --seed <text> --difficulty <1-5>` writes `content/circle9/<slug>.ts` with the parseable provenance line in `meta.sourceNote`.
+- `pnpm puzzles:gen circle9 --seed <text> --difficulty <1-5>` writes `content/circle9/<slug>.ts` with the `generated` provenance export (T100).
 - Sizes: 9×9.
 - 5 generated content files across difficulties 1 to 5, alongside any hand-written ones.
 - Generation time and acceptance rate per difficulty over 50 seeds, in the report.

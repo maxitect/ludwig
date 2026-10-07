@@ -5,6 +5,8 @@ import type { ContentMeta } from "../../scripts/content-files";
 import type { Content as AnagramContent } from "../../src/puzzles/anagram/schema";
 import type { Content as CrosswordContent } from "../../src/puzzles/crossword/schema";
 import type { Content as ReverseChessContent } from "../../src/puzzles/reverse-chess/schema";
+import { solve as solveFutoshiki } from "../../src/puzzles/futoshiki/engine";
+import type { Content as FutoshikiContent } from "../../src/puzzles/futoshiki/schema";
 import { solve } from "../../src/puzzles/sudoku/engine";
 import type { Content as SudokuContent } from "../../src/puzzles/sudoku/schema";
 
@@ -52,6 +54,21 @@ export async function sudokuPuzzle() {
     slug: first.meta.slug,
     title: first.meta.title,
     givens: first.content.givens,
+    solution,
+  };
+}
+
+/** Any published futoshiki; its solution is solved from the puzzle in its content file. */
+export async function futoshikiPuzzle() {
+  const [first] = await loadPublished<FutoshikiContent>("futoshiki");
+  if (!first) throw new Error("No published futoshiki in content/futoshiki");
+  const solution = solveFutoshiki(first.content);
+  if (!solution) throw new Error(`Futoshiki ${first.meta.slug} has no solution`);
+  return {
+    typeKey: "futoshiki",
+    slug: first.meta.slug,
+    title: first.meta.title,
+    ...first.content,
     solution,
   };
 }

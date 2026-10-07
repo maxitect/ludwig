@@ -118,7 +118,7 @@ The show never gives exact rules, so section 5.2 defines our own. They stay fait
 
 - Multiplayer and leaderboards (beyond your own times)
 - A user-generated puzzle editor (an internal authoring tool is in scope; see section 7.4)
-- Native apps (the web app must still be responsive and touch-friendly)
+- Native apps (the web app must still be responsive and touch-friendly). Phones are served by solve mode, the on-screen keyboard and an installable PWA (`docs/research/mobile.md`). The native options are recorded in `docs/research/native-app.md` (section 10, decision 7)
 - Monetisation
 - OAuth providers
 - Email verification (skipped entirely, with no plans for it)
@@ -1035,8 +1035,9 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 | **M2 Reverse Chess** | Engine plus verify script. Modes A and B. Descriptive notation. Ten curated puzzles |
 | **M3 Gear Puzzle** | Engine, generator, SVG board, crank, scrubber, accuse. Fix the Diagram. Twelve curated diagrams plus a daily seed |
 | **M4 Library** | Cryptic crosswords (the `crossword` type's cryptic style), logic grid (with false-statement variant), knights and knaves, futoshiki, acrostic, ciphers, sightlines, CCTV maze, spot the difference, word search, odd-one-out, napkin maths. Reverse Chess Mode C (the `rota` type). Gear Puzzle Mode B (the `gear-train` type) |
-| **M5 Polish** | Bullet-hole transitions, landing title sequence (scroll-driven grid rooms, walker, toppled pieces), This Week, accessibility audit, performance pass |
+| **M5 Polish** | Bullet-hole transitions, landing title sequence (scroll-driven grid rooms, walker, toppled pieces), This Week. Phones and PWA: installable PWA baseline, solve mode on touch phones, the shared on-screen keyboard for typed types, and a touch pass (T112–T117). Accessibility audit, performance pass |
 | **M6 Radio Times set** (after launch) | The types from the Radio Times special (section 2.4): sudoku jigsaw and rainbow variants, chess problem, railroad, star battle, Troix, Circle9, word wheel, detective scene. The KrazyDad formats: killer and XV sudoku, nonogram, fillomino, norinori, kakuro, reflections. Deterministic seeded generators for the grid types (T099, T100) |
+| **M7 Offline PWA** (after launch) | Service worker with an offline fallback, never caching session-dependent responses (T118). Native apps stay deferred (section 10, decision 7) |
 
 ---
 
@@ -1048,3 +1049,4 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 4. **Public fan site,** non-commercial, just for fun. Branding follows the show as closely as we like, with no further licensing review.
 5. **Password reset** waits for v1.1. Email verification is skipped entirely.
 6. **Third-party puzzles are format references only.** We take rules and formats from the Radio Times special (section 1.2.1) and from puzzle sites such as KrazyDad, never the instances: no clue text, positions, grids, word lists or artwork. KrazyDad's terms allow reproduction only for "personal, church, school, hospital or institutional use", which a public website is not. Published puzzles may serve as engine test fixtures, because their answers are known, but never as `content/` files.
+7. **Native apps are deferred.** A store app under the show's name runs into Apple 5.2.1 / 4.1(c) and Google's impersonation policy. The options are a licence from the BBC / Big Talk, a generic store app with its own identity, or web and PWA only. They stay open, and are recorded with the prerequisites and the recommended stack in `docs/research/native-app.md`. The PWA comes first (M5 baseline, M7 offline).

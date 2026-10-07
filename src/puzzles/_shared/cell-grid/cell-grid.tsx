@@ -278,7 +278,7 @@ export function CellGrid({
                   {sides?.right && (
                     <span
                       aria-hidden
-                      className="pointer-events-none absolute right-0 top-1/2 z-20 flex size-[0.7em] -translate-y-1/2 translate-x-1/2 items-center justify-center bg-paper font-display text-[0.5em] font-bold leading-none text-ink"
+                      className="pointer-events-none absolute right-0 top-1/2 z-20 flex size-[0.8em] -translate-y-1/2 translate-x-1/2 items-center justify-center bg-paper font-display text-[0.6em] font-bold leading-none text-ink"
                     >
                       {sides.right.content}
                     </span>
@@ -286,7 +286,7 @@ export function CellGrid({
                   {sides?.down && (
                     <span
                       aria-hidden
-                      className="pointer-events-none absolute bottom-0 left-1/2 z-20 flex size-[0.7em] -translate-x-1/2 translate-y-1/2 items-center justify-center bg-paper font-display text-[0.5em] font-bold leading-none text-ink"
+                      className="pointer-events-none absolute bottom-0 left-1/2 z-20 flex size-[0.8em] -translate-x-1/2 translate-y-1/2 items-center justify-center bg-paper font-display text-[0.6em] font-bold leading-none text-ink"
                     >
                       {sides.down.content}
                     </span>

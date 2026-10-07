@@ -19,8 +19,14 @@ const SIGNS = {
     gt: { content: ">", label: "greater than the cell to the right" },
   },
   down: {
-    lt: { content: "∧", label: "less than the cell below" },
-    gt: { content: "∨", label: "greater than the cell below" },
+    lt: {
+      content: <span className="rotate-90">{"<"}</span>,
+      label: "less than the cell below",
+    },
+    gt: {
+      content: <span className="rotate-90">{">"}</span>,
+      label: "greater than the cell below",
+    },
   },
 } as const;
 

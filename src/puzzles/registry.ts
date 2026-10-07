@@ -8,6 +8,7 @@ import { crosswordModule } from "./crossword/module";
 import { futoshikiModule } from "./futoshiki/module";
 import { gearsModule } from "./gears/module";
 import { keywordModule } from "./keyword/module";
+import { logicGridModule } from "./logic-grid/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
@@ -84,6 +85,7 @@ export const registry: PuzzleRegistry = {
   [futoshikiModule.meta.key]: futoshikiModule,
   [gearsModule.meta.key]: gearsModule,
   [keywordModule.meta.key]: keywordModule,
+  [logicGridModule.meta.key]: logicGridModule,
   [pictogramCipherModule.meta.key]: pictogramCipherModule,
   [reverseChessModule.meta.key]: reverseChessModule,
   [rotaModule.meta.key]: rotaModule,

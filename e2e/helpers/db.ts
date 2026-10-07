@@ -50,6 +50,26 @@ export async function futoshikiAttemptCounts(email: string) {
   }
 }
 
+export async function logicGridMarks(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ mark: string; count: number }>(
+      `select m.mark::text as mark, count(*)::int as count
+         from logic_grid_attempt_marks m
+         join attempts a on a.id = m.attempt_id
+         join "user" u on u.id = a.user_id
+        where u.email = $1
+        group by m.mark order by m.mark`,
+      [email],
+    );
+    return rows;
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function attemptsFor(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

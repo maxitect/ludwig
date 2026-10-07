@@ -5,6 +5,7 @@ import type { ContentMeta } from "../../scripts/content-files";
 import type { Content as AnagramContent } from "../../src/puzzles/anagram/schema";
 import type { Content as CrosswordContent } from "../../src/puzzles/crossword/schema";
 import type { Content as GearContent } from "../../src/puzzles/gears/schema";
+import type { Content as LogicGridContent } from "../../src/puzzles/logic-grid/schema";
 import type { Content as ReverseChessContent } from "../../src/puzzles/reverse-chess/schema";
 import { solve as solveFutoshiki } from "../../src/puzzles/futoshiki/engine";
 import type { Content as FutoshikiContent } from "../../src/puzzles/futoshiki/schema";
@@ -145,5 +146,22 @@ export async function largestGearPuzzle() {
     typeKey: "gears",
     slug: found.meta.slug,
     gearCount: found.content.gears.length,
+  };
+}
+
+/** A published logic grid, classic or the false-statement variant, with its households and false clue from the content file. */
+export async function logicGridPuzzle(variant: boolean) {
+  const all = await loadPublished<LogicGridContent>("logic-grid");
+  const found = all
+    .filter(({ content }) => content.clues.some((c) => c.isFalse) === variant)
+    .sort((a, b) => a.meta.difficulty - b.meta.difficulty)[0];
+  if (!found) throw new Error("No published logic grid of that kind");
+  const { content } = found;
+  return {
+    typeKey: "logic-grid",
+    slug: found.meta.slug,
+    title: found.meta.title,
+    households: content.solution,
+    falseClue: content.clues.findIndex(({ isFalse }) => isFalse) + 1,
   };
 }

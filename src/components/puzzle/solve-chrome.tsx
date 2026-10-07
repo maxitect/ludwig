@@ -10,7 +10,7 @@ import {
   useSyncExternalStore,
   useTransition,
 } from "react";
-import { Credit, SolvedStamp, Walker } from "@/components/brand";
+import { BulletHole, Credit, SolvedStamp, Walker } from "@/components/brand";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -333,7 +333,8 @@ export function SolveChrome({
       </div>
 
       {solved && (
-        <footer className="flex flex-wrap items-center gap-x-12 gap-y-14 py-4">
+        <footer className="relative isolate flex flex-wrap items-center gap-x-12 gap-y-14 p-4">
+          <BulletHole />
           <SolvedStamp />
           <p>
             Solved in{" "}

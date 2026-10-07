@@ -1,3 +1,5 @@
+export { BulletHole } from "./bullet-hole";
+export { BulletHoleTransition } from "./bullet-hole-transition";
 export { Credit } from "./credit";
 export { GridPaper } from "./grid-paper";
 export { InkSplat } from "./ink-splat";

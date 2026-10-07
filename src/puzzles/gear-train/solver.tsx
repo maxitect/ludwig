@@ -14,12 +14,11 @@ import { cogPath } from "../_shared/cog-path";
 import { useReduceMotion } from "@/utils/use-reduce-motion";
 import type { SolverProps } from "../solver-types";
 import { TrainBoard, pegAt } from "./board";
-import { pegKey, radius, trainOf } from "./engine";
+import { type Peg, pegKey, radius, trainOf } from "./engine";
 import { jamCogs, pegName, refusal, statusLine, unneededCogs } from "./play";
 import type * as schema from "./schema";
 import type { Cog } from "./schema";
 
-type Peg = Pick<Cog, "row" | "col">;
 type Teeth = Cog["teeth"];
 type Notice = { kind: "placed" | "refused" | "info"; text: string };
 

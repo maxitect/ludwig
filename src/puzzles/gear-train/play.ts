@@ -2,6 +2,7 @@ import {
   type Board,
   collisions,
   meshes,
+  type Peg,
   type Placement,
   pegKey,
   reachableFrom,
@@ -9,8 +10,6 @@ import {
   validate,
 } from "./engine";
 import type { Cog } from "./schema";
-
-type Peg = Pick<Cog, "row" | "col">;
 
 /** A peg as a spreadsheet cell: column letter, then the 1-based row. */
 export const pegName = ({ row, col }: Peg) =>

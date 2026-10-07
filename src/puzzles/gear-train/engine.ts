@@ -13,7 +13,7 @@ export type Board = Pick<
 >;
 export type Placement = Cog[];
 type Bolt = Board["bolts"][number];
-type Peg = Pick<Cog, "row" | "col">;
+export type Peg = Pick<Cog, "row" | "col">;
 
 export type Collision =
   | { kind: "cog"; a: Cog; b: Cog }

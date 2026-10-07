@@ -7,11 +7,10 @@ import {
   type Ref,
 } from "react";
 import { cogPath, polar } from "../_shared/cog-path";
-import { type Train, pegKey, radius } from "./engine";
+import { type Peg, type Train, pegKey, radius } from "./engine";
 import "./gear-train.css";
 import type { Cog, Payload } from "./schema";
 
-type Peg = Pick<Cog, "row" | "col">;
 type Dimensions = Pick<Payload, "rows" | "cols">;
 
 /** One peg is 20 units, and the board has half a peg of margin all round. */
@@ -65,7 +64,7 @@ function TurnArrow({
     [x2 + nx * 3, y2 + ny * 3],
     [x2 - nx * 3, y2 - ny * 3],
   ]
-    .map(([x, y]) => `${x!.toFixed(2)} ${y!.toFixed(2)}`)
+    .map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`)
     .join(" L");
   return (
     <g

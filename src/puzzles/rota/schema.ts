@@ -2,7 +2,6 @@ import { createInsertSchema, createSelectSchema } from "drizzle-orm/zod";
 import { z } from "zod";
 import {
   rotaAttemptSwaps,
-  rotaAttempts,
   rotaClueMaxSwaps,
   rotaClueNeverInRank,
   rotaClueUnpoweredSquare,
@@ -45,9 +44,6 @@ const attemptSwapSelect = createSelectSchema(rotaAttemptSwaps).pick({
 const solutionSelect = createSelectSchema(rotaSolutions).pick({
   instigatorWorkerId: true,
 });
-const attemptSelect = createSelectSchema(rotaAttempts).pick({
-  instigatorWorkerId: true,
-});
 
 const unpoweredSquare = createSelectSchema(rotaClueUnpoweredSquare, {
   kind: z.literal("unpowered_square"),
@@ -85,16 +81,17 @@ export const payloadSchema = z.object({
 });
 
 export const attemptSchema = z.object({
-  ...attemptSelect.shape,
   swaps: z.array(attemptSwapSelect),
 });
 
 export const answerSchema = z.object({
-  instigatorWorkerId: solutionSelect.shape.instigatorWorkerId,
   swaps: z.array(attemptSwapSelect),
 });
 
-const nameSwap = z.object({ a: workerInsert.shape.name, b: workerInsert.shape.name });
+const nameSwap = z.object({
+  a: workerInsert.shape.name,
+  b: workerInsert.shape.name,
+});
 
 /** Content names workers by name and orders clues by array index; `upsertContent` resolves names to ids. */
 export const contentSchema = z.object({

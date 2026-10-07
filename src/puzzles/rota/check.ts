@@ -1,18 +1,30 @@
 import {
   applySwaps,
-  openingGambit,
   placementFor,
   samePlacement,
   validateClues,
 } from "./engine";
 import type { Answer, Payload, Solution } from "./schema";
 
-export function check(payload: Payload, solution: Solution, answer: Answer) {
+/** The clues the swaps break, applied forwards from the intended rota, in clue order. */
+export function brokenClues(payload: Payload, swaps: Answer["swaps"]) {
+  const intended = placementFor(payload.workers, "intended");
+  return payload.clues.filter(
+    (clue) => !validateClues(intended, swaps, [clue]),
+  );
+}
+
+/**
+ * `violatedClue` depends only on the payload and the answer, so the result never hints at the solution.
+ * The authored instigator is revealed in `epilogue` only for a correct answer.
+ */
+export function check(
+  payload: Payload,
+  solution: Solution,
+  answer: Answer,
+): { correct: boolean; violatedClue?: number; epilogue?: string } {
   const known = new Set(payload.workers.map((worker) => worker.id));
   if (
-    !openingGambit(answer) ||
-    answer.instigatorWorkerId !== solution.instigatorWorkerId ||
-    answer.swaps.length !== solution.swaps.length ||
     !answer.swaps.every(
       ({ workerAId, workerBId }) =>
         workerAId !== workerBId && known.has(workerAId) && known.has(workerBId),
@@ -22,8 +34,19 @@ export function check(payload: Payload, solution: Solution, answer: Answer) {
   }
   const intended = placementFor(payload.workers, "intended");
   const final = placementFor(payload.workers, "final");
+  const [broken] = brokenClues(payload, answer.swaps);
   const correct =
+    answer.swaps.length === solution.swaps.length &&
     samePlacement(applySwaps(intended, answer.swaps), final) &&
-    validateClues(intended, answer.swaps, payload.clues);
-  return { correct };
+    !broken;
+  const instigator = payload.workers.find(
+    ({ id }) => id === solution.instigatorWorkerId,
+  );
+  return {
+    correct,
+    violatedClue: broken?.position,
+    ...(correct && instigator
+      ? { epilogue: `Opening gambit: ${instigator.name} insisted on it.` }
+      : {}),
+  };
 }

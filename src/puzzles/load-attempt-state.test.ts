@@ -161,7 +161,7 @@ describe("rota loadAttemptState", () => {
   it("is null without saved state and returns the attempt row until cleared", async () => {
     const attemptId = await attemptFor(ids.rota);
     expect(await rotaModule.loadAttemptState(attemptId)).toBeNull();
-    const state = { instigatorWorkerId: null, swaps: [] };
+    const state = { swaps: [] };
     await db.transaction((tx) =>
       rotaModule.replaceAttemptState(tx, attemptId, state),
     );

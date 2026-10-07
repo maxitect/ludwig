@@ -416,7 +416,6 @@ describe("in-place content updates", () => {
     const attemptId = await startAttempt(puzzleId);
     await db.transaction((tx) =>
       realRegistry.rota.replaceAttemptState(tx, attemptId, {
-        instigatorWorkerId: marty.id,
         swaps: [{ workerAId: marty.id, workerBId: gary.id }],
       }),
     );

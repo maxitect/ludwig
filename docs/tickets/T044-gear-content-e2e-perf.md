@@ -24,7 +24,7 @@ This closes M3: launch content, the Playwright flow and the 60 fps scrubbing bud
   - at least 3 per difficulty;
   - at least 3 Fix the Diagram variants, including at least one with K=2.
 
-  Each one is hand-designed, or generated and then hand-tuned. `generator_seed` is `NULL` for curated content, and the provenance goes in `meta.source_note`.
+  Each one is hand-designed, or selected from generator seeds and published unedited. `generator_seed` is `NULL` for curated content, and the provenance goes in `meta.source_note`.
 - Removing or promoting the dev fixtures from T037–T041.
 - `e2e/gears.spec.ts`, implementing SPEC §8.2 flow 4.
 - Fixing whatever performance issues the budget AC finds.

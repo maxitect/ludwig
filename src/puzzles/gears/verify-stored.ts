@@ -1,9 +1,27 @@
 import { applySwaps, type Diagram, solveAll } from "./engine";
 import { diagramOf, repairsOf } from "./generate";
+import { gearCap } from "./limits";
 import type { Content, Solution } from "./schema";
 
-/** Throws unless re-solving the stored diagram finds exactly the stored solution. */
+function assertWithinCap({ gears }: Diagram) {
+  if (gears.length > gearCap.maxGears) {
+    throw new Error(
+      `${gears.length} gears exceed the cap of ${gearCap.maxGears}`,
+    );
+  }
+  const bad = gears.find(
+    ({ teeth }) => !(gearCap.teeth as readonly number[]).includes(teeth),
+  );
+  if (bad) {
+    throw new Error(
+      `a gear has ${bad.teeth} teeth, only ${gearCap.teeth.join(" and ")} are allowed`,
+    );
+  }
+}
+
+/** Throws unless the diagram is within the cap and re-solving it finds exactly the stored solution. */
 export function verifyStored(diagram: Diagram, solution: Solution) {
+  assertWithinCap(diagram);
   if (solution.swaps.length) {
     throw new Error("a generated normal puzzle must have no solution swaps");
   }

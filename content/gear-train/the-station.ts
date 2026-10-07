@@ -6,7 +6,7 @@ export const meta = {
   title: "The Station",
   difficulty: 4,
   sourceNote: "Original puzzle by the Ludwig authors.",
-  publishedAt: new Date("2026-10-08T00:00:00Z"),
+  publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 
 export const content = {

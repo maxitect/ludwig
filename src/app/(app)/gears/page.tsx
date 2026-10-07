@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 type Catalogue = Awaited<ReturnType<typeof getGearsCatalogue>>;
-type Entry = Catalogue["diagrams"][number];
+type Entry = Omit<Catalogue["diagrams"][number], "fix">;
 
 const headingClass =
   "border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase";

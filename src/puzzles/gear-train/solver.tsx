@@ -188,7 +188,6 @@ export function Solver({
       event.clientY,
     );
     setCursor(peg);
-    setCursorNote(describe(peg));
     if (locked) return;
     const hit = cogs.find(
       (cog) =>
@@ -307,7 +306,7 @@ export function Solver({
               >
                 <TrayCog teeth={teeth} />
                 <span className="flex flex-col items-start leading-tight">
-                  <span className="font-display font-bold">{teeth} teeth</span>
+                  <span className="font-display font-bold whitespace-nowrap">{teeth} teeth</span>
                   <span className="text-sm">{remaining} left</span>
                 </span>
               </button>

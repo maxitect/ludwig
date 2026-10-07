@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { check, violatedClue } from "./check";
+import { brokenClues, check } from "./check";
 import type { Answer, Payload, Solution } from "./schema";
 
 const worker = (
@@ -73,10 +73,26 @@ describe("rota check", () => {
       correct: false,
       violatedClue: 0,
     });
-    expect(violatedClue(payload, farApart)?.displayText).toBe(
-      "Only neighbours swap",
-    );
-    expect(violatedClue(payload, swaps)).toBeUndefined();
+    expect(
+      brokenClues(payload, farApart).map(({ displayText }) => displayText),
+    ).toEqual(["Only neighbours swap"]);
+    expect(brokenClues(payload, swaps)).toEqual([]);
+  });
+
+  it("names a broken clue whatever the instigator and length, so the result shape never hints at the solution", () => {
+    const farApart = [
+      { workerAId: "Marty", workerBId: "Stefan" },
+      { workerAId: "Stefan", workerBId: "Gary" },
+    ];
+    const results = [
+      check(payload, solution, { instigatorWorkerId: "Marty", swaps: farApart }),
+      check(payload, solution, { instigatorWorkerId: "Stefan", swaps: farApart }),
+      check(payload, solution, { instigatorWorkerId: "Zara", swaps: farApart }),
+    ];
+    for (const result of results) {
+      expect(Object.keys(result)).toEqual(["correct", "violatedClue"]);
+      expect(result).toEqual({ correct: false, violatedClue: 0 });
+    }
   });
 
   it("rejects a longer sequence padded with an undo pair", () => {

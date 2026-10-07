@@ -4,12 +4,8 @@ import { useEffect, useId, useMemo, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import type { SolverProps } from "../solver-types";
 import { RotaBoard } from "./board";
-import {
-  placementFor,
-  samePlacement,
-  validateClues,
-  type Swap,
-} from "./engine";
+import { brokenClues } from "./check";
+import { placementFor, samePlacement, type Swap } from "./engine";
 import type * as schema from "./schema";
 import {
   popUnswap,
@@ -62,9 +58,7 @@ export function Solver({
   const nameOf = (id: string) =>
     payload.workers.find((worker) => worker.id === id)?.name ?? id;
   const restored = samePlacement(placement, intended);
-  const broken = restored
-    ? payload.clues.filter((clue) => !validateClues(intended, swaps, [clue]))
-    : [];
+  const broken = restored ? brokenClues(payload, swaps) : [];
   const candidates = useMemo(() => pairOf(swaps[0]), [swaps]);
 
   function update(next: Partial<typeof state>) {

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { registry } from "@/puzzles/registry";
-import { regenerate } from "@/puzzles/generators";
+import { sudokuGenerators } from "@/puzzles/sudoku/generate";
 import { formatContentFile } from "./dev/format-content";
 import { verifyPuzzles } from "./verify-puzzles";
 
@@ -33,13 +33,13 @@ afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
 describe("verifyPuzzles regeneration", () => {
   it("passes a file that equals its regenerated puzzle", async () => {
-    write("fresh", regenerate(generated, 2).content);
+    write("fresh", sudokuGenerators[1](generated.seed, 2).content);
     const { failures } = await verifyPuzzles(registry, dir);
     expect(failures).toEqual([]);
   });
 
   it("fails a file whose content, seed or generator version no longer regenerates", async () => {
-    const { content } = regenerate(generated, 2);
+    const { content } = sudokuGenerators[1](generated.seed, 2);
     write("edited", { givens: content.givens.slice(1) });
     write("reseeded", content, "another");
     const { failures } = await verifyPuzzles(registry, dir);

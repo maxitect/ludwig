@@ -17,7 +17,7 @@ import { contentSchema as sudokuContent } from "./sudoku/schema";
  * Generators by name, then by frozen version. A name is not always a type key: a variant of a type
  * (jigsaw sudoku) registers its own generator.
  */
-export const generators: Readonly<Record<string, GeneratorVersions<unknown>>> =
+export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
   {
     sudoku: sudokuGenerators,
     futoshiki: futoshikiGenerators,

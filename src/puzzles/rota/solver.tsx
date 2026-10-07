@@ -63,9 +63,7 @@ export function Solver({
     payload.workers.find((worker) => worker.id === id)?.name ?? id;
   const restored = samePlacement(placement, intended);
   const broken = restored
-    ? payload.clues.filter(
-        (clue) => !validateClues(intended, swaps, [clue]),
-      )
+    ? payload.clues.filter((clue) => !validateClues(intended, swaps, [clue]))
     : [];
   const candidates = useMemo(() => pairOf(swaps[0]), [swaps]);
 
@@ -162,9 +160,7 @@ export function Solver({
           {tokens.map(({ id, name, label }) => (
             <li key={id}>
               <span className="font-bold">{label}</span> {name},{" "}
-              <span data-testid={`now-${name}`}>
-                {zoneName(placement[id])}
-              </span>{" "}
+              <span data-testid={`now-${name}`}>{zoneName(placement[id])}</span>{" "}
               to {zoneName(intended[id])}
             </li>
           ))}
@@ -205,7 +201,10 @@ export function Solver({
           {steps.length === 0 ? (
             <p className="text-sm">Nothing unswapped yet.</p>
           ) : (
-            <ol data-testid="rota-stack" className="flex flex-col gap-1 border-l-4 border-primary pl-4">
+            <ol
+              data-testid="rota-stack"
+              className="flex flex-col gap-1 border-l-4 border-primary pl-4"
+            >
               {steps.map(({ step, swap, from, to }) => (
                 <li key={step}>
                   Step {step}: {nameOf(swap.workerAId)} ({zoneName(from)}) and{" "}
@@ -224,7 +223,11 @@ export function Solver({
               Undo
             </Button>
           </div>
-          <p aria-live="polite" data-testid="rota-status" className="min-h-6 text-sm">
+          <p
+            aria-live="polite"
+            data-testid="rota-status"
+            className="min-h-6 text-sm"
+          >
             {announcement}
           </p>
         </section>

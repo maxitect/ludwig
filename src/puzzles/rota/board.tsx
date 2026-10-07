@@ -6,7 +6,8 @@ import { type StackStep, zoneName } from "./stack";
 
 type Token = { id: string; name: string; label: string };
 
-const fileIndex = (file: string) => FILES.indexOf(file as (typeof FILES)[number]);
+const fileIndex = (file: string) =>
+  FILES.indexOf(file as (typeof FILES)[number]);
 const centre = ({ file, rank }: { file: string; rank: number }) => ({
   x: fileIndex(file) + 0.5,
   y: 8 - rank + 0.5,
@@ -99,7 +100,9 @@ export function RotaBoard({
               <div
                 key={zone}
                 data-zone={zone}
-                onDragOver={token && !disabled ? (e) => e.preventDefault() : undefined}
+                onDragOver={
+                  token && !disabled ? (e) => e.preventDefault() : undefined
+                }
                 onDrop={
                   token && !disabled
                     ? (event) => {

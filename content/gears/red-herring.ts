@@ -5,7 +5,7 @@ export const meta = {
   slug: "red-herring",
   title: "Red Herring",
   difficulty: 4,
-  sourceNote: "Generated with the gear generator (seed red-herring, hard preset), then curated by the Ludwig authors.",
+  sourceNote: "Generated with the gear generator (seed red-herring, hard preset), chosen by the Ludwig authors and published unedited.",
   publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 

@@ -5,7 +5,7 @@ export const meta = {
   slug: "crossed-wires",
   title: "Crossed Wires",
   difficulty: 3,
-  sourceNote: "Generated with the Fix the Diagram generator (seed crossed-wires, medium preset, K=1), then curated by the Ludwig authors.",
+  sourceNote: "Generated with the Fix the Diagram generator (seed crossed-wires, medium preset, K=1), chosen by the Ludwig authors and published unedited.",
   publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 

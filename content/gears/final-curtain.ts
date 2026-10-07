@@ -5,7 +5,7 @@ export const meta = {
   slug: "final-curtain",
   title: "Final Curtain",
   difficulty: 5,
-  sourceNote: "Generated with the gear generator (seed final-curtain, expert preset), then curated by the Ludwig authors.",
+  sourceNote: "Generated with the gear generator (seed final-curtain, expert preset), chosen by the Ludwig authors and published unedited.",
   publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 

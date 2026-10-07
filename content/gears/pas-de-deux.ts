@@ -5,7 +5,7 @@ export const meta = {
   slug: "pas-de-deux",
   title: "Pas de Deux",
   difficulty: 2,
-  sourceNote: "Generated with the Fix the Diagram generator (seed pas-de-deux, easy preset, K=1), then curated by the Ludwig authors.",
+  sourceNote: "Generated with the Fix the Diagram generator (seed pas-de-deux, easy preset, K=1), chosen by the Ludwig authors and published unedited.",
   publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 

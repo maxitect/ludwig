@@ -5,7 +5,7 @@ export const meta = {
   slug: "first-rehearsal",
   title: "First Rehearsal",
   difficulty: 2,
-  sourceNote: "Generated with the gear generator (seed first-rehearsal, easy preset), then curated by the Ludwig authors.",
+  sourceNote: "Generated with the gear generator (seed first-rehearsal, easy preset), chosen by the Ludwig authors and published unedited.",
   publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 

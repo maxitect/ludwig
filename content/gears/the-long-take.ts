@@ -5,7 +5,7 @@ export const meta = {
   slug: "the-long-take",
   title: "The Long Take",
   difficulty: 5,
-  sourceNote: "Generated with the gear generator (seed the-long-take, expert preset), then curated by the Ludwig authors.",
+  sourceNote: "Generated with the gear generator (seed the-long-take, expert preset), chosen by the Ludwig authors and published unedited.",
   publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 

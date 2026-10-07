@@ -5,7 +5,7 @@ export const meta = {
   slug: "cold-open",
   title: "Cold Open",
   difficulty: 4,
-  sourceNote: "Generated with the gear generator (seed cold-open, hard preset), then curated by the Ludwig authors.",
+  sourceNote: "Generated with the gear generator (seed cold-open, hard preset), chosen by the Ludwig authors and published unedited.",
   publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 

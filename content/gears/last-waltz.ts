@@ -5,7 +5,7 @@ export const meta = {
   slug: "last-waltz",
   title: "Last Waltz",
   difficulty: 4,
-  sourceNote: "Generated with the Fix the Diagram generator (seed last-waltz, hard preset, K=2), then curated by the Ludwig authors.",
+  sourceNote: "Generated with the Fix the Diagram generator (seed last-waltz, hard preset, K=2), chosen by the Ludwig authors and published unedited.",
   publishedAt: new Date("2026-10-07T00:00:00Z"),
 } satisfies ContentMeta;
 

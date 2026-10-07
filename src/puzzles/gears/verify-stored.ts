@@ -39,12 +39,15 @@ export function verifyContent(content: Content) {
     killerGearId: solution.killerLabel,
     swaps: [],
   };
-  if (!solution.swaps.length) {
-    if (content.maxAdjustments) {
-      throw new Error("a Fix the Diagram puzzle must store its repair swaps");
+  if (!content.maxAdjustments) {
+    if (solution.swaps.length) {
+      throw new Error("a puzzle without adjustments must store no swaps");
     }
     verifyStored(printed, stored);
     return;
+  }
+  if (!solution.swaps.length) {
+    throw new Error("a Fix the Diagram puzzle must store its repair swaps");
   }
   const printedWins = solveAll(printed).length;
   if (printedWins !== 0) {

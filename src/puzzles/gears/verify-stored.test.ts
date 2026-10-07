@@ -37,6 +37,15 @@ describe("verifyContent", () => {
       verifyContent({ ...fix, solution: { ...fix.solution, swaps: [] } }),
     ).toThrow(/store its repair/);
   });
+
+  it("rejects a plain diagram that stores swaps", () => {
+    expect(() =>
+      verifyContent({
+        ...content,
+        solution: { ...content.solution, swaps: fix.solution.swaps },
+      }),
+    ).toThrow(/without adjustments/);
+  });
 });
 
 describe("verifyStored", () => {

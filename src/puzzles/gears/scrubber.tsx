@@ -87,6 +87,7 @@ export function Scrubber({
     if (!track) return;
     const measure = () => trackWidth.set(track.getBoundingClientRect().width);
     measure();
+    if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
     observer.observe(track);
     return () => observer.disconnect();

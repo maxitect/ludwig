@@ -1,12 +1,11 @@
 import { createSelectSchema } from "drizzle-orm/zod";
 import { z } from "zod";
-import { pictogramCipherAttemptGuesses, pictogramGlyphs } from "./tables";
+import { pictogramGlyphs } from "./tables";
 
 const glyphSelect = createSelectSchema(pictogramGlyphs);
-const guessSelect = createSelectSchema(pictogramCipherAttemptGuesses);
 
 const assetKey = glyphSelect.shape.assetKey;
-const letter = glyphSelect.shape.letter;
+const letter = glyphSelect.shape.letter.regex(/^[a-z]$/);
 
 export const solutionSchema = z.object({
   words: z.array(z.array(letter).min(1)).min(1),
@@ -22,7 +21,7 @@ export const answerSchema = z.object({
 });
 
 export const attemptSchema = z.object({
-  guesses: z.array(guessSelect.pick({ letter: true }).extend({ assetKey })),
+  guesses: z.array(z.object({ assetKey, letter })),
 });
 
 export const contentSchema = z.object({

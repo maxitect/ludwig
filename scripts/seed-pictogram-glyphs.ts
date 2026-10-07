@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import type { db as appDb } from "../src/db";
 import { pictogramGlyphs } from "../src/db/schema";
 
-type Db = typeof appDb;
+type Db = Pick<typeof appDb, "insert">;
 
 /** Upserts the glyph alphabet by id. Glyphs are never removed: puzzles and saved guesses point at them. */
 export async function seedPictogramGlyphs(

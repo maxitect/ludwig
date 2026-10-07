@@ -4,7 +4,6 @@ import { pathToFileURL } from "node:url";
 import type { ContentMeta } from "../../scripts/content-files";
 import type { Content as AnagramContent } from "../../src/puzzles/anagram/schema";
 import type { Content as CrosswordContent } from "../../src/puzzles/crossword/schema";
-import { lcmTeeth } from "../../src/puzzles/gears/engine";
 import type { Content as GearContent } from "../../src/puzzles/gears/schema";
 import type { Content as ReverseChessContent } from "../../src/puzzles/reverse-chess/schema";
 import { solve as solveFutoshiki } from "../../src/puzzles/futoshiki/engine";
@@ -128,7 +127,6 @@ export async function gearPuzzle(fix: boolean) {
     typeKey: "gears",
     slug: found.meta.slug,
     title: found.meta.title,
-    cranks: lcmTeeth(content.gears),
     crank: content.solution.crank,
     convergence: content.solution.convergence,
     killer: `Gear ${killer.label}, ${killer.teeth} teeth`,

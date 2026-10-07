@@ -5,6 +5,7 @@ import {
   animate,
   type MotionValue,
   motion,
+  useMotionValue,
   useTransform,
 } from "motion/react";
 import {
@@ -75,7 +76,21 @@ export function Scrubber({
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const cogTurn = useTransform(position, (latest) => latest * 45);
-  const cogLeft = useTransform(position, percent);
+  const trackWidth = useMotionValue(0);
+  const cogX = useTransform(
+    [position, trackWidth],
+    ([latest, width]: number[]) => (latest / HALF_PHASES) * width,
+  );
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const measure = () => trackWidth.set(track.getBoundingClientRect().width);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, [trackWidth]);
 
   useEffect(() => {
     const slider = sliderRef.current;
@@ -186,7 +201,10 @@ export function Scrubber({
         variant="secondary"
         size="icon"
         aria-label={playing ? "Pause dance" : "Play dance"}
-        onClick={() => setPlaying((current) => !current)}
+        onClick={() => {
+          if (!playing && !reducedMotion) onSettle(null);
+          setPlaying((current) => !current);
+        }}
       >
         {playing ? <Pause aria-hidden /> : <Play aria-hidden />}
       </Button>
@@ -229,8 +247,8 @@ export function Scrubber({
           ))}
           <motion.div
             aria-hidden
-            className="absolute top-0 -ml-3 size-6 text-ludwig-red"
-            style={{ left: cogLeft, rotate: cogTurn }}
+            className="absolute top-0 left-0 -ml-3 size-6 text-ludwig-red"
+            style={{ x: cogX, rotate: cogTurn }}
           >
             <Cog />
           </motion.div>

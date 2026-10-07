@@ -222,6 +222,23 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.sudokuAttemptNotes.attemptId,
     }),
   },
+  bookTexts: {
+    lines: r.many.bookTextLines({
+      from: r.bookTexts.id,
+      to: r.bookTextLines.textId,
+    }),
+  },
+  bookCipherPuzzles: {
+    text: r.one.bookTexts({
+      from: r.bookCipherPuzzles.textId,
+      to: r.bookTexts.id,
+      optional: false,
+    }),
+    refs: r.many.bookCipherRefs({
+      from: r.bookCipherPuzzles.puzzleId,
+      to: r.bookCipherRefs.puzzleId,
+    }),
+  },
   futoshikiPuzzles: {
     givens: r.many.futoshikiGivens({
       from: r.futoshikiPuzzles.puzzleId,

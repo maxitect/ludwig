@@ -2,6 +2,7 @@ import type { z } from "zod";
 import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
 import { anagramModule } from "./anagram/module";
+import { bookCipherModule } from "./book-cipher/module";
 import { caesarModule } from "./caesar/module";
 import { crosswordModule } from "./crossword/module";
 import { futoshikiModule } from "./futoshiki/module";
@@ -76,6 +77,7 @@ export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 
 export const registry: PuzzleRegistry = {
   [anagramModule.meta.key]: anagramModule,
+  [bookCipherModule.meta.key]: bookCipherModule,
   [caesarModule.meta.key]: caesarModule,
   [crosswordModule.meta.key]: crosswordModule,
   [futoshikiModule.meta.key]: futoshikiModule,

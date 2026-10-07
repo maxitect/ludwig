@@ -5,6 +5,7 @@ import { and, count, eq, inArray, notExists, notInArray, or, sql } from "drizzle
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
+import { bookTexts as defaultBookTexts } from "../content/book-texts";
 import { weekly } from "../content/weekly";
 import type { db as appDb } from "../src/db";
 import { verifyFullSsl } from "../src/utils/verify-full-ssl";
@@ -24,6 +25,7 @@ import {
   loadContentFiles,
   resolveCliOptions,
 } from "./content-files";
+import { seedBookTexts } from "./seed-book-texts";
 import { seedWeekly } from "./seed-weekly";
 
 type Db = typeof appDb;
@@ -97,20 +99,24 @@ export async function seed({
   registry,
   contentDir,
   lookups = defaultLookups,
+  bookTexts = defaultBookTexts,
   confirmRemoval = () => false,
 }: {
   db: Db;
   registry: PuzzleRegistry;
   contentDir: string;
   lookups?: Lookups;
+  bookTexts?: unknown;
   confirmRemoval?: ConfirmRemoval;
 }) {
   const lookupSummary = await seedLookups(db, lookups);
+  const bookTextSummary = await seedBookTexts(db, bookTexts);
   const { files, failures: parseFailures } = await loadContentFiles(
     registry,
     contentDir,
   );
   const failures: ContentFailure[] = [...parseFailures];
+  const bookTextFailures = bookTextSummary.failures;
   const types: Record<string, SeedCounts> = Object.fromEntries(
     Object.keys(registry).map((key) => [
       key,
@@ -203,7 +209,14 @@ export async function seed({
     for (const { typeKey } of removed) types[typeKey].removed += 1;
   }
 
-  return { lookups: lookupSummary, types, failures, blockedRemovals };
+  return {
+    lookups: lookupSummary,
+    bookTexts: bookTextSummary,
+    types,
+    failures,
+    bookTextFailures,
+    blockedRemovals,
+  };
 }
 
 const describePending = (pending: PendingRemoval[]) =>
@@ -265,6 +278,10 @@ async function main() {
     for (const [name, counts] of Object.entries(summary.lookups)) {
       console.log(`lookups ${name}: ${counts.inserted} inserted, ${counts.updated} updated`);
     }
+    console.log(`book texts: ${summary.bookTexts.texts}`);
+    for (const failure of summary.bookTextFailures) {
+      console.error(`FAIL ${failure}`);
+    }
     for (const [typeKey, counts] of Object.entries(summary.types)) {
       console.log(
         `${typeKey}: ${counts.inserted} inserted, ${counts.updated} updated, ${counts.removed} removed`,
@@ -287,6 +304,7 @@ async function main() {
     }
     process.exitCode =
       summary.failures.length ||
+      summary.bookTextFailures.length ||
       summary.blockedRemovals.length ||
       weeklySummary.failures.length
         ? 1

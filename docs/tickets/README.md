@@ -75,7 +75,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T043](./T043-gears-hub.md) | `/gears` hub and daily diagram | T036, T040 | | | done |
 | [T044](./T044-gear-content-e2e-perf.md) | Gear content ×12, end-to-end flow 4, performance budget | T041, T042, T043 | | | done |
 | [T078](./T078-daily-gears-production.md) | Keep a year of daily gear diagrams generated in production (Vercel cron) | T036 | | | done |
-| [T119](./T119-gear-perf-guard.md) | Guard the gear performance budget in CI and cap generated diagrams to it | T044, T078 | | | todo |
+| [T119](./T119-gear-perf-guard.md) | Guard the gear performance budget in CI and cap generated diagrams to it | T044, T078 | | | done |
 
 ## M4: Library breadth
 
@@ -84,7 +84,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T045](./T045-crossword-cryptic.md) | Crossword: cryptic style and content | T022 | | | done |
 | [T046](./T046-type-sudoku.md) | Puzzle type: sudoku (+ end-to-end flow 5, keyboard-only) | T021 | ✔ | | done |
 | [T047](./T047-type-futoshiki.md) | Puzzle type: futoshiki | T046 | ✔ | | done |
-| [T048](./T048-type-logic-grid.md) | Puzzle type: logic grid (+ false-statement variant) | T021 | ✔ | | todo |
+| [T048](./T048-type-logic-grid.md) | Puzzle type: logic grid (+ false-statement variant) | T021 | ✔ | | done |
 | [T049](./T049-type-word-ladder.md) | Puzzle type: word ladder and the `words` dictionary | T019 | ✔ | | todo |
 | [T050](./T050-type-acrostic.md) | Puzzle type: acrostic | T019 | ✔ | | todo |
 | [T051](./T051-type-word-search.md) | Puzzle type: word search ("The Fob-Off") | T021 | ✔ | | todo |
@@ -98,13 +98,15 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | todo |
 | [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | todo |
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | done |
-| [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | done |
+| [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode D): tables, clue kinds, engine | T016 | ✔ | | done |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | done |
 | [T074](./T074-crossword-enumeration-separators.md) | Crossword enumeration separators (hyphen or word break) | T045 | ✔ | | done |
 | [T080](./T080-crossword-separator-required.md) | Require a separator on every non-last crossword segment | T074 | ✔ | | done |
 | [T082](./T082-gear-train-tables-engine.md) | Gear train (Gear Puzzle Mode B): tables, engine, uniqueness search | T016, T034 | ✔ | | todo |
 | [T083](./T083-gear-train-ui-content.md) | Gear train UI, gears hub integration and content | T082, T043 | | | todo |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
+| [T132](./T132-drop-rota-attempt-instigator.md) | Drop the unused `rota_attempts.instigator_worker_id` column | T063 | ✔ | | todo |
+| [T133](./T133-reverse-chess-ply-count-trigger.md) | Enforce `reverse_chess_puzzles.ply_count` for every mode with a trigger | T081 | ✔ | | todo |
 
 ## M5: Polish and launch
 
@@ -113,8 +115,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | done |
 | [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | done |
 | [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
-| [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117, T120–T130 | | ✔ | todo |
-| [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116, T120–T130 | | | todo |
+| [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117, T120–T138 | | ✔ | todo |
+| [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116, T120–T138 | | | todo |
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |
 | [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |
 | [T112](./T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | todo |
@@ -134,6 +136,12 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T128](./T128-page-polish.md) | Per-page polish (rota, hubs, collection, sign-in, kitchen sink) | T120 | | | todo |
 | [T129](./T129-puzzle-preview-engine.md) | Puzzle preview engine and per-puzzle thumbnails | — | | | todo |
 | [T130](./T130-collection-type-thumbnails.md) | Collection type cards show a representative preview | T129, T128 | | | todo |
+| [T131](./T131-check-shows-wrong-parts.md) | A failed check names the wrong parts, in the shared contract and the UI | T048, T100 | | | todo |
+| [T134](./T134-volume-position.md) | Order puzzles within a volume by an authored position | — | ✔ | | todo |
+| [T135](./T135-crossword-content-polish.md) | Crossword content polish (fill, repeated roots, symmetry) | T080 | | | todo |
+| [T136](./T136-generated-sudoku-futoshiki-content.md) | Generated sudoku and futoshiki at difficulties 3 and 4 | T100 | | | todo |
+| [T137](./T137-reverse-chess-mode-letters.md) | Reverse Chess mode letters: Proof Game is Mode C, the Rota is Mode D | — | | | done |
+| [T138](./T138-v1-reveal-and-desk-scope.md) | Hide Reveal where it isn't built, and mark the Desk as post-launch | — | | | done |
 
 ## M6: Radio Times set
 
@@ -157,7 +165,7 @@ Not on the launch path (PLAN §3 M6).
 | [T097](./T097-type-norinori.md) | Puzzle type: norinori | T084 | ✔ | | todo |
 | [T098](./T098-type-reflections.md) | Puzzle type: reflections (mirrors and beams) | T021 | ✔ | | todo |
 | [T099](./T099-research-generators-krazydad.md) | Research: puzzle generation and grading, KrazyDad's blog against our pipeline | — | | | done |
-| [T100](./T100-deterministic-generators.md) | Deterministic generator pipeline, plus sudoku and futoshiki generators | T099, T046, T047 | | | todo |
+| [T100](./T100-deterministic-generators.md) | Deterministic generator pipeline, plus sudoku and futoshiki generators | T099, T046, T047 | | | done |
 | [T101](./T101-troix-generator.md) | Troix generator | T100, T088 | | | todo |
 | [T102](./T102-star-battle-generator.md) | Star battle generator | T100, T087 | | | todo |
 | [T103](./T103-kakuro-generator.md) | Kakuro generator | T100, T095 | | | todo |
@@ -177,3 +185,4 @@ After launch (PLAN §3 M7). Native apps are not ticketed; the open options are i
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
 | [T118](./T118-service-worker-offline.md) | Service worker and offline fallback (Serwist) | T112, T070 | | | todo |
+| [T139](./T139-daily-gear-tooth-variety.md) | Widen the tooth sizes used by daily gear diagrams | T119, T070 | | | todo |

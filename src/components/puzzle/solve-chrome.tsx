@@ -11,17 +11,6 @@ import {
   useTransition,
 } from "react";
 import { BulletHole, Credit, SolvedStamp, Walker } from "@/components/brand";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,14 +39,12 @@ type Notice =
   | "wrong"
   | "incomplete"
   | "cell-sign-in"
-  | "reveal-unavailable"
   | "error"
   | "not-saved";
 
 const noticeText: Record<Exclude<Notice, "cell-sign-in">, string> = {
   wrong: "Not quite. Keep going.",
   incomplete: "Finish the puzzle before checking it.",
-  "reveal-unavailable": "Reveal is not available for this puzzle yet.",
   error: "The check could not be completed. Try again.",
   "not-saved": "Your progress could not be saved.",
 };
@@ -296,29 +283,6 @@ export function SolveChrome({
         <Button onClick={check} disabled={pending || solved}>
           Check
         </Button>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="secondary" disabled={solved}>
-              Reveal
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Reveal the answer?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Revealing counts as giving up on this puzzle.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => setNotice("reveal-unavailable")}
-              >
-                Reveal
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
         <Button variant="secondary" onClick={reset} disabled={pending}>
           Reset
         </Button>

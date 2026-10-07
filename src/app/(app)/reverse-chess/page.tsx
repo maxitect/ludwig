@@ -37,7 +37,7 @@ const SECTIONS = [
   {
     key: "proofGame",
     id: "proof-game",
-    top: "Mode B",
+    top: "Mode C",
     title: "Proof Game",
     blurb: "Take back every move, all the way to the starting position.",
   },
@@ -160,7 +160,7 @@ export default async function ReverseChessPage() {
           <Credit
             id="rota"
             level={2}
-            top="Mode C"
+            top="Mode D"
             bottom="The Rota"
             className="[&>span:last-child]:text-3xl"
           />

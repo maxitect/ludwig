@@ -1,8 +1,10 @@
+import type { Content, Payload } from "./schema";
+
 export const LINE_WIDTH = 56;
 export const LINES_PER_PAGE = 20;
 
-export type TextLine = { page: number; line: number; content: string };
-export type Reference = { page: number; line: number; wordIndex: number };
+type TextLine = Payload["lines"][number];
+type Reference = Content["refs"][number];
 
 /**
  * Lays paragraphs out as numbered pages and lines: words are packed greedily into lines of at most

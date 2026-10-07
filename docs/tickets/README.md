@@ -113,8 +113,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | done |
 | [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | done |
 | [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
-| [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117 | | ✔ | todo |
-| [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116 | | | todo |
+| [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117, T120–T130 | | ✔ | todo |
+| [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116, T120–T130 | | | todo |
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |
 | [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |
 | [T112](./T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | todo |
@@ -123,6 +123,17 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T115](./T115-crossword-on-phones.md) | Crossword on phones (clue bar, clue sheet, keyboard) | T114 | | | todo |
 | [T116](./T116-keyboard-other-types.md) | On-screen keyboard for sudoku, futoshiki and the ciphers | T114 | | | todo |
 | [T117](./T117-touch-pass.md) | Touch pass (tap targets, chess tap-to-move, spot-difference compare, Android backspace, WebKit project) | T113 | | | todo |
+| [T120](./T120-theme-surfaces-cast-shadows.md) | Theme-aware surfaces and cast shadows, with a guard against raw tokens | — | | | todo |
+| [T121](./T121-chess-piece-outlines.md) | Chess pieces outlined in the opposite colour in both themes | T120 | | | todo |
+| [T122](./T122-solved-footer-tear.md) | Solved footer, a small, ordered, framed tear behind the stamp | T120 | | | todo |
+| [T123](./T123-simplify-bullet-route-transition.md) | Simplify the bullet-hole route transition into the Collection | T122 | | | todo |
+| [T124](./T124-states-contrast-focus.md) | Disabled, error, contrast and focus states | T120 | | | todo |
+| [T125](./T125-grid-lines-textures.md) | Single-draw grid lines, crossword numbers on phones, and textures | — | | | todo |
+| [T126](./T126-themed-not-found.md) | Themed 404 page and the root script-tag error | — | | | todo |
+| [T127](./T127-book-cipher-layout.md) | Book cipher: lines never wrap on desktop, clear continuations on phones, aligned references | T120 | | | todo |
+| [T128](./T128-page-polish.md) | Per-page polish (rota, hubs, collection, sign-in, kitchen sink) | T120 | | | todo |
+| [T129](./T129-puzzle-preview-engine.md) | Puzzle preview engine and per-puzzle thumbnails | — | | | todo |
+| [T130](./T130-collection-type-thumbnails.md) | Collection type cards show a representative preview | T129, T128 | | | todo |
 
 ## M6: Radio Times set
 

@@ -28,6 +28,7 @@
 .DS_Store
 *.pem
 PROMPT.md
+docs/material/
 
 # debug
 npm-debug.log*

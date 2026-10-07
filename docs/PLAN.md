@@ -183,17 +183,21 @@ Plus **This Week**: the `weekly_pairs` seed and the `/this-week` page.
 
 ### M6: Radio Times set
 
-**Goal.** The types from the Radio Times _Ludwig Puzzle Special_ are playable (spec sections 1.2.1 and 2.4). M6 is not on the launch path. Its tickets depend only on M1 and on the types they extend, so they can run alongside M5 or after launch, and the M5 audits don't wait for them.
+**Goal.** The types from the Radio Times _Ludwig Puzzle Special_ and the extra KrazyDad formats are playable (spec sections 1.2.1 and 2.4), and the grid types can be generated deterministically from a seed. M6 is not on the launch path. Its tickets depend only on M1 and on the types they extend, so they can run alongside M5 or after launch, and the M5 audits don't wait for them.
 
 **Order and grouping:**
 
 | Group | Types | Reuses |
 |---|---|---|
-| Cell grids | sudoku region variants (jigsaw, rainbow), star-battle, troix, circle9 | Sudoku cell UI and notes (T046), `CellInput`. The region-border overlay built for jigsaw sudoku is reused by star battle |
+| Cell grids | sudoku variants (jigsaw, rainbow, killer, XV), star-battle, troix, circle9, fillomino, kakuro | Sudoku cell UI and notes (T046), `CellInput`. The region-border overlay built for jigsaw sudoku is reused by star battle, norinori and the killer cages |
+| Shading | nonogram, norinori | `CellInput` focus model; one shared fill/cross/dot mark cycle, built by whichever lands first |
 | Chess | chess-problem | Board component (T028), chess enums and the FEN derivation (T025) |
-| Spatial | railroad | `CellInput` grid focus and keyboard model (T021). Track is laid by dragging across cells, and the solver builds its own track-piece glyphs |
+| Spatial | railroad, reflections | `CellInput` grid focus and keyboard model (T021). Each solver draws its own glyphs (track pieces, mirrors) |
 | Word | word-wheel | Letter tiles (T049), `words` dictionary widened to 9 letters |
 | Visual | detective-scene | The spot-difference server-side hit-test (T061). The artwork is a separate content ticket |
+| Generators | sudoku and futoshiki first, then whichever types T099 recommends | `_shared/prng.ts` (mulberry32), each type's `countSolutions` |
+
+**Generators.** T099 is research only. It reads the KrazyDad blog closely, compares its approach with how we build puzzles today (curated by hand, apart from the gears and spot-difference generators), and writes up a recommendation with follow-up tickets. T100 builds the shared deterministic generator pipeline and the first two generators. The bar comes from KrazyDad: a published puzzle has exactly one solution **and** can be solved without trial and error.
 
 **Exit criteria:** every M6 type has at least 5 curated puzzles passing `puzzles:verify`, or 1 scene for `detective-scene`. Each type passes the accessibility checks that T068 applied to M4.
 
@@ -280,7 +284,7 @@ Each epic below becomes a set of tickets. The candidate tickets are only a start
 | **E8 Library** | M4 | One ticket per type (section 3, M4 table), plus a shared-piece ticket per group and content tickets |
 | **E9 This Week** | M4 | `weekly_pairs` seed and page |
 | **E10 Polish and launch** | M5 | View transitions. Landing sequence. Settings page. Accessibility audit. Performance pass. Footer and attribution. Production domain and launch |
-| **E11 Radio Times set** | M6 | Sudoku region variants. Chess problem. Railroad. Star battle. Troix. Circle9. Word wheel. Detective scene engine and UI. Detective scene artwork and content |
+| **E11 Radio Times set** | M6 | Sudoku region variants. Chess problem. Railroad. Star battle. Troix. Circle9. Word wheel. Detective scene engine and UI. Detective scene artwork and content. Killer and XV sudoku. Nonogram. Kakuro. Fillomino. Norinori. Reflections. Generator research (KrazyDad blog). Deterministic generator pipeline |
 
 **Ticket template:** context (with a link to the spec section), scope (in and out), acceptance criteria (testable), docs to read (Next, library), test plan, dependencies.
 

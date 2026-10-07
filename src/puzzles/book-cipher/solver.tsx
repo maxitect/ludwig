@@ -97,18 +97,18 @@ export function Solver({
         Each reference names a page, a line and a word in the book. Find the
         word, write it down, and read the message the words make together.
       </p>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_13rem]">
         <section
           aria-label={`${title}, page ${page} of ${pageCount}`}
           tabIndex={0}
           onKeyDown={onReaderKeyDown}
-          className="flex flex-col gap-4 border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6"
+          className="flex flex-col gap-4 border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:p-4"
         >
           <header className="flex flex-col gap-1">
             <h2 className="font-display text-xl">{title}</h2>
             <p className="font-mono text-sm text-ink-soft">{author}</p>
           </header>
-          <ol className="flex flex-col gap-1 text-base sm:text-lg">
+          <ol className="flex flex-col gap-1 text-base sm:text-lg lg:text-base">
             {(pages.get(page) ?? []).map(({ line, content }) => (
               <li key={line} className="flex gap-3">
                 <span
@@ -171,7 +171,7 @@ export function Solver({
         </section>
         <section
           aria-label="References"
-          className="flex flex-col gap-3 border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] sm:p-6"
+          className="flex flex-col gap-3 border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] sm:p-6 lg:p-4"
         >
           <h2 className="font-display text-xl">References</h2>
           <ol className="flex flex-col gap-3">

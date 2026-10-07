@@ -181,6 +181,22 @@ Plus **This Week**: the `weekly_pairs` seed and the `/this-week` page.
 
 **Exit criteria:** the whole of spec section 8 passes on production.
 
+### M6: Radio Times set
+
+**Goal.** The types from the Radio Times _Ludwig Puzzle Special_ are playable (spec sections 1.2.1 and 2.4). M6 is not on the launch path. Its tickets depend only on M1 and on the types they extend, so they can run alongside M5 or after launch, and the M5 audits don't wait for them.
+
+**Order and grouping:**
+
+| Group | Types | Reuses |
+|---|---|---|
+| Cell grids | sudoku region variants (jigsaw, rainbow), star-battle, troix, circle9 | Sudoku cell UI and notes (T046), `CellInput`. The region-border overlay built for jigsaw sudoku is reused by star battle |
+| Chess | chess-problem | Board component (T028), chess enums and the FEN derivation (T025) |
+| Spatial | railroad | `CellInput` grid focus and keyboard model (T021). Track is laid by dragging across cells, and the solver builds its own track-piece glyphs |
+| Word | word-wheel | Letter tiles (T049), `words` dictionary widened to 9 letters |
+| Visual | detective-scene | The spot-difference server-side hit-test (T061). The artwork is a separate content ticket |
+
+**Exit criteria:** every M6 type has at least 5 curated puzzles passing `puzzles:verify`, or 1 scene for `detective-scene`. Each type passes the accessibility checks that T068 applied to M4.
+
 ---
 
 ## 4. Dependency graph
@@ -199,6 +215,7 @@ graph LR
   RCU --> M5[M5 Polish + launch]
   GU --> M5
   M4 --> M5
+  M1 --> M6[M6 Radio Times set]
 ```
 
 **Parallelism.** Both flagship engines depend only on the M1 framework contract (and strictly, only on `schema.ts` shapes). They can be built alongside M1 UI work, or alongside each other. M4 groups are independent of each other and of M2 and M3. With more than one contributor, the critical path is M0 → M1 → Gear UI → M5.
@@ -241,7 +258,8 @@ graph LR
 
 - Every curated puzzle is a file in `content/<type>/<slug>.ts` exporting `{ meta, content }` (SPEC §4.6), typed by the registry.
 - Authors follow Mr Todd's principle: start from the solution, then layer in false paths. The verifier proves uniqueness.
-- Launch volume targets: Reverse Chess 10, Gears 12 curated plus daily seeds, M4 types 5 each (cryptic 3).
+- Launch volume targets: Reverse Chess 10, Gears 12 curated plus daily seeds, M4 types 5 each (cryptic 3). M6 types 5 each (detective scene 1).
+- Third-party puzzles, including the Radio Times special and KrazyDad, are format references only. Never copy an instance into `content/` (spec section 10, decision 6).
 - Content tickets are separate from feature tickets, so engine and UI work never waits on writing clues.
 
 ---
@@ -262,6 +280,7 @@ Each epic below becomes a set of tickets. The candidate tickets are only a start
 | **E8 Library** | M4 | One ticket per type (section 3, M4 table), plus a shared-piece ticket per group and content tickets |
 | **E9 This Week** | M4 | `weekly_pairs` seed and page |
 | **E10 Polish and launch** | M5 | View transitions. Landing sequence. Settings page. Accessibility audit. Performance pass. Footer and attribution. Production domain and launch |
+| **E11 Radio Times set** | M6 | Sudoku region variants. Chess problem. Railroad. Star battle. Troix. Circle9. Word wheel. Detective scene engine and UI. Detective scene artwork and content |
 
 **Ticket template:** context (with a link to the spec section), scope (in and out), acceptance criteria (testable), docs to read (Next, library), test plan, dependencies.
 

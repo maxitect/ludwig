@@ -144,7 +144,7 @@ export function Solver({
               </li>
             ))}
           </ol>
-          <nav aria-label="Pages" className="flex items-center gap-3">
+          <nav aria-label="Pages" className="flex flex-wrap items-center gap-3">
             <Button
               type="button"
               variant="secondary"
@@ -154,7 +154,7 @@ export function Solver({
             >
               Previous page
             </Button>
-            <span className="font-mono text-sm">{`Page ${page} of ${pageCount}`}</span>
+            <span className="font-mono text-sm whitespace-nowrap">{`Page ${page} of ${pageCount}`}</span>
             <Button
               type="button"
               variant="secondary"

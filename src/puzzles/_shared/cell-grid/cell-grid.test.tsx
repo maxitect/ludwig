@@ -293,12 +293,20 @@ describe("CellGrid edges", () => {
   const edges = (row: number, col: number) =>
     row === 0 && col === 0
       ? {
-          right: { content: "<", label: "less than the cell to the right" },
-          down: { content: "\u2228", label: "greater than the cell below" },
+          right: {
+            content: "<",
+            label: "less than the cell to the right",
+            neighbourLabel: "greater than the cell to the left",
+          },
+          down: {
+            content: "\u2228",
+            label: "greater than the cell below",
+            neighbourLabel: "less than the cell above",
+          },
         }
       : undefined;
 
-  it("draws signs on a cell and adds their labels to its accessible name", () => {
+  it("draws signs on a cell and adds their labels to both cells' accessible names", () => {
     render(
       <CellGrid
         label="Edges"
@@ -318,6 +326,15 @@ describe("CellGrid edges", () => {
     );
     expect(first.textContent).toContain("<");
     expect(first.textContent).toContain("\u2228");
+    const right = screen.getByRole("gridcell", { name: /^Row 1, column 2\b/ });
+    expect(right.getAttribute("aria-label")).toBe(
+      "Row 1, column 2, greater than the cell to the left, empty",
+    );
+    expect(right.textContent).toBe("");
+    const below = screen.getByRole("gridcell", { name: /^Row 2, column 1\b/ });
+    expect(below.getAttribute("aria-label")).toBe(
+      "Row 2, column 1, less than the cell above, empty",
+    );
     const plain = screen.getByRole("gridcell", { name: /^Row 2, column 2\b/ });
     expect(plain.getAttribute("aria-label")).toBe("Row 2, column 2, empty");
     expect(plain.textContent).toBe("");

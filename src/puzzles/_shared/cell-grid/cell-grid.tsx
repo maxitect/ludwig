@@ -25,8 +25,11 @@ import {
 
 export type CellAnnotation = { content: ReactNode; label: string };
 
-/** A sign drawn on the edge a cell shares with its right or lower neighbour, such as a futoshiki inequality. */
-export type CellEdges = { right?: CellAnnotation; down?: CellAnnotation };
+/** A sign on an edge two cells share: `label` is read with the cell that owns it, `neighbourLabel` with the other. */
+export type CellEdge = CellAnnotation & { neighbourLabel: string };
+
+/** Signs drawn on the edges a cell shares with its right and lower neighbours, such as futoshiki inequalities. */
+export type CellEdges = { right?: CellEdge; down?: CellEdge };
 
 export type CellGridProps = {
   rows: number;
@@ -48,7 +51,7 @@ export type CellGridProps = {
   inputMode?: "text" | "numeric";
   highlight?: ReadonlySet<CellKey>;
   annotation?: (row: number, col: number) => CellAnnotation | undefined;
-  /** Signs between this cell and its right and lower neighbours. Their labels join the cell's accessible name. */
+  /** Signs between this cell and its right and lower neighbours. Their labels join both cells' accessible names. */
   edges?: (row: number, col: number) => CellEdges | undefined;
   /** Largest width of a cell in rem, which caps the grid. Defaults to 3.5. */
   cellRem?: number;
@@ -232,6 +235,8 @@ export function CellGrid({
               const entered = value(row, col);
               const note = annotation?.(row, col);
               const sides = edges?.(row, col);
+              const left = col > 0 ? edges?.(row, col - 1)?.right : undefined;
+              const above = row > 0 ? edges?.(row - 1, col)?.down : undefined;
               const isActive = row === active.row && col === active.col;
               const isLocked = readOnly?.has(key);
               return (
@@ -246,7 +251,9 @@ export function CellGrid({
                   aria-label={[
                     where,
                     note?.label,
+                    left?.neighbourLabel,
                     sides?.right?.label,
+                    above?.neighbourLabel,
                     sides?.down?.label,
                     isLocked && "given",
                     entered || "empty",

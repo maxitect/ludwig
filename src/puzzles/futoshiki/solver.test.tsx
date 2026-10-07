@@ -41,7 +41,7 @@ describe("futoshiki Solver", () => {
     expect(onStateChange).not.toHaveBeenCalled();
   });
 
-  it("labels each sign on the cell it belongs to", () => {
+  it("labels each sign on both cells it sits between", () => {
     renderSolver();
     expect(cell(1, 2).getAttribute("aria-label")).toBe(
       "Row 1, column 2, less than the cell to the right, empty",
@@ -53,9 +53,14 @@ describe("futoshiki Solver", () => {
       "Row 4, column 2, greater than the cell to the right, empty",
     );
     expect(cell(2, 3).getAttribute("aria-label")).toBe(
-      "Row 2, column 3, less than the cell to the right, less than the cell below, empty",
+      "Row 2, column 3, less than the cell to the left, less than the cell to the right, less than the cell below, empty",
     );
-    expect(cell(3, 3).getAttribute("aria-label")).toBe("Row 3, column 3, given, 4");
+    expect(cell(2, 4).getAttribute("aria-label")).toBe(
+      "Row 2, column 4, greater than the cell to the left, less than the cell above, empty",
+    );
+    expect(cell(3, 3).getAttribute("aria-label")).toBe(
+      "Row 3, column 3, greater than the cell above, given, 4",
+    );
   });
 
   it("only accepts digits up to the grid size", async () => {

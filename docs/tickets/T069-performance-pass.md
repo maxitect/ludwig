@@ -3,7 +3,7 @@ id: T069
 title: Performance pass (Lighthouse targets)
 milestone: M5
 epic: E10
-depends_on: [T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061, T062, T063, T064, T066, T067, T113, T114, T115, T116]
+depends_on: [T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061, T062, T063, T064, T066, T067, T113, T114, T115, T116, T120, T121, T122, T123, T124, T125, T126, T127, T128, T129, T130]
 migrations: false
 requires_human: false
 spec: ["SPEC §8.3", "SPEC §6.1", "SPEC §6.3", "PLAN §3 M5"]

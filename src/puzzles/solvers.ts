@@ -6,6 +6,7 @@ import { Solver as crosswordSolver } from "./crossword/solver";
 import { Solver as futoshikiSolver } from "./futoshiki/solver";
 import { Solver as gearsSolver } from "./gears/solver";
 import { Solver as keywordSolver } from "./keyword/solver";
+import { Solver as pictogramCipherSolver } from "./pictogram-cipher/solver";
 import { Solver as reverseChessSolver } from "./reverse-chess/solver";
 import { Solver as rotaSolver } from "./rota/solver";
 import { Solver as spotDifferenceSolver } from "./spot-difference/solver";
@@ -22,6 +23,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   futoshiki: futoshikiSolver,
   gears: gearsSolver,
   keyword: keywordSolver,
+  "pictogram-cipher": pictogramCipherSolver,
   "reverse-chess": reverseChessSolver,
   rota: rotaSolver,
   "spot-difference": spotDifferenceSolver,

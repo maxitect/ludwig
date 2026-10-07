@@ -222,6 +222,43 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.sudokuAttemptNotes.attemptId,
     }),
   },
+  pictogramCipherPuzzles: {
+    symbols: r.many.pictogramCipherSymbols({
+      from: r.pictogramCipherPuzzles.puzzleId,
+      to: r.pictogramCipherSymbols.puzzleId,
+    }),
+    givenGlyphs: r.many.pictogramCipherGivenGlyphs({
+      from: r.pictogramCipherPuzzles.puzzleId,
+      to: r.pictogramCipherGivenGlyphs.puzzleId,
+    }),
+  },
+  pictogramCipherSymbols: {
+    glyph: r.one.pictogramGlyphs({
+      from: r.pictogramCipherSymbols.glyphId,
+      to: r.pictogramGlyphs.id,
+      optional: false,
+    }),
+  },
+  pictogramCipherGivenGlyphs: {
+    glyph: r.one.pictogramGlyphs({
+      from: r.pictogramCipherGivenGlyphs.glyphId,
+      to: r.pictogramGlyphs.id,
+      optional: false,
+    }),
+  },
+  pictogramCipherAttempts: {
+    guesses: r.many.pictogramCipherAttemptGuesses({
+      from: r.pictogramCipherAttempts.attemptId,
+      to: r.pictogramCipherAttemptGuesses.attemptId,
+    }),
+  },
+  pictogramCipherAttemptGuesses: {
+    glyph: r.one.pictogramGlyphs({
+      from: r.pictogramCipherAttemptGuesses.glyphId,
+      to: r.pictogramGlyphs.id,
+      optional: false,
+    }),
+  },
   bookTexts: {
     lines: r.many.bookTextLines({
       from: r.bookTexts.id,

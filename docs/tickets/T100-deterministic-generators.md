@@ -50,8 +50,8 @@ T099 recommends how to generate grid puzzles. This ticket builds the shared pipe
   - _Verify (unit):_ fixture puzzles that need only singles grade 1, and one that needs an X-wing grades at least 4.
 - [ ] **AC4**: The CLI writes content files that pass verification and seed.
   - _Verify (cli):_ `pnpm puzzles:gen sudoku --seed test --difficulty 2 --slug gen-test` writes a file, `pnpm puzzles:verify` passes, and the file is then deleted.
-- [ ] **AC5**: The 10 generated content files verify and seed.
-  - _Verify (cli):_ `pnpm puzzles:verify && pnpm db:seed` exit 0.
+- [ ] **AC5**: The 10 generated content files verify and seed, and verification regenerates them.
+  - _Verify (cli):_ `pnpm puzzles:verify && pnpm db:seed` exit 0; editing one value in a generated file's `content` makes `puzzles:verify` fail with a regeneration mismatch naming that file.
 - [ ] **AC6**: Generation time is recorded.
   - _Verify (cli):_ the report records the median and worst time per difficulty over 50 seeds for each type.
 - [ ] **AC7**: Gates pass.

@@ -112,10 +112,16 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | done |
 | [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | done |
 | [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
-| [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4 | | | todo |
-| [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067 | | | todo |
+| [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117 | | ✔ | todo |
+| [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116 | | | todo |
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |
 | [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |
+| [T112](./T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | todo |
+| [T113](./T113-solve-mode-layout.md) | Solve mode, the full-height phone layout for the solve page | T018, T112 | | | todo |
+| [T114](./T114-puzzle-keyboard.md) | Shared on-screen `PuzzleKeyboard`, `CellGrid` keyboard mode and the device-keyboard setting | T113 | | | todo |
+| [T115](./T115-crossword-on-phones.md) | Crossword on phones (clue bar, clue sheet, keyboard) | T114 | | | todo |
+| [T116](./T116-keyboard-other-types.md) | On-screen keyboard for sudoku, futoshiki and the ciphers | T114 | | | todo |
+| [T117](./T117-touch-pass.md) | Touch pass (tap targets, chess tap-to-move, spot-difference compare, Android backspace, WebKit project) | T113 | | | todo |
 
 ## M6: Radio Times set
 
@@ -151,3 +157,11 @@ Not on the launch path (PLAN §3 M6).
 | [T109](./T109-killer-xv-generators.md) | Killer and XV sudoku generators | T100, T093 | | | todo |
 | [T110](./T110-circle9-generator.md) | Circle9 generator | T100, T089 | | | todo |
 | [T111](./T111-daily-grid-puzzles.md) | Daily seeded grid puzzles | T100 | ✔ | | todo |
+
+## M7: Offline PWA (native deferred)
+
+After launch (PLAN §3 M7). Native apps are not ticketed; the open options are in [`docs/research/native-app.md`](../research/native-app.md).
+
+| ID | Title | Depends on | Mig | Human | Status |
+|---|---|---|---|---|---|
+| [T118](./T118-service-worker-offline.md) | Service worker and offline fallback (Serwist) | T112, T070 | | | todo |

@@ -3,9 +3,9 @@ id: T068
 title: Accessibility audit (axe and screen reader)
 milestone: M5
 epic: E10
-depends_on: [T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061, T062, T063, T064]
+depends_on: [T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061, T062, T063, T064, T112, T113, T114, T115, T116, T117]
 migrations: false
-requires_human: false
+requires_human: true
 spec: ["SPEC §8.2", "SPEC §8.3", "SPEC §6.6", "PLAN §3 M5"]
 skills: []
 ---
@@ -28,6 +28,7 @@ This is the M5 accessibility gate (PLAN §3 M5). Every route type must pass auto
   It runs in both themes and checks the WCAG 2.1 AA tags.
 - Fix every serious or critical violation found.
 - A manual keyboard pass, recorded in the report, for one solver per group: cell grids (sudoku), word (word ladder), cipher (caesar), logic text (knights and knaves), spatial (CCTV maze), visual (spot the difference), case (rota), plus the Reverse Chess Mode A and Gears flagships.
+- A VoiceOver pass on a real iPhone in solve mode (T113–T116): the crossword with the on-screen pad, and the same crossword with "Use my device's keyboard" on. Record in the report whether each can be solved, and fix any blocker.
 
 **Out**
 

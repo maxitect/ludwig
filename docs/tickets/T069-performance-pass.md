@@ -3,7 +3,7 @@ id: T069
 title: Performance pass (Lighthouse targets)
 milestone: M5
 epic: E10
-depends_on: [T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061, T062, T063, T064, T066, T067]
+depends_on: [T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061, T062, T063, T064, T066, T067, T113, T114, T115, T116]
 migrations: false
 requires_human: false
 spec: ["SPEC §8.3", "SPEC §6.1", "SPEC §6.3", "PLAN §3 M5"]
@@ -22,6 +22,7 @@ This ticket meets the Lighthouse targets in SPEC §8.3 and the texture budget in
 
 - Measure and fix: font subsetting and `display` strategy, grain PNG size, image sizing, unused JavaScript on solve pages, lazy-loading heavy solvers (gears, chess), and the effectiveness of `use cache` on payload loads.
 - A `scripts/lighthouse.ts`, or an npm script, that runs Lighthouse CLI against a local production server for a fixed URL list, and writes JSON to `.verification/T069/`.
+- Measure the solve pages in solve mode (T113) at 390×844 with the touch emulation, so the scores reflect the phone layout with the on-screen keyboard.
 
 **Out**
 

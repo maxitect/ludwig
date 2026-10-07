@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 import { z } from "zod";
 import { contentMetaSchema } from "../src/lib/data/puzzle-upsert";
+import { type Provenance, generatedSchema } from "../src/puzzles/generators";
 import type { PuzzleRegistry } from "../src/puzzles/registry";
 
 export type ContentMeta = z.infer<typeof contentMetaSchema>;
@@ -14,6 +15,7 @@ export type ContentFile = {
   file: string;
   meta: ContentMeta;
   content: unknown;
+  generated?: Provenance;
 };
 
 export type ContentFailure = {
@@ -46,6 +48,7 @@ export async function loadContentFiles(
     const fileSchema = z.object({
       meta: contentMetaSchema,
       content: module.schema.contentSchema,
+      generated: generatedSchema.optional(),
     });
 
     const names = readdirSync(typeDir)

@@ -23,6 +23,8 @@
     "db:seed": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/seed.ts",
     "puzzles:verify": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/verify-puzzles.ts",
     "puzzles:gears-report": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/gears-playtest-report.ts",
+    "puzzles:gen": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/gen-puzzle.ts",
+    "puzzles:grade": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/grade-puzzles.ts",
     "puzzles:gen-gears": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-gears.ts"
   },
   "dependencies": {

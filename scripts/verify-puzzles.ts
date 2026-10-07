@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { eq } from "drizzle-orm";
@@ -6,6 +7,7 @@ import { gearDaily, gearPuzzles, puzzles } from "../src/db/schema";
 import { load } from "../src/puzzles/gears/load";
 import { loadSolution } from "../src/puzzles/gears/load-solution";
 import { verifyStored } from "../src/puzzles/gears/verify-stored";
+import { type Provenance, regenerate } from "../src/puzzles/generators";
 import type { PuzzleRegistry } from "../src/puzzles/registry";
 import {
   type ContentFailure,
@@ -18,6 +20,20 @@ const MANUAL_REVIEW: Readonly<Record<string, string>> = {
     "manual legality review required (reachability from the start position is not computed)",
 };
 
+/** A generated file must equal what its recorded generator, version, seed and difficulty produce now. */
+function verifyRegeneration(
+  generated: Provenance,
+  difficulty: number,
+  content: unknown,
+) {
+  const { content: regenerated } = regenerate(generated, difficulty);
+  if (!isDeepStrictEqual(regenerated, content)) {
+    throw new Error(
+      `regeneration mismatch: content differs from ${generated.generator} v${generated.version}, seed "${generated.seed}", difficulty ${difficulty}`,
+    );
+  }
+}
+
 /** Parses every content file with its `contentSchema`, then runs the module's `verify` hook. */
 export async function verifyPuzzles(
   registry: PuzzleRegistry,
@@ -26,9 +42,10 @@ export async function verifyPuzzles(
   const { files, failures } = await loadContentFiles(registry, contentDir);
   const all: ContentFailure[] = [...failures];
   const durations = new Map<string, number>();
-  for (const { typeKey, slug, file, content } of files) {
+  for (const { typeKey, slug, file, meta, content, generated } of files) {
     const started = performance.now();
     try {
+      if (generated) verifyRegeneration(generated, meta.difficulty, content);
       registry[typeKey].verify?.(content);
       durations.set(`${typeKey}/${slug}`, Math.round(performance.now() - started));
     } catch (error) {

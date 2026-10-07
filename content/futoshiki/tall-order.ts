@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/futoshiki/schema";
 export const meta = {
   slug: "tall-order",
   title: "Tall Order",
-  difficulty: 4,
+  difficulty: 5,
   publishedAt: new Date("2026-10-01T00:00:00Z"),
 } satisfies ContentMeta;
 

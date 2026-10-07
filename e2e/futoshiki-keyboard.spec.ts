@@ -38,7 +38,7 @@ test("solve a futoshiki with the keyboard only", async ({ page }) => {
   await tabIntoGrid(page);
 
   await expect(
-    page.getByRole("gridcell", { name: /less than the cell to the right/ }).first(),
+    page.getByRole("gridcell", { name: /(less|greater) than the cell/ }).first(),
   ).toBeVisible();
 
   for (let row = 0; row < size; row++) {

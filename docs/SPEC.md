@@ -17,7 +17,7 @@ A puzzle-solving web app inspired by the BBC One drama _Ludwig_ (Big Talk / That
 - Fonts In Use: [Ludwig logo and titles](https://fontsinuse.com/uses/76756/ludwig-logo-and-titles).
 - Huge Designs' title-sequence case study: [hugedesigns.com/home/ludwig](https://www.hugedesigns.com/home/ludwig).
 - Fifteensquared write-ups of the Guardian "Ludwig" cryptics (29,497 and 29,527).
-- Radio Times _Ludwig Puzzle Special_.
+- Radio Times _Ludwig Puzzle Special_, 19–25 October 2024 (section 1.2.1). A local copy is kept in `docs/material/`, which is gitignored.
 - win-vector.com on the S1E4 chess position.
 
 ### 1.2 Puzzles in the show
@@ -41,7 +41,27 @@ A puzzle-solving web app inspired by the BBC One drama _Ludwig_ (Big Talk / That
 | S2E5 | Napkin maths | "Not a code… shorthand" | Arithmetic deduction puzzles |
 | S2E6 | Pictogram cipher | From an early self-published Ludwig book. A stick figure with an eyeball head is "E" | Pictogram substitution cipher |
 
-The Radio Times special also used **sudoku, futoshiki, odd-one-out** and a **chess problem**, so those count as on-brand.
+#### 1.2.1 The Radio Times puzzle special
+
+The 16-page special (Radio Times, 19–25 October 2024) counts as on-brand, especially Alan Connor's own pages. Connor is the show's puzzle setter.
+
+| Pages | Puzzle | Setter | App feature |
+|---|---|---|---|
+| 2–3 | An intro whose sentence initials spell "YOU'RE AS SMART AS LUDWIG" | Alan Connor | `acrostic` |
+| 4 | Logic puzzle: four categories of five items, seven clues | Alan Connor | `logic-grid` |
+| 4 | Odd one out, typographic: "the 8, which is not an odd one out" | Alan Connor | `odd-one-out` |
+| 5 | Spot the difference on the 1977 _Mastermind_ cover | Alan Connor | `spot-difference` |
+| 5 | Futoshiki, 5×5 | Alan Connor | `futoshiki` |
+| 5 | Chess problem: "If you make move A, Black will make move B, and you will win with move C" | Alan Connor | `chess-problem` |
+| 10–11 | Visual quiz: 50 TV crime-drama titles hidden in one illustrated street | Ian McKinnell | `detective-scene` |
+| 12–13 | Rainbow sudoku, jigsaw sudoku, railroad, star battle, Troix, word wheel, vortex maze | KrazyDad | `sudoku` region variants, `railroad`, `star-battle`, `troix`, `word-wheel` |
+| 13 | Circle9 ("This is not a Sudoku!") | James Dewar | `circle9` |
+| 16 | Quick crossword, 15×15 | Radio Times | `crossword` (quick style) |
+| 16 | Sudoku | Radio Times | `sudoku` |
+
+The QI and Popmaster trivia rounds (pages 6–9) and the vortex maze are left out. Trivia tests memory rather than deduction, and the CCTV maze already covers mazes.
+
+**Rights.** Every puzzle in the special belongs to its setter. We copy formats and rules, never instances: no clue text, positions, grids or artwork are republished (section 10, decision 6). The special's chess problem, sudoku and futoshiki may be used as **engine test fixtures**, since they have published answers to test against, but never as `content/` files.
 
 ### 1.3 The two headline puzzles in the show
 
@@ -111,25 +131,45 @@ The show never gives exact rules, so section 5.2 defines our own. They stay fait
 | **Flagship** | `rota` | Reverse Chess Mode C. It is a separate type because it shares no data shape with chess, and it is presented inside the Reverse Chess hub (section 5.1) |
 | **Flagship** | `gears` | Engine-driven, generated plus curated (section 5.2). The dancer diagrams are the main version |
 | **Flagship** | `gear-train` | Gear Puzzle Mode B, "Classic Gear Train". It is a separate type because it shares no data shape with the dancer diagrams, and it is presented inside the gears hub (section 5.2.5) |
-| Word | `crossword` | One type with a `style` of `cryptic` (13×13 or 15×15) or `quick` (11×11). They share every table. Both have original clues, checking and reveal. The UI shows them as "Cryptic" and "Quick" shelves |
+| Word | `crossword` | One type with a `style` of `cryptic` (13×13 or 15×15) or `quick` (11×11 or 15×15, as in the Radio Times special). They share every table. Both have original clues, checking and reveal. The UI shows them as "Cryptic" and "Quick" shelves |
 | Word | `anagram` | Single words and phrase anagrams, letter-tile UI |
 | Word | `word-ladder` | Change one letter per rung |
 | Word | `acrostic` | Find the hidden message (S1E1) |
 | Word | `word-search` | Labelled "The Fob-Off" in the UI as an in-joke (S2E3) |
+| Word | `word-wheel` | Nine letters round a wheel, the centre one compulsory. Find the nine-letter word, plus as many shorter words as you can (section 2.4, Radio Times) |
 | Logic | `logic-grid` | Classic grid, plus a "one statement is false" variant (S1E1) |
 | Logic | `knights-knaves` | Truth-teller/liar puzzles (S2E1) |
-| Logic | `sudoku` | 9×9 |
+| Logic | `sudoku` | 9×9. Classic, plus the jigsaw and rainbow region variants (section 2.4, Radio Times) |
 | Logic | `futoshiki` | 5×5 with inequalities |
 | Logic | `odd-one-out` | Four or five items |
+| Logic | `chess-problem` | Forward chess: White to play and mate in N, in Alan Connor's "moves A, B and C" format (section 2.4, Radio Times) |
+| Logic | `star-battle` | Place stars so every row, column and region has the same number, none touching (section 2.4, Radio Times) |
+| Logic | `troix` | Fill with X, O and I: equal counts per line, never three alike in a row (section 2.4, Radio Times) |
+| Logic | `circle9` | Circle one of each digit, one per row, column and box (section 2.4, Radio Times) |
 | Spatial | `sightlines` | Grid with pillars and observers. Mark the blind spots (S1E3) |
 | Spatial | `cctv-maze` | Reach the exit without entering any camera's view cone (S2E3). Shares the `visibility.ts` engine (grid line of sight, view cones, obstacles) with `sightlines` |
 | Spatial | `spot-difference` | Two SVG scenes generated with N seeded differences (S1E2) |
+| Spatial | `railroad` | Lay one track from the green light to the red, matching the row and column counts (section 2.4, Radio Times) |
+| Spatial | `detective-scene` | Find the TV detective-drama titles hidden in an illustrated street scene (section 2.4, Radio Times) |
 | Cipher | `book-cipher` | page:line:word references into a public-domain text in the app (S1E6) |
 | Cipher | `pictogram-cipher` | Stick-figure substitution alphabet (S2E6) |
 | Cipher | `caesar` / `keyword` | Grouped with the other ciphers under "James's Notebooks" |
 | Numbers | `napkin-maths` | Deduction from partial working (S2E5) |
 
 **Authoring rule (Mr Todd's principle).** Every puzzle has exactly one solution, verified by a solver at authoring time. The one exception is the word ladder (section 7.4.4). Each one should be built "from the solution backwards, with false paths layered in".
+
+### 2.4 Rules for the Radio Times types
+
+These types come from the Radio Times special (section 1.2.1). They are delivered in M6 (section 9), after launch.
+
+- **`chess-problem`.** White is to move and forces mate in N moves, where N is 1 or 2. The player makes White's moves on the board. After each White move that still forces mate, the engine plays Black's reply automatically: the defence that leaves White the fewest mating continuations, with ties broken by UCI order. That reply is "move B", the one Ludwig predicts. The answer is the full line, ending in checkmate within `2N − 1` plies. Uniqueness means exactly one key move (White's first move) forces mate against every defence. Later White moves may have duals, and any of them that mates is accepted. No solution is stored: `loadSolution` and `check` solve the position with chess.js. N is capped at 2 so that `check` stays within a server action's time budget.
+- **`sudoku` region variants.** A **jigsaw** sudoku replaces the nine 3×3 boxes with nine irregular, edge-connected regions of nine cells. A **rainbow** sudoku keeps the boxes and adds nine colour groups of nine cells, each of which also holds 1–9 once. A classic sudoku has no region set. The rest of section 7.4.4's sudoku contract is unchanged.
+- **`railroad`.** A grid of 4–10 rows and columns, with an entry on one edge cell (the green light) and an exit on another (the red light). The track is one path of straight and curved pieces from entry to exit. It never crosses or branches, and every track cell is on it. The numbers outside the grid count the track cells in each row and column. Some pieces are given. There is exactly one solution, and none is stored: `loadSolution` solves the clues.
+- **`star-battle`.** An N×N grid (N from 5 to 10) is split into N regions. Every row, column and region holds exactly K stars, where K is 1 or 2, and no two stars touch, not even diagonally. There is exactly one solution, and none is stored.
+- **`troix`.** A 6×6 or 9×9 grid is filled with X, O and I. Each row and column holds `size / 3` of each symbol, and no row or column has three of one symbol in a row. Some cells are given. There is exactly one solution, and none is stored.
+- **`circle9`.** A 9×9 grid holds some digits from 1 to 9, and digits may repeat. The player circles exactly nine of them: one of each digit 1–9, with one in every row, every column and every 3×3 box. There is exactly one solution, and none is stored.
+- **`word-wheel`.** Nine letters: one in the centre and eight round the rim, all taken from a nine-letter target word. Words must have at least `min_length` letters (4 or 5), use the centre letter, and use each wheel letter no more often than it appears. They are accepted against the `words` dictionary, which contains no proper nouns. Unlike the Radio Times rules, plurals and verb forms count whenever the dictionary has them. Finding the target word solves the puzzle, and it must be the only nine-letter dictionary word the letters make. The other words count towards a rating: Average, Good and Genius at one third, one half and two thirds of all valid words, rounded down. The counts are derived, not stored.
+- **`detective-scene`.** One illustrated scene in the brand style, a night-time street in the manner of the special's crime-drama spread, with between 10 and 50 titles of TV detective dramas hidden in it: signs, posters, number plates, props. The player taps a spot and types a title. A find counts when the tap is inside an item's region and the typed title matches the item's title or one of its aliases. Matching ignores case, punctuation and a leading "The", and treats "&" as "and". The payload carries the scene and the number of hidden titles, never the titles or regions. Show titles are facts; the artwork is ours.
 
 ---
 
@@ -664,7 +704,7 @@ content/
   <type>/<slug>.ts                  curated puzzles: { meta, content } typed by the type's contentSchema
   weekly.ts                         weekly_puzzles schedule
   lookups.ts                        puzzle_categories, puzzle_types, pictogram_glyphs
-  words.txt                         word-ladder dictionary (one word per line, seeded into words)
+  words.txt                         word-ladder and word-wheel dictionary (one word per line, seeded into words)
 scripts/
   seed.ts                           upserts lookups, then each content file (supertype + subtype + children in one transaction)
   verify-puzzles.ts                 uniqueness and solver checks (CI)
@@ -804,7 +844,7 @@ The conventions:
 | **word-search** | `word_search_puzzles`: rows, cols<br>`word_search_cells`: (puzzle_id, row, col) pk, letter<br>`word_search_words`: (puzzle_id, word) pk | `word_search_attempt_found`: (attempt_id, word) pk |
 | **logic-grid** | `logic_grid_puzzles`<br>`logic_grid_categories`: (puzzle_id, position) pk, name<br>`logic_grid_items`: id, puzzle_id, category_position, position, label<br>`logic_grid_clues`: (puzzle_id, position) pk, content, is_false bool **(S)**. The variant is derived as "any clue is false"<br>`logic_grid_solution_links` **(S)**: (puzzle_id, item_a_id, item_b_id) pk | `logic_grid_attempt_marks`: (attempt_id, item_a_id, item_b_id) pk, mark `grid_mark`('yes','no') |
 | **knights-knaves** | `knights_knaves_puzzles`: question_text<br>`knights_knaves_characters`: (puzzle_id, position) pk, name, role `kk_role`('knight','knave') **(S)**<br>`knights_knaves_statements`: (puzzle_id, character_position, position) pk, content | `knights_knaves_attempt_roles` |
-| **sudoku** | `sudoku_puzzles`<br>`sudoku_givens`: (puzzle_id, row, col) pk, row and col 0–8, digit 1–9. No solution is stored: `loadSolution` solves the givens, and `puzzles:verify` proves they have exactly one completion. `check` accepts any grid that respects the givens and repeats no digit in a row, column or box, and also returns `cellsWrong`, the cells breaking a rule (beyond the section 4.1 `{ correct }` contract, which callers still read) | `sudoku_attempt_cells`: (attempt_id, row, col) pk, digit, plus `sudoku_attempt_notes`: (attempt_id, row, col, digit) pk for pencil marks. Both carry the same 0–8 and 1–9 checks, and neither references the givens |
+| **sudoku** | `sudoku_puzzles`<br>`sudoku_givens`: (puzzle_id, row, col) pk, row and col 0–8, digit 1–9<br>`sudoku_region_sets` (jigsaw and rainbow only; a classic sudoku has no row): puzzle_id pk, FK → `sudoku_puzzles`, kind `sudoku_region_kind`('jigsaw','rainbow')<br>`sudoku_region_cells`: (puzzle_id, row, col) pk, region smallint 0–8, FK puzzle_id → `sudoku_region_sets`. The deferred constraint trigger `sudoku_region_sets_require_cells` requires all 81 cells, with nine in each region. `puzzles:verify` checks that jigsaw regions are edge-connected. The units are rows, columns, and either the boxes (classic and rainbow) or the jigsaw regions, plus the colour groups for rainbow. No solution is stored: `loadSolution` solves the givens, and `puzzles:verify` proves they have exactly one completion. `check` accepts any grid that respects the givens and repeats no digit in any unit, and also returns `cellsWrong`, the cells breaking a rule (beyond the section 4.1 `{ correct }` contract, which callers still read) | `sudoku_attempt_cells`: (attempt_id, row, col) pk, digit, plus `sudoku_attempt_notes`: (attempt_id, row, col, digit) pk for pencil marks. Both carry the same 0–8 and 1–9 checks, and neither references the givens |
 | **futoshiki** | `futoshiki_puzzles`: size 4–7<br>`futoshiki_givens`: (puzzle_id, row, col) pk, row and col 0–6, digit 1–9<br>`futoshiki_inequalities`: (puzzle_id, row, col, direction `ineq_direction`('right','down')) pk, relation `ineq_relation`('lt','gt'): `lt` means the cell is smaller than its right or lower neighbour. A CHECK cannot see `size`, so `contentSchema` and `check` validate that coordinates and digits fit it, and the signs stay on the grid. No solution is stored: `loadSolution` solves the puzzle, and `puzzles:verify` proves exactly one completion. `check` accepts any grid that respects the givens, repeats no digit in a row or column and obeys every sign, and also returns `cellsWrong` (rule breaks only, as for sudoku) | `futoshiki_attempt_cells`: (attempt_id, row, col) pk, digit, plus `futoshiki_attempt_notes`: (attempt_id, row, col, digit) pk for pencil marks. Neither references the puzzle's rows |
 | **odd-one-out** | `odd_one_out_puzzles`: prompt_text<br>`odd_one_out_items`: (puzzle_id, position) pk, label<br>`odd_one_out_solutions` **(S)**: puzzle_id pk, item_position, explanation | `odd_one_out_attempts`: item_position null |
 | **sightlines** | `sightlines_puzzles`: rows, cols, target_row, target_col<br>`sightlines_obstacles`: (puzzle_id, row, col) pk<br>`sightlines_observers`: (puzzle_id, row, col) pk, facing compass8, fov_deg | `sightlines_attempt_marks`: (attempt_id, row, col) pk |
@@ -815,6 +855,13 @@ The conventions:
 | **caesar** | `caesar_puzzles`: plaintext **(S)**, shift 1–25 **(S)** (CHECK). The ciphertext is derived (uppercase, non-letters unchanged) and is the whole payload. `check` compares letters only, so case, spacing and punctuation never count | `caesar_attempts`: answer null. The cipher-key panel's guesses are client-only; the saved `answer` is the decoded letters of the ciphertext in order, `_` for a letter not yet guessed |
 | **keyword** | `keyword_puzzles`: plaintext **(S)**, keyword **(S)**, 3–12 letters. The cipher alphabet is derived: the keyword's letters once each in order, then the rest of the alphabet in order. The ciphertext is derived and is the whole payload | `keyword_attempts`: answer null, saved as for caesar |
 | **napkin-maths** | `napkin_maths_puzzles`: question_text, answer numeric **(S)**<br>`napkin_maths_lines`: (puzzle_id, position) pk, content | `napkin_maths_attempts`: answer numeric null |
+| **chess-problem** | `chess_problem_puzzles`: mate_in smallint check (1–2), four castling-right bools, en_passant_file `chess_file` null. White is always to move<br>`chess_problem_pieces`: (puzzle_id, file `chess_file`, rank 1–8) pk, colour `chess_colour`, piece `chess_piece`. The FEN is derived. No solution is stored: `loadSolution` and `check` solve the position (section 2.4) | `chess_problem_attempts`<br>`chess_problem_attempt_plies`: (attempt_id, ply) pk, from_file, from_rank, to_file, to_rank, promotion `chess_piece` null |
+| **railroad** | `railroad_puzzles`: rows and cols smallint check (4–10), entry_row, entry_col, entry_side `compass8`, exit_row, exit_col, exit_side `compass8`. The sides are checked to be 'n', 'e', 's' or 'w'. `contentSchema` checks that each end sits on the edge its side names<br>`railroad_row_counts`: (puzzle_id, row) pk, count smallint ≥ 0<br>`railroad_col_counts`: (puzzle_id, col) pk, count smallint ≥ 0<br>`railroad_given_pieces`: (puzzle_id, row, col) pk, piece `track_piece`('ns','ew','ne','nw','se','sw'). No solution is stored | `railroad_attempts`<br>`railroad_attempt_pieces`: (attempt_id, row, col) pk, piece `track_piece`<br>`railroad_attempt_crosses`: (attempt_id, row, col) pk, for cells marked "no track" |
+| **star-battle** | `star_battle_puzzles`: size smallint check (5–10), stars smallint check (1–2)<br>`star_battle_region_cells`: (puzzle_id, row, col) pk, region smallint check (0–9). `puzzles:verify` checks `size²` cells, `size` edge-connected regions, and exactly one solution. No solution is stored | `star_battle_attempts`<br>`star_battle_attempt_marks`: (attempt_id, row, col) pk, mark `star_mark`('star','dot') |
+| **troix** | `troix_puzzles`: size smallint check (size IN (6, 9))<br>`troix_givens`: (puzzle_id, row, col) pk, symbol `troix_symbol`('x','o','i'). No solution is stored | `troix_attempts`<br>`troix_attempt_cells`: (attempt_id, row, col) pk, symbol `troix_symbol` |
+| **circle9** | `circle9_puzzles`<br>`circle9_numbers`: (puzzle_id, row, col) pk, row and col 0–8, digit 1–9. No solution is stored | `circle9_attempts`<br>`circle9_attempt_circles`: (attempt_id, row, col) pk. Attempt rows don't reference the numbers; `check` rejects a circle on an empty cell |
+| **word-wheel** | `word_wheel_puzzles`: target_word fk→words **(S)**, centre_position smallint check (0–8) **(S)**, scramble_seed, min_length smallint check (4–5). The wheel is derived as for the anagram: the centre letter is `target_word[centre_position]`, and the rim is the other eight letters in an order derived from the seed. The rating thresholds are derived from the dictionary (section 2.4) | `word_wheel_attempts`<br>`word_wheel_attempt_words`: (attempt_id, word) pk, word fk→words |
+| **detective-scene** | `detective_scene_puzzles`: scene_key text unique, the key of a scene component in `src/puzzles/detective-scene/scenes/`, width and height smallint (scene units)<br>`detective_scene_items`: (puzzle_id, position) pk, title **(S)**, x, y, w, h smallint **(S)**, the item's region in scene units<br>`detective_scene_item_aliases` **(S)**: (puzzle_id, position, alias) pk, FK (puzzle_id, position) → `detective_scene_items` | `detective_scene_attempts`: puzzle_id (redundant, section 7.4.5)<br>`detective_scene_attempt_found`: (attempt_id, position) pk, puzzle_id (redundant, section 7.4.5). FK `(puzzle_id, position)` → `detective_scene_items`, `DEFERRABLE INITIALLY DEFERRED` with no cascade, as for crossword attempt cells |
 
 **Uniqueness exception.** A word ladder accepts **any** valid ladder of `rung_count` rungs that uses dictionary words. The stored ladder is only a reference. Every other type keeps the exactly-one-solution rule.
 
@@ -834,6 +881,8 @@ The conventions:
 | `rota_attempt_swaps.puzzle_id` | `rota_attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `rota_attempts (attempt_id, puzzle_id)`, plus the `BEFORE INSERT` trigger `rota_attempt_swaps_fill_puzzle_id`. Both workers are then scoped to the puzzle by `(puzzle_id, worker_*_id)` → `rota_workers (puzzle_id, id)` |
 | `rota_clue_never_in_rank.puzzle_id` | `rota_clues.puzzle_id` | Composite FK `(clue_id, puzzle_id)` → `rota_clues (id, puzzle_id)`, plus the `BEFORE INSERT` trigger `rota_clue_never_in_rank_fill_puzzle_id`. The worker is then scoped to the puzzle by `(puzzle_id, worker_id)` → `rota_workers (puzzle_id, id)` |
 | `book_cipher_refs.text_id` | `book_cipher_puzzles.text_id` | Composite FK `(puzzle_id, text_id)` → `book_cipher_puzzles (puzzle_id, text_id)`, plus the `BEFORE INSERT` trigger `trg_book_cipher_refs_fill_text_id`. The trigger fills only a NULL, so an explicit mismatch reaches the FK and fails. The line is then scoped to the text by `(text_id, page, line)` → `book_text_lines` |
+| `detective_scene_attempts.puzzle_id` | `attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id, type_key)` → `attempts (id, puzzle_id, type_key)`, where `type_key` is generated as `'detective-scene'`, plus the `BEFORE INSERT` trigger `detective_scene_attempts_fill_puzzle_id`. The trigger fills only a NULL, so an explicit mismatch reaches the FK and fails |
+| `detective_scene_attempt_found.puzzle_id` | `detective_scene_attempts.puzzle_id` | Composite FK `(attempt_id, puzzle_id)` → `detective_scene_attempts (attempt_id, puzzle_id)`, plus the `BEFORE INSERT` trigger `detective_scene_attempt_found_fill_puzzle_id`. The item is then scoped to the puzzle by `(puzzle_id, position)` → `detective_scene_items (puzzle_id, position)` |
 | `reverse_chess_puzzles.ply_count` (for an `initial_position` goal) | `fullmove` and `side_to_move` of the same row | The deferred constraint triggers `trg_reverse_chess_goals_initial_position_ply_count` and `trg_reverse_chess_puzzles_initial_position_ply_count`, which raise at commit when `ply_count` differs from `2 * (fullmove - 1) + (1 if Black is to move)` |
 | Generated `type_key` / `kind` on subtype tables | The supertype row | `GENERATED ALWAYS AS (…) STORED` plus a composite FK |
 
@@ -967,6 +1016,7 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 | **M3 Gear Puzzle** | Engine, generator, SVG board, crank, scrubber, accuse. Fix the Diagram. Twelve curated diagrams plus a daily seed |
 | **M4 Library** | Cryptic crosswords (the `crossword` type's cryptic style), logic grid (with false-statement variant), knights and knaves, futoshiki, acrostic, ciphers, sightlines, CCTV maze, spot the difference, word search, odd-one-out, napkin maths. Reverse Chess Mode C (the `rota` type). Gear Puzzle Mode B (the `gear-train` type) |
 | **M5 Polish** | Bullet-hole transitions, landing title sequence (scroll-driven grid rooms, walker, toppled pieces), This Week, accessibility audit, performance pass |
+| **M6 Radio Times set** (after launch) | The types from the Radio Times special (section 2.4): sudoku jigsaw and rainbow variants, chess problem, railroad, star battle, Troix, Circle9, word wheel, detective scene |
 
 ---
 
@@ -977,3 +1027,4 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 3. **Content.** All cryptic clues and retro positions are original to this app.
 4. **Public fan site,** non-commercial, just for fun. Branding follows the show as closely as we like, with no further licensing review.
 5. **Password reset** waits for v1.1. Email verification is skipped entirely.
+6. **Third-party puzzles are format references only.** We take rules and formats from the Radio Times special (section 1.2.1) and from puzzle sites such as KrazyDad, never the instances: no clue text, positions, grids, word lists or artwork. KrazyDad's terms allow reproduction only for "personal, church, school, hospital or institutional use", which a public website is not. Published puzzles may serve as engine test fixtures, because their answers are known, but never as `content/` files.

@@ -6,6 +6,7 @@ import { bookCipherModule } from "./book-cipher/module";
 import { caesarModule } from "./caesar/module";
 import { crosswordModule } from "./crossword/module";
 import { futoshikiModule } from "./futoshiki/module";
+import { gearTrainModule } from "./gear-train/module";
 import { gearsModule } from "./gears/module";
 import { keywordModule } from "./keyword/module";
 import { logicGridModule } from "./logic-grid/module";
@@ -83,6 +84,7 @@ export const registry: PuzzleRegistry = {
   [caesarModule.meta.key]: caesarModule,
   [crosswordModule.meta.key]: crosswordModule,
   [futoshikiModule.meta.key]: futoshikiModule,
+  [gearTrainModule.meta.key]: gearTrainModule,
   [gearsModule.meta.key]: gearsModule,
   [keywordModule.meta.key]: keywordModule,
   [logicGridModule.meta.key]: logicGridModule,

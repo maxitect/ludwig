@@ -41,6 +41,14 @@ export const types = [
     sort: 3,
   },
   {
+    key: "gear-train",
+    categoryKey: "flagship",
+    name: "The Classic Gear Puzzle",
+    description: "Connect the driver to the target with cogs from the tray.",
+    subtypeTable: "gear_train_puzzles",
+    sort: 4,
+  },
+  {
     key: "crossword",
     categoryKey: "word",
     name: "Crossword",

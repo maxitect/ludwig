@@ -14,3 +14,4 @@ export * from "../../puzzles/keyword/tables";
 export * from "../../puzzles/book-cipher/tables";
 export * from "../../puzzles/pictogram-cipher/tables";
 export * from "../../puzzles/logic-grid/tables";
+export * from "../../puzzles/gear-train/tables";

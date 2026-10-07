@@ -236,6 +236,30 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.logicGridAttemptStruckClues.attemptId,
     }),
   },
+  gearTrainPuzzles: {
+    fixedCogs: r.many.gearTrainFixedCogs({
+      from: r.gearTrainPuzzles.puzzleId,
+      to: r.gearTrainFixedCogs.puzzleId,
+    }),
+    bolts: r.many.gearTrainBolts({
+      from: r.gearTrainPuzzles.puzzleId,
+      to: r.gearTrainBolts.puzzleId,
+    }),
+    inventory: r.many.gearTrainInventory({
+      from: r.gearTrainPuzzles.puzzleId,
+      to: r.gearTrainInventory.puzzleId,
+    }),
+    solutionCogs: r.many.gearTrainSolutionCogs({
+      from: r.gearTrainPuzzles.puzzleId,
+      to: r.gearTrainSolutionCogs.puzzleId,
+    }),
+  },
+  gearTrainAttempts: {
+    cogs: r.many.gearTrainAttemptCogs({
+      from: r.gearTrainAttempts.attemptId,
+      to: r.gearTrainAttemptCogs.attemptId,
+    }),
+  },
   sudokuPuzzles: {
     givens: r.many.sudokuGivens({
       from: r.sudokuPuzzles.puzzleId,

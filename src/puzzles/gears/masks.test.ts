@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mulberry32 } from "../_shared/prng";
-import { type Diagram, lcmTeeth, spinSigns, stateAt } from "./engine";
+import { spinSigns } from "../_shared/spin-signs";
+import { type Diagram, lcmTeeth, stateAt } from "./engine";
 import { phaseOf, seesMask } from "./masks";
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;

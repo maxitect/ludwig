@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { mulberry32 } from "../_shared/prng";
+import { spinSigns } from "../_shared/spin-signs";
 import {
   type Diagram,
   lcmTeeth,
   seeingCount,
   solveAll,
-  spinSigns,
   stateAt,
 } from "./engine";
 

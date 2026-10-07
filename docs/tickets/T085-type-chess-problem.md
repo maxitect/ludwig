@@ -28,6 +28,7 @@ Alan Connor's chess problem in the Radio Times special works forwards: "If you m
 - **`verify`:** the position is legal, there is no mate in fewer moves, and exactly one key move exists.
 - **Solver UI:** the T028 board. The player moves White, the engine's Black reply is shown with a short delay and labelled "B", and the final move is labelled "C". Reset and undo work. The Reverse Chess notation setting applies to the move list.
 - **Content:** 5 original problems: 2 mate in 1 and 3 mate in 2.
+- **FEN authoring for all chess content (user, 2026-10-07).** Chess-problem content files give the position as a FEN string, and the content schema parses it into the piece rows the tables already hold (nothing about the DB changes). Convert every Reverse Chess content file from piece lists to FEN in the same PR, so all chess content uses one format, and update SPEC §4.6 and the Reverse Chess content section. `puzzles:verify` and `db:seed` must give identical rows before and after the conversion (compare a dump of the piece tables).
 
 **Out**
 
@@ -60,5 +61,7 @@ Alan Connor's chess problem in the Radio Times special works forwards: "If you m
   - _Verify (browser):_ a keyboard-only solve. `browser_snapshot` shows the live region.
 - [ ] **AC8**: Both themes render correctly at 1280px and 390px.
   - _Verify (browser):_ screenshots `.verification/T085/ac8-*.png`.
-- [ ] **AC9**: Gates pass.
+- [ ] **AC9**: All chess content is authored as FEN, and the conversion changes no stored rows.
+  - _Verify (code + db):_ no Reverse Chess or chess-problem content file has a piece list; a dump of the Reverse Chess piece tables before and after `pnpm db:seed` is identical.
+- [ ] **AC10**: Gates pass.
   - _Verify (cli):_ `pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm puzzles:verify` exits 0.

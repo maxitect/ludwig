@@ -9,3 +9,5 @@ export * from "../../puzzles/crossword/tables";
 export * from "../../puzzles/spot-difference/tables";
 export * from "../../puzzles/sudoku/tables";
 export * from "../../puzzles/futoshiki/tables";
+export * from "../../puzzles/caesar/tables";
+export * from "../../puzzles/keyword/tables";

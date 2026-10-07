@@ -1,8 +1,10 @@
 import { Solver as fixtureSolver } from "./__fixture/solver";
 import { Solver as anagramSolver } from "./anagram/solver";
+import { Solver as caesarSolver } from "./caesar/solver";
 import { Solver as crosswordSolver } from "./crossword/solver";
 import { Solver as futoshikiSolver } from "./futoshiki/solver";
 import { Solver as gearsSolver } from "./gears/solver";
+import { Solver as keywordSolver } from "./keyword/solver";
 import { Solver as reverseChessSolver } from "./reverse-chess/solver";
 import { Solver as rotaSolver } from "./rota/solver";
 import { Solver as spotDifferenceSolver } from "./spot-difference/solver";
@@ -13,9 +15,11 @@ import type { SolverComponent } from "./solver-types";
 export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   __fixture: fixtureSolver,
   anagram: anagramSolver,
+  caesar: caesarSolver,
   crossword: crosswordSolver,
   futoshiki: futoshikiSolver,
   gears: gearsSolver,
+  keyword: keywordSolver,
   "reverse-chess": reverseChessSolver,
   rota: rotaSolver,
   "spot-difference": spotDifferenceSolver,

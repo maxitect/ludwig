@@ -1,7 +1,9 @@
 import { attemptSchema as anagramAttempt } from "./anagram/schema";
+import { attemptSchema as caesarAttempt } from "./caesar/schema";
 import { attemptSchema as crosswordAttempt } from "./crossword/schema";
 import { attemptSchema as futoshikiAttempt } from "./futoshiki/schema";
 import { attemptSchema as gearsAttempt } from "./gears/schema";
+import { attemptSchema as keywordAttempt } from "./keyword/schema";
 import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
 import { attemptSchema as rotaAttempt } from "./rota/schema";
 import { attemptSchema as spotDifferenceAttempt } from "./spot-difference/schema";
@@ -10,9 +12,11 @@ import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
 /** Attempt schemas for the types that have a solver, importable from client code (the registry is not). */
 const attemptSchemas = {
   anagram: anagramAttempt,
+  caesar: caesarAttempt,
   crossword: crosswordAttempt,
   futoshiki: futoshikiAttempt,
   gears: gearsAttempt,
+  keyword: keywordAttempt,
   "reverse-chess": reverseChessAttempt,
   rota: rotaAttempt,
   "spot-difference": spotDifferenceAttempt,

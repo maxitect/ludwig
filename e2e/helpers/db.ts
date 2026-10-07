@@ -31,6 +31,25 @@ export async function sudokuAttemptCounts(email: string) {
   }
 }
 
+export async function futoshikiAttemptCounts(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ cells: number; notes: number }>(
+      `select (select count(*) from futoshiki_attempt_cells c where c.attempt_id = a.id)::int as cells,
+              (select count(*) from futoshiki_attempt_notes n where n.attempt_id = a.id)::int as notes
+         from attempts a
+         join "user" u on u.id = a.user_id
+        where u.email = $1 and a.type_key = 'futoshiki'`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function attemptsFor(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

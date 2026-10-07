@@ -1,6 +1,8 @@
 export {
   CellGrid,
   type CellAnnotation,
+  type CellEdge,
+  type CellEdges,
   type CellGridHandle,
   type CellGridProps,
 } from "./cell-grid";

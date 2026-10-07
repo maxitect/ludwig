@@ -8,3 +8,4 @@ export * from "../../puzzles/anagram/tables";
 export * from "../../puzzles/crossword/tables";
 export * from "../../puzzles/spot-difference/tables";
 export * from "../../puzzles/sudoku/tables";
+export * from "../../puzzles/futoshiki/tables";

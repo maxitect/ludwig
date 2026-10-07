@@ -222,6 +222,26 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.sudokuAttemptNotes.attemptId,
     }),
   },
+  futoshikiPuzzles: {
+    givens: r.many.futoshikiGivens({
+      from: r.futoshikiPuzzles.puzzleId,
+      to: r.futoshikiGivens.puzzleId,
+    }),
+    inequalities: r.many.futoshikiInequalities({
+      from: r.futoshikiPuzzles.puzzleId,
+      to: r.futoshikiInequalities.puzzleId,
+    }),
+  },
+  futoshikiAttempts: {
+    cells: r.many.futoshikiAttemptCells({
+      from: r.futoshikiAttempts.attemptId,
+      to: r.futoshikiAttemptCells.attemptId,
+    }),
+    notes: r.many.futoshikiAttemptNotes({
+      from: r.futoshikiAttempts.attemptId,
+      to: r.futoshikiAttemptNotes.attemptId,
+    }),
+  },
   spotDifferenceAttempts: {
     found: r.many.spotDifferenceAttemptFound({
       from: r.spotDifferenceAttempts.attemptId,

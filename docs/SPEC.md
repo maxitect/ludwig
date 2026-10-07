@@ -290,7 +290,7 @@ This mode is non-chess retro deduction on an 8×8 site grid. The board is drawn 
 
 **Opening gambit:** the instigator is authored data (`rota_solutions.instigator_worker_id`, one of the two workers of step 1) and is not part of the answer, because no clue could decide it. `check` returns it as story text (`epilogue`, "Opening gambit: Name insisted on it.") only for a correct answer, never in the payload. `rota_attempts.instigator_worker_id` is no longer written.
 
-**Solver:** the board shows the final rota. Each unswap is pushed on the stack, which is kept in forward order (the newest unswap is the first forward swap). Clues are evaluated in the browser once every worker is back on the intended rota, and a broken clue is marked "Broken". `check` also returns the position of the first broken clue as `violatedClue`. It is computed from the payload and the answer alone, from the payload and the answer alone, so the shape of the result never hints at the solution.
+**Solver:** the board shows the final rota. Each unswap is pushed on the stack, which is kept in forward order (the newest unswap is the first forward swap). Clues are evaluated in the browser once every worker is back on the intended rota, and a broken clue is marked "Broken". `check` also returns the position of the first broken clue as `violatedClue`. It is computed from the payload and the answer alone, so the shape of the result never hints at the solution.
 
 **Check:** the sequence, applied forwards from the intended rota, must yield the final state and satisfy every clue predicate. Clues are stored as typed predicates: one subtype table per clue kind (section 7.4.4), not free text, so the checker can evaluate them. Each clue row also carries its display text.
 

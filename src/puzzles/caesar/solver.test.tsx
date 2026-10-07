@@ -62,6 +62,8 @@ describe("cipher key panel in the caesar solver", () => {
     );
     fireEvent.change(slot("D"), { target: { value: "rq" } });
     expect(onStateChange).toHaveBeenLastCalledWith({ answer: "r__r__r__r__" });
+    fireEvent.change(slot("D"), { target: { value: "" } });
+    expect(onStateChange).toHaveBeenLastCalledWith({ answer: null });
   });
 
   it("gives screen readers the ciphertext", () => {

@@ -169,9 +169,9 @@ export function CipherKeyPanel({
                 aria-invalid={guess !== undefined && duplicated.has(guess)}
                 onKeyDown={(event) => onKeyDown(event, letter)}
                 onChange={(event) => {
-                  const typed = event.currentTarget.value
-                    .replace(guess ?? "", "")
-                    .slice(-1);
+                  const { value } = event.currentTarget;
+                  if (!value) return onGuess(letter, null);
+                  const typed = value.replace(guess ?? "", "").slice(-1);
                   if (/^[a-z]$/i.test(typed)) enter(letter, typed);
                 }}
                 className="size-9 border-2 border-ink bg-paper text-center font-hand text-2xl text-crayon uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive"

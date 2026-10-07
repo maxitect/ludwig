@@ -1,4 +1,5 @@
 import { attemptSchema as anagramAttempt } from "./anagram/schema";
+import { attemptSchema as bookCipherAttempt } from "./book-cipher/schema";
 import { attemptSchema as caesarAttempt } from "./caesar/schema";
 import { attemptSchema as crosswordAttempt } from "./crossword/schema";
 import { attemptSchema as futoshikiAttempt } from "./futoshiki/schema";
@@ -12,6 +13,7 @@ import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
 /** Attempt schemas for the types that have a solver, importable from client code (the registry is not). */
 const attemptSchemas = {
   anagram: anagramAttempt,
+  "book-cipher": bookCipherAttempt,
   caesar: caesarAttempt,
   crossword: crosswordAttempt,
   futoshiki: futoshikiAttempt,

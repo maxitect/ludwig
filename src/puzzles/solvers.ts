@@ -1,5 +1,6 @@
 import { Solver as fixtureSolver } from "./__fixture/solver";
 import { Solver as anagramSolver } from "./anagram/solver";
+import { Solver as bookCipherSolver } from "./book-cipher/solver";
 import { Solver as caesarSolver } from "./caesar/solver";
 import { Solver as crosswordSolver } from "./crossword/solver";
 import { Solver as futoshikiSolver } from "./futoshiki/solver";
@@ -15,6 +16,7 @@ import type { SolverComponent } from "./solver-types";
 export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   __fixture: fixtureSolver,
   anagram: anagramSolver,
+  "book-cipher": bookCipherSolver,
   caesar: caesarSolver,
   crossword: crosswordSolver,
   futoshiki: futoshikiSolver,

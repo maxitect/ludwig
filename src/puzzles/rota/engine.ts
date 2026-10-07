@@ -167,7 +167,10 @@ export function solve(
 export function openingGambit({
   swaps: [swap],
   instigatorWorkerId,
-}: Pick<Answer, "swaps" | "instigatorWorkerId">) {
+}: {
+  swaps: Answer["swaps"];
+  instigatorWorkerId: string;
+}) {
   if (
     !swap ||
     (swap.workerAId !== instigatorWorkerId &&

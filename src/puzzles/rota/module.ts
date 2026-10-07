@@ -62,13 +62,15 @@ export const rotaModule = {
     );
 
     const storedClues = await tx
-      .select({ id: rotaClues.id, position: rotaClues.position, kind: rotaClues.kind })
+      .select({
+        id: rotaClues.id,
+        position: rotaClues.position,
+        kind: rotaClues.kind,
+      })
       .from(rotaClues)
       .where(eq(rotaClues.puzzleId, puzzleId));
     const staleClueIds = storedClues
-      .filter(
-        ({ position, kind }) => clues[position]?.kind !== kind,
-      )
+      .filter(({ position, kind }) => clues[position]?.kind !== kind)
       .map(({ id }) => id);
     if (staleClueIds.length) {
       await tx.delete(rotaClues).where(inArray(rotaClues.id, staleClueIds));
@@ -148,9 +150,9 @@ export const rotaModule = {
       })),
     );
   },
-  async replaceAttemptState(tx, attemptId, { swaps, instigatorWorkerId }) {
+  async replaceAttemptState(tx, attemptId, { swaps }) {
     await tx.delete(rotaAttempts).where(eq(rotaAttempts.attemptId, attemptId));
-    await tx.insert(rotaAttempts).values({ attemptId, instigatorWorkerId });
+    await tx.insert(rotaAttempts).values({ attemptId });
     if (!swaps.length) return;
     await tx
       .insert(rotaAttemptSwaps)
@@ -164,7 +166,7 @@ export const rotaModule = {
   async loadAttemptState(attemptId) {
     const attempt = await db.query.rotaAttempts.findFirst({
       where: { attemptId },
-      columns: { instigatorWorkerId: true },
+      columns: {},
       with: {
         swaps: {
           columns: { workerAId: true, workerBId: true },

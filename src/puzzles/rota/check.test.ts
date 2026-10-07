@@ -25,7 +25,12 @@ const payload: Payload = {
   ],
   clues: [
     { position: 0, displayText: "Only neighbours swap", kind: "adjacent_only" },
-    { position: 1, displayText: "At most three", kind: "max_swaps", maxSwaps: 3 },
+    {
+      position: 1,
+      displayText: "At most three",
+      kind: "max_swaps",
+      maxSwaps: 3,
+    },
   ],
 };
 const swaps: Answer["swaps"] = [
@@ -34,24 +39,25 @@ const swaps: Answer["swaps"] = [
   { workerAId: "Marty", workerBId: "Stefan" },
 ];
 const solution: Solution = { instigatorWorkerId: "Marty", swaps };
-const answer: Answer = { instigatorWorkerId: "Marty", swaps };
+const answer: Answer = { swaps };
 
 describe("rota check", () => {
   it("accepts the correct answer", () => {
-    expect(check(payload, solution, answer)).toEqual({ correct: true });
+    expect(check(payload, solution, answer)).toEqual({
+      correct: true,
+      epilogue: "Opening gambit: Marty insisted on it.",
+    });
   });
 
-  it("rejects the wrong instigator", () => {
-    expect(
-      check(payload, solution, { ...answer, instigatorWorkerId: "Gary" }),
-    ).toEqual({ correct: false });
-  });
-
-  it("rejects an instigator outside the first swap", () => {
-    const outside = { ...solution, instigatorWorkerId: "Zara" };
-    expect(
-      check(payload, outside, { ...answer, instigatorWorkerId: "Zara" }),
-    ).toEqual({ correct: false });
+  it("does not depend on the instigator, and reveals it only for a correct answer", () => {
+    const other = { ...solution, instigatorWorkerId: "Gary" };
+    expect(check(payload, other, answer).correct).toBe(true);
+    expect(check(payload, other, answer).epilogue).toBe(
+      "Opening gambit: Gary insisted on it.",
+    );
+    const wrong = check(payload, solution, { swaps: swaps.slice(0, 2) });
+    expect(wrong.correct).toBe(false);
+    expect(wrong).not.toHaveProperty("epilogue");
   });
 
   it("rejects a sequence that misses the final state", () => {
@@ -67,8 +73,11 @@ describe("rota check", () => {
       { workerAId: "Stefan", workerBId: "Ojay" },
     ];
     expect(
-      check({ ...payload, clues: [] }, solution, { ...answer, swaps: farApart }),
-    ).toEqual({ correct: true });
+      check({ ...payload, clues: [] }, solution, {
+        ...answer,
+        swaps: farApart,
+      }),
+    ).toMatchObject({ correct: true });
     expect(check(payload, solution, { ...answer, swaps: farApart })).toEqual({
       correct: false,
       violatedClue: 0,
@@ -79,15 +88,18 @@ describe("rota check", () => {
     expect(brokenClues(payload, swaps)).toEqual([]);
   });
 
-  it("names a broken clue whatever the instigator and length, so the result shape never hints at the solution", () => {
+  it("names a broken clue from the payload and answer alone, so the result shape never hints at the solution", () => {
     const farApart = [
       { workerAId: "Marty", workerBId: "Stefan" },
       { workerAId: "Stefan", workerBId: "Gary" },
     ];
     const results = [
-      check(payload, solution, { instigatorWorkerId: "Marty", swaps: farApart }),
-      check(payload, solution, { instigatorWorkerId: "Stefan", swaps: farApart }),
-      check(payload, solution, { instigatorWorkerId: "Zara", swaps: farApart }),
+      check(payload, solution, { swaps: farApart }),
+      check(
+        payload,
+        { ...solution, instigatorWorkerId: "Gary" },
+        { swaps: farApart },
+      ),
     ];
     for (const result of results) {
       expect(Object.keys(result)).toEqual(["correct", "violatedClue"]);
@@ -103,7 +115,9 @@ describe("rota check", () => {
       { workerAId: "Stefan", workerBId: "Zara" },
       ...swaps.slice(1),
     ];
-    expect(check(unconstrained, solution, answer)).toEqual({ correct: true });
+    expect(check(unconstrained, solution, answer)).toMatchObject({
+      correct: true,
+    });
     expect(
       check(unconstrained, solution, { ...answer, swaps: padded }),
     ).toEqual({ correct: false });

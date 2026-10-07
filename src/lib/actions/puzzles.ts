@@ -71,7 +71,9 @@ export async function checkAnswer(
   puzzleId: string,
   answer: unknown,
   options: z.input<typeof checkOptionsSchema>,
-): Promise<{ ok: true; result: { correct: boolean } } | ActionError> {
+): Promise<
+  { ok: true; result: { correct: boolean; epilogue?: string } } | ActionError
+> {
   const user = await getCurrentUser();
   const parsedOptions = checkOptionsSchema.safeParse(options);
   if (!puzzleIdSchema.safeParse(puzzleId).success || !parsedOptions.success) {

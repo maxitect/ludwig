@@ -69,9 +69,7 @@ describe("verifyRota", () => {
     });
     const length = buildingSite.solution.swaps.length;
     expect(() => verifyRota(loosen(length + 1))).not.toThrow();
-    expect(() => verifyRota(loosen(length + 2))).toThrow(
-      /max_swaps/,
-    );
+    expect(() => verifyRota(loosen(length + 2))).toThrow(/max_swaps/);
     expect(() => verifyRota(loosen())).toThrow(/max_swaps/);
   });
 

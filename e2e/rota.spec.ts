@@ -47,11 +47,11 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
   await unswap(page, unswaps[1].a, unswaps[1].b);
   for (const { a, b } of unswaps.slice(2)) await unswap(page, a, b);
 
-  await page
-    .getByRole("radio", { name: content.solution.instigatorName })
-    .check();
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByText(/Solved in/)).toBeVisible();
+  await expect(page.getByTestId("epilogue")).toHaveText(
+    `Opening gambit: ${content.solution.instigatorName} insisted on it.`,
+  );
 
   if (databaseAvailable) {
     const attempt = await rotaAttemptFor(email);
@@ -63,16 +63,14 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
   }
 });
 
-test("a wrong instigator is not accepted", async ({ page }) => {
+test("an incomplete or wrong stack is not accepted and reveals no gambit", async ({
+  page,
+}) => {
   await page.goto(URL);
-  for (const { a, b } of unswaps) await unswap(page, a, b);
-  const first = content.solution.swaps[0];
-  const wrong = [first.a, first.b].find(
-    (name) => name !== content.solution.instigatorName,
-  )!;
-  await page.getByRole("radio", { name: wrong }).check();
+  for (const { a, b } of unswaps.slice(0, 4)) await unswap(page, a, b);
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByText(/Solved in/)).toHaveCount(0);
+  await expect(page.getByTestId("epilogue")).toHaveCount(0);
 });
 
 test("keyboard: select, select, Enter to unswap, U to undo, stack announced", async ({

@@ -128,9 +128,7 @@ describe("solve", () => {
     expect(solve(intended, final, [adjacentOnly])).toEqual(
       solve(intended, final, clues),
     );
-    expect(solve(intended, final, [adjacentOnly], { cap: 50 })).toHaveLength(
-      1,
-    );
+    expect(solve(intended, final, [adjacentOnly], { cap: 50 })).toHaveLength(1);
   });
 
   it("finds two (the cap) when a clue is removed", () => {
@@ -153,9 +151,9 @@ describe("solve", () => {
 
 describe("openingGambit", () => {
   it("returns the first swap and its authored instigator", () => {
-    expect(
-      openingGambit({ swaps: chain, instigatorWorkerId: "Gary" }),
-    ).toEqual({ swap: chain[0], instigator: "Gary" });
+    expect(openingGambit({ swaps: chain, instigatorWorkerId: "Gary" })).toEqual(
+      { swap: chain[0], instigator: "Gary" },
+    );
   });
 
   it("is undefined when the instigator is not in the first swap", () => {

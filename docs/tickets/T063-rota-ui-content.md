@@ -20,11 +20,11 @@ This is the playable Mode C, built on the T062 engine. The board reuses the ches
 
 **In**
 
-- `load.ts` (workers, intended and final squares, and clue display texts, with no solution) and `check.ts`. `check` applies the submitted sequence forwards from the intended state, compares it with the final state, validates all clues, and requires the named instigator to match.
+- `load.ts` (workers, intended and final squares, and clue display texts, with no solution) and `check.ts`. `check` applies the submitted sequence forwards from the intended state, compares it with the final state, validates all clues. The instigator is not part of the answer; `check` reveals it as story text only after a correct sequence.
 - **`solver.tsx`:**
   - Drag or tap two tokens to unswap them.
   - Undo pops a step from the swap stack.
-  - The final answer adds an "Opening gambit" picker for the instigator.
+  - After a correct solve, the opening gambit instigator is revealed as story text.
   - The board squares reuse the T028 square styling. Extract a shared board-square component only if T028 hasn't already exposed one.
 - **The Reverse Chess hub** (`/reverse-chess`, T031) gains a third mode card, "The Rota".
 - **Content:** 5 original rota puzzles. One of them is "The Building Site", modelled on the S1E4 case with renamed workers.
@@ -39,7 +39,7 @@ This is the playable Mode C, built on the T062 engine. The board reuses the ches
   - _Verify (cli):_ it passes on 5 files and fails on a broken copy (one clue removed).
 - [ ] **AC2**: The payload omits the swaps and the instigator.
   - _Verify (unit):_ the payload leak test passes.
-- [ ] **AC3**: `check` accepts the unique sequence and the correct instigator. It rejects a correct sequence with the wrong instigator, and a sequence that violates one clue, naming the clue.
+- [ ] **AC3**: `check` accepts the unique sequence, whatever the stored instigator, and reveals the instigator only then. It rejects a sequence that violates one clue, naming the clue.
   - _Verify (unit)._
 - [ ] **AC4**: Signed in, the swap stack persists across reloads, and completion is recorded.
   - _Verify (browser + db):_ `rota_attempt_swaps` rows are in step order, and `completed_at` is set.

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import type { SolverProps } from "../solver-types";
 import { RotaBoard } from "./board";
 import { brokenClues } from "./check";
-import { placementFor, samePlacement, type Swap } from "./engine";
+import { placementFor, samePlacement } from "./engine";
 import type * as schema from "./schema";
 import {
   popUnswap,
@@ -16,10 +16,7 @@ import {
   zoneName,
 } from "./stack";
 
-const pairOf = (swap: Swap | undefined) =>
-  swap ? [swap.workerAId, swap.workerBId] : [];
-
-/** Drag or tap two tokens to unswap them; the pencil stack, undo and the opening gambit picker sit beside the board. */
+/** Drag or tap two tokens to unswap them; the pencil stack and undo sit beside the board. */
 export function Solver({
   payload,
   initialState,
@@ -27,14 +24,9 @@ export function Solver({
   registerCheck,
   solved,
 }: SolverProps<typeof schema>) {
-  const [state, setState] = useState({
-    swaps: initialState?.swaps ?? [],
-    instigatorWorkerId: initialState?.instigatorWorkerId ?? null,
-  });
-  const { swaps, instigatorWorkerId } = state;
+  const [swaps, setSwaps] = useState(initialState?.swaps ?? []);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
-  const gambitId = useId();
 
   const intended = useMemo(
     () => placementFor(payload.workers, "intended"),
@@ -59,33 +51,24 @@ export function Solver({
     payload.workers.find((worker) => worker.id === id)?.name ?? id;
   const restored = samePlacement(placement, intended);
   const broken = restored ? brokenClues(payload, swaps) : [];
-  const candidates = useMemo(() => pairOf(swaps[0]), [swaps]);
 
-  function update(next: Partial<typeof state>) {
-    const merged = { ...state, ...next };
-    setState(merged);
-    onStateChange(merged);
+  function update(next: typeof swaps) {
+    setSwaps(next);
+    onStateChange({ swaps: next });
   }
 
   useEffect(() => {
-    registerCheck(() =>
-      restored && instigatorWorkerId && candidates.includes(instigatorWorkerId)
-        ? { instigatorWorkerId, swaps }
-        : null,
-    );
-  }, [registerCheck, restored, instigatorWorkerId, swaps, candidates]);
+    registerCheck(() => (restored ? { swaps } : null));
+  }, [registerCheck, restored, swaps]);
 
   function unswap(a: string, b: string) {
     const swap = { workerAId: a, workerBId: b };
     const next = pushUnswap(swaps, swap);
-    const keep = pairOf(next[0]).includes(instigatorWorkerId ?? "")
-      ? instigatorWorkerId
-      : null;
     setSelectedId(null);
     setAnnouncement(
       `Unswapped ${nameOf(a)} and ${nameOf(b)}. Step ${next.length} is on the stack.`,
     );
-    update({ swaps: next, instigatorWorkerId: keep });
+    update(next);
   }
 
   function pick(id: string) {
@@ -109,12 +92,7 @@ export function Solver({
     setAnnouncement(
       `Undid step ${swaps.length}: ${nameOf(last.workerAId)} and ${nameOf(last.workerBId)} are swapped back. ${next.length} on the stack.`,
     );
-    update({
-      swaps: next,
-      instigatorWorkerId: pairOf(next[0]).includes(instigatorWorkerId ?? "")
-        ? instigatorWorkerId
-        : null,
-    });
+    update(next);
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
@@ -225,36 +203,10 @@ export function Solver({
             {announcement}
           </p>
         </section>
-        {restored && (
-          <fieldset
-            disabled={solved}
-            aria-describedby={`${gambitId}-help`}
-            className="flex flex-col gap-2"
-          >
-            <legend className="font-display text-lg font-bold tracking-[0.04em] uppercase">
-              Opening gambit
-            </legend>
-            <p id={`${gambitId}-help`} className="text-sm">
-              Everyone is back on the intended rota. Who made the first swap
-              happen? Then press Check.
-            </p>
-            {candidates.map((id) => (
-              <label
-                key={id}
-                className="flex cursor-pointer items-center gap-3 border-2 border-border p-3 has-checked:border-primary has-focus-visible:outline-3 has-focus-visible:outline-solid has-focus-visible:outline-ring"
-              >
-                <input
-                  type="radio"
-                  name="instigator"
-                  value={id}
-                  checked={instigatorWorkerId === id}
-                  onChange={() => update({ instigatorWorkerId: id })}
-                  className="size-4 shrink-0 appearance-none border-2 border-border checked:border-primary checked:bg-primary"
-                />
-                {nameOf(id)}
-              </label>
-            ))}
-          </fieldset>
+        {restored && !solved && (
+          <p className="text-sm">
+            Everyone is back on the intended rota. Press Check.
+          </p>
         )}
       </div>
     </section>

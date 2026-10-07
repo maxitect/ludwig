@@ -506,11 +506,9 @@ describe("rota attempts puzzle_id", () => {
       const attempt = await attemptFor(tx, puzzleId);
       const swap = { workerAId: marty, workerBId: gary };
       await rotaModule.replaceAttemptState(tx, attempt.id, {
-        instigatorWorkerId: marty,
         swaps: [swap, swap],
       });
       await rotaModule.replaceAttemptState(tx, attempt.id, {
-        instigatorWorkerId: null,
         swaps: [swap],
       });
       return tx
@@ -528,19 +526,39 @@ describe("play payload", () => {
     await db.execute(
       sql`delete from puzzle_types where key in ('rota', 'anagram') and category_key = 'rota-test'`,
     );
-    await db.execute(sql`delete from puzzle_categories where key = 'rota-test'`);
+    await db.execute(
+      sql`delete from puzzle_categories where key = 'rota-test'`,
+    );
   });
 
   it("contains no solution data", async () => {
     const content = contentSchema.parse({
       workers: [
-        { name: "Marty", intended: { file: "a", rank: 1 }, final: { file: "a", rank: 2 } },
-        { name: "Gary", intended: { file: "a", rank: 2 }, final: { file: "a", rank: 1 } },
+        {
+          name: "Marty",
+          intended: { file: "a", rank: 1 },
+          final: { file: "a", rank: 2 },
+        },
+        {
+          name: "Gary",
+          intended: { file: "a", rank: 2 },
+          final: { file: "a", rank: 1 },
+        },
       ],
       clues: [
         { displayText: "Only neighbours swap", kind: "adjacent_only" },
-        { displayText: "G8 had no power", kind: "unpowered_square", file: "g", rank: 8 },
-        { displayText: "Gary never worked row 5", kind: "never_in_rank", workerName: "Gary", rank: 5 },
+        {
+          displayText: "G8 had no power",
+          kind: "unpowered_square",
+          file: "g",
+          rank: 8,
+        },
+        {
+          displayText: "Gary never worked row 5",
+          kind: "never_in_rank",
+          workerName: "Gary",
+          rank: 5,
+        },
         { displayText: "One swap at most", kind: "max_swaps", maxSwaps: 1 },
       ],
       solution: {
@@ -565,13 +583,12 @@ describe("play payload", () => {
       "never_in_rank",
       "max_swaps",
     ]);
-    for (const key of ["instigator", "swaps\":[{\"workerAId", "step"]) {
+    for (const key of ["instigator", 'swaps":[{"workerAId', "step"]) {
       expect(JSON.stringify(payload)).not.toContain(key);
     }
     expect(
-      payloadSchema
-        .strict()
-        .safeParse({ ...payload, instigatorWorkerId: "x" }).success,
+      payloadSchema.strict().safeParse({ ...payload, instigatorWorkerId: "x" })
+        .success,
     ).toBe(false);
 
     const solution = await loadSolution(puzzleId);
@@ -579,10 +596,10 @@ describe("play payload", () => {
     expect(solution.instigatorWorkerId).toBe(marty?.id);
     expect(solution.swaps).toHaveLength(1);
     expect(
-      rotaModule.check(payload, solution, {
-        instigatorWorkerId: solution.instigatorWorkerId,
-        swaps: solution.swaps,
-      }),
-    ).toEqual({ correct: true });
+      rotaModule.check(payload, solution, { swaps: solution.swaps }),
+    ).toEqual({
+      correct: true,
+      epilogue: "Opening gambit: Marty insisted on it.",
+    });
   });
 });

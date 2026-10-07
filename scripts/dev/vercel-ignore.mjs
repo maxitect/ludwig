@@ -40,6 +40,9 @@ function withoutToolingScripts(json) {
 
 try {
   const base = baseCommit();
+  if (base === run("git rev-parse HEAD")) {
+    decide(false, "no earlier deployed commit to compare against");
+  }
   const changed = run(`git diff --name-only ${base} HEAD`)
     .split("\n")
     .filter(Boolean);

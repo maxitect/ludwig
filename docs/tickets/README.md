@@ -71,10 +71,10 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T039](./T039-gear-scrubber-animation.md) | Dance scrubber, animation and sightlines | T038 | | | done |
 | [T040](./T040-gear-accuse-check.md) | Accuse flow and server check | T039 | | | done |
 | [T041](./T041-gear-fix-the-diagram-ui.md) | Fix the Diagram UI | T040, T035 | | | done |
-| [T042](./T042-gear-state-table.md) | Accessible gear state table | T039 | | | todo |
-| [T043](./T043-gears-hub.md) | `/gears` hub and daily diagram | T036, T040 | | | todo |
+| [T042](./T042-gear-state-table.md) | Accessible gear state table | T039 | | | done |
+| [T043](./T043-gears-hub.md) | `/gears` hub and daily diagram | T036, T040 | | | done |
 | [T044](./T044-gear-content-e2e-perf.md) | Gear content ×12, end-to-end flow 4, performance budget | T041, T042, T043 | | | todo |
-| [T078](./T078-daily-gears-production.md) | Keep a year of daily gear diagrams generated in production (Vercel cron) | T036 | | | todo |
+| [T078](./T078-daily-gears-production.md) | Keep a year of daily gear diagrams generated in production (Vercel cron) | T036 | | | done |
 
 ## M4: Library breadth
 
@@ -98,9 +98,9 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | todo |
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | done |
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode C): tables, clue kinds, engine | T016 | ✔ | | done |
-| [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | todo |
+| [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | done |
 | [T074](./T074-crossword-enumeration-separators.md) | Crossword enumeration separators (hyphen or word break) | T045 | ✔ | | done |
-| [T080](./T080-crossword-separator-required.md) | Require a separator on every non-last crossword segment | T074 | ✔ | | todo |
+| [T080](./T080-crossword-separator-required.md) | Require a separator on every non-last crossword segment | T074 | ✔ | | done |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
 
 ## M5: Polish and launch
@@ -108,7 +108,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
 | [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | done |
-| [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | todo |
+| [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | done |
 | [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
 | [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4 | | | todo |
 | [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067 | | | todo |

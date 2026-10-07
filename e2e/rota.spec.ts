@@ -17,7 +17,7 @@ test("the hub lists The Rota and links to it", async ({ page }) => {
   await page.goto("/reverse-chess");
   const link = page.getByRole("link", { name: "Play The Rota" });
   await expect(link).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Mode (A|B|C)/ })).toHaveCount(
+  await expect(page.getByRole("heading", { name: /Mode (A|B|C|D)/ })).toHaveCount(
     4,
   );
   await link.click();

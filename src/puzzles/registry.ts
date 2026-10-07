@@ -3,6 +3,7 @@ import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
 import { anagramModule } from "./anagram/module";
 import { crosswordModule } from "./crossword/module";
+import { futoshikiModule } from "./futoshiki/module";
 import { gearsModule } from "./gears/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
@@ -74,6 +75,7 @@ export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 export const registry: PuzzleRegistry = {
   [anagramModule.meta.key]: anagramModule,
   [crosswordModule.meta.key]: crosswordModule,
+  [futoshikiModule.meta.key]: futoshikiModule,
   [gearsModule.meta.key]: gearsModule,
   [reverseChessModule.meta.key]: reverseChessModule,
   [rotaModule.meta.key]: rotaModule,

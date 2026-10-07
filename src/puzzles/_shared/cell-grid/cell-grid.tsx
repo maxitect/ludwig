@@ -25,6 +25,9 @@ import {
 
 export type CellAnnotation = { content: ReactNode; label: string };
 
+/** A sign drawn on the edge a cell shares with its right or lower neighbour, such as a futoshiki inequality. */
+export type CellEdges = { right?: CellAnnotation; down?: CellAnnotation };
+
 export type CellGridProps = {
   rows: number;
   cols: number;
@@ -45,6 +48,10 @@ export type CellGridProps = {
   inputMode?: "text" | "numeric";
   highlight?: ReadonlySet<CellKey>;
   annotation?: (row: number, col: number) => CellAnnotation | undefined;
+  /** Signs between this cell and its right and lower neighbours. Their labels join the cell's accessible name. */
+  edges?: (row: number, col: number) => CellEdges | undefined;
+  /** Largest width of a cell in rem, which caps the grid. Defaults to 3.5. */
+  cellRem?: number;
   /** When supplied, Tab and Shift+Tab move between the first cells of these words; an empty list lets Tab leave the grid. */
   words?: ReadonlyArray<ReadonlyArray<CellPosition>>;
   label: string;
@@ -83,6 +90,8 @@ export function CellGrid({
   inputMode,
   highlight,
   annotation,
+  edges,
+  cellRem = 3.5,
   words,
   label,
   active: controlledActive,
@@ -191,7 +200,7 @@ export function CellGrid({
     <div
       ref={rootRef}
       className="group relative w-full [container-type:inline-size]"
-      style={{ maxWidth: `${cols * 3.5}rem` }}
+      style={{ maxWidth: `${cols * cellRem}rem` }}
       onKeyDown={onKeyDown}
     >
       <div
@@ -222,6 +231,7 @@ export function CellGrid({
               }
               const entered = value(row, col);
               const note = annotation?.(row, col);
+              const sides = edges?.(row, col);
               const isActive = row === active.row && col === active.col;
               const isLocked = readOnly?.has(key);
               return (
@@ -236,6 +246,8 @@ export function CellGrid({
                   aria-label={[
                     where,
                     note?.label,
+                    sides?.right?.label,
+                    sides?.down?.label,
                     isLocked && "given",
                     entered || "empty",
                   ]
@@ -261,6 +273,22 @@ export function CellGrid({
                       className="absolute left-[6%] top-0 font-display text-[0.4em] leading-none text-ink"
                     >
                       {note.content}
+                    </span>
+                  )}
+                  {sides?.right && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute right-0 top-1/2 z-20 flex size-[0.7em] -translate-y-1/2 translate-x-1/2 items-center justify-center bg-paper font-display text-[0.5em] font-bold leading-none text-ink"
+                    >
+                      {sides.right.content}
+                    </span>
+                  )}
+                  {sides?.down && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute bottom-0 left-1/2 z-20 flex size-[0.7em] -translate-x-1/2 translate-y-1/2 items-center justify-center bg-paper font-display text-[0.5em] font-bold leading-none text-ink"
+                    >
+                      {sides.down.content}
                     </span>
                   )}
                   <span

@@ -287,3 +287,58 @@ describe("CellGrid without a direction", () => {
     expect(cell(2, 1).className).toContain("border-r-2");
   });
 });
+
+describe("CellGrid edges", () => {
+  const cells = allCellsExcept(2, 2, []);
+  const edges = (row: number, col: number) =>
+    row === 0 && col === 0
+      ? {
+          right: { content: "<", label: "less than the cell to the right" },
+          down: { content: "\u2228", label: "greater than the cell below" },
+        }
+      : undefined;
+
+  it("draws signs on a cell and adds their labels to its accessible name", () => {
+    render(
+      <CellGrid
+        label="Edges"
+        rows={2}
+        cols={2}
+        cells={cells}
+        value={() => ""}
+        onChange={() => {}}
+        accept={DIGIT}
+        edges={edges}
+        words={[]}
+      />,
+    );
+    const first = screen.getByRole("gridcell", { name: /^Row 1, column 1\b/ });
+    expect(first.getAttribute("aria-label")).toBe(
+      "Row 1, column 1, less than the cell to the right, greater than the cell below, empty",
+    );
+    expect(first.textContent).toContain("<");
+    expect(first.textContent).toContain("\u2228");
+    const plain = screen.getByRole("gridcell", { name: /^Row 2, column 2\b/ });
+    expect(plain.getAttribute("aria-label")).toBe("Row 2, column 2, empty");
+    expect(plain.textContent).toBe("");
+  });
+
+  it("scales the grid width with cellRem", () => {
+    const { container } = render(
+      <CellGrid
+        label="Wide"
+        rows={2}
+        cols={2}
+        cells={cells}
+        value={() => ""}
+        onChange={() => {}}
+        accept={DIGIT}
+        cellRem={5}
+        words={[]}
+      />,
+    );
+    expect((container.firstElementChild as HTMLElement).style.maxWidth).toBe(
+      "10rem",
+    );
+  });
+});

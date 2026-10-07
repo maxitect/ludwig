@@ -206,6 +206,36 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.crosswordAttemptCells.attemptId,
     }),
   },
+  logicGridPuzzles: {
+    categories: r.many.logicGridCategories({
+      from: r.logicGridPuzzles.puzzleId,
+      to: r.logicGridCategories.puzzleId,
+    }),
+    clues: r.many.logicGridClues({
+      from: r.logicGridPuzzles.puzzleId,
+      to: r.logicGridClues.puzzleId,
+    }),
+    links: r.many.logicGridSolutionLinks({
+      from: r.logicGridPuzzles.puzzleId,
+      to: r.logicGridSolutionLinks.puzzleId,
+    }),
+  },
+  logicGridCategories: {
+    items: r.many.logicGridItems({
+      from: [r.logicGridCategories.puzzleId, r.logicGridCategories.position],
+      to: [r.logicGridItems.puzzleId, r.logicGridItems.categoryPosition],
+    }),
+  },
+  logicGridAttempts: {
+    marks: r.many.logicGridAttemptMarks({
+      from: r.logicGridAttempts.attemptId,
+      to: r.logicGridAttemptMarks.attemptId,
+    }),
+    struckClues: r.many.logicGridAttemptStruckClues({
+      from: r.logicGridAttempts.attemptId,
+      to: r.logicGridAttemptStruckClues.attemptId,
+    }),
+  },
   sudokuPuzzles: {
     givens: r.many.sudokuGivens({
       from: r.sudokuPuzzles.puzzleId,

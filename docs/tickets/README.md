@@ -75,6 +75,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T043](./T043-gears-hub.md) | `/gears` hub and daily diagram | T036, T040 | | | done |
 | [T044](./T044-gear-content-e2e-perf.md) | Gear content ×12, end-to-end flow 4, performance budget | T041, T042, T043 | | | done |
 | [T078](./T078-daily-gears-production.md) | Keep a year of daily gear diagrams generated in production (Vercel cron) | T036 | | | done |
+| [T119](./T119-gear-perf-guard.md) | Guard the gear performance budget in CI and cap generated diagrams to it | T044, T078 | | | todo |
 
 ## M4: Library breadth
 

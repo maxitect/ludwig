@@ -14,6 +14,7 @@ import {
   gearSolutionSwaps,
   gearSolutions,
 } from "./tables";
+import { verifyContent } from "./verify-stored";
 
 const ordered = (a: string, b: string) =>
   a < b ? { gearAId: a, gearBId: b } : { gearAId: b, gearBId: a };
@@ -21,6 +22,7 @@ const ordered = (a: string, b: string) =>
 export const gearsModule = {
   schema,
   meta: { key: "gears" },
+  verify: verifyContent,
   load,
   loadSolution,
   check,

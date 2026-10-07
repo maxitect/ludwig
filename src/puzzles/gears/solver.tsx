@@ -141,6 +141,7 @@ export function Solver({
         diagram={diagram}
         crank={crank}
         convergence={convergence}
+        atConvergence={atConvergence}
         position={position}
         crankProps={crankProps}
         adjustments={

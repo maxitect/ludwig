@@ -7,8 +7,8 @@ const mod = (n: number, m: number) => ((n % m) + m) % m;
 const bearing = (x: number, y: number, cx: number, cy: number) =>
   (Math.atan2(y - cy, x - cx) * 180) / Math.PI;
 
-/** Browsers ignore `touch-action` on SVG children, and React's touch listeners are passive, so the page would scroll mid-drag. */
-function holdPageStill(element: SVGGElement | null) {
+/** React's touch listeners are passive, so without this the page would scroll mid-drag. */
+function holdPageStill(element: HTMLElement | null) {
   if (!element) return;
   const stop = (event: TouchEvent) => event.preventDefault();
   element.addEventListener("touchstart", stop, { passive: false });
@@ -40,7 +40,7 @@ export function useCrank({
   const slotTeeth = Math.max(1, Math.round(driver.teeth / slotCount));
   const degreesPerTooth = 360 / driver.teeth;
 
-  function onKeyDown(event: KeyboardEvent<SVGGElement>) {
+  function onKeyDown(event: KeyboardEvent<HTMLElement>) {
     const by = event.shiftKey ? slotTeeth : 1;
     const next =
       event.key === "ArrowRight"
@@ -55,24 +55,25 @@ export function useCrank({
     onChange(mod(next, cranks));
   }
 
-  function onPointerDown(event: PointerEvent<SVGGElement>) {
+  function onPointerDown(event: PointerEvent<HTMLElement>) {
     const target = event.currentTarget;
-    const matrix = target.getScreenCTM();
-    if (!matrix) return;
+    const box = target.getBoundingClientRect();
+    const cx = box.left + box.width / 2;
+    const cy = box.top + box.height / 2;
     event.preventDefault();
     target.focus();
     target.setPointerCapture(event.pointerId);
     drag.current = {
       pointerId: event.pointerId,
-      cx: matrix.e,
-      cy: matrix.f,
-      previous: bearing(event.clientX, event.clientY, matrix.e, matrix.f),
+      cx,
+      cy,
+      previous: bearing(event.clientX, event.clientY, cx, cy),
       turned: 0,
       start: crank,
     };
   }
 
-  function onPointerMove(event: PointerEvent<SVGGElement>) {
+  function onPointerMove(event: PointerEvent<HTMLElement>) {
     const active = drag.current;
     if (!active || active.pointerId !== event.pointerId) return;
     const now = bearing(event.clientX, event.clientY, active.cx, active.cy);
@@ -85,7 +86,7 @@ export function useCrank({
     if (next !== crank) onChange(next);
   }
 
-  function endDrag(event: PointerEvent<SVGGElement>) {
+  function endDrag(event: PointerEvent<HTMLElement>) {
     if (drag.current?.pointerId === event.pointerId) drag.current = null;
   }
 

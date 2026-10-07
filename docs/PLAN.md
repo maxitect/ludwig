@@ -160,6 +160,7 @@ Mode C (the Rota) is deferred to M4 as its own `rota` type. It has its own engin
 | Spatial | sightlines, cctv-maze | Shared grid-plus-cone visibility engine (`src/puzzles/_shared/visibility.ts`) |
 | Visual | spot-difference | Seeded SVG scene generator |
 | Case | `rota` (Reverse Chess Mode C) | `rota.ts` engine, clue-kind subtype tables, swap-stack UI |
+| Mechanism | `gear-train` (Gear Puzzle Mode B, "Classic Gear Train") | Shared `spinSigns` in `_shared/`, pegboard, placement tray |
 
 Plus **This Week**: the `weekly_pairs` seed and the `/this-week` page.
 
@@ -257,7 +258,7 @@ Each epic below becomes a set of tickets. The candidate tickets are only a start
 | **E4 Puzzle framework** | M1 | Registry and type contract. Data access and server actions. Solve-page chrome. Collection and category pages. Autosave and localStorage merge. Casebook v1. Content pipeline (seed and verify) |
 | **E5 Pilot types** | M1 | Anagram. Crossword (quick style) with `CellInput` |
 | **E6 Reverse Chess** | M2 (Mode C in M4) | Retro engine. Verifier. Board component. Mode A. Mode B and notation. Hub. Content ×10. Rota engine. Rota UI. Rota content |
-| **E7 Gear Puzzle** | M3 | Engine core. Generator. Fix the Diagram generator. Gen script and daily seeds. SVG board. Crank. Scrubber and animation. Accuse and check. Fix the Diagram UI. State table. Hub. Content ×12 |
+| **E7 Gear Puzzle** | M3 (Mode B in M4) | Engine core. Generator. Fix the Diagram generator. Gen script and daily seeds. SVG board. Crank. Scrubber and animation. Accuse and check. Fix the Diagram UI. State table. Hub. Content ×12. Gear train engine. Gear train UI and content |
 | **E8 Library** | M4 | One ticket per type (section 3, M4 table), plus a shared-piece ticket per group and content tickets |
 | **E9 This Week** | M4 | `weekly_pairs` seed and page |
 | **E10 Polish and launch** | M5 | View transitions. Landing sequence. Settings page. Accessibility audit. Performance pass. Footer and attribution. Production domain and launch |

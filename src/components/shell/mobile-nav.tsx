@@ -13,6 +13,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { navLinks } from "@/config/nav";
+import { InstallHint } from "./install-hint";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -25,7 +26,10 @@ export function MobileNav() {
           <span className="sr-only">Menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="bottom">
+      <SheetContent
+        side="bottom"
+        className="pb-[env(safe-area-inset-bottom)]"
+      >
         <SheetHeader>
           <SheetTitle>Menu</SheetTitle>
           <SheetDescription className="sr-only">
@@ -44,6 +48,7 @@ export function MobileNav() {
             </Link>
           ))}
         </nav>
+        <InstallHint />
       </SheetContent>
     </Sheet>
   );

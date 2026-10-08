@@ -659,6 +659,12 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 - Use CSS transitions for everything else.
 - Every animation respects `prefers-reduced-motion`.
 
+### 6.7 Mobile
+
+- **Safe areas.** Anything fixed or flush to a screen edge pads itself with `env(safe-area-inset-*)`, using `max()` against its normal padding so it never shrinks: the site header (top, left, right), the footer (bottom) and bottom sheets (bottom). The viewport sets `viewport-fit=cover` so the insets are non-zero.
+- **Theme colour.** The browser chrome follows the active theme. `viewport.themeColor` carries Paper and Ink for the system setting. When the theme is chosen by hand, the theme init script and `applyTheme` prepend their own `theme-color` meta, which wins because it comes first; they never edit the metas React renders. "System" removes it. The hex values live in `src/config/theme-colors.ts`.
+- **Install hint.** On iOS Safari, outside standalone mode, the mobile nav sheet shows a dismissible "Add to Home Screen" hint. The dismissal is kept in `localStorage`.
+
 ---
 
 ## 7. Technical architecture
@@ -684,6 +690,7 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 - **chess.js 1.4** (rules and FEN) and **react-chessboard 5.x** (board UI, piece renderer overridden). Check the v5 API, which uses an `options` prop, before building.
 - **motion** for animation.
 - Testing: **Vitest** for engines and checkers, **Playwright** for end-to-end flows.
+- **PWA:** `src/app/manifest.ts` (standalone, Paper colours), PNG icons in `public/icons/` and `src/app/apple-icon.png` (made by `scripts/dev/make-icons.ts`). There is no service worker until T118 (M7); installability needs only the manifest and HTTPS.
 - Hosting: **Vercel**, with **Neon** Postgres from the Vercel Marketplace (section 7.7). The `pg` driver and `@vercel/functions` handle connection pooling.
 
 ### 7.2 Source layout

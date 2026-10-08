@@ -117,6 +117,14 @@ test("drag finds words, saves them and completes the puzzle", async ({
   await expect(page.getByRole("grid")).toBeVisible();
   await page.waitForTimeout(1000);
 
+  const autosave = page.waitForResponse((response) => {
+    const body = response.request().postData() ?? "";
+    return (
+      response.request().method() === "POST" &&
+      "next-action" in response.request().headers() &&
+      ["GOWN", "QUAD", "TUTOR"].every((word) => body.includes(`"${word}"`))
+    );
+  });
   await dragWord(page, "GOWN");
   await dragWord(page, "QUAD");
   await dragWord(page, "TUTOR");
@@ -139,6 +147,7 @@ test("drag finds words, saves them and completes the puzzle", async ({
       .poll(async () => (await wordSearchAttemptFor(email))?.words.length)
       .toBe(3);
   }
+  await autosave;
   await page.reload();
   await expect(strokes(page)).toHaveCount(3);
 

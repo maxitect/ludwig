@@ -15,7 +15,7 @@ const buttonVariants = cva(
         secondary: `${raised} bg-background text-foreground hover:bg-foreground hover:text-background`,
         ghost:
           "border-transparent hover:border-border hover:bg-muted hover:text-foreground disabled:border-transparent disabled:bg-transparent",
-        destructive: `${raised} bg-destructive text-destructive-foreground hover:bg-ink-soft`,
+        destructive: `${raised} bg-destructive text-destructive-foreground hover:bg-ink-soft hover:text-paper`,
       },
       size: {
         default: "h-10 px-5 text-sm has-[>svg]:px-4",

@@ -14,6 +14,7 @@ import { Solver as rotaSolver } from "./rota/solver";
 import { Solver as spotDifferenceSolver } from "./spot-difference/solver";
 import { Solver as sudokuSolver } from "./sudoku/solver";
 import { Solver as wordLadderSolver } from "./word-ladder/solver";
+import { Solver as wordSearchSolver } from "./word-search/solver";
 import type { SolverComponent } from "./solver-types";
 
 /** Client solvers by type key. Only the solve page imports this; the registry and scripts must never reach it. */
@@ -34,6 +35,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   "spot-difference": spotDifferenceSolver,
   sudoku: sudokuSolver,
   "word-ladder": wordLadderSolver,
+  "word-search": wordSearchSolver,
 };
 
 export function getSolver(typeKey: string) {

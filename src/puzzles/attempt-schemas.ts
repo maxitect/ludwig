@@ -13,6 +13,7 @@ import { attemptSchema as rotaAttempt } from "./rota/schema";
 import { attemptSchema as spotDifferenceAttempt } from "./spot-difference/schema";
 import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
 import { attemptSchema as wordLadderAttempt } from "./word-ladder/schema";
+import { attemptSchema as wordSearchAttempt } from "./word-search/schema";
 
 /** Attempt schemas for the types that have a solver, importable from client code (the registry is not). */
 const attemptSchemas = {
@@ -31,6 +32,7 @@ const attemptSchemas = {
   "spot-difference": spotDifferenceAttempt,
   sudoku: sudokuAttempt,
   "word-ladder": wordLadderAttempt,
+  "word-search": wordSearchAttempt,
 } as const;
 
 export function getAttemptSchema(typeKey: string) {

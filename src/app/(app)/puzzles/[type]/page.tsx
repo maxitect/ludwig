@@ -11,6 +11,13 @@ import { getTypeCatalogue, getTypeStaticParams } from "@/lib/data/catalogue";
 
 const DIFFICULTIES = [1, 2, 3, 4, 5];
 
+const EPIGRAPHS: Readonly<Record<string, { quote: string; source: string }>> = {
+  "word-search": {
+    quote: "Don't let him fob me off with a word search.",
+    source: "Ludwig, series 2, episode 3",
+  },
+};
+
 const difficultySchema = z.coerce
   .number()
   .int()
@@ -49,6 +56,16 @@ export default async function TypePage({
       <header className="flex flex-col gap-3">
         <Credit level={1} top={type.category.name} bottom={type.name} />
         <p>{type.description}</p>
+        {Object.hasOwn(EPIGRAPHS, type.key) && (
+          <figure className="border-l-4 border-ludwig-red pl-4">
+            <blockquote className="font-display text-lg uppercase">
+              &ldquo;{EPIGRAPHS[type.key].quote}&rdquo;
+            </blockquote>
+            <figcaption className="text-sm text-muted-foreground">
+              {EPIGRAPHS[type.key].source}
+            </figcaption>
+          </figure>
+        )}
       </header>
       {volumes.length > 0 && (
         <section aria-labelledby="volumes" className="flex flex-col gap-4">

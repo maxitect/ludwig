@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { uncapturePuzzle } from "./helpers/content";
 import { attemptsFor, databaseAvailable } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { openPuzzle, clickCheck } from "./helpers/solve";
 
 const square = (page: Page, name: string) =>
   page.locator(`[role="group"][aria-label^="${name},"]`);
@@ -77,7 +77,7 @@ test("sign up, solve a Reverse Chess uncapture and see it in the Casebook", asyn
     .getByRole("radio", { name: `${puzzle.sideToMove} ${puzzle.uncapture}` })
     .click();
 
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
 
   await page.goto("/casebook");

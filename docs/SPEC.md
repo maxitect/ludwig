@@ -260,6 +260,7 @@ Every Monday two puzzles are published, nodding to the paper's "two puzzles a we
 - **Timer:** monospaced and pausable. It pauses when the tab is hidden.
 - **Actions:** Check and Reset. Revealing the whole answer is post-launch (it needs a per-type design); types with per-cell hooks offer "reveal letter" in the solver. Reset clears the board and, when signed in, deletes the saved attempt state (`clearState`), so a reload after Reset starts empty.
 - **On completion:** a red handwritten "Solved." stamp in the hand font, the time, and a "Next in volume" link.
+- **Solve mode.** Under the `touch` variant (§6.7) the solve page is exactly `100dvh` and the document does not scroll. The site header and footer give way to a compact one-row solve header: a back link, the title (compact credit, one line), the timer and a menu button. Check and Reset move into that menu. The status line stays visible as a single line under the header. The solver area fills the rest and scrolls internally when a solver is taller. A bottom slot, padded for the safe area, is reserved for the on-screen keyboard. Cell grids size to the smaller of the width and height of the solver area (`--solver-height`), so a grid never needs scrolling.
 
 ### 4.6 Content as code
 
@@ -668,6 +669,7 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 
 - **Safe areas.** Anything fixed or flush to a screen edge pads itself with `env(safe-area-inset-*)`, using `max()` against its normal padding so it never shrinks: the site header (top, left, right), the footer (bottom) and bottom sheets (bottom). The viewport sets `viewport-fit=cover` so the insets are non-zero.
 - **Theme colour.** The browser chrome follows the active theme. `viewport.themeColor` carries Paper and Ink for the system setting. When the theme is chosen by hand, the theme init script and `applyTheme` prepend their own `theme-color` meta, which wins because it comes first; they never edit the metas React renders. "System" removes it. The hex values live in `src/config/theme-colors.ts`.
+- **`touch` variant.** The Tailwind variant `touch` is `@media (pointer: coarse) and (max-width: 47.999rem)`: portrait-class touch phones. It is pure CSS, so there is no hydration mismatch. Landscape phones and tablets keep the desktop layout. It drives solve mode (§4.5).
 - **Install hint.** On iOS Safari, outside standalone mode, the mobile nav sheet shows a dismissible "Add to Home Screen" hint. The dismissal is kept in `localStorage`.
 
 ---

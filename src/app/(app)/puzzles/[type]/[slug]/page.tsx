@@ -38,7 +38,7 @@ export default async function SolvePage({
   if (!summary) notFound();
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-8">
+    <main className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-8 touch:h-dvh touch:max-w-none touch:gap-0 touch:overflow-hidden touch:p-0">
       <Suspense fallback={<Walker />}>
         <Solve typeKey={type} slug={slug} summary={summary} />
       </Suspense>
@@ -87,6 +87,7 @@ async function Solve({
     <SolveChrome
       puzzleId={play.puzzle.id}
       typeKey={typeKey}
+      typeName={summary.typeName}
       category={summary.categoryName}
       title={summary.title}
       difficulty={summary.difficulty}

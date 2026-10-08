@@ -4,7 +4,7 @@ import { content } from "../content/book-cipher/hand-lens";
 import { derivePlaintext, paginate } from "../src/puzzles/book-cipher/derive";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { cipherAttemptFor, databaseAvailable } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { openPuzzle, clickCheck } from "./helpers/solve";
 
 const plaintext = derivePlaintext(paginate(bookTexts[0].paragraphs), content.refs);
 const { page: firstPage, line, wordIndex } = content.refs[0];
@@ -34,7 +34,7 @@ test("solve a book cipher, turning pages by keyboard", async ({ page }) => {
   for (const [i, word] of words.entries()) {
     await inputs.nth(i).fill(word);
   }
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
 
   if (databaseAvailable) {

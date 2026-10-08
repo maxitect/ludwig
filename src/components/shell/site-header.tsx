@@ -7,7 +7,7 @@ import { MobileNav } from "./mobile-nav";
 
 export function SiteHeader() {
   return (
-    <header className="flex items-center gap-4 border-b-2 border-border pt-[max(0.75rem,env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-3 pl-[max(1rem,env(safe-area-inset-left))] md:gap-6">
+    <header className="group-has-[[data-solve-mode]]/body:touch:hidden flex items-center gap-4 border-b-2 border-border pt-[max(0.75rem,env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-3 pl-[max(1rem,env(safe-area-inset-left))] md:gap-6">
       <Link href="/" aria-label="Ludwig, home" className="w-24 shrink-0">
         <Wordmark />
       </Link>

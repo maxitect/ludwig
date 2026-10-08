@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../content/word-ladder/coin-toss";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, wordLadderAttemptFor } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { openPuzzle, clickCheck } from "./helpers/solve";
 
 const puzzle = { typeKey: "word-ladder", slug: "coin-toss" };
 const differentLadder = ["heal", "teal", "tell", "tall"];
@@ -14,7 +14,7 @@ async function fillRung(page: Page, rung: number, word: string) {
 }
 
 const check = (page: Page) =>
-  page.getByRole("button", { name: "Check", exact: true }).click();
+  clickCheck(page);
 
 test("a different valid ladder is accepted and saved", async ({ page }) => {
   expect(differentLadder).not.toEqual(content.rungs);

@@ -34,7 +34,18 @@ export const expectCellLetter = (page: Page, cell: CrosswordCell) =>
     new RegExp(`, ${cell.letter}$`),
   );
 
-export async function checkSolved(page: Page) {
+/** Check is a button on desktop and a menu item in solve mode on touch phones. */
+export async function clickCheck(page: Page) {
+  const menu = page.getByRole("button", { name: "Puzzle menu" });
+  if (await menu.isVisible()) {
+    await menu.click();
+    await page.getByRole("menuitem", { name: "Check" }).click();
+    return;
+  }
   await page.getByRole("button", { name: "Check", exact: true }).click();
+}
+
+export async function checkSolved(page: Page) {
+  await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
 }

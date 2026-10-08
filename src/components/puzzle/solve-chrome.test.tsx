@@ -76,6 +76,7 @@ function renderChrome(
     <SolveChrome
       puzzleId="00000000-0000-0000-0000-000000000001"
       typeKey="anagram"
+      typeName="Anagram"
       category="Word"
       title="Test"
       difficulty={1}

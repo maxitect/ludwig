@@ -81,9 +81,10 @@ export function cellRotation(index: number) {
 const FRAME = 2;
 const HAIRLINE = 1;
 
-/** CSS length of the largest whole-pixel cell that fits the grid's container, so every hairline lands on a pixel boundary. */
-export function snappedCell(cols: number) {
-  return `round(down, calc((100cqw - ${2 * FRAME + (cols - 1) * HAIRLINE}px) / ${cols}), 1px)`;
+/** CSS length of the largest whole-pixel cell that fits the grid's container, and in solve mode the height `--solver-height` leaves, so every hairline lands on a pixel boundary. */
+export function snappedCell(cols: number, rows = cols) {
+  const frame = (count: number) => 2 * FRAME + (count - 1) * HAIRLINE;
+  return `min(round(down, calc((100cqw - ${frame(cols)}px) / ${cols}), 1px), round(down, calc((var(--solver-height, 100000px) - ${frame(rows)}px) / ${rows}), 1px))`;
 }
 
 export function CellGrid({
@@ -122,7 +123,7 @@ export function CellGrid({
   const rootRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const cellRefs = useRef(new Map<CellKey, HTMLDivElement>());
-  const cell = snappedCell(cols);
+  const cell = snappedCell(cols, rows);
 
   useImperativeHandle(ref, () => ({ focus: () => inputRef.current?.focus() }));
 
@@ -280,7 +281,9 @@ export function CellGrid({
                     cellClassName?.(row, col),
                     "group-focus-within:data-[active=true]:z-10 group-focus-within:data-[active=true]:outline-2 group-focus-within:data-[active=true]:-outline-offset-2 group-focus-within:data-[active=true]:outline-ring",
                   )}
-                  style={{ fontSize: `${70 / cols}cqw` }}
+                  style={{
+                    fontSize: `min(${70 / cols}cqw, calc(var(--solver-height, 100000px) * 0.7 / ${rows}))`,
+                  }}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => select({ row, col })}
                   onFocus={() => setActive({ row, col })}

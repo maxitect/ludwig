@@ -50,10 +50,12 @@ test("keyboard toggles are announced, saved and complete the puzzle", async ({
 
   const saved = page.waitForResponse((response) => {
     const request = response.request();
+    const body = request.postData() ?? "";
     return (
       request.method() === "POST" &&
       "next-action" in request.headers() &&
-      (request.postData() ?? "").includes('"knave"')
+      body.includes('{"position":2,"role":"knave"}') &&
+      !body.includes('"mode"')
     );
   });
   await choice(page, "Knave", 2).focus();

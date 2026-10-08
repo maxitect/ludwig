@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { logicGridPuzzle } from "./helpers/content";
 import { attemptsFor, databaseAvailable, logicGridMarks } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { openPuzzle, clickCheck } from "./helpers/solve";
 
 const pair = (page: Page, a: string, b: string) =>
   page.getByRole("gridcell", { name: new RegExp(`^${a} × ${b}: `) });
@@ -28,7 +28,7 @@ async function markHouseholds(page: Page, households: string[][]) {
 }
 
 const check = (page: Page) =>
-  page.getByRole("button", { name: "Check", exact: true }).click();
+  clickCheck(page);
 
 test("a signed-in player's marks persist and the puzzle completes", async ({
   page,

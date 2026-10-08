@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../content/rota/the-building-site";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, rotaAttemptFor } from "./helpers/db";
+import { clickCheck } from "./helpers/solve";
 
 const URL = "/puzzles/rota/the-building-site";
 const unswaps = [...content.solution.swaps].reverse();
@@ -47,7 +48,7 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
   await unswap(page, unswaps[1].a, unswaps[1].b);
   for (const { a, b } of unswaps.slice(2)) await unswap(page, a, b);
 
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
   await expect(page.getByTestId("epilogue")).toHaveText(
     `Opening gambit: ${content.solution.instigatorName} insisted on it.`,
@@ -71,7 +72,7 @@ test("a wrong sequence is not accepted and reveals no gambit", async ({
   await unswap(page, a, b);
   await unswap(page, a, b);
   for (const step of unswaps) await unswap(page, step.a, step.b);
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await clickCheck(page);
   await expect(page.getByText("Not quite. Keep going.")).toBeVisible();
   await expect(page.getByText(/Solved in/)).toHaveCount(0);
   await expect(page.getByTestId("epilogue")).toHaveCount(0);

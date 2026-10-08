@@ -6,7 +6,7 @@ import { deriveCiphertext as caesarCipher } from "../src/puzzles/caesar/derive";
 import { deriveCiphertext as keywordCipher } from "../src/puzzles/keyword/derive";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { cipherAttemptFor, databaseAvailable } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { openPuzzle, clickCheck } from "./helpers/solve";
 
 const MAX_TABS = 80;
 
@@ -62,7 +62,7 @@ for (const { typeKey, slug, plaintext, ciphertext } of cases) {
         .map(([, plain]) => plain)
         .join(""),
     );
-    await page.getByRole("button", { name: "Check", exact: true }).click();
+    await clickCheck(page);
     await expect(page.getByText(/Solved in/)).toBeVisible();
 
     if (databaseAvailable) {

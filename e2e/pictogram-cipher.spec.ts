@@ -3,6 +3,7 @@ import { content } from "../content/pictogram-cipher/pin-men";
 import { pictogramGlyphs } from "../content/lookups";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, pictogramAttemptFor } from "./helpers/db";
+import { clickCheck } from "./helpers/solve";
 
 const slug = "pin-men";
 const keyOf = Object.fromEntries(
@@ -101,7 +102,7 @@ test("solve a pictogram cipher with the keyboard, keeping guesses across a reloa
   await tabIntoPanel(page);
   await page.keyboard.type(toGuess.map(({ letter }) => letter).join(""));
 
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
 
   expect(glyphRequests.length).toBeGreaterThan(0);

@@ -4,6 +4,7 @@ import { content as firstLink } from "../content/gear-train/first-link";
 import { content as lastDeparture } from "../content/gear-train/last-departure";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, gearTrainAttemptFor } from "./helpers/db";
+import { clickCheck } from "./helpers/solve";
 
 type Board = { rows: number; cols: number };
 type Peg = { row: number; col: number };
@@ -69,7 +70,7 @@ test("signed in: placed cogs persist across a reload and completion is recorded"
   await page.reload();
   await expect(status(page)).toContainText("Every cog is needed");
 
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
 
   if (databaseAvailable) {

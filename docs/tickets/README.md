@@ -87,7 +87,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T048](./T048-type-logic-grid.md) | Puzzle type: logic grid (+ false-statement variant) | T021 | ✔ | | done |
 | [T049](./T049-type-word-ladder.md) | Puzzle type: word ladder and the `words` dictionary | T019 | ✔ | | done |
 | [T050](./T050-type-acrostic.md) | Puzzle type: acrostic | T019 | ✔ | | todo |
-| [T051](./T051-type-word-search.md) | Puzzle type: word search ("The Fob-Off") | T021 | ✔ | | todo |
+| [T051](./T051-type-word-search.md) | Puzzle type: word search ("The Fob-Off") | T021 | ✔ | | in-progress |
 | [T052](./T052-type-caesar-keyword.md) | Puzzle types: caesar and keyword (shared cipher-key panel) | T019 | ✔ | | done |
 | [T053](./T053-type-book-cipher.md) | Puzzle type: book cipher and `book_texts` | T052 | ✔ | | done |
 | [T054](./T054-type-pictogram-cipher.md) | Puzzle type: pictogram cipher and glyph set | T052 | ✔ | | done |
@@ -131,7 +131,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T123](./T123-simplify-bullet-route-transition.md) | Simplify the bullet-hole route transition into the Collection | T122 | | | todo |
 | [T124](./T124-states-contrast-focus.md) | Disabled, error, contrast and focus states | T120 | | | todo |
 | [T125](./T125-grid-lines-textures.md) | Single-draw grid lines, crossword numbers on phones, and textures | — | | | todo |
-| [T126](./T126-themed-not-found.md) | Themed 404 page and the root script-tag error | — | | | todo |
+| [T126](./T126-themed-not-found.md) | Themed 404 page and the root script-tag error | — | | | done |
 | [T127](./T127-book-cipher-layout.md) | Book cipher: lines never wrap on desktop, clear continuations on phones, aligned references | T120 | | | todo |
 | [T128](./T128-page-polish.md) | Per-page polish (rota, hubs, collection, sign-in, kitchen sink) | T120 | | | todo |
 | [T129](./T129-puzzle-preview-engine.md) | Puzzle preview engine and per-puzzle thumbnails | — | | | todo |

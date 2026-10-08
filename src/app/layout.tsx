@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { InitScript } from "@/components/shell/init-script";
 import { reduceMotionInitScript } from "@/utils/reduce-motion";
 import { themeInitScript } from "@/utils/theme";
 import { fontVariables } from "./fonts";
@@ -14,8 +15,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en-GB" className={fontVariables} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <script dangerouslySetInnerHTML={{ __html: reduceMotionInitScript }} />
+        <InitScript html={themeInitScript} />
+        <InitScript html={reduceMotionInitScript} />
       </head>
       <body className="flex min-h-dvh flex-col">
         {children}

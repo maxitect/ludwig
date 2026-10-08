@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@custom-variant touch {
+  @media (pointer: coarse) and (max-width: 47.999rem) {
+    @slot;
+  }
+}
+
 @custom-variant motion-safe {
   @media (prefers-reduced-motion: no-preference) {
     &:where(:root:not([data-reduce-motion]) *) {

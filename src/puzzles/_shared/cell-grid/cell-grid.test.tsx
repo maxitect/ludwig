@@ -363,8 +363,13 @@ describe("CellGrid edges", () => {
 describe("snappedCell", () => {
   it("rounds the cell down to a whole pixel after the frame and hairlines", () => {
     expect(snappedCell(15)).toBe(
-      "round(down, calc((100cqw - 18px) / 15), 1px)",
+      "min(round(down, calc((100cqw - 18px) / 15), 1px), round(down, calc((var(--solver-height, 100000px) - 18px) / 15), 1px))",
     );
-    expect(snappedCell(9)).toBe("round(down, calc((100cqw - 12px) / 9), 1px)");
+  });
+
+  it("also fits the rows into the solver height", () => {
+    expect(snappedCell(9, 6)).toBe(
+      "min(round(down, calc((100cqw - 12px) / 9), 1px), round(down, calc((var(--solver-height, 100000px) - 9px) / 6), 1px))",
+    );
   });
 });

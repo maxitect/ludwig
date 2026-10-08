@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <InitScript html={themeInitScript} />
         <InitScript html={reduceMotionInitScript} />
       </head>
-      <body className="flex min-h-dvh flex-col">
+      <body className="group/body flex min-h-dvh flex-col">
         {children}
       </body>
     </html>

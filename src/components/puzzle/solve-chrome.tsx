@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronLeftIcon, EllipsisVerticalIcon } from "lucide-react";
 import Link from "next/link";
 import {
   useCallback,
@@ -13,6 +14,12 @@ import {
 import { BulletHole, Credit, SolvedStamp, Walker } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   checkAnswer,
   clearState,
@@ -233,25 +240,56 @@ export function SolveChrome({
   }
 
   return (
-    <section className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3">
+    <section
+      data-solve-mode
+      className="flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
+    >
+      <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
+        <Link
+          href="/puzzles"
+          aria-label={`Back to ${category}`}
+          className="hidden size-10 shrink-0 items-center justify-center touch:flex"
+        >
+          <ChevronLeftIcon aria-hidden="true" />
+        </Link>
         <Credit
           level={1}
           top={category}
           bottom={title}
-          className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl"
+          className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl touch:min-w-0 touch:flex-1 touch:[&>span:first-child]:hidden touch:[&>span:last-child]:truncate touch:[&>span:last-child]:text-lg"
         />
-        <div className="flex items-center gap-4">
-          <Badge variant="difficulty" level={difficulty} />
+        <div className="flex items-center gap-4 touch:shrink-0">
+          <Badge variant="difficulty" level={difficulty} className="touch:hidden" />
           <p className="font-mono text-lg tabular-nums">
             <span className="sr-only">Elapsed time </span>
             {formatDuration(solved ? solvedMs : timer.displayMs)}
           </p>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Puzzle menu"
+              className="hidden touch:inline-flex"
+            >
+              <EllipsisVerticalIcon aria-hidden="true" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem disabled={pending || solved} onSelect={check}>
+              Check
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={pending} onSelect={reset}>
+              Reset
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </header>
 
       <div
         key={attempt}
+        className="touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:[--solver-height:100cqh] touch:[container-type:size]"
         onKeyDown={(event) => {
           if (
             event.key === "Enter" &&
@@ -284,7 +322,7 @@ export function SolveChrome({
         )}
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 touch:hidden">
         <Button onClick={check} disabled={pending || solved}>
           Check
         </Button>
@@ -293,21 +331,25 @@ export function SolveChrome({
         </Button>
       </div>
 
-      <div role="status" aria-live="polite" className="min-h-6">
+      <div
+        role="status"
+        aria-live="polite"
+        className="min-h-6 touch:-order-1 touch:shrink-0 touch:truncate touch:px-4 touch:py-1"
+      >
         {notice === "cell-sign-in" ? (
-          <p>
+          <p className="touch:truncate">
             <Link href={signInHref} className="underline underline-offset-4">
               Sign in
             </Link>{" "}
             to check or reveal individual cells.
           </p>
         ) : (
-          notice && <p>{noticeText[notice]}</p>
+          notice && <p className="touch:truncate">{noticeText[notice]}</p>
         )}
       </div>
 
       {solved && (
-        <footer className="relative isolate flex flex-wrap items-center gap-x-12 gap-y-14 p-4">
+        <footer className="relative isolate flex flex-wrap items-center gap-x-12 gap-y-14 p-4 touch:max-h-[35dvh] touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto">
           <BulletHole />
           <SolvedStamp />
           <p>
@@ -324,6 +366,11 @@ export function SolveChrome({
           )}
         </footer>
       )}
+
+      <div
+        data-testid="solve-slot"
+        className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
+      />
     </section>
   );
 }

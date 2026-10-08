@@ -31,4 +31,10 @@ describe("verifyWordSearch", () => {
       /"CAT" is listed twice/,
     );
   });
+
+  it("rejects two words on the same cells, which one selection cannot tell apart", () => {
+    expect(() =>
+      verifyWordSearch({ grid: ["TOPZ", "ZZZZ", "ZZZZ"], words: ["TOP", "POT"] }),
+    ).toThrow(/"POT" and "TOP" are the same letters read both ways/);
+  });
 });

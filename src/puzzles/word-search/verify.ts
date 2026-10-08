@@ -1,7 +1,7 @@
-import { derivePlacements } from "./derive";
+import { derivePlacements, samePlacement, type Placement } from "./derive";
 import type { Content } from "./schema";
 
-/** Every hidden word must sit in the grid exactly once, in a full rectangular grid. */
+/** Every hidden word must sit in the grid exactly once, on its own line of cells, in a full rectangular grid. */
 export function verifyWordSearch({ grid, words }: Content) {
   const cols = grid[0].length;
   const ragged = grid.findIndex((line) => line.length !== cols);
@@ -15,6 +15,7 @@ export function verifyWordSearch({ grid, words }: Content) {
   const cells = grid.flatMap((line, row) =>
     [...line].map((letter, col) => ({ row, col, letter })),
   );
+  const placed: { word: string; placement: Placement }[] = [];
   for (const { word, placements } of derivePlacements(
     { rows: grid.length, cols, cells },
     words,
@@ -26,5 +27,11 @@ export function verifyWordSearch({ grid, words }: Content) {
           : `"${word}" appears ${placements.length} times in the grid`,
       );
     }
+    const [placement] = placements;
+    const twin = placed.find((other) => samePlacement(other.placement, placement));
+    if (twin) {
+      throw new Error(`"${word}" and "${twin.word}" are the same letters read both ways`);
+    }
+    placed.push({ word, placement });
   }
 }

@@ -24,6 +24,36 @@ const placed = Object.fromEntries(
 
 const strokes = (page: Page) => page.getByTestId("found-stroke");
 
+type Point = { x: number; y: number };
+
+async function mouseDrag(page: Page, from: Point, to: Point) {
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move(to.x, to.y, { steps: 8 });
+  await page.mouse.up();
+}
+
+async function touchDrag(page: Page, from: Point, to: Point) {
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (
+    type: "touchStart" | "touchMove" | "touchEnd",
+    point?: Point,
+  ) =>
+    cdp.send("Input.dispatchTouchEvent", {
+      type,
+      touchPoints: point ? [point] : [],
+    });
+  await touch("touchStart", from);
+  for (let step = 1; step <= 8; step += 1) {
+    await touch("touchMove", {
+      x: from.x + ((to.x - from.x) * step) / 8,
+      y: from.y + ((to.y - from.y) * step) / 8,
+    });
+  }
+  await touch("touchEnd");
+  await cdp.detach();
+}
+
 async function dragWord(page: Page, word: string) {
   const { start, end } = placed[word];
   const box = (await page.getByRole("grid").boundingBox())!;
@@ -31,12 +61,10 @@ async function dragWord(page: Page, word: string) {
     x: box.x + ((col + 0.5) / cols) * box.width,
     y: box.y + ((row + 0.5) / rows) * box.height,
   });
+  const drag = test.info().project.use.hasTouch ? touchDrag : mouseDrag;
   const before = await strokes(page).count();
   for (let attempt = 0; attempt < 6; attempt++) {
-    await page.mouse.move(at(start).x, at(start).y);
-    await page.mouse.down();
-    await page.mouse.move(at(end).x, at(end).y, { steps: 8 });
-    await page.mouse.up();
+    await drag(page, at(start), at(end));
     try {
       await expect(strokes(page)).toHaveCount(before + 1, { timeout: 1500 });
       return;

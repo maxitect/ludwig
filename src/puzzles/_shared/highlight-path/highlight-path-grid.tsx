@@ -70,7 +70,6 @@ export function HighlightPathGrid({
   const [dragging, setDragging] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const helpId = useId();
-  const gridRef = useRef<HTMLDivElement>(null);
   const cellRefs = useRef(new Map<string, HTMLDivElement>());
   const focusCursor = useRef(false);
 
@@ -83,7 +82,7 @@ export function HighlightPathGrid({
   const pendingKeys = new Set(pending.map(({ row, col }) => `${row},${col}`));
 
   const cellAt = (event: PointerEvent): CellPosition => {
-    const rect = gridRef.current!.getBoundingClientRect();
+    const rect = event.currentTarget.getBoundingClientRect();
     const col = Math.floor(((event.clientX - rect.left) / rect.width) * cols);
     const row = Math.floor(((event.clientY - rect.top) / rect.height) * rows);
     return {
@@ -152,7 +151,6 @@ export function HighlightPathGrid({
       style={{ maxWidth: `${cols * cellRem}rem` }}
     >
       <div
-        ref={gridRef}
         role="grid"
         aria-label={label}
         aria-describedby={helpId}

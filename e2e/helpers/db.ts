@@ -230,3 +230,27 @@ export async function wordSearchAttemptFor(email: string) {
     await pool.end();
   }
 }
+
+export async function acrosticAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{
+      answer: string | null;
+      completed: boolean;
+    }>(
+      `select c.answer, a.completed_at is not null as completed
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join acrostic_attempts c on c.attempt_id = a.id
+        where u.email = $1
+        order by a.started_at desc
+        limit 1`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}

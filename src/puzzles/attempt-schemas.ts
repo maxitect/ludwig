@@ -1,3 +1,4 @@
+import { attemptSchema as acrosticAttempt } from "./acrostic/schema";
 import { attemptSchema as anagramAttempt } from "./anagram/schema";
 import { attemptSchema as bookCipherAttempt } from "./book-cipher/schema";
 import { attemptSchema as caesarAttempt } from "./caesar/schema";
@@ -17,6 +18,7 @@ import { attemptSchema as wordSearchAttempt } from "./word-search/schema";
 
 /** Attempt schemas for the types that have a solver, importable from client code (the registry is not). */
 const attemptSchemas = {
+  acrostic: acrosticAttempt,
   anagram: anagramAttempt,
   "book-cipher": bookCipherAttempt,
   caesar: caesarAttempt,

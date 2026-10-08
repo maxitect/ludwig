@@ -5,6 +5,7 @@ export * from "../../puzzles/reverse-chess/tables";
 export * from "../../puzzles/gears/tables";
 export * from "../../puzzles/rota/tables";
 export * from "../../puzzles/anagram/tables";
+export * from "../../puzzles/acrostic/tables";
 export * from "../../puzzles/crossword/tables";
 export * from "../../puzzles/spot-difference/tables";
 export * from "../../puzzles/sudoku/tables";

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function SettingsPage() {
   return (
-    <GridPaper className="min-h-full">
+    <GridPaper className="flex-1">
       <main className="mx-auto flex max-w-xl flex-col gap-10 px-4 py-12 sm:px-8">
         <Credit level={1} top="Your account" bottom="Settings" />
         <Suspense fallback={<Walker />}>

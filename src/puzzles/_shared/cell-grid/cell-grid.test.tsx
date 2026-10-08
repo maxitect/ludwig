@@ -3,7 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { CellGrid, cellRotation } from "./cell-grid";
+import { CellGrid, cellRotation, snapCell } from "./cell-grid";
 import {
   cellKey,
   type CellKey,
@@ -357,5 +357,13 @@ describe("CellGrid edges", () => {
     expect((container.firstElementChild as HTMLElement).style.maxWidth).toBe(
       "10rem",
     );
+  });
+});
+
+describe("snapCell", () => {
+  it("returns a whole-pixel cell that fits the width with frame and hairlines", () => {
+    expect(snapCell(358, 15)).toBe(22);
+    expect(22 * 15 + 14 + 4).toBeLessThanOrEqual(358);
+    expect(snapCell(500, 9)).toBe(Math.floor((500 - 4 - 8) / 9));
   });
 });

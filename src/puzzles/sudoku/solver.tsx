@@ -9,8 +9,8 @@ const SIZE = 9;
 
 const boxBorders = (row: number, col: number) =>
   cn(
-    col % 3 === 2 && col < SIZE - 1 && "border-r-2",
-    row % 3 === 2 && row < SIZE - 1 && "border-b-2",
+    col % 3 === 2 && col < SIZE - 1 && "border-r-2 border-ink",
+    row % 3 === 2 && row < SIZE - 1 && "border-b-2 border-ink",
   );
 
 export function Solver({
@@ -29,7 +29,6 @@ export function Solver({
       onStateChange={onStateChange}
       registerCheck={registerCheck}
       requestCheck={requestCheck}
-      className="mirrored-digits"
       cellClassName={boxBorders}
       instructions="Type 1 to 9 to fill a cell and Backspace to clear it. Press N to switch notes on or off. Arrow keys move between cells. The grid is checked when every cell is filled."
     />

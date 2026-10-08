@@ -21,7 +21,7 @@ const solvedOn = new Intl.DateTimeFormat("en-GB", {
 
 export default function CasebookPage() {
   return (
-    <GridPaper className="min-h-full">
+    <GridPaper className="flex-1">
       <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
         <Credit level={1} top="Your progress" bottom="Casebook" />
         <Suspense fallback={<Walker />}>

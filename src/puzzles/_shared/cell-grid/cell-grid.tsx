@@ -228,7 +228,7 @@ export function CellGrid({
           <div
             key={row}
             role="row"
-            className="grid gap-px"
+            className="grid auto-cols-fr grid-flow-col gap-px"
             style={{ gridTemplateColumns: `repeat(${cols}, ${cell})` }}
           >
             {Array.from({ length: cols }, (_, col) => {

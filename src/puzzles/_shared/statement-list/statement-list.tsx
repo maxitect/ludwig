@@ -40,7 +40,7 @@ export function StatementList<V extends string>({
         const radioName = `${groupId}-${id}`;
         return (
           <li key={id}>
-            <div className="border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] sm:p-6">
+            <div className="border-2 border-border bg-card p-4 text-card-foreground shadow-[3px_3px_0_var(--cast)] sm:p-6">
               <fieldset
                 disabled={disabled}
                 className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0"
@@ -58,7 +58,7 @@ export function StatementList<V extends string>({
                   {statements.map((statement, position) => (
                     <li
                       key={position}
-                      className="-indent-3 pl-3 font-hand text-xl text-crayon sm:text-2xl"
+                      className="-indent-3 pl-3 font-hand text-xl text-hand sm:text-2xl"
                     >
                       <span className="sr-only">{name} says: </span>“{statement}”
                     </li>
@@ -71,10 +71,10 @@ export function StatementList<V extends string>({
                       <label
                         key={option.value}
                         className={cn(
-                          "flex min-h-11 cursor-pointer items-center gap-2 border-2 border-ink px-4 font-display uppercase has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
+                          "flex min-h-11 cursor-pointer items-center gap-2 border-2 border-border px-4 font-display uppercase has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
                           selected
                             ? "bg-primary text-primary-foreground"
-                            : "bg-paper-shade text-ink",
+                            : "bg-muted text-card-foreground",
                         )}
                       >
                         <input

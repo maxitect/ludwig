@@ -595,8 +595,8 @@ Defined in `src/app/globals.css` with Tailwind v4 `@theme` and mapped onto shadc
 | `--crayon` | `#8B2020` | Hand-filled letters on paper (lower contrast than full red) |
 | `--shadow` | `#1E2B3B` | Long cast shadows, dark-mode surfaces |
 | `--shadow-soft` | `#4C5462` | Muted borders and icons on dark |
-| `--grid-blue` | `#004060` | The "tear-through" blue grid revealed under bullet holes, focus rings |
-| `--book-blue` | `#3A7FB0` | Pocket Puzzle Collection covers (volume cards) |
+| `--grid-blue` | `#004060` | The "tear-through" blue grid revealed under bullet holes |
+| `--book-blue` | `#3A7FB0` | Pocket Puzzle Collection covers (volume cards), focus rings (3.4:1 on paper, 4.5:1 on ink, so a ring reads on paper and ink cells in both themes) |
 
 **shadcn mapping (light / "Paper"):**
 
@@ -606,7 +606,7 @@ Defined in `src/app/globals.css` with Tailwind v4 `@theme` and mapped onto shadc
 - `secondary` → ink, `secondary-foreground` → paper
 - `muted` → paper-shade, `accent` → book-blue
 - `destructive` → blood
-- `border` → ink at 100% (2px), `input` → ink, `ring` → grid-blue
+- `border` → ink at 100% (2px), `input` → ink, `ring` → book-blue
 - `--cast` → shadow (the colour of every hard offset shadow), `--hand` → crayon (handwritten entry)
 
 **Dark theme ("Ink", modelled on the title card):**
@@ -615,7 +615,7 @@ Defined in `src/app/globals.css` with Tailwind v4 `@theme` and mapped onto shadc
 - `card` and `popover` → ink, so raised surfaces are dark, not blue; the light `border` and the light `--cast` shadow separate them from the page
 - `muted` → paper at 14% over ink (dark, non-blue), used for active clue rows, hover states and selected toggle cells
 - `--cast` → paper at 45% (3.8:1 against ink), `--hand` → paper (crayon is too dark on ink)
-- `destructive` → ludwig-red (blood is invisible on ink), so the `aria-invalid` underline reads at 3:1 or better
+- `destructive` → ludwig-red at 65% over paper (blood is invisible on ink, and plain ludwig-red is only 3.2:1), 4.5:1 or better against ink, so error text and the `aria-invalid` underline pass; `destructive-foreground` → ink
 - `primary` → ludwig-red (unchanged), `border` → paper at 60%
 - Grids (`CellGrid`, the chess board) stay paper, like a printed page on a dark desk. Their frame is the light `border` and they carry the `--cast` shadow
 
@@ -641,6 +641,7 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 | Component | Ludwig treatment |
 |---|---|
 | Button (primary) | Red fill, paper text, Josefin 700 caps, 0 radius, 2px `border`, 3px hard offset shadow in `--cast` that collapses on press |
+| Button (disabled) | Every variant: `muted` fill, `muted-foreground` text, a `muted-foreground` border and no shadow (ghost keeps no fill or border). Never opacity, so a disabled button looks the same in both themes and no grain shows through the fill |
 | Button (secondary) | Paper fill, ink border, ink text. Hover inverts to an ink fill (a "black square") |
 | Input | Bottom-border-only "answer line", or a cell variant (`<CellInput>`): one square per letter, handwritten red entry |
 | Card | `card` surface (paper in Paper, ink in Ink) with grain, 2px `border` and a `--cast` block shadow. Optional clue number in the top-left corner. Volume cards styled as Pocket Puzzle Collection covers (book-blue, white signature, pale caps band) |
@@ -1038,7 +1039,7 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 - Every page title uses the stacked caps credits pattern.
 - No rounded corners anywhere, including shadcn defaults and focus rings.
 - Paper grain is visible on every surface. There are no flat whites (`#fff` is banned in tokens).
-- The only accent hue is red. Blue appears only as shadow, grid-blue focus and book covers.
+- The only accent hue is red. Blue appears only as shadow, book-blue focus rings and book covers.
 - Entered letters look hand-filled in red.
 - The loading state is the silhouette walker.
 - Lighthouse: Performance ≥ 90 on the solve pages, and Accessibility ≥ 95.

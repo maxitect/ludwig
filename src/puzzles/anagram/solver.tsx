@@ -56,8 +56,6 @@ export function Solver({
     );
   }, [registerCheck, placed, tiles]);
 
-  useEffect(() => board.current?.focus(), []);
-
   function update(next: number[]) {
     setPlaced(next);
     onStateChange({
@@ -101,7 +99,7 @@ export function Solver({
         aria-label="Anagram"
         tabIndex={0}
         onKeyDown={onKeyDown}
-        className="flex flex-col gap-6 outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-ring"
+        className="flex w-fit max-w-full flex-col gap-6 outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-ring"
       >
         <div className="flex flex-wrap gap-x-6 gap-y-4">
           {wordLengths.map((length, word) => (

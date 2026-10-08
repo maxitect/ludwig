@@ -93,7 +93,7 @@ export function Solver({
                 key={word}
                 className={
                   isFound
-                    ? "font-display text-lg text-ink-soft line-through decoration-ludwig-red decoration-2"
+                    ? "font-display text-lg text-muted-foreground line-through decoration-ludwig-red decoration-2"
                     : "font-display text-lg"
                 }
               >

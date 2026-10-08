@@ -1,5 +1,6 @@
 "use client";
 
+import { Minus, Plus } from "lucide-react";
 import { useMotionValue } from "motion/react";
 import { useEffect, useId, useMemo, useState } from "react";
 import {
@@ -195,7 +196,7 @@ export function Solver({
           aria-label="Crank back one tooth"
           onClick={() => turn(-1)}
         >
-          -
+          <Minus aria-hidden />
         </Button>
         <span className="min-w-24 text-center">
           Crank <output data-testid="crank">{crank}</output> of {cranks}
@@ -206,7 +207,7 @@ export function Solver({
           aria-label="Crank forward one tooth"
           onClick={() => turn(1)}
         >
-          +
+          <Plus aria-hidden />
         </Button>
       </div>
       <div className="flex flex-col gap-2">

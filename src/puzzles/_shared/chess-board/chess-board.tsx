@@ -128,7 +128,7 @@ export function ChessBoard({
   if (picked) squareStyles[picked] = { boxShadow: ring("ludwig-red", 6) };
   if (focused) {
     squareStyles[cursor] = {
-      boxShadow: `${ring("grid-blue", 5)}, inset 0 0 0 8px var(--color-paper)`,
+      boxShadow: `inset 0 0 0 5px var(--ring), inset 0 0 0 8px var(--color-paper)`,
     };
   }
 

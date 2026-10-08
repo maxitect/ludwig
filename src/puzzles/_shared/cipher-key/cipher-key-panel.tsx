@@ -119,7 +119,7 @@ export function CipherKeyPanel({
         {words.map((word, wordIndex) => (
           <span
             key={wordIndex}
-            className="flex border-b-2 border-paper-shade"
+            className="flex border-b-2 border-border"
           >
             {[...word].map((character, index) => {
               const lower = character.toLowerCase();
@@ -181,7 +181,7 @@ export function CipherKeyPanel({
               key={letter}
               className={cn(
                 "flex flex-col items-center gap-1",
-                !present.has(letter) && "opacity-30",
+                !present.has(letter) && "text-muted-foreground",
               )}
             >
               {symbols ? (
@@ -221,7 +221,7 @@ export function CipherKeyPanel({
                   if (/^[a-z]$/i.test(typed)) enter(letter, typed);
                 }}
                 className={cn(
-                  "size-9 border-2 border-border text-center font-hand text-2xl uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive",
+                  "size-9 border-2 border-border text-center font-hand text-2xl uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive disabled:border-dashed disabled:bg-transparent",
                   isLocked ? "bg-muted text-card-foreground" : "bg-card text-hand",
                 )}
               />

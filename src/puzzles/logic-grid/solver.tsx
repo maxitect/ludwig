@@ -112,7 +112,7 @@ export function Solver({
                   }}
                   className={cn(
                     "cursor-pointer text-left outline-0 focus-visible:outline-2 focus-visible:outline-ring",
-                    isStruck && "text-ink-soft line-through",
+                    isStruck && "text-muted-foreground line-through",
                   )}
                 >
                   <span className="sr-only">Cross out clue {position + 1}: </span>

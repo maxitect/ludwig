@@ -1,9 +1,9 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "@playwright/test";
 import { themeColors } from "../../src/config/theme-colors";
 
-const L_PATH = "M9 6h5v15h9v5H9z";
-const RED = "#C40C12";
+const L_GLYPH = readFileSync("src/app/icon.svg", "utf8").match(/<path[^>]*\/>/)?.[0];
+if (!L_GLYPH) throw new Error("No <path> in src/app/icon.svg");
 
 type Icon = { file: string; size: number; scale: number };
 
@@ -16,7 +16,7 @@ const ICONS: Icon[] = [
 ];
 
 function svg({ size, scale }: Icon) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 32 32"><rect width="32" height="32" fill="${themeColors.paper}"/><path d="${L_PATH}" fill="${RED}" transform="translate(16 16) scale(${scale}) translate(-16 -16)"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 32 32"><rect width="32" height="32" fill="${themeColors.paper}"/><g transform="translate(16 16) scale(${scale}) translate(-16 -16)">${L_GLYPH}</g></svg>`;
 }
 
 async function main() {
@@ -34,4 +34,7 @@ async function main() {
   await browser.close();
 }
 
-main();
+main().catch((error) => {
+  console.error(error instanceof Error ? error.message : error);
+  process.exit(1);
+});

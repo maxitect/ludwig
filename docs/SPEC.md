@@ -662,7 +662,7 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 ### 6.7 Mobile
 
 - **Safe areas.** Anything fixed or flush to a screen edge pads itself with `env(safe-area-inset-*)`, using `max()` against its normal padding so it never shrinks: the site header (top, left, right), the footer (bottom) and bottom sheets (bottom). The viewport sets `viewport-fit=cover` so the insets are non-zero.
-- **Theme colour.** The browser chrome follows the active theme. `viewport.themeColor` carries Paper and Ink for the system setting, and the theme init script and `applyTheme` rewrite the `theme-color` meta when the theme is chosen by hand. The hex values live in `src/config/theme-colors.ts`.
+- **Theme colour.** The browser chrome follows the active theme. `viewport.themeColor` carries Paper and Ink for the system setting. When the theme is chosen by hand, the theme init script and `applyTheme` prepend their own `theme-color` meta, which wins because it comes first; they never edit the metas React renders. "System" removes it. The hex values live in `src/config/theme-colors.ts`.
 - **Install hint.** On iOS Safari, outside standalone mode, the mobile nav sheet shows a dismissible "Add to Home Screen" hint. The dismissal is kept in `localStorage`.
 
 ---

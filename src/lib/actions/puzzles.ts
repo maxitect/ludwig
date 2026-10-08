@@ -16,7 +16,13 @@ import {
 } from "@/lib/data/puzzles";
 import { getCurrentUser, requireUser } from "@/lib/data/user";
 import { getPuzzleModule } from "@/puzzles/registry";
+import type { RungProblem } from "@/puzzles/word-ladder/check";
 
+type CheckResult = {
+  correct: boolean;
+  epilogue?: string;
+  rungProblems?: RungProblem[];
+};
 type ActionError = { ok: false; error: "invalid" | "not_found" };
 const invalid: ActionError = { ok: false, error: "invalid" };
 const notFound: ActionError = { ok: false, error: "not_found" };
@@ -72,7 +78,7 @@ export async function checkAnswer(
   answer: unknown,
   options: z.input<typeof checkOptionsSchema>,
 ): Promise<
-  { ok: true; result: { correct: boolean; epilogue?: string } } | ActionError
+  { ok: true; result: CheckResult } | ActionError
 > {
   const user = await getCurrentUser();
   const parsedOptions = checkOptionsSchema.safeParse(options);

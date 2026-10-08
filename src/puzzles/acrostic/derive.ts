@@ -1,6 +1,6 @@
-import type { acrosticRuleEnum } from "./tables";
+import type { Content } from "./schema";
 
-export type Rule = (typeof acrosticRuleEnum.enumValues)[number];
+type Rule = Content["rule"];
 
 export const RULE_LABELS: Readonly<Record<Rule, string>> = {
   first_letter_line: "Read the first letter of each line",

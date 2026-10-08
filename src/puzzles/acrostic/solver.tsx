@@ -30,7 +30,7 @@ export function Solver({
       >
         <ol className="flex flex-col gap-2">
           {lines.map((line, position) => (
-            <li key={position} className="font-hand text-xl text-crayon sm:text-2xl">
+            <li key={position} className="-indent-6 pl-6 font-hand text-xl text-crayon sm:text-2xl">
               {line}
             </li>
           ))}

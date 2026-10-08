@@ -40,52 +40,59 @@ export function StatementList<V extends string>({
         const radioName = `${groupId}-${id}`;
         return (
           <li key={id}>
-            <fieldset
-              disabled={disabled}
-              className="flex flex-col gap-3 border-2 border-border bg-paper p-4 shadow-[3px_3px_0_var(--color-shadow)] sm:p-6"
-            >
-              <legend className="px-2 font-display text-xl uppercase">
-                {name}
-                <span className="sr-only">. {question}</span>
-              </legend>
-              <ul className="flex flex-col gap-1">
-                {statements.map((statement, position) => (
-                  <li
-                    key={position}
-                    className="-indent-3 pl-3 font-hand text-xl text-crayon sm:text-2xl"
-                  >
-                    <span className="sr-only">{name} says: </span>“{statement}”
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-3">
-                {options.map((option) => {
-                  const selected = chosen === option.value;
-                  return (
-                    <label
-                      key={option.value}
-                      className={cn(
-                        "flex min-h-11 cursor-pointer items-center gap-2 border-2 border-border px-4 font-display uppercase has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
-                        selected
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-paper-shade text-ink",
-                      )}
+            <div className="border-2 border-border bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] sm:p-6">
+              <fieldset
+                disabled={disabled}
+                className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0"
+              >
+                <legend className="sr-only">
+                  {name}. {question}
+                </legend>
+                <h3
+                  aria-hidden="true"
+                  className="font-display text-xl uppercase"
+                >
+                  {name}
+                </h3>
+                <ul className="flex flex-col gap-1">
+                  {statements.map((statement, position) => (
+                    <li
+                      key={position}
+                      className="-indent-3 pl-3 font-hand text-xl text-crayon sm:text-2xl"
                     >
-                      <input
-                        type="radio"
-                        name={radioName}
-                        value={option.value}
-                        checked={selected}
-                        onChange={() => onChange(id, option.value)}
-                        className="sr-only"
-                      />
-                      <span aria-hidden="true">{selected ? "✓" : "○"}</span>
-                      {option.label}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
+                      <span className="sr-only">{name} says: </span>“{statement}”
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-wrap gap-3">
+                  {options.map((option) => {
+                    const selected = chosen === option.value;
+                    return (
+                      <label
+                        key={option.value}
+                        className={cn(
+                          "flex min-h-11 cursor-pointer items-center gap-2 border-2 border-border px-4 font-display uppercase has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
+                          selected
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-paper-shade text-ink",
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name={radioName}
+                          value={option.value}
+                          checked={selected}
+                          onChange={() => onChange(id, option.value)}
+                          className="sr-only"
+                        />
+                        <span aria-hidden="true">{selected ? "✓" : "○"}</span>
+                        {option.label}
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            </div>
           </li>
         );
       })}

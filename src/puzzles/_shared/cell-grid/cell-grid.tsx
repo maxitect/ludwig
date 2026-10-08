@@ -78,6 +78,14 @@ export function cellRotation(index: number) {
   return Number((mulberry32(index + 1)() * 4 - 2).toFixed(2));
 }
 
+const FRAME = 2;
+const HAIRLINE = 1;
+
+/** CSS length of the largest whole-pixel cell that fits the grid's container, so every hairline lands on a pixel boundary. */
+export function snappedCell(cols: number) {
+  return `round(down, calc((100cqw - ${2 * FRAME + (cols - 1) * HAIRLINE}px) / ${cols}), 1px)`;
+}
+
 export function CellGrid({
   rows,
   cols,
@@ -114,6 +122,7 @@ export function CellGrid({
   const rootRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const cellRefs = useRef(new Map<CellKey, HTMLDivElement>());
+  const cell = snappedCell(cols);
 
   useImperativeHandle(ref, () => ({ focus: () => inputRef.current?.focus() }));
 
@@ -210,14 +219,17 @@ export function CellGrid({
         ref={gridRef}
         role="grid"
         aria-label={label}
-        className="flex flex-col border-2 border-ink bg-paper"
+        className="mx-auto flex flex-col gap-px border-2 border-ink bg-ink"
+        style={{
+          width: `calc(${cell} * ${cols} + ${(cols - 1) * HAIRLINE + 2 * FRAME}px)`,
+        }}
       >
         {Array.from({ length: rows }, (_, row) => (
           <div
             key={row}
             role="row"
-            className="grid"
-            style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+            className="grid auto-cols-fr grid-flow-col gap-px"
+            style={{ gridTemplateColumns: `repeat(${cols}, ${cell})` }}
           >
             {Array.from({ length: cols }, (_, col) => {
               const key = cellKey(row, col);
@@ -228,7 +240,7 @@ export function CellGrid({
                     key={key}
                     role="gridcell"
                     aria-label={`${where}, block`}
-                    className="aspect-square border border-ink bg-ink"
+                    className="aspect-square bg-ink"
                   />
                 );
               }
@@ -262,7 +274,7 @@ export function CellGrid({
                     .join(", ")}
                   data-active={isActive}
                   className={cn(
-                    "relative aspect-square cursor-pointer select-none border border-ink bg-paper font-hand text-crayon outline-0",
+                    "relative aspect-square cursor-pointer select-none bg-paper font-hand text-crayon outline-0",
                     isLocked && "font-display font-bold text-ink",
                     highlight?.has(key) && "bg-paper-deep",
                     cellClassName?.(row, col),
@@ -277,7 +289,7 @@ export function CellGrid({
                   {note && (
                     <span
                       aria-hidden
-                      className="absolute left-[6%] top-0 font-display text-[0.4em] leading-none text-ink"
+                      className="absolute left-[6%] top-0 font-display text-[max(0.4em,8px)] leading-none text-ink"
                     >
                       {note.content}
                     </span>
@@ -299,7 +311,10 @@ export function CellGrid({
                     </span>
                   )}
                   <span
-                    className="flex size-full items-center justify-center"
+                    className={cn(
+                      "flex size-full items-center justify-center",
+                      note && "pl-[0.2em] pt-[0.3em]",
+                    )}
                     style={{
                       transform: `rotate(${cellRotation(row * cols + col)}deg)`,
                     }}

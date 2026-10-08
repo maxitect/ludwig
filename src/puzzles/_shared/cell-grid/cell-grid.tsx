@@ -281,7 +281,9 @@ export function CellGrid({
                     cellClassName?.(row, col),
                     "group-focus-within:data-[active=true]:z-10 group-focus-within:data-[active=true]:outline-2 group-focus-within:data-[active=true]:-outline-offset-2 group-focus-within:data-[active=true]:outline-ring",
                   )}
-                  style={{ fontSize: `${70 / cols}cqw` }}
+                  style={{
+                    fontSize: `min(${70 / cols}cqw, calc(var(--solver-height, 100000px) * 0.7 / ${rows}))`,
+                  }}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => select({ row, col })}
                   onFocus={() => setActive({ row, col })}

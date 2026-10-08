@@ -85,7 +85,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T046](./T046-type-sudoku.md) | Puzzle type: sudoku (+ end-to-end flow 5, keyboard-only) | T021 | ✔ | | done |
 | [T047](./T047-type-futoshiki.md) | Puzzle type: futoshiki | T046 | ✔ | | done |
 | [T048](./T048-type-logic-grid.md) | Puzzle type: logic grid (+ false-statement variant) | T021 | ✔ | | done |
-| [T049](./T049-type-word-ladder.md) | Puzzle type: word ladder and the `words` dictionary | T019 | ✔ | | todo |
+| [T049](./T049-type-word-ladder.md) | Puzzle type: word ladder and the `words` dictionary | T019 | ✔ | | done |
 | [T050](./T050-type-acrostic.md) | Puzzle type: acrostic | T019 | ✔ | | todo |
 | [T051](./T051-type-word-search.md) | Puzzle type: word search ("The Fob-Off") | T021 | ✔ | | todo |
 | [T052](./T052-type-caesar-keyword.md) | Puzzle types: caesar and keyword (shared cipher-key panel) | T019 | ✔ | | done |

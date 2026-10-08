@@ -16,30 +16,21 @@ export const content = {
       name: "Cora",
       role: "knight",
       statements: [
-        {
-          content: "Exactly one of us is a knight.",
-          claim: { kind: "exactly", role: "knight", n: 1 },
-        },
+        { content: "Exactly one of us is a knight.", claim: { kind: "exactly", role: "knight", n: 1 } },
       ],
     },
     {
       name: "Dev",
       role: "knave",
       statements: [
-        {
-          content: "Cora is a knave.",
-          claim: { kind: "is", who: "Cora", role: "knave" },
-        },
+        { content: "Cora is a knave.", claim: { kind: "is", who: "Cora", role: "knave" } },
       ],
     },
     {
       name: "Edda",
       role: "knave",
       statements: [
-        {
-          content: "Dev and I are different kinds.",
-          claim: { kind: "different", a: "Dev", b: "Edda" },
-        },
+        { content: "Dev and I are different kinds.", claim: { kind: "different", a: "Dev", b: "Edda" } },
       ],
     },
   ],

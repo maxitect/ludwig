@@ -16,50 +16,35 @@ export const content = {
       name: "Mara",
       role: "knight",
       statements: [
-        {
-          content: "Odile and Nico are different kinds.",
-          claim: { kind: "different", a: "Odile", b: "Nico" },
-        },
+        { content: "Odile and Nico are different kinds.", claim: { kind: "different", a: "Odile", b: "Nico" } },
       ],
     },
     {
       name: "Nico",
       role: "knight",
       statements: [
-        {
-          content: "Exactly three of us are knights.",
-          claim: { kind: "exactly", role: "knight", n: 3 },
-        },
+        { content: "Exactly three of us are knights.", claim: { kind: "exactly", role: "knight", n: 3 } },
       ],
     },
     {
       name: "Odile",
       role: "knave",
       statements: [
-        {
-          content: "Quin is a knave.",
-          claim: { kind: "is", who: "Quin", role: "knave" },
-        },
+        { content: "Quin is a knave.", claim: { kind: "is", who: "Quin", role: "knave" } },
       ],
     },
     {
       name: "Pip",
       role: "knave",
       statements: [
-        {
-          content: "Mara and Odile are the same kind.",
-          claim: { kind: "same", a: "Mara", b: "Odile" },
-        },
+        { content: "Mara and Odile are the same kind.", claim: { kind: "same", a: "Mara", b: "Odile" } },
       ],
     },
     {
       name: "Quin",
       role: "knight",
       statements: [
-        {
-          content: "Nico is a knight.",
-          claim: { kind: "is", who: "Nico", role: "knight" },
-        },
+        { content: "Nico is a knight.", claim: { kind: "is", who: "Nico", role: "knight" } },
       ],
     },
   ],

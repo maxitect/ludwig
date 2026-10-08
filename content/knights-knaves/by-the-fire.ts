@@ -16,40 +16,28 @@ export const content = {
       name: "Ivo",
       role: "knight",
       statements: [
-        {
-          content: "At least two of us are knaves.",
-          claim: { kind: "atLeast", role: "knave", n: 2 },
-        },
+        { content: "At least two of us are knaves.", claim: { kind: "atLeast", role: "knave", n: 2 } },
       ],
     },
     {
       name: "Jude",
       role: "knave",
       statements: [
-        {
-          content: "Ivo and Kit are different kinds.",
-          claim: { kind: "different", a: "Ivo", b: "Kit" },
-        },
+        { content: "Ivo and Kit are different kinds.", claim: { kind: "different", a: "Ivo", b: "Kit" } },
       ],
     },
     {
       name: "Kit",
       role: "knight",
       statements: [
-        {
-          content: "Lark is a knave.",
-          claim: { kind: "is", who: "Lark", role: "knave" },
-        },
+        { content: "Lark is a knave.", claim: { kind: "is", who: "Lark", role: "knave" } },
       ],
     },
     {
       name: "Lark",
       role: "knave",
       statements: [
-        {
-          content: "Ivo and Jude are the same kind.",
-          claim: { kind: "same", a: "Ivo", b: "Jude" },
-        },
+        { content: "Ivo and Jude are the same kind.", claim: { kind: "same", a: "Ivo", b: "Jude" } },
       ],
     },
   ],

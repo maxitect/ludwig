@@ -102,8 +102,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | done |
 | [T074](./T074-crossword-enumeration-separators.md) | Crossword enumeration separators (hyphen or word break) | T045 | ✔ | | done |
 | [T080](./T080-crossword-separator-required.md) | Require a separator on every non-last crossword segment | T074 | ✔ | | done |
-| [T082](./T082-gear-train-tables-engine.md) | Gear train (Gear Puzzle Mode B): tables, engine, uniqueness search | T016, T034 | ✔ | | todo |
-| [T083](./T083-gear-train-ui-content.md) | Gear train UI, gears hub integration and content | T082, T043 | | | todo |
+| [T082](./T082-gear-train-tables-engine.md) | Gear train (Gear Puzzle Mode B): tables, engine, uniqueness search | T016, T034 | ✔ | | done |
+| [T083](./T083-gear-train-ui-content.md) | Gear train UI, gears hub integration and content | T082, T043 | | | done |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
 | [T132](./T132-drop-rota-attempt-instigator.md) | Drop the unused `rota_attempts.instigator_worker_id` column | T063 | ✔ | | todo |
 | [T133](./T133-reverse-chess-ply-count-trigger.md) | Enforce `reverse_chess_puzzles.ply_count` for every mode with a trigger | T081 | ✔ | | todo |

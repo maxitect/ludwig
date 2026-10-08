@@ -12,10 +12,10 @@ export const content = {
   rule: "last_letter_line",
   lines: [
     "The stairwell light flickers on and then on again",
-    "Somewhere below a dog barks at the studio",
+    "Somewhere below, a dog barks outside the empty studio",
     "I counted every door along the hall twice",
     "Nobody has touched the key inside the wooden box",
-    "The fridge held nothing but a single kiwi",
+    "The fridge holds nothing but a single bruised kiwi",
     "Then I turned to go, and heard the clock strike eight",
   ],
 } satisfies Content;

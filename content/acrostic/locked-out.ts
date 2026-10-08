@@ -10,5 +10,5 @@ export const meta = {
 
 export const content = {
   rule: "first_letter_word",
-  lines: ["My iron door never ignores guests,", "however talkative."],
+  lines: ["Meet inside Dad's newsagent.", "If Gran hears, tiptoe."],
 } satisfies Content;

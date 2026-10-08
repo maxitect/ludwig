@@ -23,7 +23,6 @@ export default defineConfig({
     environment: "node",
     fileParallelism: false,
     globalSetup: ["src/db/integrity/global-setup.ts"],
-    setupFiles: ["src/test/resize-observer.ts"],
     include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     env: {
       DATABASE_URL: testDatabaseUrl(databaseUrl),

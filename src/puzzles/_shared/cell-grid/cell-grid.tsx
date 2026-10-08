@@ -3,7 +3,6 @@
 import {
   useEffect,
   useImperativeHandle,
-  useLayoutEffect,
   useRef,
   useState,
   type InputEvent,
@@ -82,9 +81,9 @@ export function cellRotation(index: number) {
 const FRAME = 2;
 const HAIRLINE = 1;
 
-/** Largest whole-pixel cell that fits `width`, so every hairline lands on a pixel boundary. */
-export function snapCell(width: number, cols: number) {
-  return Math.floor((width - 2 * FRAME - (cols - 1) * HAIRLINE) / cols);
+/** CSS length of the largest whole-pixel cell that fits the grid's container, so every hairline lands on a pixel boundary. */
+export function snappedCell(cols: number) {
+  return `round(down, calc((100cqw - ${2 * FRAME + (cols - 1) * HAIRLINE}px) / ${cols}), 1px)`;
 }
 
 export function CellGrid({
@@ -123,20 +122,7 @@ export function CellGrid({
   const rootRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const cellRefs = useRef(new Map<CellKey, HTMLDivElement>());
-  const [cellPx, setCellPx] = useState<number>();
-
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const measure = () => {
-      const fit = snapCell(root.clientWidth, cols);
-      setCellPx(fit > 0 ? fit : undefined);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(root);
-    return () => observer.disconnect();
-  }, [cols]);
+  const cell = snappedCell(cols);
 
   useImperativeHandle(ref, () => ({ focus: () => inputRef.current?.focus() }));
 
@@ -234,20 +220,16 @@ export function CellGrid({
         role="grid"
         aria-label={label}
         className="mx-auto flex flex-col gap-px border-2 border-ink bg-ink"
-        style={
-          cellPx
-            ? { width: cellPx * cols + (cols - 1) * HAIRLINE + 2 * FRAME }
-            : undefined
-        }
+        style={{
+          width: `calc(${cell} * ${cols} + ${(cols - 1) * HAIRLINE + 2 * FRAME}px)`,
+        }}
       >
         {Array.from({ length: rows }, (_, row) => (
           <div
             key={row}
             role="row"
             className="grid gap-px"
-            style={{
-              gridTemplateColumns: `repeat(${cols}, ${cellPx ? `${cellPx}px` : "1fr"})`,
-            }}
+            style={{ gridTemplateColumns: `repeat(${cols}, ${cell})` }}
           >
             {Array.from({ length: cols }, (_, col) => {
               const key = cellKey(row, col);

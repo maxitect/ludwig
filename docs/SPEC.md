@@ -619,14 +619,14 @@ All text and background pairs must pass WCAG AA. Red on paper (`#C40C12` on `#E9
 
 - **Paper grain.** A single tiled noise PNG of about 512px, kept under 40 KB and generated once from an SVG `feTurbulence`. It is applied through a `body::before` overlay with `mix-blend-mode: multiply` at around 0.35 opacity. It is never a live SVG filter, for performance.
 - **Raking light.** An optional `.raking` utility adds a large diagonal linear-gradient of blue-grey shadow stripes at low opacity, used on hero sections and the landing page.
-- **Grid paper.** The `.grid-paper` background is a CSS `background-image` of dot-and-cross (·×) on a 24px pitch, used on the Casebook and in scratch areas.
+- **Grid paper.** The `.grid-paper` background is a CSS `background-image` of dot-and-cross (·×) on a 24px pitch, used on the Casebook, Settings, the signed-in landing desk and in scratch areas. It fills the page down to the footer, and in Ink its marks are toned down to 30%.
 - **Crossword cells everywhere.** Square corners (`--radius: 0`), 2px ink borders, and small superscript clue numbers on cards and buttons where they make sense.
 - **Red hand-filled letters.** Letters the user enters in grids render in `--font-hand` and `--crayon`/`--ludwig-red`, with a ±2° random rotation per cell seeded by its index for stable SSR.
 - **Ink splat.** An SVG asset placed behind the wordmark on the landing hero and the sign-in card.
 - **Silhouette walker.** A small black SVG figure that walks across grid cells. It is used as the **loading indicator** (`loading.tsx` / Suspense fallbacks) and on empty states.
 - **White chess pieces.** Large, with long blue shadows, used as decorative elements on the landing page and the Reverse Chess hub.
 - **Bullet-hole transition.** On puzzle completion, and as the landing-to-app route transition, a torn circular hole expands to reveal the blue grid. This uses the View Transitions API through Next's view-transition support, with `prefers-reduced-motion` falling back to a fade.
-- **Mirrored digits.** Sudoku decorative backgrounds use `scale-x-[-1]` digits, as in the titles.
+- **Mirrored digits.** Decorative sudoku backgrounds, such as the landing title sequence, use `scale-x-[-1]` digits, as in the titles. They are not drawn behind solve grids.
 
 ### 6.4 Component customisation (shadcn)
 

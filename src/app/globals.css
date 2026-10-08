@@ -98,7 +98,7 @@
   --hand: var(--color-crayon);
   --border: var(--color-ink);
   --input: var(--color-ink);
-  --ring: var(--color-grid-blue);
+  --ring: var(--color-book-blue);
   --grain-blend: multiply;
   --grain-invert: 0;
 }
@@ -118,8 +118,8 @@
   --muted-foreground: var(--color-paper-shade);
   --accent: var(--color-book-blue);
   --accent-foreground: var(--color-ink);
-  --destructive: var(--color-ludwig-red);
-  --destructive-foreground: var(--color-paper);
+  --destructive: color-mix(in srgb, var(--color-ludwig-red) 65%, var(--color-paper));
+  --destructive-foreground: var(--color-ink);
   --border: color-mix(in srgb, var(--color-paper) 60%, transparent);
   --input: color-mix(in srgb, var(--color-paper) 60%, transparent);
   --ring: var(--color-book-blue);
@@ -147,8 +147,8 @@
     --muted-foreground: var(--color-paper-shade);
     --accent: var(--color-book-blue);
     --accent-foreground: var(--color-ink);
-    --destructive: var(--color-ludwig-red);
-    --destructive-foreground: var(--color-paper);
+    --destructive: color-mix(in srgb, var(--color-ludwig-red) 65%, var(--color-paper));
+    --destructive-foreground: var(--color-ink);
     --border: color-mix(in srgb, var(--color-paper) 60%, transparent);
     --input: color-mix(in srgb, var(--color-paper) 60%, transparent);
     --ring: var(--color-book-blue);

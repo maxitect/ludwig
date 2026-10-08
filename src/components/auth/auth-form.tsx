@@ -61,7 +61,7 @@ export function AuthForm({
             {errors && (
               <p
                 id={`${name}-error`}
-                className="text-sm font-semibold underline decoration-2 underline-offset-4"
+                className="text-sm font-semibold text-destructive"
               >
                 {errors.join(" ")}
               </p>

@@ -130,7 +130,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T122](./T122-solved-footer-tear.md) | Solved footer, a small, ordered, framed tear behind the stamp | T120 | | | todo |
 | [T123](./T123-simplify-bullet-route-transition.md) | Simplify the bullet-hole route transition into the Collection | T122 | | | todo |
 | [T124](./T124-states-contrast-focus.md) | Disabled, error, contrast and focus states | T120 | | | todo |
-| [T125](./T125-grid-lines-textures.md) | Single-draw grid lines, crossword numbers on phones, and textures | — | | | todo |
+| [T125](./T125-grid-lines-textures.md) | Single-draw grid lines, crossword numbers on phones, and textures | — | | | done |
 | [T126](./T126-themed-not-found.md) | Themed 404 page and the root script-tag error | — | | | done |
 | [T127](./T127-book-cipher-layout.md) | Book cipher: lines never wrap on desktop, clear continuations on phones, aligned references | T120 | | | todo |
 | [T128](./T128-page-polish.md) | Per-page polish (rota, hubs, collection, sign-in, kitchen sink) | T120 | | | todo |

@@ -351,8 +351,8 @@ export function SolveChrome({
       </div>
 
       {solved && (
-        <footer className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 touch:max-h-[35dvh] touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto">
-          <div className="relative isolate grid size-66 shrink-0 place-items-center">
+        <footer className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto">
+          <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] touch:[--hole-size:216px]">
             <BulletHole data-testid="solved-hole" />
             <SolvedStamp delay={0.3} data-testid="solved-stamp" />
           </div>

@@ -45,23 +45,18 @@
   animation: 500ms ease-out 200ms both bullet-hole-open;
 }
 
-/* Solved footer hole: 264px box (11 whole 24px cells). It opens from its centre to the 36-point torn polygon on .bullet-hole, in px so clip-path interpolates. */
+/* Solved footer hole: a --hole-size square (an odd number of whole 24px cells, so the centre is a cell centre). It opens from its centre to the 36-point torn polygon on .bullet-hole, in lengths so clip-path interpolates. */
 @keyframes solved-hole-open {
   from {
-    clip-path: polygon(132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px);
+    clip-path: polygon(calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2), calc(var(--hole-size) / 2) calc(var(--hole-size) / 2));
   }
 }
 
 .bullet-hole {
-  --hole-size: 264px;
   --hole-rim: 14px;
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 0;
   z-index: -1;
-  width: var(--hole-size);
-  height: var(--hole-size);
-  translate: -50% -50%;
   pointer-events: none;
   background-color: var(--color-background);
   background-image:
@@ -73,7 +68,7 @@
     linear-gradient(color-mix(in oklab, var(--color-grid-blue) 60%, transparent) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in oklab, var(--color-grid-blue) 60%, transparent) 1px, transparent 1px);
   background-size: 100% 100%, 24px 24px, 24px 24px;
-  clip-path: polygon(256px 132px, 261.4px 154.8px, 250.7px 175.2px, 240.8px 194.8px, 231.5px 215.5px, 214.4px 230.3px, 195.3px 241.7px, 176.5px 254.2px, 154.6px 260.1px, 132px 260.3px, 109.5px 259.5px, 87.8px 253.3px, 66.7px 245px, 51px 228.5px, 34.7px 213.6px, 19.7px 196.8px, 10.2px 176.3px, 9.5px 153.6px, 2.5px 132px, 6.2px 109.8px, 8.5px 87.1px, 19px 66.8px, 36.3px 51.7px, 49.7px 33.9px, 66.3px 18.2px, 87.7px 10.3px, 109.6px 4.8px, 132px 3.4px, 154.8px 2.7px, 176.9px 8.6px, 195.5px 22px, 213.4px 35px, 232.1px 48px, 241.7px 68.7px, 249.7px 89.2px, 256.5px 110.1px);
+  clip-path: polygon(calc(var(--hole-size) * 0.9697) calc(var(--hole-size) * 0.5), calc(var(--hole-size) * 0.9902) calc(var(--hole-size) * 0.5864), calc(var(--hole-size) * 0.9496) calc(var(--hole-size) * 0.6636), calc(var(--hole-size) * 0.9121) calc(var(--hole-size) * 0.7379), calc(var(--hole-size) * 0.8769) calc(var(--hole-size) * 0.8163), calc(var(--hole-size) * 0.8121) calc(var(--hole-size) * 0.8723), calc(var(--hole-size) * 0.7398) calc(var(--hole-size) * 0.9155), calc(var(--hole-size) * 0.6686) calc(var(--hole-size) * 0.9629), calc(var(--hole-size) * 0.5856) calc(var(--hole-size) * 0.9852), calc(var(--hole-size) * 0.5) calc(var(--hole-size) * 0.986), calc(var(--hole-size) * 0.4148) calc(var(--hole-size) * 0.983), calc(var(--hole-size) * 0.3326) calc(var(--hole-size) * 0.9595), calc(var(--hole-size) * 0.2527) calc(var(--hole-size) * 0.928), calc(var(--hole-size) * 0.1932) calc(var(--hole-size) * 0.8655), calc(var(--hole-size) * 0.1314) calc(var(--hole-size) * 0.8091), calc(var(--hole-size) * 0.0746) calc(var(--hole-size) * 0.7455), calc(var(--hole-size) * 0.0386) calc(var(--hole-size) * 0.6678), calc(var(--hole-size) * 0.036) calc(var(--hole-size) * 0.5818), calc(var(--hole-size) * 0.0095) calc(var(--hole-size) * 0.5), calc(var(--hole-size) * 0.0235) calc(var(--hole-size) * 0.4159), calc(var(--hole-size) * 0.0322) calc(var(--hole-size) * 0.3299), calc(var(--hole-size) * 0.072) calc(var(--hole-size) * 0.253), calc(var(--hole-size) * 0.1375) calc(var(--hole-size) * 0.1958), calc(var(--hole-size) * 0.1883) calc(var(--hole-size) * 0.1284), calc(var(--hole-size) * 0.2511) calc(var(--hole-size) * 0.0689), calc(var(--hole-size) * 0.3322) calc(var(--hole-size) * 0.039), calc(var(--hole-size) * 0.4152) calc(var(--hole-size) * 0.0182), calc(var(--hole-size) * 0.5) calc(var(--hole-size) * 0.0129), calc(var(--hole-size) * 0.5864) calc(var(--hole-size) * 0.0102), calc(var(--hole-size) * 0.6701) calc(var(--hole-size) * 0.0326), calc(var(--hole-size) * 0.7405) calc(var(--hole-size) * 0.0833), calc(var(--hole-size) * 0.8083) calc(var(--hole-size) * 0.1326), calc(var(--hole-size) * 0.8792) calc(var(--hole-size) * 0.1818), calc(var(--hole-size) * 0.9155) calc(var(--hole-size) * 0.2602), calc(var(--hole-size) * 0.9458) calc(var(--hole-size) * 0.3379), calc(var(--hole-size) * 0.9716) calc(var(--hole-size) * 0.417));
   animation: 300ms ease-out both solved-hole-open;
 }
 

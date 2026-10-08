@@ -1,7 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { anagramPuzzle } from "./helpers/content";
-import { checkSolved, openPuzzle, typeAnagram } from "./helpers/solve";
+import {
+  checkSolved,
+  clickCheck,
+  openPuzzle,
+  typeAnagram,
+} from "./helpers/solve";
 
 const hole = (page: Page) => page.getByTestId("solved-hole");
 
@@ -35,12 +40,19 @@ for (const theme of ["paper", "ink"]) {
     expect(box).not.toBeNull();
     expect(Math.abs(box!.width - box!.height) / box!.width).toBeLessThan(0.05);
     expect(box!.width % 24).toBeLessThan(1);
+    expect(Math.round(box!.width / 24) % 2).toBe(1);
+    expect(
+      await page.evaluate(() => {
+        const footer = document.querySelector("section footer")!;
+        return footer.scrollHeight - footer.clientHeight;
+      }),
+    ).toBe(0);
 
     const overlaps = await page.evaluate(() => {
       const holeBox = document
         .querySelector('[data-testid="solved-hole"]')!
         .getBoundingClientRect();
-      const footer = document.querySelector("footer")!;
+      const footer = document.querySelector("section footer")!;
       return [...footer.querySelectorAll("p, a")].map((el) => {
         const r = el.getBoundingClientRect();
         return (
@@ -87,9 +99,6 @@ async function typeUnsolved(page: Page) {
   await typeAnagram(page, anagram.letters);
 }
 
-const check = (page: Page) =>
-  page.getByRole("button", { name: "Check", exact: true }).click();
-
 test("the stamp lands after the hole opens", async ({ page }) => {
   await typeUnsolved(page);
   const timing = page.evaluate(
@@ -115,7 +124,7 @@ test("the stamp lands after the hole opens", async ({ page }) => {
         requestAnimationFrame(watch);
       }),
   );
-  await check(page);
+  await clickCheck(page);
   const { holeEnd, stampStart } = await timing;
   expect(holeEnd).toBeGreaterThan(0);
   expect(stampStart).toBeGreaterThanOrEqual(holeEnd);
@@ -130,8 +139,9 @@ test("slowed, the hole is still growing while the stamp is not at rest", async (
       document.getAnimations().forEach((a) => (a.playbackRate = 0.1)),
     ).observe(document.body, { subtree: true, childList: true }),
   );
-  await check(page);
+  await clickCheck(page);
   const wrapper = page.getByTestId("solved-hole").locator("..");
+  await page.waitForTimeout(250);
   await wrapper.screenshot({
     path: `.verification/T122/${info.project.name}-mid-open.png`,
   });

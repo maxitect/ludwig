@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import "./bullet-hole.css";
 
-/** A torn hole that tears open behind its parent, revealing the blue grid. The parent must be `relative isolate`. */
+/** A 264px torn hole, centred behind its parent, that opens onto the blue grid. The parent must be `relative isolate` and at least `size-66`. */
 export function BulletHole({
   className = "",
   ...props

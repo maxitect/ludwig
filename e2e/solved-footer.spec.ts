@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { signUp, uniqueEmail } from "./helpers/auth";
 import { anagramPuzzle } from "./helpers/content";
 import { checkSolved, openPuzzle, typeAnagram } from "./helpers/solve";
 
@@ -80,42 +81,111 @@ for (const theme of ["paper", "ink"]) {
   });
 }
 
-test("the hole opens before the stamp lands", async ({ page }, info) => {
-  await solve(page);
-  await page.waitForTimeout(120);
-  const state = await page.evaluate(() => {
-    const hole = document
-      .querySelector('[data-testid="solved-hole"]')!
-      .getAnimations()
-      .find((a) => a instanceof CSSAnimation);
-    const stamp = document.querySelector('[data-testid="solved-stamp"]')!;
-    return {
-      holeName: hole && (hole as CSSAnimation).animationName,
-      holeTime: Number(hole?.currentTime ?? -1),
-      stampOpacity: Number(getComputedStyle(stamp).opacity),
-    };
-  });
-  expect(state.holeName).toBe("solved-hole-open");
-  expect(state.holeTime).toBeLessThan(300);
-  expect(state.stampOpacity).toBeLessThan(0.5);
-  await page.screenshot({
-    path: `.verification/T122/${info.project.name}-mid-open.png`,
-    fullPage: true,
-  });
-  await expect
-    .poll(async () => {
-      const stamp = page.getByTestId("solved-stamp");
-      return Number(await stamp.evaluate((el) => getComputedStyle(el).opacity));
-    })
-    .toBe(1);
+async function typeUnsolved(page: Page) {
+  const anagram = await anagramPuzzle();
+  await openPuzzle(page, anagram);
+  await typeAnagram(page, anagram.letters);
+}
+
+const check = (page: Page) =>
+  page.getByRole("button", { name: "Check", exact: true }).click();
+
+test("the stamp lands after the hole opens", async ({ page }) => {
+  await typeUnsolved(page);
+  const timing = page.evaluate(
+    () =>
+      new Promise<{ holeEnd: number; stampStart: number }>((resolve) => {
+        let holeEnd = 0;
+        const watch = () => {
+          const hole = document.querySelector('[data-testid="solved-hole"]');
+          const stamp = document.querySelector('[data-testid="solved-stamp"]');
+          if (hole && !holeEnd) {
+            const open = hole
+              .getAnimations()
+              .find((a) => a instanceof CSSAnimation);
+            open?.finished.then(() => (holeEnd = performance.now()));
+            holeEnd = open ? -1 : performance.now();
+          }
+          if (stamp && Number(getComputedStyle(stamp).opacity) > 0) {
+            resolve({ holeEnd, stampStart: performance.now() });
+            return;
+          }
+          requestAnimationFrame(watch);
+        };
+        requestAnimationFrame(watch);
+      }),
+  );
+  await check(page);
+  const { holeEnd, stampStart } = await timing;
+  expect(holeEnd).toBeGreaterThan(0);
+  expect(stampStart).toBeGreaterThanOrEqual(holeEnd);
 });
 
-test("reduced motion shows the final state at once", async ({ page }, info) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await solve(page);
-  expect(await solvedAnimations(page)).not.toContain("solved-hole-open");
-  await page.screenshot({
-    path: `.verification/T122/${info.project.name}-reduced.png`,
-    fullPage: true,
+test("slowed, the hole is still growing while the stamp is not at rest", async ({
+  page,
+}, info) => {
+  await typeUnsolved(page);
+  await page.evaluate(() =>
+    new MutationObserver(() =>
+      document.getAnimations().forEach((a) => (a.playbackRate = 0.1)),
+    ).observe(document.body, { subtree: true, childList: true }),
+  );
+  await check(page);
+  const wrapper = page.getByTestId("solved-hole").locator("..");
+  await wrapper.screenshot({
+    path: `.verification/T122/${info.project.name}-mid-open.png`,
   });
+  const state = await page.evaluate(() => {
+    const open = document
+      .querySelector('[data-testid="solved-hole"]')!
+      .getAnimations()
+      .find((a): a is CSSAnimation => a instanceof CSSAnimation);
+    const stamp = document.querySelector('[data-testid="solved-stamp"]')!;
+    return {
+      name: open?.animationName,
+      progress: Number(open?.currentTime ?? 300) / 300,
+      stampTransform: getComputedStyle(stamp).transform,
+    };
+  });
+  expect(state.name).toBe("solved-hole-open");
+  expect(state.progress).toBeLessThan(1);
+  const rest = await page.evaluate(() => {
+    const probe = document.createElement("div");
+    probe.style.transform = "rotate(-6deg)";
+    document.body.append(probe);
+    const resolved = getComputedStyle(probe).transform;
+    probe.remove();
+    return resolved;
+  });
+  expect(state.stampTransform).not.toBe(rest);
 });
+
+async function turnOnReduceMotionSetting(page: Page) {
+  await signUp(page, uniqueEmail("t122"));
+  await page.goto("/settings");
+  await page.getByRole("radio", { name: "On", exact: true }).click();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByRole("status").getByText("Saved.")).toBeVisible();
+}
+
+for (const mode of ["os", "setting"]) {
+  test(`reduced motion (${mode}) shows the final state at once`, async ({
+    page,
+  }, info) => {
+    if (mode === "os") await page.emulateMedia({ reducedMotion: "reduce" });
+    else await turnOnReduceMotionSetting(page);
+    await solve(page);
+    if (mode === "setting")
+      expect(
+        await page.evaluate(() =>
+          document.documentElement.hasAttribute("data-reduce-motion"),
+        ),
+      ).toBe(true);
+    expect(await solvedAnimations(page)).not.toContain("solved-hole-open");
+    await expect(page.getByTestId("solved-stamp")).toHaveCSS("opacity", "1");
+    await page.screenshot({
+      path: `.verification/T122/${info.project.name}-reduced-${mode}.png`,
+      fullPage: true,
+    });
+  });
+}

@@ -71,10 +71,10 @@ export function StatementList<V extends string>({
                       <label
                         key={option.value}
                         className={cn(
-                          "flex min-h-11 cursor-pointer items-center gap-2 border-2 border-border px-4 font-display uppercase has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring",
+                          "flex min-h-11 cursor-pointer items-center gap-2 border-2 border-border px-4 font-display uppercase has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring has-[:disabled]:cursor-default",
                           selected
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-card-foreground",
+                            : "bg-muted text-card-foreground has-[:disabled]:border-muted-foreground has-[:disabled]:text-muted-foreground",
                         )}
                       >
                         <input

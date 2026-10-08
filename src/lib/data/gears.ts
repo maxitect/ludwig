@@ -52,3 +52,15 @@ export async function getDailyDiagram(date: string) {
   });
   return daily?.puzzle ?? null;
 }
+
+/** Published classic gear trains (Mode B), easiest first. */
+export async function getGearTrainCatalogue() {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("puzzles");
+  return db.query.puzzles.findMany({
+    where: { typeKey: "gear-train", RAW: isPublished },
+    columns: puzzleColumns,
+    orderBy: { difficulty: "asc", title: "asc" },
+  });
+}

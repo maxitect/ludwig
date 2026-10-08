@@ -2,12 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { ArrowRight } from "lucide-react";
 import { Credit, Walker } from "@/components/brand";
 import { SolvedBadge, type SolvedIds } from "@/components/puzzle/solved-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
-import { getDailyDiagram, getGearsCatalogue } from "@/lib/data/gears";
+import {
+  getDailyDiagram,
+  getGearsCatalogue,
+  getGearTrainCatalogue,
+} from "@/lib/data/gears";
 import { londonDate } from "@/utils/london-time";
 import { DecorativeGears } from "./decorative-gears";
 import "./hub.css";
@@ -19,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 type Catalogue = Awaited<ReturnType<typeof getGearsCatalogue>>;
-type Entry = Catalogue["diagrams"][number];
+type Entry = Omit<Catalogue["diagrams"][number], "fix">;
 
 const headingClass =
   "border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase";
@@ -28,6 +33,7 @@ const linkClass =
   "flex items-center justify-between gap-4 py-3 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 const gearHref = (slug: string) => `/puzzles/gears/${slug}`;
+const trainHref = (slug: string) => `/puzzles/gear-train/${slug}`;
 
 const HOW_IT_WORKS = [
   "The victim stands at the centre. Each dancer is a gear that watches through its wedge of red Xs.",
@@ -43,10 +49,20 @@ const FIX_HOW_IT_WORKS = [
   "Only one set of swaps makes the diagram solvable. Then find the crank, the convergence and the killer as usual.",
 ];
 
+const TRAIN_HOW_IT_WORKS = [
+  "The driver turns clockwise. The target has to turn the way its arrow shows.",
+  "Place cogs from the tray on free pegs. Cogs mesh when their rims touch, and neighbours turn opposite ways.",
+  "Cogs can\u2019t overlap each other or a bolt. A loop with an odd number of cogs jams the train.",
+  "Every cog you place must be needed. Only one set of cogs works.",
+];
+
 export default async function GearsPage() {
-  const { diagrams, fixes } = await getGearsCatalogue();
+  const [{ diagrams, fixes }, trains] = await Promise.all([
+    getGearsCatalogue(),
+    getGearTrainCatalogue(),
+  ]);
   const solved = getSolvedPuzzleIds(
-    [...diagrams, ...fixes].map(({ id }) => id),
+    [...diagrams, ...fixes, ...trains].map(({ id }) => id),
   );
 
   return (
@@ -94,6 +110,14 @@ export default async function GearsPage() {
             <li key={step}>{step}</li>
           ))}
         </ol>
+        <h3 className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+          Classic Gear Train
+        </h3>
+        <ol className="flex list-decimal flex-col gap-1 pl-6">
+          {TRAIN_HOW_IT_WORKS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
       </section>
       <section aria-labelledby="today" className="relative flex flex-col gap-4">
         <h2 id="today" className={headingClass}>
@@ -104,6 +128,7 @@ export default async function GearsPage() {
         </Suspense>
       </section>
       <DiagramSections diagrams={diagrams} fixes={fixes} solved={solved} />
+      <TrainSection trains={trains} solved={solved} />
     </main>
   );
 }
@@ -193,18 +218,58 @@ function DiagramSections({
   );
 }
 
+function TrainSection({
+  trains,
+  solved,
+}: {
+  trains: Entry[];
+  solved: SolvedIds;
+}) {
+  return (
+    <section aria-labelledby="train" className="relative flex flex-col gap-4">
+      <div className="flex flex-col gap-1 border-b-2 border-border pb-1">
+        <Credit
+          id="train"
+          level={2}
+          top="Mode B"
+          bottom="Classic Gear Train"
+          className="[&>span:last-child]:text-3xl"
+        />
+        <p className="text-sm text-muted-foreground">
+          The gear puzzle the detectives play at the station. Place cogs on the
+          pegboard until the driver turns the target the right way.
+        </p>
+      </div>
+      <Link
+        href="/puzzles/gear-train"
+        className="flex items-center justify-between gap-4 border-2 border-border p-4 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >
+        <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
+          Play Classic Gear Train
+        </span>
+        <ArrowRight aria-hidden="true" />
+      </Link>
+      {trains.length > 0 && (
+        <EntryList entries={trains} solved={solved} href={trainHref} />
+      )}
+    </section>
+  );
+}
+
 function EntryList({
   entries,
   solved,
+  href = gearHref,
 }: {
   entries: Entry[];
   solved: SolvedIds;
+  href?: (slug: string) => string;
 }) {
   return (
     <ul className="flex flex-col">
       {entries.map((puzzle) => (
         <li key={puzzle.id} className="border-b-2 border-border">
-          <Link href={gearHref(puzzle.slug)} className={linkClass}>
+          <Link href={href(puzzle.slug)} className={linkClass}>
             <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
               {puzzle.title}
             </span>

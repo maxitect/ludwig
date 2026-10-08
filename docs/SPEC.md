@@ -545,7 +545,7 @@ Rules 4 and 7 together mean a valid placement is an induced path from the driver
 
 - **Board:** an SVG pegboard on textured paper. Pegs are small ink dots and bolts are ink hex heads. The driver carries a red crank handle, and the target shows its required direction as a hand-drawn arrow. Cogs reuse the gears board's cog drawing, with the tooth count visible.
 - **Place:** drag a cog from the inventory tray onto a peg. With the keyboard, choose a size in the tray, move a peg cursor with the arrow keys and press Enter. Select a placed cog and press Delete, or tap it, to return it to the tray. A placement that breaks rule 1, 2 or 3 is refused with an `aria-live` notice naming the reason.
-- **Live train:** every cog connected to the driver turns, at its own speed and direction (`motion`). A jammed train does not turn, and the cogs on its odd cycle are marked with a red X. A status line reads, for example, "The target turns anticlockwise. Cog at C4 isn't needed." With reduced motion, direction arrows replace the spinning.
+- **Live train:** every cog connected to the driver turns, at its own speed and direction (a CSS keyframe rotation per cog, one revolution in `3 s × teeth / 8`). A jammed train does not turn, and the cogs on its odd cycle are marked with a red X. A status line reads, for example, "The target turns anticlockwise. Cog at C4 isn't needed." With reduced motion, direction arrows replace the spinning.
 - **Check** submits the placement.
 
 **Engine:** a pure `engine.ts` with `meshes`, `collisions`, `trainOf` (signs, jam and reachability), `validate` (rules 1 to 7, naming the first broken one) and `solve`. `spinSigns` moves from `gears/engine.ts` to `src/puzzles/_shared/` now that a second type uses it.

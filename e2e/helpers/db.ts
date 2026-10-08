@@ -164,3 +164,25 @@ export async function pictogramAttemptFor(email: string) {
     await pool.end();
   }
 }
+
+export async function gearTrainAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ completed: boolean; cogs: string[] }>(
+      `select a.completed_at is not null as completed,
+              coalesce(array_agg(c.row || ',' || c.col || ',' || c.teeth order by c.row, c.col) filter (where c.row is not null), '{}') as cogs
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join puzzles p on p.id = a.puzzle_id
+         left join gear_train_attempt_cogs c on c.attempt_id = a.id
+        where u.email = $1 and p.type_key = 'gear-train'
+        group by a.id`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}

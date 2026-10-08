@@ -3,6 +3,7 @@ import { attemptSchema as bookCipherAttempt } from "./book-cipher/schema";
 import { attemptSchema as caesarAttempt } from "./caesar/schema";
 import { attemptSchema as crosswordAttempt } from "./crossword/schema";
 import { attemptSchema as futoshikiAttempt } from "./futoshiki/schema";
+import { attemptSchema as gearTrainAttempt } from "./gear-train/schema";
 import { attemptSchema as gearsAttempt } from "./gears/schema";
 import { attemptSchema as keywordAttempt } from "./keyword/schema";
 import { attemptSchema as logicGridAttempt } from "./logic-grid/schema";
@@ -19,6 +20,7 @@ const attemptSchemas = {
   caesar: caesarAttempt,
   crossword: crosswordAttempt,
   futoshiki: futoshikiAttempt,
+  "gear-train": gearTrainAttempt,
   gears: gearsAttempt,
   keyword: keywordAttempt,
   "logic-grid": logicGridAttempt,

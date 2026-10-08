@@ -2,6 +2,7 @@
 
 import type { MotionValue } from "motion/react";
 import { type CSSProperties, useLayoutEffect, useRef } from "react";
+import { cogPath, polar, round } from "../_shared/cog-path";
 import type { CrankProps } from "./crank";
 import { convergenceAt, type DanceGear, danceAt, markerOf } from "./dance";
 import { type Diagram, stateAt } from "./engine";
@@ -19,14 +20,6 @@ const X_HALF = 1.4;
 
 const MAX_TOOTH_SCALE = 0.9;
 const toRad = (deg: number) => (deg * Math.PI) / 180;
-/** Rounded so the server and the browser print the same trig results and hydration matches. */
-const round = (n: number) => Math.round(n * 100) / 100 || 0;
-/** Angles are degrees clockwise from the top, as in SPEC 5.2.2. */
-const polar = (deg: number, r: number) =>
-  [round(r * Math.sin(toRad(deg))), round(-r * Math.cos(toRad(deg)))] as const;
-const point = ([x, y]: readonly [number, number]) =>
-  `${x.toFixed(2)} ${y.toFixed(2)}`;
-
 /**
  * The board is 200 units wide and its container is a size container, so one unit is half a `cqw`.
  * Everything that moves is an HTML box positioned with a CSS transform: the compositor moves it and
@@ -34,18 +27,6 @@ const point = ([x, y]: readonly [number, number]) =>
  */
 const cq = (units: number) => `${(units * 0.5).toFixed(3)}cqw`;
 const translate = (x: number, y: number) => `translate(${cq(x)}, ${cq(y)})`;
-
-function cogPath(teeth: number, radius: number) {
-  const step = 360 / teeth;
-  const tip = radius + TOOTH_DEPTH;
-  const points = Array.from({ length: teeth }, (_, i) => [
-    polar(i * step, radius),
-    polar(i * step + step * 0.1, tip),
-    polar(i * step + step * 0.4, tip),
-    polar(i * step + step * 0.5, radius),
-  ]).flat();
-  return `M${points.map(point).join(" L")} Z`;
-}
 
 /** Upright Xs in a fan of `halfWidthDeg` either side of straight up, as offsets from the gear's centre. */
 function visionXs(radius: number, halfWidthDeg: number) {
@@ -404,7 +385,7 @@ function GearGlyph({
           }}
         >
           <path
-            d={cogPath(gear.teeth, radius)}
+            d={cogPath(gear.teeth, radius, TOOTH_DEPTH)}
             className="fill-card stroke-foreground"
             strokeWidth={gear.isDriver ? 1.8 : 0.9}
             strokeLinejoin="miter"

@@ -13,7 +13,7 @@ export type Board = Pick<
 >;
 export type Placement = Cog[];
 type Bolt = Board["bolts"][number];
-type Peg = Pick<Cog, "row" | "col">;
+export type Peg = Pick<Cog, "row" | "col">;
 
 export type Collision =
   | { kind: "cog"; a: Cog; b: Cog }
@@ -74,7 +74,7 @@ export function collisions(board: Board, placement: Placement): Collision[] {
   return found;
 }
 
-function reachableFrom(start: Cog, cogs: Cog[]) {
+export function reachableFrom(start: Cog, cogs: Cog[]) {
   const seen = new Map<string, Cog>([[pegKey(start), start]]);
   const queue = [start];
   for (const current of queue) {

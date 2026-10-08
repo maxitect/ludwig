@@ -4,6 +4,7 @@ import { Solver as bookCipherSolver } from "./book-cipher/solver";
 import { Solver as caesarSolver } from "./caesar/solver";
 import { Solver as crosswordSolver } from "./crossword/solver";
 import { Solver as futoshikiSolver } from "./futoshiki/solver";
+import { Solver as gearTrainSolver } from "./gear-train/solver";
 import { Solver as gearsSolver } from "./gears/solver";
 import { Solver as keywordSolver } from "./keyword/solver";
 import { Solver as logicGridSolver } from "./logic-grid/solver";
@@ -22,6 +23,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   caesar: caesarSolver,
   crossword: crosswordSolver,
   futoshiki: futoshikiSolver,
+  "gear-train": gearTrainSolver,
   gears: gearsSolver,
   keyword: keywordSolver,
   "logic-grid": logicGridSolver,

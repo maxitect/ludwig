@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, knightsKnavesAttemptFor } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { clickCheck, openPuzzle } from "./helpers/solve";
 
 const puzzle = { typeKey: "knights-knaves", slug: "long-table" };
 
@@ -45,7 +45,7 @@ test("keyboard toggles are announced, saved and complete the puzzle", async ({
     document.documentElement.setAttribute("data-theme", "paper"),
   );
 
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toHaveCount(0);
 
   const saved = page.waitForResponse((response) => {
@@ -69,7 +69,7 @@ test("keyboard toggles are announced, saved and complete the puzzle", async ({
   await page.reload();
   await expect(choice(page, "Knave", 2)).toBeChecked();
 
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
   if (databaseAvailable) {
     await expect

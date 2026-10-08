@@ -205,7 +205,7 @@ describe("knights and knaves tables", () => {
     expect(error?.message).toMatch(/has no row in knights_knaves_puzzles/);
   });
 
-  it("rejects an unknown role, a sixth position and a repeated name", async () => {
+  it("rejects an unknown role, a sixth position and a repeated name at commit", async () => {
     expect(
       await pgErrorCode(async (tx) => {
         const puzzleId = await insertKk(tx);
@@ -234,6 +234,7 @@ describe("knights and knaves tables", () => {
           name: "Ann",
           role: "knight",
         });
+        await forceDeferred(tx);
       }),
     ).toBe("23505");
   });
@@ -402,6 +403,25 @@ describe("knights and knaves module", () => {
       knightsKnavesModule.upsertContent(tx, puzzleId, content),
     );
     expect((await load(puzzleId)).characters[0].name).toBe("Ann");
+  });
+
+  it("swaps two characters' names on a reseed and drops a removed character", async () => {
+    const [ann, bob] = content.characters;
+    await db.transaction((tx) =>
+      knightsKnavesModule.upsertContent(tx, puzzleId, {
+        ...content,
+        characters: [
+          { ...bob, statements: [{ content: "Ann is a knave.", claim: { kind: "is", who: "Ann", role: "knave" } }] },
+          { ...ann, statements: [{ content: "We are both knaves.", claim: { kind: "same", a: "Ann", b: "Bob" } }] },
+          { name: "Cy", role: "knight", statements: [{ content: "Bob is a knight.", claim: { kind: "is", who: "Bob", role: "knight" } }] },
+        ],
+      }),
+    );
+    expect((await load(puzzleId)).characters.map(({ name }) => name)).toEqual(["Bob", "Ann", "Cy"]);
+    await db.transaction((tx) =>
+      knightsKnavesModule.upsertContent(tx, puzzleId, content),
+    );
+    expect((await load(puzzleId)).characters.map(({ name }) => name)).toEqual(["Ann", "Bob"]);
   });
 
   it("replaces, reads back and clears the attempt state", async () => {

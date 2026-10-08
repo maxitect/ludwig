@@ -20,7 +20,7 @@ CREATE TABLE "knights_knaves_characters" (
 	"name" text NOT NULL,
 	"role" "kk_role" NOT NULL,
 	CONSTRAINT "knights_knaves_characters_pkey" PRIMARY KEY("puzzle_id","position"),
-	CONSTRAINT "knights_knaves_characters_puzzle_id_name_unique" UNIQUE("puzzle_id","name"),
+	CONSTRAINT "knights_knaves_characters_puzzle_id_name_unique" UNIQUE("puzzle_id","name") DEFERRABLE INITIALLY DEFERRED,
 	CONSTRAINT "knights_knaves_characters_position_check" CHECK ("position" between 0 and 4),
 	CONSTRAINT "knights_knaves_characters_name_check" CHECK (char_length("name") between 1 and 30)
 );

@@ -45,17 +45,49 @@
   animation: 500ms ease-out 200ms both bullet-hole-open;
 }
 
+/* Torn-circle polygon for the solved footer: 264px box (11 whole 24px cells), 36 points in px so clip-path interpolates. */
+@keyframes solved-hole-open {
+  from {
+    clip-path: polygon(132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px, 132px 132px);
+  }
+  to {
+    clip-path: polygon(256px 132px, 261.4px 154.8px, 250.7px 175.2px, 240.8px 194.8px, 231.5px 215.5px, 214.4px 230.3px, 195.3px 241.7px, 176.5px 254.2px, 154.6px 260.1px, 132px 260.3px, 109.5px 259.5px, 87.8px 253.3px, 66.7px 245px, 51px 228.5px, 34.7px 213.6px, 19.7px 196.8px, 10.2px 176.3px, 9.5px 153.6px, 2.5px 132px, 6.2px 109.8px, 8.5px 87.1px, 19px 66.8px, 36.3px 51.7px, 49.7px 33.9px, 66.3px 18.2px, 87.7px 10.3px, 109.6px 4.8px, 132px 3.4px, 154.8px 2.7px, 176.9px 8.6px, 195.5px 22px, 213.4px 35px, 232.1px 48px, 241.7px 68.7px, 249.7px 89.2px, 256.5px 110.1px);
+  }
+}
+
 .bullet-hole {
+  --hole-size: 264px;
+  --hole-rim: 14px;
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
   z-index: -1;
+  width: var(--hole-size);
+  height: var(--hole-size);
+  translate: -50% -50%;
   pointer-events: none;
   background-color: var(--color-background);
   background-image:
-    linear-gradient(var(--color-ring) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-ring) 1px, transparent 1px);
-  background-size: 24px 24px;
-  animation: 700ms ease-out both bullet-hole-open;
+    radial-gradient(
+      circle closest-side,
+      transparent calc(var(--hole-size) / 2 - var(--hole-rim)),
+      color-mix(in oklab, var(--color-background), var(--color-foreground) 20%) calc(var(--hole-size) / 2 - var(--hole-rim))
+    ),
+    linear-gradient(color-mix(in oklab, var(--color-grid-blue) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-grid-blue) 60%, transparent) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
+  clip-path: polygon(256px 132px, 261.4px 154.8px, 250.7px 175.2px, 240.8px 194.8px, 231.5px 215.5px, 214.4px 230.3px, 195.3px 241.7px, 176.5px 254.2px, 154.6px 260.1px, 132px 260.3px, 109.5px 259.5px, 87.8px 253.3px, 66.7px 245px, 51px 228.5px, 34.7px 213.6px, 19.7px 196.8px, 10.2px 176.3px, 9.5px 153.6px, 2.5px 132px, 6.2px 109.8px, 8.5px 87.1px, 19px 66.8px, 36.3px 51.7px, 49.7px 33.9px, 66.3px 18.2px, 87.7px 10.3px, 109.6px 4.8px, 132px 3.4px, 154.8px 2.7px, 176.9px 8.6px, 195.5px 22px, 213.4px 35px, 232.1px 48px, 241.7px 68.7px, 249.7px 89.2px, 256.5px 110.1px);
+  animation: 300ms ease-out both solved-hole-open;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bullet-hole {
+    animation: none;
+  }
+}
+
+:root[data-reduce-motion] .bullet-hole {
+  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -71,9 +103,6 @@
     animation: 150ms linear both bullet-hole-fade-in;
   }
 
-  .bullet-hole {
-    animation: 150ms linear both bullet-hole-fade-in;
-  }
 }
 
 :root[data-reduce-motion]:active-view-transition-type(bullet-hole)::view-transition-group(root) {
@@ -85,10 +114,6 @@
 }
 
 :root[data-reduce-motion]:active-view-transition-type(bullet-hole)::view-transition-new(root) {
-  animation: 150ms linear both bullet-hole-fade-in;
-}
-
-:root[data-reduce-motion] .bullet-hole {
   animation: 150ms linear both bullet-hole-fade-in;
 }
 

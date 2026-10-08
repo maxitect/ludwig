@@ -352,8 +352,10 @@ export function SolveChrome({
 
       {solved && (
         <footer className="relative isolate flex flex-wrap items-center gap-x-12 gap-y-14 p-4 touch:max-h-[35dvh] touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto">
-          <BulletHole />
-          <SolvedStamp />
+          <div className="relative isolate grid size-66 shrink-0 place-items-center">
+            <BulletHole data-testid="solved-hole" />
+            <SolvedStamp delay={0.3} data-testid="solved-stamp" />
+          </div>
           <p>
             Solved in{" "}
             <span className="font-mono tabular-nums">

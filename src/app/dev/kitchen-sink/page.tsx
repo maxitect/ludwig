@@ -201,7 +201,7 @@ export default function KitchenSinkPage() {
             <SolvedStamp />
             <Walker />
           </div>
-          <div className="relative isolate h-24 w-64 border-2 border-border">
+          <div className="relative isolate size-66">
             <BulletHole />
           </div>
           <BulletHoleTransition />

@@ -16,6 +16,7 @@ import { rotaModule } from "./rota/module";
 import { spotDifferenceModule } from "./spot-difference/module";
 import { sudokuModule } from "./sudoku/module";
 import { wordLadderModule } from "./word-ladder/module";
+import { wordSearchModule } from "./word-search/module";
 
 export type Tx = Parameters<Parameters<(typeof db)["transaction"]>[0]>[0];
 
@@ -95,6 +96,7 @@ export const registry: PuzzleRegistry = {
   [spotDifferenceModule.meta.key]: spotDifferenceModule,
   [sudokuModule.meta.key]: sudokuModule,
   [wordLadderModule.meta.key]: wordLadderModule,
+  [wordSearchModule.meta.key]: wordSearchModule,
 };
 
 export function getPuzzleModule(

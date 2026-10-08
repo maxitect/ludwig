@@ -10,6 +10,7 @@ import { futoshikiModule } from "./futoshiki/module";
 import { gearTrainModule } from "./gear-train/module";
 import { gearsModule } from "./gears/module";
 import { keywordModule } from "./keyword/module";
+import { knightsKnavesModule } from "./knights-knaves/module";
 import { logicGridModule } from "./logic-grid/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
 import { reverseChessModule } from "./reverse-chess/module";
@@ -91,6 +92,7 @@ export const registry: PuzzleRegistry = {
   [gearTrainModule.meta.key]: gearTrainModule,
   [gearsModule.meta.key]: gearsModule,
   [keywordModule.meta.key]: keywordModule,
+  [knightsKnavesModule.meta.key]: knightsKnavesModule,
   [logicGridModule.meta.key]: logicGridModule,
   [pictogramCipherModule.meta.key]: pictogramCipherModule,
   [reverseChessModule.meta.key]: reverseChessModule,

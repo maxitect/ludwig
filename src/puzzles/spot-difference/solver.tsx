@@ -50,7 +50,7 @@ function SceneView({
       role="img"
       aria-label={label}
       viewBox={`0 0 ${SCENE_WIDTH} ${SCENE_HEIGHT}`}
-      className="h-auto w-full cursor-crosshair touch-manipulation border-2 border-border bg-paper shadow-[3px_3px_0_var(--color-shadow)] select-none"
+      className="h-auto w-full cursor-crosshair touch-manipulation border-2 border-border bg-paper shadow-[3px_3px_0_var(--cast)] select-none"
       onClick={(event) => {
         const box = event.currentTarget.getBoundingClientRect();
         onTap({

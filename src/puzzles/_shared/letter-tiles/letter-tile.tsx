@@ -3,7 +3,7 @@ import { cn } from "@/utils/cn";
 const TILT_DEGREES = [-2, 1, 0, 2, -1];
 
 export const tileClass =
-  "flex size-12 items-center justify-center border-2 border-border bg-paper font-hand text-3xl text-crayon uppercase shadow-[3px_3px_0_var(--color-shadow)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:size-14";
+  "flex size-12 items-center justify-center border-2 border-border bg-card font-hand text-3xl text-hand uppercase shadow-[3px_3px_0_var(--cast)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:size-14";
 
 /** A small, index-seeded tilt, so server and client render the same rotation. */
 export const tilt = (index: number) => ({
@@ -26,7 +26,7 @@ export function LetterTiles({
         <span
           key={i}
           style={tilt(offset + i)}
-          className={cn(tileClass, "bg-paper-shade text-ink")}
+          className={cn(tileClass, "bg-muted text-foreground")}
         >
           {letter}
         </span>

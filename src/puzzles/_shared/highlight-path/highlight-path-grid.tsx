@@ -155,7 +155,7 @@ export function HighlightPathGrid({
         aria-label={label}
         aria-describedby={helpId}
         aria-disabled={disabled}
-        className="relative flex touch-none flex-col border-2 border-ink bg-paper select-none"
+        className="relative flex touch-none flex-col border-2 border-border bg-paper shadow-[3px_3px_0_var(--cast)] select-none"
         onKeyDown={onKeyDown}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

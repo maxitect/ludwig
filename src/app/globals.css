@@ -53,6 +53,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-cast: var(--cast);
+  --color-hand: var(--hand);
 
   --radius-sm: var(--radius);
   --radius-md: var(--radius);
@@ -86,6 +88,8 @@
   --accent-foreground: var(--color-ink);
   --destructive: var(--color-blood);
   --destructive-foreground: var(--color-paper);
+  --cast: var(--color-shadow);
+  --hand: var(--color-crayon);
   --border: var(--color-ink);
   --input: var(--color-ink);
   --ring: var(--color-grid-blue);
@@ -96,23 +100,25 @@
 :root[data-theme="ink"] {
   --background: var(--color-ink);
   --foreground: var(--color-paper);
-  --card: var(--color-shadow);
+  --card: var(--color-ink);
   --card-foreground: var(--color-paper);
-  --popover: var(--color-shadow);
+  --popover: var(--color-ink);
   --popover-foreground: var(--color-paper);
   --primary: var(--color-ludwig-red);
   --primary-foreground: var(--color-paper);
   --secondary: var(--color-paper);
   --secondary-foreground: var(--color-ink);
-  --muted: var(--color-shadow);
+  --muted: color-mix(in srgb, var(--color-paper) 14%, var(--color-ink));
   --muted-foreground: var(--color-paper-shade);
   --accent: var(--color-book-blue);
   --accent-foreground: var(--color-ink);
-  --destructive: var(--color-blood);
+  --destructive: var(--color-ludwig-red);
   --destructive-foreground: var(--color-paper);
   --border: color-mix(in srgb, var(--color-paper) 60%, transparent);
   --input: color-mix(in srgb, var(--color-paper) 60%, transparent);
   --ring: var(--color-book-blue);
+  --cast: color-mix(in srgb, var(--color-paper) 45%, transparent);
+  --hand: var(--color-paper);
   --grain-blend: screen;
   --grain-invert: 1;
   --grid-paper-strength: 30%;
@@ -123,23 +129,25 @@
   :root:not([data-theme]) {
     --background: var(--color-ink);
     --foreground: var(--color-paper);
-    --card: var(--color-shadow);
+    --card: var(--color-ink);
     --card-foreground: var(--color-paper);
-    --popover: var(--color-shadow);
+    --popover: var(--color-ink);
     --popover-foreground: var(--color-paper);
     --primary: var(--color-ludwig-red);
     --primary-foreground: var(--color-paper);
     --secondary: var(--color-paper);
     --secondary-foreground: var(--color-ink);
-    --muted: var(--color-shadow);
+    --muted: color-mix(in srgb, var(--color-paper) 14%, var(--color-ink));
     --muted-foreground: var(--color-paper-shade);
     --accent: var(--color-book-blue);
     --accent-foreground: var(--color-ink);
-    --destructive: var(--color-blood);
+    --destructive: var(--color-ludwig-red);
     --destructive-foreground: var(--color-paper);
     --border: color-mix(in srgb, var(--color-paper) 60%, transparent);
     --input: color-mix(in srgb, var(--color-paper) 60%, transparent);
     --ring: var(--color-book-blue);
+    --cast: color-mix(in srgb, var(--color-paper) 45%, transparent);
+    --hand: var(--color-paper);
     --grain-blend: screen;
     --grain-invert: 1;
     --grid-paper-strength: 30%;

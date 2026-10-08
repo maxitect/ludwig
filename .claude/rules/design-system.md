@@ -22,7 +22,8 @@ Spec: `docs/SPEC.md` section 6. The look is the _Ludwig_ title sequence: texture
 - Never use raw hex values, Tailwind palette colours (`red-600` and so on) or `#fff`/`white`.
 - **Red is the only accent.** Blue appears only as shadow, focus (`grid-blue`) and book covers (`book-blue`).
 - `--radius: 0`, so nothing has rounded corners, including shadcn defaults, focus rings, avatars and toasts.
-- Borders are 2px `ink`. Shadows are hard offsets or long `shadow` casts, never soft grey blurs.
+- Borders are 2px semantic `border` (never `border-ink`). Shadows are hard offsets in the `--cast` token (`shadow-[3px_3px_0_var(--cast)]`), never `var(--color-shadow)` and never soft grey blurs.
+- Raised surfaces use `bg-card text-card-foreground` (or `Card`), and handwritten entry uses `text-hand`. Raw `bg-paper`, `text-ink`, `border-ink` and `var(--color-shadow)` in `src/puzzles/**` and `src/components/**` fail `src/config/raw-tokens.test.ts`; grids that stay paper in Ink are allowlisted there.
 - Both themes (Paper and Ink) must work. Check `/dev/kitchen-sink` after changing any component.
 
 ## Typography
@@ -30,7 +31,7 @@ Spec: `docs/SPEC.md` section 6. The look is the _Ludwig_ title sequence: texture
 - **Headings:** always UPPERCASE `font-display` (Josefin Sans) in the credits pattern, a small light line over a large bold line. Use the `<Credit top bottom />` component; don't hand-roll it.
 - **Body:** `font-sans` (Jost), sentence case.
 - **Script:** `font-signature` is used only in the Wordmark SVG and the "Solved." stamp. Never in UI text.
-- **Hand font:** user-entered grid letters use `font-hand` in `crayon` or `ludwig-red`. Each cell gets a ±2° rotation seeded by its index, so SSR output is stable.
+- **Hand font:** user-entered letters use `font-hand` in `crayon` or `ludwig-red` on paper grid cells, and `hand` on `card` surfaces. Each cell gets a ±2° rotation seeded by its index, so SSR output is stable.
 - **Fonts:** load through `next/font` CSS variables only.
 
 ## Components

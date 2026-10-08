@@ -24,7 +24,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         unstyled: true,
         classNames: {
           toast:
-            "flex w-full items-center gap-3 border-2 border-border bg-popover p-4 text-popover-foreground shadow-[4px_4px_0_var(--color-shadow)] [transform:rotate(-0.5deg)]",
+            "flex w-full items-center gap-3 border-2 border-border bg-popover p-4 text-popover-foreground shadow-[4px_4px_0_var(--cast)] [transform:rotate(-0.5deg)]",
           title:
             "font-display text-sm font-bold tracking-[0.04em] uppercase underline decoration-ludwig-red decoration-2 underline-offset-4",
           description: "text-sm text-muted-foreground",

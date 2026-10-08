@@ -39,7 +39,7 @@ export function UncaptureTray({
           key={piece}
           value={piece}
           aria-label={`${colour} ${piece}`}
-          className="size-12 p-0 data-[state=on]:bg-paper-deep"
+          className="size-12 p-0 data-[state=on]:border-primary data-[state=on]:bg-muted"
         >
           <span className="block size-9 [&_svg]:size-full!">
             <PieceGlyph colour={colour} piece={piece} shadow={false} />
@@ -48,7 +48,7 @@ export function UncaptureTray({
       ))}
       <ToggleGroupItem
         value="none"
-        className="h-12 data-[state=on]:bg-paper-deep data-[state=on]:text-ink"
+        className="h-12 data-[state=on]:border-primary data-[state=on]:bg-muted data-[state=on]:text-foreground"
       >
         None
       </ToggleGroupItem>

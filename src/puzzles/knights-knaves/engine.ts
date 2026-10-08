@@ -4,7 +4,7 @@ type Speaker = Pick<Content["characters"][number], "name"> & {
   statements: { claim: Claim }[];
 };
 
-/** Whether `claim` is true when character `i` holds `roles[i]`. Throws on a name that is not a character. */
+/** Whether `claim` is true when character `i` holds `roles[i]`. Every part is evaluated, so it throws on any name that is not a character. */
 export function holds(
   names: readonly string[],
   roles: readonly Role[],
@@ -23,9 +23,9 @@ export function holds(
     case "different":
       return roleOf(claim.a) !== roleOf(claim.b);
     case "all":
-      return claim.of.every((part) => holds(names, roles, part));
+      return claim.of.map((part) => holds(names, roles, part)).every(Boolean);
     case "any":
-      return claim.of.some((part) => holds(names, roles, part));
+      return claim.of.map((part) => holds(names, roles, part)).some(Boolean);
     case "atLeast":
       return roles.filter((value) => value === claim.role).length >= claim.n;
     case "exactly":

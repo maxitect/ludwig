@@ -94,4 +94,19 @@ describe("verifyKnightsKnaves", () => {
       ),
     ).toThrow(/unknown character "Z"/);
   });
+
+  it("rejects an unknown name behind a part that already decides the claim", () => {
+    expect(() =>
+      verifyKnightsKnaves(
+        puzzle([
+          [
+            "A",
+            "knight",
+            { kind: "any", of: [{ kind: "same", a: "A", b: "A" }, { kind: "is", who: "Z", role: "knight" }] },
+          ],
+          ["B", "knave", is("A", "knave")],
+        ]),
+      ),
+    ).toThrow(/unknown character "Z"/);
+  });
 });

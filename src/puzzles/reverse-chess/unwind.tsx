@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChessBoard, SideToMove, type RetroDrop } from "../_shared/chess-board";
+import { ChessBoard, type RetroDrop } from "../_shared/chess-board";
 import type { SolverProps } from "../solver-types";
 import { fromFen, notateRetro, toFen } from "./derive";
 import { stepRetro, toRetro, type RetroRejection } from "./engine";
 import { NotationToggle, useChessNotation } from "./notation-toggle";
 import { PlyChoices } from "./ply-choices";
+import { SideToMove } from "./side-to-move";
 import {
   REJECTION_TEXT,
   isKingAt,

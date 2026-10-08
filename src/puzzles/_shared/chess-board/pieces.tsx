@@ -20,6 +20,12 @@ const DOT: CSSProperties = {
   stroke: "var(--piece-line)",
 };
 const BUTT: CSSProperties = { strokeLinecap: "butt" };
+const KING_CROSS = "M 22.5,11.63 L 22.5,6 M 20,8 L 25,8";
+const CROSS_HALO: CSSProperties = {
+  fill: "none",
+  stroke: "var(--piece-fill)",
+  strokeWidth: 4.5,
+};
 
 /** cburnett geometry (Colin M.L. Burnett, CC BY-SA 3.0); fills and strokes come from brand tokens. */
 const SHAPES = {
@@ -105,8 +111,8 @@ const SHAPES = {
   ),
   king: (
     <>
-      <path style={LINE} d="M 22.5,11.63 L 22.5,6" />
-      <path style={LINE} d="M 20,8 L 25,8" />
+      <path style={CROSS_HALO} d={KING_CROSS} />
+      <path style={LINE} d={KING_CROSS} />
       <path
         style={{ ...FILL, ...BUTT, strokeLinejoin: "miter" }}
         d="M 22.5,25 C 22.5,25 27,17.5 25.5,14.5 C 25.5,14.5 24.5,12 22.5,12 C 20.5,12 19.5,14.5 19.5,14.5 C 18,17.5 22.5,25 22.5,25"

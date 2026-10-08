@@ -27,7 +27,9 @@ import {
 } from "./content-files";
 import { seedBookTexts } from "./seed-book-texts";
 import { seedPictogramGlyphs } from "./seed-pictogram-glyphs";
+import { readDictionaryFile } from "../src/puzzles/word-ladder/dictionary";
 import { seedWeekly } from "./seed-weekly";
+import { seedWords } from "./seed-words";
 
 type Db = typeof appDb;
 type Lookups = Pick<typeof defaultLookups, "categories" | "types" | "volumes">;
@@ -101,6 +103,7 @@ export async function seed({
   contentDir,
   lookups = defaultLookups,
   bookTexts = defaultBookTexts,
+  dictionary = [],
   pictogramGlyphs = defaultLookups.pictogramGlyphs,
   confirmRemoval = () => false,
 }: {
@@ -109,10 +112,12 @@ export async function seed({
   contentDir: string;
   lookups?: Lookups;
   bookTexts?: unknown;
+  dictionary?: string[];
   pictogramGlyphs?: Parameters<typeof seedPictogramGlyphs>[1];
   confirmRemoval?: ConfirmRemoval;
 }) {
   const lookupSummary = await seedLookups(db, lookups);
+  const wordSummary = await seedWords(db, dictionary);
   const glyphSummary = await seedPictogramGlyphs(db, pictogramGlyphs);
   const bookTextSummary = await seedBookTexts(db, bookTexts);
   const { files, failures: parseFailures } = await loadContentFiles(
@@ -215,6 +220,7 @@ export async function seed({
   return {
     lookups: { ...lookupSummary, pictogramGlyphs: glyphSummary },
     bookTexts: bookTextSummary,
+    words: wordSummary,
     types,
     failures,
     blockedRemovals,
@@ -275,11 +281,14 @@ async function main() {
       db,
       registry,
       contentDir,
+      dictionary: readDictionaryFile(),
       confirmRemoval: createConfirmRemoval(),
     });
     for (const [name, counts] of Object.entries(summary.lookups)) {
       console.log(`lookups ${name}: ${counts.inserted} inserted, ${counts.updated} updated`);
     }
+    console.log(`words: ${summary.words.inserted} inserted, ${summary.words.total} in dictionary`);
+    for (const failure of summary.words.failures) console.error(`FAIL ${failure}`);
     console.log(`book texts: ${summary.bookTexts.texts}`);
     for (const failure of summary.bookTexts.failures) {
       console.error(`FAIL ${failure}`);
@@ -307,6 +316,7 @@ async function main() {
     process.exitCode =
       summary.failures.length ||
       summary.bookTexts.failures.length ||
+      summary.words.failures.length ||
       summary.blockedRemovals.length ||
       weeklySummary.failures.length
         ? 1

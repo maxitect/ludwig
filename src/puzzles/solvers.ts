@@ -13,6 +13,7 @@ import { Solver as reverseChessSolver } from "./reverse-chess/solver";
 import { Solver as rotaSolver } from "./rota/solver";
 import { Solver as spotDifferenceSolver } from "./spot-difference/solver";
 import { Solver as sudokuSolver } from "./sudoku/solver";
+import { Solver as wordLadderSolver } from "./word-ladder/solver";
 import type { SolverComponent } from "./solver-types";
 
 /** Client solvers by type key. Only the solve page imports this; the registry and scripts must never reach it. */
@@ -32,6 +33,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   rota: rotaSolver,
   "spot-difference": spotDifferenceSolver,
   sudoku: sudokuSolver,
+  "word-ladder": wordLadderSolver,
 };
 
 export function getSolver(typeKey: string) {

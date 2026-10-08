@@ -19,6 +19,7 @@ import {
   revealCell,
   saveState,
 } from "@/lib/actions/puzzles";
+import type { RungProblem } from "@/puzzles/word-ladder/schema";
 import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
 import {
@@ -80,6 +81,7 @@ export function SolveChrome({
 }: SolveChromeProps) {
   const [solvedMs, setSolvedMs] = useState<number | null>(null);
   const [epilogue, setEpilogue] = useState<string | null>(null);
+  const [rungProblems, setRungProblems] = useState<RungProblem[]>();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [attempt, setAttempt] = useState(0);
   const hydrated = useSyncExternalStore(
@@ -167,6 +169,7 @@ export function SolveChrome({
           setEpilogue(response.result.epilogue ?? null);
           setSolvedMs(durationMs);
         } else {
+          setRungProblems(response.result.rungProblems);
           setNotice("wrong");
         }
       } catch {
@@ -215,6 +218,7 @@ export function SolveChrome({
     setNotice(null);
     setSolvedMs(null);
     setEpilogue(null);
+    setRungProblems(undefined);
     setAttempt((value) => value + 1);
     timer.reset();
     if (!signedIn) return clearProgress(puzzleId);
@@ -271,6 +275,7 @@ export function SolveChrome({
             requestCheck={requestCheck}
             solved={solved}
             chessNotation={chessNotation}
+            rungProblems={rungProblems}
             checkCell={solved ? undefined : checkCell}
             revealCell={solved ? undefined : revealCellValue}
           />

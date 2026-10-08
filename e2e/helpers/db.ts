@@ -186,3 +186,25 @@ export async function gearTrainAttemptFor(email: string) {
     await pool.end();
   }
 }
+
+export async function wordLadderAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ words: string[]; completed: boolean }>(
+      `select coalesce(array_agg(r.word order by r.position) filter (where r.word is not null), '{}') as words,
+              a.completed_at is not null as completed
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join word_ladder_attempts w on w.attempt_id = a.id
+         left join word_ladder_attempt_rungs r on r.attempt_id = a.id
+        where u.email = $1
+        group by a.id`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}

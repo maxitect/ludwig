@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { userSettings } from "@/db/schema";
 import type { PuzzleSchemas } from "./registry";
+import type { RungProblem } from "./word-ladder/schema";
 
 export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
   payload: z.infer<S["payloadSchema"]>;
@@ -13,6 +14,8 @@ export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
   solved?: boolean;
   /** Asks the chrome to check the registered answer now, for types that complete without a Check press. */
   requestCheck?(): void;
+  /** The rungs the last Check rejected, for the word ladder. A new array arrives with every wrong Check. */
+  rungProblems?: RungProblem[];
   /** The signed-in player's saved chess notation, or undefined when signed out. */
   chessNotation?: (typeof userSettings.$inferSelect)["chessNotation"];
   /** Checks one cell on the server and records the hint. Null when the player is signed out or the call failed. */

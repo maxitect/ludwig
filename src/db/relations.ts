@@ -330,12 +330,6 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.bookCipherRefs.puzzleId,
     }),
   },
-  wordLadderPuzzles: {
-    rungs: r.many.wordLadderSolutionRungs({
-      from: r.wordLadderPuzzles.puzzleId,
-      to: r.wordLadderSolutionRungs.puzzleId,
-    }),
-  },
   wordLadderAttempts: {
     rungs: r.many.wordLadderAttemptRungs({
       from: r.wordLadderAttempts.attemptId,

@@ -1,10 +1,5 @@
 import { letterDifferences } from "./derive";
-import type { Answer, Payload, Solution } from "./schema";
-
-export type RungProblem = {
-  position: number;
-  reason: "not-a-word" | "not-one-step" | "repeated";
-};
+import type { Answer, Payload, RungProblem, Solution } from "./schema";
 
 /**
  * Accepts any ladder of the right length from the start word to the end word, where each step

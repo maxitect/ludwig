@@ -19,7 +19,7 @@ import {
   revealCell,
   saveState,
 } from "@/lib/actions/puzzles";
-import type { RungProblem } from "@/puzzles/word-ladder/check";
+import type { RungProblem } from "@/puzzles/word-ladder/schema";
 import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
 import {

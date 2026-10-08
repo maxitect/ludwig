@@ -2,23 +2,22 @@
  * Seeds the `words` dictionary from content/words.txt.
  *
  * Source: SCOWL (Spell Checker Oriented Word Lists) by Kevin Atkinson, as packaged in the npm
- * package `wordlist-english` 1.2.1 (MIT). The `english` and `british` lists at frequency levels
- * 10, 20, 35, 40, 50 and 55, keeping only all-lowercase a to z words of 3 to 6 letters, which
- * drops every proper noun, abbreviation with punctuation and hyphenated or accented form.
+ * package `wordlist-english` 1.2.1. The `english` and `british` lists at levels 10, 20, 35, 40, 50
+ * and 55, keeping only all-lowercase a to z words of 3 to 6 letters, which drops every proper
+ * noun, abbreviation with punctuation and hyphenated or accented form.
  *
- * Licence: SCOWL's permissive notice. Copyright 2000-2016 by Kevin Atkinson. Permission to use,
- * copy, modify, distribute and sell these word lists, the associated scripts, the output created
- * from the scripts, and its documentation for any purpose is hereby granted without fee, provided
- * that the above copyright notice appears in all copies and that both that copyright notice and
- * this permission notice appear in supporting documentation. The lists are provided "as is". The
- * lowest levels derive from Moby Words II, which is in the public domain.
+ * Licence: the word lists are under SCOWL's own notices (the package's MIT licence covers only its
+ * JavaScript). Copyright 2000-2016 by Kevin Atkinson, with permission to use, copy, modify,
+ * distribute and sell them for any purpose, provided the copyright and permission notices appear
+ * in supporting documentation. The British list comes from VarCon, which also carries notices
+ * from Benjamin Titze and Geoff Kuenning (Ispell). SCOWL's full Copyright file, with every notice,
+ * is reproduced verbatim in content/words.COPYRIGHT, which must travel with content/words.txt.
  */
-import { inArray } from "drizzle-orm";
 import type { db as appDb } from "../src/db";
-import { wordPattern } from "../src/puzzles/word-ladder/dictionary";
+import { wordPattern } from "../src/puzzles/word-ladder/schema";
 import { words } from "../src/puzzles/word-ladder/tables";
 
-type Db = Pick<typeof appDb, "insert" | "select">;
+type Db = Pick<typeof appDb, "insert">;
 
 const BATCH_SIZE = 5000;
 
@@ -40,17 +39,9 @@ export async function seedWords(db: Db, lines: string[]) {
   const unique = [...new Set(lines)];
   let inserted = 0;
   for (let i = 0; i < unique.length; i += BATCH_SIZE) {
-    const batch = unique.slice(i, i + BATCH_SIZE);
-    const present = await db
-      .select({ word: words.word })
-      .from(words)
-      .where(inArray(words.word, batch));
-    const have = new Set(present.map(({ word }) => word));
-    const missing = batch.filter((word) => !have.has(word));
-    if (!missing.length) continue;
     const rows = await db
       .insert(words)
-      .values(missing.map((word) => ({ word })))
+      .values(unique.slice(i, i + BATCH_SIZE).map((word) => ({ word })))
       .onConflictDoNothing()
       .returning({ word: words.word });
     inserted += rows.length;

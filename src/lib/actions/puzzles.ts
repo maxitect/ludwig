@@ -16,7 +16,7 @@ import {
 } from "@/lib/data/puzzles";
 import { getCurrentUser, requireUser } from "@/lib/data/user";
 import { getPuzzleModule } from "@/puzzles/registry";
-import type { RungProblem } from "@/puzzles/word-ladder/check";
+import type { RungProblem } from "@/puzzles/word-ladder/schema";
 
 type CheckResult = {
   correct: boolean;
@@ -77,9 +77,7 @@ export async function checkAnswer(
   puzzleId: string,
   answer: unknown,
   options: z.input<typeof checkOptionsSchema>,
-): Promise<
-  { ok: true; result: CheckResult } | ActionError
-> {
+): Promise<{ ok: true; result: CheckResult } | ActionError> {
   const user = await getCurrentUser();
   const parsedOptions = checkOptionsSchema.safeParse(options);
   if (!puzzleIdSchema.safeParse(puzzleId).success || !parsedOptions.success) {

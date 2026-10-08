@@ -90,10 +90,7 @@ describe("checkLadder", () => {
 });
 
 describe("check", () => {
-  const solution = {
-    dictionary: [...dictionary],
-    reference: ["wold", "word", "ward"],
-  };
+  const solution = { dictionary: [...dictionary] };
 
   it("looks the rungs up in the loaded dictionary", () => {
     expect(

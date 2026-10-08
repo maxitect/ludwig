@@ -256,9 +256,8 @@ describe("word ladder module", () => {
     expect(JSON.stringify(payload)).not.toContain("hell");
   });
 
-  it("loads the reference rungs and the dictionary of the right length", async () => {
+  it("loads the dictionary of the right length", async () => {
     const solution = await loadSolution(puzzleId);
-    expect(solution.reference).toEqual(content.rungs);
     expect(solution.dictionary).toEqual(
       expect.arrayContaining(["head", "tail", "held"]),
     );
@@ -296,7 +295,12 @@ describe("word ladder module", () => {
     await db.transaction(async (tx) => {
       await wordLadderModule.upsertContent(tx, puzzleId, content);
     });
-    expect((await loadSolution(puzzleId)).reference).toEqual(content.rungs);
+    const stored = await db
+      .select({ word: wordLadderSolutionRungs.word })
+      .from(wordLadderSolutionRungs)
+      .where(eq(wordLadderSolutionRungs.puzzleId, puzzleId))
+      .orderBy(wordLadderSolutionRungs.position);
+    expect(stored.map(({ word }) => word)).toEqual(content.rungs);
     expect((await load(puzzleId)).rungCount).toBe(4);
   });
 

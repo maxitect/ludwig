@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { LetterTiles } from "../_shared/letter-tiles/letter-tile";
 import { RungInput } from "../_shared/letter-tiles/rung-input";
 import type { SolverProps } from "../solver-types";
-import type { RungProblem } from "./check";
 import type * as schema from "./schema";
+import type { AttemptState, RungProblem } from "./schema";
 
 const REASON_TEXT: Record<RungProblem["reason"], string> = {
   "not-a-word": "Not a word we know",
@@ -16,7 +16,7 @@ const REASON_TEXT: Record<RungProblem["reason"], string> = {
 function restoreRungs(
   rungCount: number,
   length: number,
-  saved: { position: number; word: string }[],
+  saved: AttemptState["rungs"],
 ) {
   const rungs = Array.from({ length: rungCount }, () => "");
   for (const { position, word } of saved) {
@@ -57,7 +57,7 @@ export function Solver({
   function update(position: number, word: string) {
     const next = rungs.map((current, i) => (i === position ? word : current));
     setRungs(next);
-    setProblems((current) => current.filter((p) => p.position !== position));
+    setProblems([]);
     onStateChange({
       rungs: next.flatMap((value, i) =>
         value ? [{ position: i, word: value }] : [],

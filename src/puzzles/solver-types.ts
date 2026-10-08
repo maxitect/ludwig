@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { userSettings } from "@/db/schema";
 import type { PuzzleSchemas } from "./registry";
-import type { RungProblem } from "./word-ladder/check";
+import type { RungProblem } from "./word-ladder/schema";
 
 export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
   payload: z.infer<S["payloadSchema"]>;

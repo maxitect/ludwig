@@ -2,8 +2,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { RungProblem } from "./check";
-import type { AttemptState } from "./schema";
+import type { AttemptState, RungProblem } from "./schema";
 import { Solver } from "./solver";
 
 afterEach(cleanup);
@@ -101,11 +100,15 @@ describe("word ladder solver", () => {
     expect(tile(1, 1).getAttribute("aria-invalid")).toBeNull();
   });
 
-  it("clears a rung's mark when that rung is edited", async () => {
+  it("clears every mark on the next edit, since a step depends on its neighbours", async () => {
     const user = userEvent.setup();
     const { rerenderWith } = renderSolver();
-    rerenderWith([{ position: 1, reason: "not-one-step" }]);
-    await user.click(tile(2, 1));
+    rerenderWith([
+      { position: 0, reason: "not-one-step" },
+      { position: 1, reason: "not-one-step" },
+    ]);
+    expect(screen.getAllByTestId("rung-problem")).toHaveLength(2);
+    await user.click(tile(1, 1));
     await user.keyboard("a");
     expect(screen.queryByTestId("rung-problem")).toBeNull();
   });

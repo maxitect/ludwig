@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
+import { acrosticModule } from "./acrostic/module";
 import { anagramModule } from "./anagram/module";
 import { bookCipherModule } from "./book-cipher/module";
 import { caesarModule } from "./caesar/module";
@@ -81,6 +82,7 @@ export type PuzzleTypeModule<
 export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 
 export const registry: PuzzleRegistry = {
+  [acrosticModule.meta.key]: acrosticModule,
   [anagramModule.meta.key]: anagramModule,
   [bookCipherModule.meta.key]: bookCipherModule,
   [caesarModule.meta.key]: caesarModule,

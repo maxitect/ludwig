@@ -60,6 +60,7 @@ const noticeText: Record<Exclude<Notice, "cell-sign-in">, string> = {
 type SolveChromeProps = {
   puzzleId: string;
   typeKey: string;
+  typeName: string;
   category: string;
   title: string;
   difficulty: number;
@@ -75,6 +76,7 @@ type SolveChromeProps = {
 export function SolveChrome({
   puzzleId,
   typeKey,
+  typeName,
   category,
   title,
   difficulty,
@@ -246,8 +248,8 @@ export function SolveChrome({
     >
       <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
         <Link
-          href="/puzzles"
-          aria-label={`Back to ${category}`}
+          href={`/puzzles/${typeKey}`}
+          aria-label={`Back to ${typeName}`}
           className="hidden size-10 shrink-0 items-center justify-center touch:flex"
         >
           <ChevronLeftIcon aria-hidden="true" />
@@ -289,7 +291,7 @@ export function SolveChrome({
 
       <div
         key={attempt}
-        className="touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:[--solver-height:100cqh] touch:[container-type:size]"
+        className="touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:px-4 touch:[--solver-height:100cqh] touch:[container-type:size]"
         onKeyDown={(event) => {
           if (
             event.key === "Enter" &&

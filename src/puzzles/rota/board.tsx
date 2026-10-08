@@ -89,7 +89,7 @@ export function RotaBoard({
         role="group"
         aria-label="Work zones"
         data-testid="rota-board"
-        className="relative grid aspect-square grid-cols-8 border-2 border-border"
+        className="relative grid aspect-square grid-cols-8 border-2 border-border shadow-[3px_3px_0_var(--cast)]"
       >
         {[8, 7, 6, 5, 4, 3, 2, 1].flatMap((rank) =>
           FILES.map((file, column) => {
@@ -126,10 +126,10 @@ export function RotaBoard({
                     onDragStart={(event) =>
                       event.dataTransfer.setData("text/plain", token.id)
                     }
-                    className={`relative z-10 flex size-[76%] cursor-grab items-center justify-center border-2 border-ink font-display text-[0.7rem] font-bold tracking-wide focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-default sm:text-sm ${
+                    className={`relative z-10 flex size-[76%] cursor-grab items-center justify-center border-2 border-border shadow-[2px_2px_0_var(--cast)] font-display text-[0.7rem] font-bold tracking-wide focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-default sm:text-sm ${
                       selectedId === token.id
                         ? "bg-ludwig-red text-paper"
-                        : "bg-paper text-ink"
+                        : "bg-card text-card-foreground"
                     }`}
                   >
                     {token.label}

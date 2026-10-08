@@ -112,7 +112,7 @@ export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
     row === 0 || rows[row].category !== rows[row - 1].category;
 
   return (
-    <div className="w-fit max-w-full overflow-x-auto border-2 border-ink bg-paper text-ink">
+    <div className="w-fit max-w-full overflow-x-auto border-2 border-border bg-paper text-ink shadow-[3px_3px_0_var(--cast)]">
       <div
         ref={gridRef}
         role="grid"

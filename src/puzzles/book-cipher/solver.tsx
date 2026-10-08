@@ -102,18 +102,18 @@ export function Solver({
           aria-label={`${title}, page ${page} of ${pageCount}`}
           tabIndex={0}
           onKeyDown={onReaderKeyDown}
-          className="flex flex-col gap-4 border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:p-4"
+          className="flex flex-col gap-4 border-2 border-border bg-card p-4 text-card-foreground shadow-[3px_3px_0_var(--cast)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:p-4"
         >
           <header className="flex flex-col gap-1">
             <h2 className="font-display text-xl">{title}</h2>
-            <p className="font-mono text-sm text-ink-soft">{author}</p>
+            <p className="font-mono text-sm text-muted-foreground">{author}</p>
           </header>
           <ol className="flex flex-col gap-1 text-base sm:text-lg lg:text-base">
             {(pages.get(page) ?? []).map(({ line, content }) => (
               <li key={line} className="flex gap-3">
                 <span
                   aria-hidden="true"
-                  className="w-6 shrink-0 text-right font-mono text-xs leading-7 text-ink-soft"
+                  className="w-6 shrink-0 text-right font-mono text-xs leading-7 text-muted-foreground"
                 >
                   {line}
                 </span>
@@ -171,7 +171,7 @@ export function Solver({
         </section>
         <section
           aria-label="References"
-          className="flex flex-col gap-3 border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] sm:p-6 lg:p-4"
+          className="flex flex-col gap-3 border-2 border-border bg-card p-4 text-card-foreground shadow-[3px_3px_0_var(--cast)] sm:p-6 lg:p-4"
         >
           <h2 className="font-display text-xl">References</h2>
           <ol className="flex flex-col gap-3">
@@ -185,8 +185,8 @@ export function Solver({
                     inputs.current[index]?.focus();
                   }}
                   className={cn(
-                    "border-2 border-ink px-2 py-1 font-mono text-sm focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring",
-                    index === selected && "bg-ink text-paper",
+                    "border-2 border-border px-2 py-1 font-mono text-sm focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring",
+                    index === selected && "bg-foreground text-background",
                   )}
                 >
                   {`${ref.page}:${ref.line}:${ref.wordIndex}`}
@@ -203,7 +203,7 @@ export function Solver({
                   aria-label={`Word ${index + 1}: page ${ref.page}, line ${ref.line}, word ${ref.wordIndex}`}
                   onFocus={() => select(index)}
                   onChange={(event) => write(index, event.currentTarget.value)}
-                  className="min-w-0 flex-1 border-b-2 border-ink bg-paper px-1 font-hand text-2xl text-crayon focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  className="min-w-0 flex-1 border-b-2 border-border bg-card px-1 font-hand text-2xl text-hand focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
                 />
               </li>
             ))}

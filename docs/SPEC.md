@@ -606,12 +606,17 @@ Defined in `src/app/globals.css` with Tailwind v4 `@theme` and mapped onto shadc
 - `muted` → paper-shade, `accent` → book-blue
 - `destructive` → blood
 - `border` → ink at 100% (2px), `input` → ink, `ring` → grid-blue
+- `--cast` → shadow (the colour of every hard offset shadow), `--hand` → crayon (handwritten entry)
 
 **Dark theme ("Ink", modelled on the title card):**
 
 - `background` → `#0A0B0D` with grain, `foreground` → paper
-- `card` → shadow `#1E2B3B`
+- `card` and `popover` → ink, so raised surfaces are dark, not blue; the light `border` and the light `--cast` shadow separate them from the page
+- `muted` → paper at 14% over ink (dark, non-blue), used for active clue rows, hover states and selected toggle cells
+- `--cast` → paper at 45% (about 4:1 against ink), `--hand` → paper (crayon is too dark on ink)
+- `destructive` → ludwig-red (blood is invisible on ink), so the `aria-invalid` underline reads at 3:1 or better
 - `primary` → ludwig-red (unchanged), `border` → paper at 60%
+- Grids (`CellGrid`, the chess board) stay paper, like a printed page on a dark desk. Their frame is the light `border` and they carry the `--cast` shadow
 
 All text and background pairs must pass WCAG AA. Red on paper (`#C40C12` on `#E9E4DE`) is about 5:1, so it passes for text. Crayon is used only at large sizes.
 
@@ -634,11 +639,11 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 
 | Component | Ludwig treatment |
 |---|---|
-| Button (primary) | Red fill, paper text, Josefin 700 caps, 0 radius, 2px ink border, 3px hard offset shadow in `--shadow` that collapses on press |
+| Button (primary) | Red fill, paper text, Josefin 700 caps, 0 radius, 2px `border`, 3px hard offset shadow in `--cast` that collapses on press |
 | Button (secondary) | Paper fill, ink border, ink text. Hover inverts to an ink fill (a "black square") |
 | Input | Bottom-border-only "answer line", or a cell variant (`<CellInput>`): one square per letter, handwritten red entry |
-| Card | Paper with grain, 2px ink border. Optional clue number in the top-left corner. Volume cards styled as Pocket Puzzle Collection covers (book-blue, white signature, pale caps band) |
-| Dialog | A paper sheet with a slight rotation (−0.5°) and a long blue drop shadow, like a page laid on a desk |
+| Card | `card` surface (paper in Paper, ink in Ink) with grain, 2px `border` and a `--cast` block shadow. Optional clue number in the top-left corner. Volume cards styled as Pocket Puzzle Collection covers (book-blue, white signature, pale caps band) |
+| Dialog | A `popover` sheet (paper in Paper, ink in Ink) with a slight rotation (−0.5°) and a long hard `--cast` block shadow, like a page laid on a desk |
 | Tabs / ToggleGroup | Rows of crossword cells; the active cell is ink-filled |
 | Slider | A thin ink rail with a cog thumb (reused in the gear crank) |
 | Toast (sonner) | Paper slips with a red pencil underline |

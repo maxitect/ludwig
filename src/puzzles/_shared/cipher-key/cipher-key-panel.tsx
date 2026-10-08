@@ -90,7 +90,7 @@ export function CipherKeyPanel({
 
   return (
     <div
-      className="flex flex-col gap-6 border-2 border-ink bg-paper p-4 text-ink shadow-[3px_3px_0_var(--color-shadow)] sm:p-6"
+      className="flex flex-col gap-6 border-2 border-border bg-card p-4 text-card-foreground shadow-[3px_3px_0_var(--cast)] sm:p-6"
     >
       <p className="sr-only">
         Each slot stands for one letter of the cipher. Type the letter you think
@@ -137,7 +137,7 @@ export function CipherKeyPanel({
                     </span>
                   )}
                   <span
-                    className="h-8 font-hand text-2xl text-crayon uppercase"
+                    className="h-8 font-hand text-2xl text-hand uppercase"
                     style={
                       isLetter
                         ? {
@@ -221,8 +221,8 @@ export function CipherKeyPanel({
                   if (/^[a-z]$/i.test(typed)) enter(letter, typed);
                 }}
                 className={cn(
-                  "size-9 border-2 border-ink text-center font-hand text-2xl uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive",
-                  isLocked ? "bg-paper-shade text-ink" : "bg-paper text-crayon",
+                  "size-9 border-2 border-border text-center font-hand text-2xl uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive",
+                  isLocked ? "bg-muted text-card-foreground" : "bg-card text-hand",
                 )}
               />
             </label>

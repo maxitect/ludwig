@@ -82,7 +82,7 @@ export function NotationToggle({
           <ToggleGroupItem
             key={value}
             value={value}
-            className="h-10 data-[state=on]:bg-paper-deep data-[state=on]:text-ink"
+            className="h-10 data-[state=on]:bg-muted data-[state=on]:text-foreground"
           >
             {label}
           </ToggleGroupItem>

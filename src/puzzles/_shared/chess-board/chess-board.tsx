@@ -153,7 +153,7 @@ export function ChessBoard({
           : undefined
       }
       onBlur={interactive ? () => setFocused(false) : undefined}
-      className="relative w-full max-w-lg border-2 border-border outline-none motion-reduce:[&_[data-piece]]:transition-none"
+      className="relative w-full max-w-lg border-2 border-border shadow-[3px_3px_0_var(--cast)] outline-none motion-reduce:[&_[data-piece]]:transition-none"
     >
       <Chessboard
         options={{

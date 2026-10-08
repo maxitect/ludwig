@@ -219,7 +219,7 @@ export function CellGrid({
         ref={gridRef}
         role="grid"
         aria-label={label}
-        className="mx-auto flex flex-col gap-px border-2 border-ink bg-ink"
+        className="mx-auto flex flex-col gap-px border-2 border-border bg-ink shadow-[3px_3px_0_var(--cast)]"
         style={{
           width: `calc(${cell} * ${cols} + ${(cols - 1) * HAIRLINE + 2 * FRAME}px)`,
         }}

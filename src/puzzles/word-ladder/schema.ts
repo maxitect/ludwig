@@ -55,9 +55,9 @@ export const attemptSchema = z.object({
 });
 
 /** A rung the last check rejected. It depends only on the answer and the dictionary. */
-export const rungProblemSchema = attemptRungSelect.pick({ position: true }).extend({
-  reason: z.enum(["not-a-word", "not-one-step", "repeated"]),
-});
+export const rungProblemSchema = attemptRungSelect
+  .pick({ position: true })
+  .extend({ reason: z.enum(["not-a-word", "not-one-step", "repeated"]) });
 
 export const contentSchema = puzzleInsert
   .pick({ startWord: true, endWord: true })

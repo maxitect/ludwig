@@ -10,10 +10,14 @@ import {
 
 const hole = (page: Page) => page.getByTestId("solved-hole");
 
-async function solve(page: Page) {
+async function typeUnsolved(page: Page) {
   const anagram = await anagramPuzzle();
   await openPuzzle(page, anagram);
   await typeAnagram(page, anagram.letters);
+}
+
+async function solve(page: Page) {
+  await typeUnsolved(page);
   await checkSolved(page);
 }
 
@@ -91,12 +95,6 @@ for (const theme of ["paper", "ink"]) {
       fullPage: true,
     });
   });
-}
-
-async function typeUnsolved(page: Page) {
-  const anagram = await anagramPuzzle();
-  await openPuzzle(page, anagram);
-  await typeAnagram(page, anagram.letters);
 }
 
 test("the stamp lands after the hole opens", async ({ page }) => {

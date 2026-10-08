@@ -280,7 +280,7 @@ The tagline, from the show: _"Instead of having to work out what comes next, you
 
 #### Mode A: "The Last Move" (single retro move)
 
-**Prompt:** a position with side-to-move. It is stored as one row per piece plus scalar castling and en passant columns, and the FEN for `chess.js` is derived in `derive.ts`. The question is "What was the last move?"
+**Prompt:** a position with side-to-move. It is stored as one row per piece plus scalar castling and en passant columns, and the FEN for `chess.js` is derived in `derive.ts`. The question is "What was the last move?" The side to move is shown as a king glyph in that colour, never as a checkbox-like swatch.
 
 **Answer:** the player drags a piece **backwards**, from its current square to its origin square. If the move was a capture, they choose the uncaptured piece (type plus colour, or "none") from a piece tray, and that piece is placed on the vacated square. Promotions are undone by turning the piece back into a pawn (there is a toggle). En passant and castling un-moves are supported.
 
@@ -657,7 +657,7 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 
 - **Lucide** (`lucide-react`, ISC): the shadcn default, used for general UI such as search, pencil, eraser, undo, settings, timer, check, eye, lightbulb and grid.
 - **Tabler Icons** (`@tabler/icons-react`, MIT): used for chess glyphs in UI chrome (`IconChessKing`, `IconChessQueen`, `IconChessKnight`, `IconChessBishop`, `IconChessRook`, `IconChess`) and cog/gear variants. Lucide's chess coverage is thin.
-- **Board pieces:** a dedicated SVG set restyled white with ink outlines. cburnett (Lichess) is GPL-2.0+/CC BY-SA, so it needs attribution and may have copyleft implications. If that is a problem, the alternatives are commissioned or self-drawn pieces. A decision is needed (see section 10).
+- **Board pieces:** a dedicated SVG set. White pieces are paper with an ink outline and black pieces ink with a paper outline, in both themes, with a long cast shadow built from at most two `drop-shadow` passes in the `--cast` token. File and rank labels are bold with a hard halo in the opposite colour so they stay readable over pieces. cburnett (Lichess) is GPL-2.0+/CC BY-SA, so it needs attribution and may have copyleft implications. If that is a problem, the alternatives are commissioned or self-drawn pieces. A decision is needed (see section 10).
 - Phosphor and game-icons.net are **not** used in v1. A single primary icon set keeps the style consistent, and game-icons needs CC BY attribution.
 - Icon stroke is 2px to match the borders, and icons are always ink or paper, never red unless they are active.
 

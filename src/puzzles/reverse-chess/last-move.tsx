@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChessBoard, type RetroDrop } from "../_shared/chess-board";
+import { ChessBoard, SideToMove, type RetroDrop } from "../_shared/chess-board";
 import type { SolverProps } from "../solver-types";
 import { toFen } from "./derive";
 import { applyRetro, toRetro, type RetroRejection } from "./engine";
@@ -77,19 +77,7 @@ export function LastMove({
         <p className="font-display text-2xl font-bold uppercase tracking-[0.04em]">
           What was the last move?
         </p>
-        <p className="flex items-center gap-2" data-testid="side-to-move">
-          <span
-            aria-hidden="true"
-            className={
-              payload.sideToMove === "white"
-                ? "size-4 border-2 border-border bg-paper"
-                : "size-4 border-2 border-border bg-ink"
-            }
-          />
-          <span>
-            {payload.sideToMove === "white" ? "White" : "Black"} to move
-          </span>
-        </p>
+        <SideToMove colour={payload.sideToMove} />
       </div>
 
       <ChessBoard

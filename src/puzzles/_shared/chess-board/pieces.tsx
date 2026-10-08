@@ -2,16 +2,13 @@ import type { CSSProperties, ReactElement, ReactNode } from "react";
 import type { PieceRenderObject } from "react-chessboard";
 import { pieceCode, type Colour, type PieceKind } from "./squares";
 
-const SHADOW_FILTER = [1, 2, 3, 4, 5, 6, 7, 8]
-  .map(
-    (step) =>
-      `drop-shadow(${step * 0.6}px ${step * 0.6}px 0 var(--color-shadow))`,
-  )
+const SHADOW_FILTER = [1.5, 3]
+  .map((step) => `drop-shadow(${step}px ${step}px 0 var(--cast))`)
   .join(" ");
 
 const FILL: CSSProperties = {
   fill: "var(--piece-fill)",
-  stroke: "var(--piece-outline, none)",
+  stroke: "var(--piece-outline)",
 };
 const LINE: CSSProperties = {
   fill: "none",
@@ -129,12 +126,12 @@ const PIECE_COLOURS = {
   white: {
     fill: "var(--color-paper)",
     line: "var(--color-ink)",
-    outline: "none",
+    outline: "var(--color-ink)",
   },
   black: {
     fill: "var(--color-ink)",
     line: "var(--color-paper)",
-    outline: "var(--piece-black-outline, none)",
+    outline: "var(--color-paper)",
   },
 } as const satisfies Record<Colour, Record<string, string>>;
 

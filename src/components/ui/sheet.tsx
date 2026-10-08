@@ -61,13 +61,13 @@ function SheetContent({
         className={cn(
           "fixed z-50 flex flex-col gap-4 border-border bg-popover text-popover-foreground",
           side === "right" &&
-            "inset-y-0 right-0 h-full w-3/4 border-l-2 sm:max-w-sm",
+            "inset-y-0 right-0 h-full w-3/4 border-l-2 shadow-[-4px_0_0_var(--cast)] sm:max-w-sm",
           side === "left" &&
-            "inset-y-0 left-0 h-full w-3/4 border-r-2 sm:max-w-sm",
+            "inset-y-0 left-0 h-full w-3/4 border-r-2 shadow-[4px_0_0_var(--cast)] sm:max-w-sm",
           side === "top" &&
-            "inset-x-0 top-0 h-auto border-b-2",
+            "inset-x-0 top-0 h-auto border-b-2 shadow-[0_4px_0_var(--cast)]",
           side === "bottom" &&
-            "inset-x-0 bottom-0 h-auto border-t-2",
+            "inset-x-0 bottom-0 h-auto border-t-2 shadow-[0_-4px_0_var(--cast)]",
           className
         )}
         {...props}

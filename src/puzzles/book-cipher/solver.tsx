@@ -129,7 +129,7 @@ export function Solver({
                         {here ? (
                           <mark
                             aria-current="location"
-                            className="bg-ink px-1 text-paper"
+                            className="bg-card-foreground px-1 text-card"
                           >
                             <span className="sr-only">{`Page ${page}, line ${line}, word ${index + 1}: `}</span>
                             {word}

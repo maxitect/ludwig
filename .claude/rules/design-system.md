@@ -31,7 +31,7 @@ Spec: `docs/SPEC.md` section 6. The look is the _Ludwig_ title sequence: texture
 - **Headings:** always UPPERCASE `font-display` (Josefin Sans) in the credits pattern, a small light line over a large bold line. Use the `<Credit top bottom />` component; don't hand-roll it.
 - **Body:** `font-sans` (Jost), sentence case.
 - **Script:** `font-signature` is used only in the Wordmark SVG and the "Solved." stamp. Never in UI text.
-- **Hand font:** user-entered grid letters use `font-hand` in `crayon` or `ludwig-red`. Each cell gets a ±2° rotation seeded by its index, so SSR output is stable.
+- **Hand font:** user-entered letters use `font-hand` in `crayon` or `ludwig-red` on paper grid cells, and `hand` on `card` surfaces. Each cell gets a ±2° rotation seeded by its index, so SSR output is stable.
 - **Fonts:** load through `next/font` CSS variables only.
 
 ## Components

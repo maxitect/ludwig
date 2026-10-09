@@ -26,7 +26,7 @@ export function Solver({
     <div className="flex flex-col gap-6">
       <figure
         aria-label="The letter"
-        className="flex flex-col gap-3 border-2 border-border bg-paper p-4 shadow-[3px_3px_0_var(--cast)] sm:p-6"
+        className="paper-sheet flex flex-col gap-3 p-4 sm:p-6"
       >
         <ol className="flex flex-col gap-2">
           {lines.map((line, position) => (

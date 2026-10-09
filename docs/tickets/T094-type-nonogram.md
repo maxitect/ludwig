@@ -32,6 +32,7 @@ Nonograms are KrazyDad's "Konograms" (SPEC §1.1). Our twist: every solution is 
   - each clue greys out once its line is satisfied;
   - on completion the picture inverts to ink on paper and shows its caption.
 - **Content:** 5 original pictures from 10×10 to 15×15: a gear, a white knight, a pencil, a phrenology head, the walker.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

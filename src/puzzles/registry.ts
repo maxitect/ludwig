@@ -99,30 +99,39 @@ export type PuzzleTypeModule<
 
 export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
 
-export const registry: PuzzleRegistry = {
-  [acrosticModule.meta.key]: acrosticModule,
-  [anagramModule.meta.key]: anagramModule,
-  [bookCipherModule.meta.key]: bookCipherModule,
-  [caesarModule.meta.key]: caesarModule,
-  [cctvMazeModule.meta.key]: cctvMazeModule,
-  [crosswordModule.meta.key]: crosswordModule,
-  [futoshikiModule.meta.key]: futoshikiModule,
-  [gearTrainModule.meta.key]: gearTrainModule,
-  [gearsModule.meta.key]: gearsModule,
-  [keywordModule.meta.key]: keywordModule,
-  [knightsKnavesModule.meta.key]: knightsKnavesModule,
-  [logicGridModule.meta.key]: logicGridModule,
-  [napkinMathsModule.meta.key]: napkinMathsModule,
-  [oddOneOutModule.meta.key]: oddOneOutModule,
-  [pictogramCipherModule.meta.key]: pictogramCipherModule,
-  [reverseChessModule.meta.key]: reverseChessModule,
-  [rotaModule.meta.key]: rotaModule,
-  [sightlinesModule.meta.key]: sightlinesModule,
-  [spotDifferenceModule.meta.key]: spotDifferenceModule,
-  [sudokuModule.meta.key]: sudokuModule,
-  [wordLadderModule.meta.key]: wordLadderModule,
-  [wordSearchModule.meta.key]: wordSearchModule,
-};
+const modules = {
+  acrostic: acrosticModule,
+  anagram: anagramModule,
+  "book-cipher": bookCipherModule,
+  caesar: caesarModule,
+  "cctv-maze": cctvMazeModule,
+  crossword: crosswordModule,
+  futoshiki: futoshikiModule,
+  "gear-train": gearTrainModule,
+  gears: gearsModule,
+  keyword: keywordModule,
+  "knights-knaves": knightsKnavesModule,
+  "logic-grid": logicGridModule,
+  "napkin-maths": napkinMathsModule,
+  "odd-one-out": oddOneOutModule,
+  "pictogram-cipher": pictogramCipherModule,
+  "reverse-chess": reverseChessModule,
+  rota: rotaModule,
+  sightlines: sightlinesModule,
+  "spot-difference": spotDifferenceModule,
+  sudoku: sudokuModule,
+  "word-ladder": wordLadderModule,
+  "word-search": wordSearchModule,
+} as const;
+
+export type PuzzleTypeKey = keyof typeof modules;
+
+/** The payload each registered type renders and solves from. */
+export type PayloadOf<K extends PuzzleTypeKey> = z.infer<
+  (typeof modules)[K]["schema"]["payloadSchema"]
+>;
+
+export const registry: PuzzleRegistry = modules;
 
 export function getPuzzleModule(
   typeKey: string,

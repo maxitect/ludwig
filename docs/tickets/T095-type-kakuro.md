@@ -29,6 +29,7 @@ Kakuro (cross-sums) is a long-running KrazyDad series (SPEC §1.1) and gives the
   - exactly one solution.
 - **Solver UI:** `CellInput` on the white cells. Black cells show split clue triangles. A run that is complete but wrong is marked. An optional combinations hint lists the digit sets a run's sum allows; it is computed in the client from the clue, so it reveals nothing.
 - **Content:** 5 original puzzles from 6×6 to 10×10.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

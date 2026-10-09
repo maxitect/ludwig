@@ -37,7 +37,7 @@ export async function getTypeCatalogue(typeKey: string) {
     with: {
       category: { columns: { name: true } },
       puzzles: {
-        columns: { slug: true, title: true, difficulty: true },
+        columns: { id: true, slug: true, title: true, difficulty: true },
         where: { RAW: isPublished },
         orderBy: { title: "asc" },
         with: {

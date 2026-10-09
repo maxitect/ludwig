@@ -25,6 +25,7 @@ Circle9 ("This is not a Sudoku!") is in the Radio Times special. On a sparse 9×
 - **`check.ts`:** rejects a circle on an empty cell, and returns `cellsWrong` for clashing circles.
 - **Solver UI:** the sudoku grid with box borders. Tap or press Space to circle a number, drawn as a red pencil ring. Clashing circles are marked.
 - **Content:** 5 original puzzles.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

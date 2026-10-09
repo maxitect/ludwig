@@ -39,6 +39,7 @@ export function Solver({
   onStateChange,
   registerCheck,
   requestCheck,
+  wrongParts,
 }: SolverProps<typeof schema>) {
   const { size } = payload;
   const signs = useMemo(() => {
@@ -62,6 +63,7 @@ export function Solver({
       onStateChange={onStateChange}
       registerCheck={registerCheck}
       requestCheck={requestCheck}
+      wrongCells={wrongParts}
       cellRem={5}
       edges={(row, col) => signs.get(cellKey(row, col))}
       instructions={`Type 1 to ${size} to fill a cell and Backspace to clear it. Press N to switch notes on or off. Arrow keys move between cells. Signs between cells say which of the two is smaller, and are read out with both cells. The grid is checked when every cell is filled.`}

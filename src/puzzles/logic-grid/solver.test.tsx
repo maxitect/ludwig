@@ -45,6 +45,23 @@ const households = [
 ];
 
 describe("logic grid Solver", () => {
+  it("names the cells of a wrong category pair", () => {
+    render(
+      <Solver
+        payload={payloadOf(classic)}
+        initialState={null}
+        onStateChange={vi.fn()}
+        registerCheck={vi.fn()}
+        wrongParts={[{ first: 0, second: 1 }]}
+      />,
+    );
+    expect(
+      screen.getAllByRole("gridcell", {
+        name: /in a pair of categories that is wrong/,
+      }).length,
+    ).toBeGreaterThan(0);
+  });
+
   it("draws the staircase: 3 categories of 3 make 27 cells, each named by its pair and mark", () => {
     renderSolver();
     expect(screen.getAllByRole("gridcell")).toHaveLength(27);

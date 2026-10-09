@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { z } from "zod";
 import type { userSettings } from "@/db/schema";
-import type { PuzzleSchemas } from "./registry";
+import type { PuzzleSchemas, WrongPart } from "./registry";
 import type { RungProblem } from "./word-ladder/schema";
 
 export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
@@ -16,6 +16,8 @@ export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
   requestCheck?(): void;
   /** The rungs the last Check rejected, for the word ladder. A new array arrives with every wrong Check. */
   rungProblems?: RungProblem[];
+  /** The parts the last full Check named as wrong. The chrome clears them on the player's next edit. */
+  wrongParts?: WrongPart<S>[];
   /** The signed-in player's saved chess notation, or undefined when signed out. */
   chessNotation?: (typeof userSettings.$inferSelect)["chessNotation"];
   /** Checks one cell on the server and records the hint. Null when the player is signed out or the call failed. */

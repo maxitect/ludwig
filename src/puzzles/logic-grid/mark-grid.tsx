@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { cn } from "@/utils/cn";
-import type { AttemptState, Payload } from "./schema";
+import type { AttemptState, Payload, WrongPart } from "./schema";
 
 type Mark = AttemptState["marks"][number]["mark"];
 type Item = Payload["categories"][number]["items"][number];
@@ -11,6 +11,8 @@ type Placed = { item: Item; category: number };
 export type MarkGridProps = {
   categories: Payload["categories"];
   marks: ReadonlyMap<string, Mark>;
+  /** Category pairs the last Check named as wrong: every cell of the pair is framed. */
+  wrongPairs?: ReadonlyArray<WrongPart>;
   onCycle: (columnItem: Item, rowItem: Item, next: Mark | undefined) => void;
 };
 
@@ -32,7 +34,7 @@ const CELL = "size-9 shrink-0";
  * category but the first, and a cell exists only where the column's category comes before the row's.
  * Space or Enter cycles a cell through blank, no and yes; the arrow keys move between cells.
  */
-export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
+export function MarkGrid({ categories, marks, wrongPairs, onCycle }: MarkGridProps) {
   const columns: Placed[] = categories
     .slice(0, -1)
     .flatMap(({ position, items }) =>
@@ -42,6 +44,11 @@ export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
     .slice(1)
     .flatMap(({ position, items }) =>
       items.map((item) => ({ item, category: position })),
+    );
+  const isWrong = (row: number, col: number) =>
+    !!wrongPairs?.some(
+      ({ first, second }) =>
+        first === columns[col].category && second === rows[row].category,
     );
   const exists = (row: number, col: number) =>
     row >= 0 &&
@@ -164,6 +171,7 @@ export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
               }
               const state = stateOf(row, col);
               const isActive = active.row === row && active.col === col;
+              const wrong = isWrong(row, col);
               return (
                 <div
                   key={column.item.id}
@@ -174,11 +182,11 @@ export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
                   }}
                   role="gridcell"
                   tabIndex={isActive ? 0 : -1}
-                  aria-label={`${column.item.label} × ${item.label}: ${state}`}
+                  aria-label={`${column.item.label} × ${item.label}: ${state}${wrong ? ", in a pair of categories that is wrong" : ""}`}
                   data-active={isActive}
                   className={cn(
                     CELL,
-                    "flex cursor-pointer select-none items-center justify-center border-b border-l border-ink font-display text-xl font-bold outline-0 data-[active=true]:outline-2 data-[active=true]:-outline-offset-2 data-[active=true]:outline-ring",
+                    "relative flex cursor-pointer select-none items-center justify-center border-b border-l border-ink font-display text-xl font-bold outline-0 data-[active=true]:outline-2 data-[active=true]:-outline-offset-2 data-[active=true]:outline-ring",
                     (col === 0 || columns[col - 1].category !== column.category) &&
                       "border-l-2",
                     state === "yes" && "text-ludwig-red",
@@ -189,6 +197,12 @@ export function MarkGrid({ categories, marks, onCycle }: MarkGridProps) {
                     cycle(row, col);
                   }}
                 >
+                  {wrong && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 border-2 border-dashed border-ludwig-red"
+                    />
+                  )}
                   <span aria-hidden>{state === "blank" ? "" : SYMBOL[state]}</span>
                 </div>
               );

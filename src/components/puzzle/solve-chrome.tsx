@@ -26,6 +26,7 @@ import {
   revealCell,
   saveState,
 } from "@/lib/actions/puzzles";
+import type { WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
 import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
@@ -91,6 +92,7 @@ export function SolveChrome({
   const [solvedMs, setSolvedMs] = useState<number | null>(null);
   const [epilogue, setEpilogue] = useState<string | null>(null);
   const [rungProblems, setRungProblems] = useState<RungProblem[]>();
+  const [wrongParts, setWrongParts] = useState<WrongPart[]>();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [attempt, setAttempt] = useState(0);
   const hydrated = useSyncExternalStore(
@@ -151,6 +153,7 @@ export function SolveChrome({
 
   const onStateChange = useCallback<SolverProps["onStateChange"]>(
     (state) => {
+      setWrongParts(undefined);
       if (!signedIn) return writeProgress(puzzleId, typeKey, state);
       clearTimeout(saveTimeout.current);
       pendingState.current = state;
@@ -179,6 +182,7 @@ export function SolveChrome({
           setSolvedMs(durationMs);
         } else {
           setRungProblems(response.result.rungProblems);
+          setWrongParts(response.result.wrongParts);
           setNotice("wrong");
         }
       } catch {
@@ -228,6 +232,7 @@ export function SolveChrome({
     setSolvedMs(null);
     setEpilogue(null);
     setRungProblems(undefined);
+    setWrongParts(undefined);
     setAttempt((value) => value + 1);
     timer.reset();
     if (!signedIn) return clearProgress(puzzleId);
@@ -316,6 +321,7 @@ export function SolveChrome({
             solved={solved}
             chessNotation={chessNotation}
             rungProblems={rungProblems}
+            wrongParts={wrongParts}
             checkCell={solved ? undefined : checkCell}
             revealCell={solved ? undefined : revealCellValue}
           />
@@ -346,7 +352,14 @@ export function SolveChrome({
             to check or reveal individual cells.
           </p>
         ) : (
-          notice && <p className="touch:truncate">{noticeText[notice]}</p>
+          notice && (
+            <p className="touch:truncate">
+              {noticeText[notice]}
+              {notice === "wrong" && wrongParts?.length
+                ? ` ${wrongParts.length} ${wrongParts.length === 1 ? "part is" : "parts are"} marked wrong.`
+                : ""}
+            </p>
+          )
         )}
       </div>
 

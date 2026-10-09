@@ -30,6 +30,22 @@ const cell = (row: number, col: number) =>
   });
 
 describe("sudoku Solver", () => {
+  it("names each wrong cell in its accessible name", () => {
+    render(
+      <Solver
+        payload={{ givens }}
+        initialState={null}
+        onStateChange={vi.fn()}
+        registerCheck={vi.fn()}
+        wrongParts={[{ row: 2, col: 3 }]}
+      />,
+    );
+    expect(cell(3, 4).getAttribute("aria-label")).toBe(
+      "Row 3, column 4, empty, breaks a rule",
+    );
+    expect(cell(3, 5).getAttribute("aria-label")).not.toContain("breaks");
+  });
+
   it("shows the givens as read-only cells", async () => {
     const user = userEvent.setup();
     const { onStateChange } = renderSolver();

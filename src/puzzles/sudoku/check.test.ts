@@ -16,7 +16,7 @@ describe("sudoku check", () => {
   it("accepts the solution", () => {
     expect(check(payload, solution, correct)).toEqual({
       correct: true,
-      cellsWrong: [],
+      wrongParts: [],
     });
   });
 
@@ -39,13 +39,29 @@ describe("sudoku check", () => {
   it("rejects a one-cell perturbation and reports the wrong cells", () => {
     const result = check(payload, solution, perturb(0, 2, 1));
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 0, col: 2 });
+    expect(result.wrongParts).toContainEqual({ row: 0, col: 2 });
+  });
+
+  it("lists only cells in a unit with the broken rule, not cells that merely differ from the solution", () => {
+    const { wrongParts } = check(payload, solution, perturb(0, 2, 1));
+    const clash = solution.find(
+      ({ row, col, digit }) => digit === 1 && (row === 0 || col === 2),
+    );
+    expect(clash).toBeDefined();
+    expect(wrongParts.length).toBeLessThan(10);
+    for (const { row, col } of wrongParts) {
+      const sameUnit =
+        row === 0 ||
+        col === 2 ||
+        (Math.floor(row / 3) === 0 && Math.floor(col / 3) === 0);
+      expect(sameUnit).toBe(true);
+    }
   });
 
   it("reports an overwritten given", () => {
     const result = check(payload, solution, perturb(0, 0, 9));
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 0, col: 0 });
+    expect(result.wrongParts).toContainEqual({ row: 0, col: 0 });
   });
 
   it("rejects an empty cell", () => {
@@ -54,7 +70,7 @@ describe("sudoku check", () => {
     });
     expect(result).toMatchObject({
       correct: false,
-      cellsWrong: [{ row: 8, col: 8 }],
+      wrongParts: [{ row: 8, col: 8 }],
     });
   });
 });

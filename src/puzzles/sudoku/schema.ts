@@ -41,6 +41,9 @@ export const payloadSchema = z.object({ givens: z.array(given.strict()) });
 
 export const answerSchema = z.object({ cells: z.array(entered).length(81) });
 
+/** A cell that breaks a rule. Computed from the player's answer, never from the solution. */
+export const wrongPartSchema = entered.pick({ row: true, col: true });
+
 export const attemptSchema = z.object({
   cells: z.array(entered),
   notes: z.array(noted),

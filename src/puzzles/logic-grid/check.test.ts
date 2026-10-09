@@ -32,11 +32,11 @@ describe("check", () => {
   it("accepts the full matching, as links from one category or across all of them", () => {
     expect(check(payloadOf(classic), classicSolution, { links: correct })).toEqual({
       correct: true,
-      wrongPairs: [],
+      wrongParts: [],
     });
     expect(
       check(payloadOf(classic), classicSolution, { links: classicSolution.links }),
-    ).toEqual({ correct: true, wrongPairs: [] });
+    ).toEqual({ correct: true, wrongParts: [] });
   });
 
   it("rejects two hats swapped, and names the category pairs that differ", () => {
@@ -47,7 +47,7 @@ describe("check", () => {
     ]);
     expect(check(payloadOf(classic), classicSolution, { links: swapped })).toEqual({
       correct: false,
-      wrongPairs: [
+      wrongParts: [
         { first: 0, second: 2 },
         { first: 1, second: 2 },
       ],
@@ -62,10 +62,22 @@ describe("check", () => {
         [1, 2, 2],
       ]),
     };
-    expect(check(payloadOf(classic), classicSolution, answer).wrongPairs).toEqual([
+    expect(check(payloadOf(classic), classicSolution, answer).wrongParts).toEqual([
       { first: 0, second: 1 },
       { first: 1, second: 2 },
     ]);
+  });
+
+  it("names only category pairs the answer links, never an unmarked pair", () => {
+    const partial = { links: [link([0, 0], [1, 1]), link([0, 1], [1, 0])] };
+    expect(check(payloadOf(classic), classicSolution, partial)).toEqual({
+      correct: false,
+      wrongParts: [{ first: 0, second: 1 }],
+    });
+    expect(check(payloadOf(classic), classicSolution, { links: [] })).toEqual({
+      correct: false,
+      wrongParts: [],
+    });
   });
 
   it("rejects an incomplete matching", () => {
@@ -93,14 +105,14 @@ describe("check in the variant", () => {
   it("accepts the matching with the false clue flagged", () => {
     expect(check(payload, solution, { links: correct, falseCluePosition: 4 })).toEqual({
       correct: true,
-      wrongPairs: [],
+      wrongParts: [],
     });
   });
 
   it("rejects the right matching with the wrong clue, or no clue, flagged", () => {
     expect(check(payload, solution, { links: correct, falseCluePosition: 0 })).toEqual({
       correct: false,
-      wrongPairs: [],
+      wrongParts: [],
     });
     expect(check(payload, solution, { links: correct, falseCluePosition: null }).correct).toBe(false);
     expect(check(payload, solution, { links: correct }).correct).toBe(false);

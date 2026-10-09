@@ -54,6 +54,12 @@ export const answerSchema = z.object({
   falseCluePosition: attemptSelect.shape.falseCluePosition.optional(),
 });
 
+/** A pair of categories whose links differ from the solution, and in which the player has linked items. */
+export const wrongPartSchema = z.object({
+  first: categorySelect.shape.position,
+  second: categorySelect.shape.position,
+});
+
 export const attemptSchema = z.object({
   marks: z.array(markSelect.pick({ itemAId: true, itemBId: true, mark: true })),
   struckClues: z.array(struckSelect.pick({ cluePosition: true })),
@@ -103,4 +109,5 @@ export type Answer = z.infer<typeof answerSchema>;
 export type AttemptState = z.infer<typeof attemptSchema>;
 export type Content = z.infer<typeof contentSchema>;
 export type Solution = z.infer<typeof solutionSchema>;
+export type WrongPart = z.infer<typeof wrongPartSchema>;
 export type Rule = z.infer<typeof ruleSchema>;

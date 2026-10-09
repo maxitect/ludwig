@@ -25,6 +25,8 @@ type DigitGridProps = Pick<
   onStateChange(state: { cells: Placed[]; notes: Placed[] }): void;
   registerCheck(read: () => { cells: Placed[] } | null): void;
   requestCheck?(): void;
+  /** Cells the last Check named as breaking a rule. */
+  wrongCells?: ReadonlyArray<CellPosition>;
   /** Read to screen readers before the grid. */
   instructions: string;
   className?: string;
@@ -51,6 +53,7 @@ export function DigitGrid({
   onStateChange,
   registerCheck,
   requestCheck,
+  wrongCells,
   instructions,
   className,
   ...gridProps
@@ -92,6 +95,10 @@ export function DigitGrid({
   const [notesMode, setNotesMode] = useState(false);
   const checkOnEntry = useRef(false);
   const grid = useRef<CellGridHandle>(null);
+  const wrong = useMemo(
+    () => new Set(wrongCells?.map(({ row, col }) => cellKey(row, col))),
+    [wrongCells],
+  );
   const complete = digits.size + givens.size === size * size;
 
   useEffect(() => {
@@ -178,6 +185,7 @@ export function DigitGrid({
           accept={(char) => /^[1-9]$/.test(char) && Number(char) <= size}
           readOnly={given}
           inputMode="numeric"
+          wrong={wrong}
           words={[]}
           marks={(row, col) => {
             const key = cellKey(row, col);

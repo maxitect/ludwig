@@ -15,13 +15,14 @@ import {
   revealPuzzleCell,
 } from "@/lib/data/puzzles";
 import { getCurrentUser, requireUser } from "@/lib/data/user";
-import { getPuzzleModule } from "@/puzzles/registry";
+import { getPuzzleModule, type WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
 
 type CheckResult = {
   correct: boolean;
   epilogue?: string;
   rungProblems?: RungProblem[];
+  wrongParts?: WrongPart[];
 };
 type ActionError = { ok: false; error: "invalid" | "not_found" };
 const invalid: ActionError = { ok: false, error: "invalid" };

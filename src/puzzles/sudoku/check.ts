@@ -15,8 +15,8 @@ export function check(payload: Payload, _solution: Solution, answer: Answer) {
   grid.forEach((digit, index) => {
     if (!digit || (givens[index] && givens[index] !== digit)) wrong.add(index);
   });
-  const cellsWrong = [...wrong]
+  const wrongParts = [...wrong]
     .sort((a, b) => a - b)
     .map((index) => ({ row: Math.floor(index / SIZE), col: index % SIZE }));
-  return { correct: cellsWrong.length === 0, cellsWrong };
+  return { correct: wrongParts.length === 0, wrongParts };
 }

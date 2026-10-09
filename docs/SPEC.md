@@ -612,12 +612,12 @@ Defined in `src/app/globals.css` with Tailwind v4 `@theme` and mapped onto shadc
 **Dark theme ("Ink", modelled on the title card):**
 
 - `background` → `#0A0B0D` with grain, `foreground` → paper
-- `card` and `popover` → ink, so dialogs, menus and toasts are dark, not blue; the light `border` and the light `--cast` shadow separate them from the page. Puzzle "pages" (book cipher book and references, cipher key panel, anagram tiles, acrostic letter, rota tokens) are not `card`: they stay paper in Ink, like paper on a desk, and take only the light `--cast` shadow
+- `card` and `popover` → ink, so dialogs, menus and toasts are dark, not blue; the light `border` and the light `--cast` shadow separate them from the page. Puzzle "pages" (book cipher book and references, cipher key panel, anagram and letter tiles, acrostic letter, rota tokens) are not `card`: they use the `paper-sheet` utility (ink border, paper fill, ink text) and stay paper in Ink, like paper on a desk. Their block shadow is `--sheet-cast`: the same as `--cast` in Paper, and paper at 70% in Ink, lighter than `--cast` so the sheet stands out
 - `muted` → paper at 14% over ink (dark, non-blue), used for active clue rows, hover states and selected toggle cells
 - `--cast` → paper at 45% (3.8:1 against ink), `--hand` → paper (crayon is too dark on ink)
 - `destructive` → ludwig-red at 65% over paper (blood is invisible on ink, and plain ludwig-red is only 3.2:1), 4.5:1 or better against ink, so error text and the `aria-invalid` underline pass; `destructive-foreground` → ink
 - `primary` → ludwig-red (unchanged), `border` → paper at 60%
-- Grids (`CellGrid`, the chess board) and puzzle pages stay paper, like a printed page on a dark desk. Their frame is the light `border` and they carry the `--cast` shadow
+- Grids (`CellGrid`, the chess board) stay paper, like a printed page on a dark desk. Their frame is the light `border` and they carry the `--cast` shadow
 
 All text and background pairs must pass WCAG AA. Red on paper (`#C40C12` on `#E9E4DE`) is about 5:1, so it passes for text. Crayon is used only at large sizes.
 
@@ -628,7 +628,7 @@ All text and background pairs must pass WCAG AA. Red on paper (`#C40C12` on `#E9
 - **Grid paper.** The `.grid-paper` background is a CSS `background-image` of dot-and-cross (·×) on a 24px pitch, used on the Casebook, Settings and in scratch areas. It fills the page down to the footer, and in Ink its marks are toned down to 30%.
 - **Crossword cells everywhere.** Square corners (`--radius: 0`), 2px ink borders, and small superscript clue numbers on cards and buttons where they make sense.
 - **Red hand-filled letters.** Letters the user enters in grids render in `--font-hand` and `--crayon`/`--ludwig-red`, with a ±2° random rotation per cell seeded by its index for stable SSR.
-- **Ink splat.** An SVG asset placed behind the wordmark on the landing hero and the sign-in card.
+- **Ink splat.** An SVG asset placed behind the wordmark on the landing hero and the sign-in card. On the landing hero the wordmark has no box: it sits on the textured page in the foreground colour (ink in Paper, paper in Ink) with the splat behind it. The splat is `ludwig-red` (the button red) in Paper, so it stays clear of the black text, and `blood` in Ink.
 - **Clinical, never soft.** No fades anywhere: no blurred shadows, no gradients that blend one colour into another, no cast shadow that fades along its length. Gradients appear only as hard-stop patterns (grid lines, checks, raking stripes).
 - **Silhouette walker.** A small black SVG figure that walks across grid cells. It is used as the **loading indicator** (`loading.tsx` / Suspense fallbacks) and on empty states.
 - **White chess pieces.** Large, with long blue shadows, used as decorative elements on the landing page and the Reverse Chess hub.

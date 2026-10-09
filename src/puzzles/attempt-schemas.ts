@@ -2,6 +2,7 @@ import { attemptSchema as acrosticAttempt } from "./acrostic/schema";
 import { attemptSchema as anagramAttempt } from "./anagram/schema";
 import { attemptSchema as bookCipherAttempt } from "./book-cipher/schema";
 import { attemptSchema as caesarAttempt } from "./caesar/schema";
+import { attemptSchema as cctvMazeAttempt } from "./cctv-maze/schema";
 import { attemptSchema as crosswordAttempt } from "./crossword/schema";
 import { attemptSchema as futoshikiAttempt } from "./futoshiki/schema";
 import { attemptSchema as gearTrainAttempt } from "./gear-train/schema";
@@ -26,6 +27,7 @@ const attemptSchemas = {
   anagram: anagramAttempt,
   "book-cipher": bookCipherAttempt,
   caesar: caesarAttempt,
+  "cctv-maze": cctvMazeAttempt,
   crossword: crosswordAttempt,
   futoshiki: futoshikiAttempt,
   "gear-train": gearTrainAttempt,

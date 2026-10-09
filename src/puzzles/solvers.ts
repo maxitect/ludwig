@@ -3,6 +3,7 @@ import { Solver as acrosticSolver } from "./acrostic/solver";
 import { Solver as anagramSolver } from "./anagram/solver";
 import { Solver as bookCipherSolver } from "./book-cipher/solver";
 import { Solver as caesarSolver } from "./caesar/solver";
+import { Solver as cctvMazeSolver } from "./cctv-maze/solver";
 import { Solver as crosswordSolver } from "./crossword/solver";
 import { Solver as futoshikiSolver } from "./futoshiki/solver";
 import { Solver as gearTrainSolver } from "./gear-train/solver";
@@ -29,6 +30,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   anagram: anagramSolver,
   "book-cipher": bookCipherSolver,
   caesar: caesarSolver,
+  "cctv-maze": cctvMazeSolver,
   crossword: crosswordSolver,
   futoshiki: futoshikiSolver,
   "gear-train": gearTrainSolver,

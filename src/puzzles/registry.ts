@@ -5,6 +5,7 @@ import { acrosticModule } from "./acrostic/module";
 import { anagramModule } from "./anagram/module";
 import { bookCipherModule } from "./book-cipher/module";
 import { caesarModule } from "./caesar/module";
+import { cctvMazeModule } from "./cctv-maze/module";
 import { crosswordModule } from "./crossword/module";
 import { futoshikiModule } from "./futoshiki/module";
 import { gearTrainModule } from "./gear-train/module";
@@ -103,6 +104,7 @@ export const registry: PuzzleRegistry = {
   [anagramModule.meta.key]: anagramModule,
   [bookCipherModule.meta.key]: bookCipherModule,
   [caesarModule.meta.key]: caesarModule,
+  [cctvMazeModule.meta.key]: cctvMazeModule,
   [crosswordModule.meta.key]: crosswordModule,
   [futoshikiModule.meta.key]: futoshikiModule,
   [gearTrainModule.meta.key]: gearTrainModule,

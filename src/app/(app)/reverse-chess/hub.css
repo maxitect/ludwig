@@ -13,3 +13,25 @@
     animation: hub-piece-sway 6s ease-in-out infinite;
   }
 }
+
+.hub-piece-ink {
+  display: none;
+}
+
+:root[data-theme="ink"] .hub-piece-paper {
+  display: none;
+}
+
+:root[data-theme="ink"] .hub-piece-ink {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .hub-piece-paper {
+    display: none;
+  }
+
+  :root:not([data-theme]) .hub-piece-ink {
+    display: block;
+  }
+}

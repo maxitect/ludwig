@@ -2,8 +2,11 @@ import type { CSSProperties, ReactElement, ReactNode } from "react";
 import type { PieceRenderObject } from "react-chessboard";
 import { pieceCode, type Colour, type PieceKind } from "./squares";
 
-const SHADOW_FILTER = [1.5, 3]
-  .map((step) => `drop-shadow(${step}px ${step}px 0 var(--cast))`)
+const SHADOW_FILTER = [1, 2, 3, 4, 5, 6, 7, 8]
+  .map(
+    (step) =>
+      `drop-shadow(${step * 0.6}px ${step * 0.6}px 0 var(--color-shadow))`,
+  )
   .join(" ");
 
 const FILL: CSSProperties = {

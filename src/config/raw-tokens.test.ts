@@ -22,6 +22,7 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
     "text-ink",
   ],
   "src/puzzles/_shared/digit-grid.tsx": ["text-ink"],
+  "src/puzzles/_shared/chess-board/pieces.tsx": ["var(--color-shadow)"],
   "src/puzzles/_shared/chess-board/uncapture-tray.tsx": ["bg-paper"],
   "src/puzzles/logic-grid/mark-grid.tsx": [
     "bg-paper",

@@ -372,6 +372,22 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.oddOneOutItems.puzzleId,
     }),
   },
+  sightlinesPuzzles: {
+    obstacles: r.many.sightlinesObstacles({
+      from: r.sightlinesPuzzles.puzzleId,
+      to: r.sightlinesObstacles.puzzleId,
+    }),
+    observers: r.many.sightlinesObservers({
+      from: r.sightlinesPuzzles.puzzleId,
+      to: r.sightlinesObservers.puzzleId,
+    }),
+  },
+  sightlinesAttempts: {
+    marks: r.many.sightlinesAttemptMarks({
+      from: r.sightlinesAttempts.attemptId,
+      to: r.sightlinesAttemptMarks.attemptId,
+    }),
+  },
   wordSearchPuzzles: {
     cells: r.many.wordSearchCells({
       from: r.wordSearchPuzzles.puzzleId,

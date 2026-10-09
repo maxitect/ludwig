@@ -20,4 +20,5 @@ export * from "../../puzzles/pictogram-cipher/tables";
 export * from "../../puzzles/logic-grid/tables";
 export * from "../../puzzles/gear-train/tables";
 export * from "../../puzzles/word-ladder/tables";
+export * from "../../puzzles/sightlines/tables";
 export * from "../../puzzles/word-search/tables";

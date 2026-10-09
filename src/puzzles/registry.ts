@@ -17,6 +17,7 @@ import { oddOneOutModule } from "./odd-one-out/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
+import { sightlinesModule } from "./sightlines/module";
 import { spotDifferenceModule } from "./spot-difference/module";
 import { sudokuModule } from "./sudoku/module";
 import { wordLadderModule } from "./word-ladder/module";
@@ -114,6 +115,7 @@ export const registry: PuzzleRegistry = {
   [pictogramCipherModule.meta.key]: pictogramCipherModule,
   [reverseChessModule.meta.key]: reverseChessModule,
   [rotaModule.meta.key]: rotaModule,
+  [sightlinesModule.meta.key]: sightlinesModule,
   [spotDifferenceModule.meta.key]: spotDifferenceModule,
   [sudokuModule.meta.key]: sudokuModule,
   [wordLadderModule.meta.key]: wordLadderModule,

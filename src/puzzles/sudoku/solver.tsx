@@ -19,6 +19,7 @@ export function Solver({
   onStateChange,
   registerCheck,
   requestCheck,
+  wrongParts,
 }: SolverProps<typeof schema>) {
   return (
     <DigitGrid
@@ -29,6 +30,7 @@ export function Solver({
       onStateChange={onStateChange}
       registerCheck={registerCheck}
       requestCheck={requestCheck}
+      wrongCells={wrongParts}
       cellClassName={boxBorders}
       instructions="Type 1 to 9 to fill a cell and Backspace to clear it. Press N to switch notes on or off. Arrow keys move between cells. The grid is checked when every cell is filled."
     />

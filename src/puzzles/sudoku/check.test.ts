@@ -16,7 +16,7 @@ describe("sudoku check", () => {
   it("accepts the solution", () => {
     expect(check(payload, solution, correct)).toEqual({
       correct: true,
-      cellsWrong: [],
+      wrongParts: [],
     });
   });
 
@@ -39,13 +39,43 @@ describe("sudoku check", () => {
   it("rejects a one-cell perturbation and reports the wrong cells", () => {
     const result = check(payload, solution, perturb(0, 2, 1));
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 0, col: 2 });
+    expect(result.wrongParts).toContainEqual({ row: 0, col: 2 });
+  });
+
+  it("lists only cells whose digit repeats in a unit, never a diff against the solution", () => {
+    const answer = perturb(0, 2, 1);
+    const { wrongParts } = check(payload, solution, answer);
+    const digitAt = (r: number, c: number) =>
+      answer.cells.find(({ row, col }) => row === r && col === c)!.digit;
+    const sharesUnit = (a: { row: number; col: number }, b: typeof a) =>
+      a.row === b.row ||
+      a.col === b.col ||
+      (Math.floor(a.row / 3) === Math.floor(b.row / 3) &&
+        Math.floor(a.col / 3) === Math.floor(b.col / 3));
+    const repeats = (cell: { row: number; col: number }) =>
+      answer.cells.some(
+        (other) =>
+          (other.row !== cell.row || other.col !== cell.col) &&
+          sharesUnit(cell, other) &&
+          other.digit === digitAt(cell.row, cell.col),
+      );
+    expect(wrongParts.length).toBeGreaterThan(1);
+    for (const cell of wrongParts) expect(repeats(cell)).toBe(true);
+    const partners = wrongParts.filter(
+      ({ row, col }) => !(row === 0 && col === 2),
+    );
+    expect(partners.length).toBeGreaterThan(0);
+    for (const { row, col } of partners) {
+      expect(digitAt(row, col)).toBe(
+        solution.find((cell) => cell.row === row && cell.col === col)!.digit,
+      );
+    }
   });
 
   it("reports an overwritten given", () => {
     const result = check(payload, solution, perturb(0, 0, 9));
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 0, col: 0 });
+    expect(result.wrongParts).toContainEqual({ row: 0, col: 0 });
   });
 
   it("rejects an empty cell", () => {
@@ -54,7 +84,7 @@ describe("sudoku check", () => {
     });
     expect(result).toMatchObject({
       correct: false,
-      cellsWrong: [{ row: 8, col: 8 }],
+      wrongParts: [{ row: 8, col: 8 }],
     });
   });
 });

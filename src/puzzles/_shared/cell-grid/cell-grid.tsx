@@ -50,6 +50,8 @@ export type CellGridProps = {
   marks?: (row: number, col: number) => ReactNode;
   inputMode?: "text" | "numeric";
   highlight?: ReadonlySet<CellKey>;
+  /** Cells a failed check named as breaking a rule: a dashed frame and "breaks a rule" in the accessible name. */
+  wrong?: ReadonlySet<CellKey>;
   annotation?: (row: number, col: number) => CellAnnotation | undefined;
   /** Signs between this cell and its right and lower neighbours. Their labels join both cells' accessible names. */
   edges?: (row: number, col: number) => CellEdges | undefined;
@@ -101,6 +103,7 @@ export function CellGrid({
   marks,
   inputMode,
   highlight,
+  wrong,
   annotation,
   edges,
   cellRem = 3.5,
@@ -270,6 +273,7 @@ export function CellGrid({
                     sides?.down?.label,
                     isLocked && "given",
                     entered || "empty",
+                    wrong?.has(key) && "breaks a rule",
                   ]
                     .filter(Boolean)
                     .join(", ")}
@@ -288,6 +292,12 @@ export function CellGrid({
                   onClick={() => select({ row, col })}
                   onFocus={() => setActive({ row, col })}
                 >
+                  {wrong?.has(key) && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 z-10 border-4 border-dashed border-ludwig-red"
+                    />
+                  )}
                   {marks?.(row, col)}
                   {note && (
                     <span

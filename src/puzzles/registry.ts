@@ -29,7 +29,14 @@ export type PuzzleSchemas = {
   answerSchema: z.ZodType;
   contentSchema: z.ZodType;
   attemptSchema: z.ZodType;
+  /** Present when a failed check names the parts that are wrong. */
+  wrongPartSchema?: z.ZodType;
 };
+
+/** One part a failed check names as wrong, derived from the type's own `wrongPartSchema`. */
+export type WrongPart<S extends PuzzleSchemas = PuzzleSchemas> = z.infer<
+  NonNullable<S["wrongPartSchema"]>
+>;
 
 /** Method signatures keep the parameters bivariant, so one registry can hold modules of different types. */
 export type PuzzleTypeModule<
@@ -44,7 +51,7 @@ export type PuzzleTypeModule<
     payload: z.infer<S["payloadSchema"]>,
     solution: TSolution,
     answer: z.infer<S["answerSchema"]>,
-  ): { correct: boolean; epilogue?: string };
+  ): { correct: boolean; epilogue?: string; wrongParts?: WrongPart<S>[] };
   /** Per-cell check for grid types: whether `value` is the solution's value at `(row, col)`. */
   checkCell?(
     payload: z.infer<S["payloadSchema"]>,

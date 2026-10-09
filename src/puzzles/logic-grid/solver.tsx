@@ -14,6 +14,7 @@ export function Solver({
   initialState,
   onStateChange,
   registerCheck,
+  wrongParts,
 }: SolverProps<typeof schema>) {
   const known = useMemo(
     () =>
@@ -77,6 +78,7 @@ export function Solver({
       <MarkGrid
         categories={payload.categories}
         marks={marks}
+        wrongParts={wrongParts}
         onCycle={(column, row, next) => {
           const key = markKey(column.id, row.id);
           const nextMarks = new Map(marks);

@@ -15,7 +15,7 @@ describe("futoshiki check", () => {
   it("accepts the solution", () => {
     expect(check(payload, solution, correct)).toEqual({
       correct: true,
-      cellsWrong: [],
+      wrongParts: [],
     });
   });
 
@@ -48,7 +48,7 @@ describe("futoshiki check", () => {
       correct,
     );
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toEqual([
+    expect(result.wrongParts).toEqual([
       { row: 0, col: 0 },
       { row: 0, col: 1 },
     ]);
@@ -66,21 +66,21 @@ describe("futoshiki check", () => {
     };
     const result = check(flipped, solution, answer);
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 1, col: 0 });
-    expect(result.cellsWrong).toContainEqual({ row: 1, col: 1 });
-    expect(result.cellsWrong).not.toContainEqual({ row: 0, col: 0 });
+    expect(result.wrongParts).toContainEqual({ row: 1, col: 0 });
+    expect(result.wrongParts).toContainEqual({ row: 1, col: 1 });
+    expect(result.wrongParts).not.toContainEqual({ row: 0, col: 0 });
   });
 
   it("rejects a one-cell perturbation and reports the wrong cells", () => {
     const result = check(payload, solution, perturb(0, 1, 3));
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 0, col: 1 });
+    expect(result.wrongParts).toContainEqual({ row: 0, col: 1 });
   });
 
   it("reports an overwritten given", () => {
     const result = check(payload, solution, perturb(0, 0, 2));
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 0, col: 0 });
+    expect(result.wrongParts).toContainEqual({ row: 0, col: 0 });
   });
 
   it("reports an empty cell", () => {
@@ -90,13 +90,13 @@ describe("futoshiki check", () => {
       ),
     });
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 3, col: 3 });
+    expect(result.wrongParts).toContainEqual({ row: 3, col: 3 });
   });
 
   it("reports a digit larger than the grid", () => {
     const result = check(payload, solution, perturb(3, 3, 5));
     expect(result.correct).toBe(false);
-    expect(result.cellsWrong).toContainEqual({ row: 3, col: 3 });
+    expect(result.wrongParts).toContainEqual({ row: 3, col: 3 });
   });
 
   it("ignores cells outside the grid and rejects a grid that is missing cells", () => {
@@ -106,6 +106,6 @@ describe("futoshiki check", () => {
     expect(outside.correct).toBe(true);
     const short = check(payload, solution, { cells: solution.slice(1) });
     expect(short.correct).toBe(false);
-    expect(short.cellsWrong).toContainEqual({ row: 0, col: 0 });
+    expect(short.wrongParts).toContainEqual({ row: 0, col: 0 });
   });
 });

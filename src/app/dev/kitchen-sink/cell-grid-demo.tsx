@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   CellGrid,
   cellKey,
   type CellAnnotation,
+  type CellGridHandle,
   type Direction,
 } from "@/puzzles/_shared/cell-grid";
+import { PuzzleKeyboard } from "@/puzzles/_shared/puzzle-keyboard";
 
 const ROWS = 5;
 const COLS = 5;
@@ -43,25 +46,52 @@ function annotation(row: number, col: number): CellAnnotation | undefined {
 export function CellGridDemo() {
   const [values, setValues] = useState(INITIAL);
   const [direction, setDirection] = useState<Direction>("across");
+  const grid = useRef<CellGridHandle>(null);
   return (
     <div className="flex w-full flex-col gap-2">
-      <CellGrid
-        label="Demo grid"
-        rows={ROWS}
-        cols={COLS}
-        cells={CELLS}
-        value={(row, col) => values[cellKey(row, col)] ?? ""}
-        onChange={(row, col, value) =>
-          setValues((prev) => ({ ...prev, [cellKey(row, col)]: value }))
-        }
-        accept={(char) => /^[A-Z]$/.test(char)}
-        direction={direction}
-        onDirectionChange={setDirection}
-        highlight={HIGHLIGHT}
-        annotation={annotation}
-        words={WORDS}
+      <div data-testid="keyboard-demo" className="flex flex-col gap-2">
+        <CellGrid
+          ref={grid}
+          label="Demo grid"
+          rows={ROWS}
+          cols={COLS}
+          cells={CELLS}
+          value={(row, col) => values[cellKey(row, col)] ?? ""}
+          onChange={(row, col, value) =>
+            setValues((prev) => ({ ...prev, [cellKey(row, col)]: value }))
+          }
+          accept={(char) => /^[A-Z]$/.test(char)}
+          direction={direction}
+          onDirectionChange={setDirection}
+          highlight={HIGHLIGHT}
+          annotation={annotation}
+          words={WORDS}
+        />
+        <p className="font-sans text-sm">Direction: {direction}</p>
+        <PuzzleKeyboard
+          layout="alpha"
+          onKey={(char) => grid.current?.type(char)}
+          onErase={() => grid.current?.erase()}
+        />
+      </div>
+      <p className="font-sans text-sm">Keyboard specimens (always shown)</p>
+      <PuzzleKeyboard
+        forceVisible
+        layout="alpha"
+        onKey={() => {}}
+        onErase={() => {}}
       />
-      <p className="font-sans text-sm">Direction: {direction}</p>
+      <PuzzleKeyboard
+        forceVisible
+        layout="digits"
+        digits={[1, 2, 3, 4, 5, 6, 7, 8, 9]}
+        onKey={() => {}}
+        onErase={() => {}}
+      >
+        <Button variant="secondary" size="lg">
+          Check cell
+        </Button>
+      </PuzzleKeyboard>
     </div>
   );
 }

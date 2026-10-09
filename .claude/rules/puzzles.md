@@ -30,6 +30,7 @@ Every type in `src/puzzles/<type>/` has the same shape. Use `/new-puzzle-type` t
 - **Engine-internal types.** A pure engine may declare its own internal types (for example spot the difference `Change`, `SceneObject`, `Kind`, `Colour`) when no table or schema covers them. The user approved this on 2026-10-03, so they need no sign-off. Anything that crosses the engine boundary (payload, answer, content, attempt state) still derives from the type's `schema.ts`.
 - A `load.ts` may call `loadSolution` when the payload is derived from the solution (anagram's tiles), provided it never returns an **(S)** value. The payload leak test (`payloadSchema.strict()` on a real `load` result) must prove it.
 - Shared pure code goes in `src/puzzles/_shared/`.
+- **Typed solvers use `PuzzleKeyboard`** (`src/puzzles/_shared/puzzle-keyboard/`) in solve mode, wired to the grid through `CellGridHandle.type` and `erase`. Never open the system keyboard for a typed solver on touch.
 
 ## Purity
 

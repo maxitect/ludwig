@@ -52,6 +52,7 @@ Compose these from `createSelectSchema` / `createInsertSchema` (`drizzle-orm/zod
 ## 4. Solver UI (`solver.tsx`)
 
 - `"use client"`. It receives the payload and saved attempt state as props, reports state changes through `onStateChange` (the chrome autosaves them with `saveState`) and registers its answer reader with `registerCheck`. Grid types also receive `checkCell` and `revealCell` callbacks from the chrome. Type its props with `SolverProps` from `src/puzzles/solver-types.ts`, never from the registry. It may import `ui/*` and `ChessBoard` freely, because no script reaches it.
+- A typed solver (letters or digits entered in cells) renders `PuzzleKeyboard` from `src/puzzles/_shared/puzzle-keyboard/` and wires it to its `CellGrid` ref with `type` and `erase`.
 - Add it to the solver map in `src/puzzles/solvers.ts`.
 - Reuse `src/puzzles/_shared/` parts such as `CellInput`. Extract a new shared part only if a second type needs it.
 - Follow `.claude/rules/design-system.md`: tokens only, hand-font entries, keyboard-operable, reduced motion respected.

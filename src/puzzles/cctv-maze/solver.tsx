@@ -31,10 +31,9 @@ const same = (a: Cell, b: Cell) => a.row === b.row && a.col === b.col;
 function restorePath(payload: schema.Payload, saved: Cell[]) {
   const start = { row: payload.startRow, col: payload.startCol };
   const path = [start];
+  if (!saved.length || !same(saved[0], start)) return path;
   for (const next of saved.slice(1)) {
-    if (!same(saved[0], start) || !canStep(payload, path[path.length - 1], next)) {
-      break;
-    }
+    if (!canStep(payload, path[path.length - 1], next)) break;
     path.push(next);
   }
   return path;
@@ -67,6 +66,15 @@ export function Solver({
     () => (camerasShown ? deriveSeen(payload) : []),
     [camerasShown, payload],
   );
+  const seenCells = useMemo(
+    () => new Set(seen.map(({ row, col }) => key(row, col))),
+    [seen],
+  );
+  const cameraCells = useMemo(
+    () => new Set(cameras.map(({ row, col }) => key(row, col))),
+    [cameras],
+  );
+  const revealRecorded = useRef(false);
 
   useEffect(() => {
     registerCheck(() => (atExit && path.length > 1 ? { path } : null));
@@ -103,9 +111,17 @@ export function Solver({
     commit([...path, target]);
   }
 
-  function reveal() {
-    if (!camerasShown) revealCameras(puzzleId);
+  async function reveal() {
     setCamerasShown((shown) => !shown);
+    if (camerasShown || revealRecorded.current) return;
+    revealRecorded.current = true;
+    try {
+      const result = await revealCameras(puzzleId);
+      if (!result.ok) throw new Error(result.error);
+    } catch {
+      revealRecorded.current = false;
+      setMessage("The hint could not be recorded.");
+    }
   }
 
   function onKeyDown(event: KeyboardEvent) {
@@ -181,10 +197,10 @@ export function Solver({
                     : null,
                   row === exitRow && col === exitCol ? "exit" : null,
                   isHead ? "you are here" : onPath.has(cell) ? "on your path" : null,
-                  camerasShown && cameras.some((c) => c.row === row && c.col === col)
+                  camerasShown && cameraCells.has(cell)
                     ? "camera"
                     : null,
-                  camerasShown && seen.some((c) => c.row === row && c.col === col)
+                  seenCells.has(cell)
                     ? "in a camera's view"
                     : null,
                 ].filter(Boolean);

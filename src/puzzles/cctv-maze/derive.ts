@@ -18,12 +18,12 @@ export function hasWall(
   col: number,
   side: Side,
 ) {
-  const [wallRow, wallCol, stored] = {
+  const [wallRow, wallCol, stored] = ({
     north: [row, col, "north"],
     west: [row, col, "west"],
     south: [row + 1, col, "north"],
     east: [row, col + 1, "west"],
-  }[side] as [number, number, "north" | "west"];
+  } as const)[side];
   if (wallRow >= rows || wallCol >= cols) return true;
   if (stored === "north" && wallRow === 0) return true;
   if (stored === "west" && wallCol === 0) return true;

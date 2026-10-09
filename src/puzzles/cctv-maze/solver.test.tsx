@@ -153,6 +153,16 @@ describe("cctv maze solver", () => {
     await user.click(screen.getByRole("button", { name: "Hide cameras" }));
     expect(cell(1, 1).getAttribute("aria-label")).not.toMatch(/camera/);
     await user.click(screen.getByRole("button", { name: "Reveal cameras" }));
-    expect(revealCameras).toHaveBeenCalledTimes(2);
+    expect(revealCameras).toHaveBeenCalledTimes(1);
+  });
+
+  it("says so when the reveal cannot be recorded", async () => {
+    vi.mocked(revealCameras).mockRejectedValueOnce(new Error("offline"));
+    const user = userEvent.setup();
+    renderSolver();
+    await user.click(screen.getByRole("button", { name: "Reveal cameras" }));
+    expect(
+      await screen.findByText(/The hint could not be recorded\./),
+    ).toBeTruthy();
   });
 });

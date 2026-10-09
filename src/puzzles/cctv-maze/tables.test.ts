@@ -499,6 +499,20 @@ describe("cctv maze module", () => {
     expect(hints[0].kind).toBe("reveal_all");
   });
 
+  it("records no reveal once the attempt is completed", async () => {
+    await db.delete(attempts).where(eq(attempts.puzzleId, puzzleId));
+    const [attempt] = await db
+      .insert(attempts)
+      .values({ userId, puzzleId, completedAt: new Date(), durationMs: 1000 })
+      .returning({ id: attempts.id });
+    expect(await recordCameraReveal(userId, puzzleId)).toBe(true);
+    const hints = await db
+      .select()
+      .from(attemptHints)
+      .where(eq(attemptHints.attemptId, attempt.id));
+    expect(hints).toHaveLength(0);
+  });
+
   it("records no reveal for a puzzle that is not a published maze", async () => {
     expect(
       await recordCameraReveal(userId, "00000000-0000-4000-8000-000000000001"),

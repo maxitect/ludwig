@@ -37,12 +37,14 @@ export const expectCellLetter = (page: Page, cell: CrosswordCell) =>
 /** Check is a button on desktop and a menu item in solve mode on touch phones. */
 export async function clickCheck(page: Page) {
   const menu = page.getByRole("button", { name: "Puzzle menu" });
+  const button = page.getByRole("button", { name: "Check", exact: true });
+  await expect(menu.or(button).first()).toBeVisible();
   if (await menu.isVisible()) {
     await menu.click();
     await page.getByRole("menuitem", { name: "Check" }).click();
     return;
   }
-  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await button.click();
 }
 
 export async function checkSolved(page: Page) {

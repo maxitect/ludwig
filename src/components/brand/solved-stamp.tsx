@@ -7,9 +7,13 @@ import { useReduceMotion } from "@/utils/use-reduce-motion";
 type SolvedStampProps = Omit<
   ComponentProps<"div">,
   "children" | "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart"
->;
+> & { delay?: number };
 
-export function SolvedStamp({ className = "", ...props }: SolvedStampProps) {
+export function SolvedStamp({
+  className = "",
+  delay = 0,
+  ...props
+}: SolvedStampProps) {
   const reduceMotion = useReduceMotion();
 
   return (
@@ -19,7 +23,7 @@ export function SolvedStamp({ className = "", ...props }: SolvedStampProps) {
       transition={
         reduceMotion
           ? { duration: 0 }
-          : { type: "spring", stiffness: 380, damping: 18 }
+          : { type: "spring", stiffness: 380, damping: 18, delay }
       }
       className={`block w-fit border-4 border-ludwig-red px-4 py-1 font-signature text-6xl text-ludwig-red ${className}`}
       {...props}

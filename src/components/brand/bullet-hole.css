@@ -63,7 +63,8 @@
   animation: none;
 }
 
-:root:active-view-transition-type(bullet-hole)::view-transition-old(site-header) {
+/* The old header stays up: the new one may still be streaming its user slot (Walker fallback). */
+:root:active-view-transition-type(bullet-hole)::view-transition-new(site-header) {
   display: none;
 }
 

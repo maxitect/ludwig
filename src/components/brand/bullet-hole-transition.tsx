@@ -1,11 +1,17 @@
 "use client";
 
-import { ViewTransition } from "react";
+import { ViewTransition, useEffect } from "react";
 import "./bullet-hole.css";
 
 const BULLET_HOLE_TYPE = "bullet-hole";
 
-const ROOT_HIDERS = new Set(["::view-transition", "::view-transition-group(root)"]);
+/** The torn edge never falls below this fraction of --vt-r, so the hole still clears the farthest corner. */
+const MIN_EDGE_RADIUS = 0.92;
+
+const ROOT_HIDERS = new Set([
+  "::view-transition",
+  "::view-transition-group(root)",
+]);
 
 const onlyForBulletHole = {
   [BULLET_HOLE_TYPE]: "bullet-hole-page",
@@ -19,7 +25,6 @@ const onlyForBulletHole = {
 function revealRootSnapshot(_: unknown, types: string[]) {
   if (!types.includes(BULLET_HOLE_TYPE)) return;
   const root = document.documentElement;
-  root.dataset.vt = BULLET_HOLE_TYPE;
   if (getComputedStyle(root).viewTransitionName !== "root") return;
   for (const animation of root.getAnimations({ subtree: true })) {
     const { effect } = animation;
@@ -32,9 +37,32 @@ function revealRootSnapshot(_: unknown, types: string[]) {
 /**
  * Put one in each layout that a bullet-hole navigation leaves or enters. Links with
  * `transitionTypes={["bullet-hole"]}` make React start a view transition for it; the
- * tear itself animates the root snapshot (see bullet-hole.css), so this stays empty.
+ * tear itself animates the root snapshot (see bullet-hole.css), so this stays empty. It also
+ * records the click point and the radius that clears the farthest corner as --vt-x/--vt-y/--vt-r.
  */
 export function BulletHoleTransition() {
+  useEffect(() => {
+    const rememberOrigin = (event: MouseEvent) => {
+      const root = document.documentElement.style;
+      const box =
+        event.target instanceof Element
+          ? event.target.getBoundingClientRect()
+          : null;
+      const keyboard = event.detail === 0 && box;
+      const x = keyboard ? box.left + box.width / 2 : event.clientX;
+      const y = keyboard ? box.top + box.height / 2 : event.clientY;
+      const farthest = Math.hypot(
+        Math.max(x, innerWidth - x),
+        Math.max(y, innerHeight - y),
+      );
+      root.setProperty("--vt-x", `${x}px`);
+      root.setProperty("--vt-y", `${y}px`);
+      root.setProperty("--vt-r", `${farthest / MIN_EDGE_RADIUS}px`);
+    };
+    document.addEventListener("click", rememberOrigin, true);
+    return () => document.removeEventListener("click", rememberOrigin, true);
+  }, []);
+
   return (
     <ViewTransition
       enter={onlyForBulletHole}

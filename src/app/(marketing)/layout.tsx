@@ -7,9 +7,7 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
     <>
       <SiteHeader collectionTransitionTypes={["bullet-hole"]} />
       <BulletHoleTransition />
-      <div className="flex flex-1 flex-col [:where(&)>*]:w-full">
-        {children}
-      </div>
+      <div className="flex flex-1 flex-col [:where(&)>*]:w-full">{children}</div>
       <SiteFooter />
     </>
   );

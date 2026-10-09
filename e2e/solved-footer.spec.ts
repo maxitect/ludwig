@@ -99,33 +99,33 @@ for (const theme of ["paper", "ink"]) {
 
 test("the stamp lands after the hole opens", async ({ page }) => {
   await typeUnsolved(page);
-  const timing = page.evaluate(
+  const atStamp = page.evaluate(
     () =>
-      new Promise<{ holeEnd: number; stampStart: number }>((resolve) => {
-        let holeEnd = 0;
-        const watch = () => {
+      new Promise<{ holeElapsed: number; frame: number }>((resolve) => {
+        let open: Animation | undefined;
+        let previous = performance.now();
+        const watch = (now: number) => {
           const hole = document.querySelector('[data-testid="solved-hole"]');
           const stamp = document.querySelector('[data-testid="solved-stamp"]');
-          if (hole && !holeEnd) {
-            const open = hole
-              .getAnimations()
-              .find((a) => a instanceof CSSAnimation);
-            open?.finished.then(() => (holeEnd = performance.now()));
-            holeEnd = open ? -1 : performance.now();
-          }
+          open ??= hole
+            ?.getAnimations()
+            .find((a) => a instanceof CSSAnimation);
           if (stamp && Number(getComputedStyle(stamp).opacity) > 0) {
-            resolve({ holeEnd, stampStart: performance.now() });
+            resolve({
+              holeElapsed: Number(open?.currentTime ?? -1),
+              frame: now - previous,
+            });
             return;
           }
+          previous = now;
           requestAnimationFrame(watch);
         };
         requestAnimationFrame(watch);
       }),
   );
   await clickCheck(page);
-  const { holeEnd, stampStart } = await timing;
-  expect(holeEnd).toBeGreaterThan(0);
-  expect(stampStart).toBeGreaterThanOrEqual(holeEnd);
+  const { holeElapsed, frame } = await atStamp;
+  expect(holeElapsed + frame).toBeGreaterThanOrEqual(300);
 });
 
 test("slowed, the hole is still growing while the stamp is not at rest", async ({

@@ -73,9 +73,13 @@ test("sign up, solve a Reverse Chess uncapture and see it in the Casebook", asyn
       timeout: 1000,
     });
   }).toPass({ timeout: 15_000 });
-  await page
-    .getByRole("radio", { name: `${puzzle.sideToMove} ${puzzle.uncapture}` })
-    .click();
+  const uncaptured = page.getByRole("radio", {
+    name: `${puzzle.sideToMove} ${puzzle.uncapture}`,
+  });
+  await expect(async () => {
+    await uncaptured.click();
+    await expect(uncaptured).toBeChecked({ timeout: 1000 });
+  }).toPass({ timeout: 15_000 });
 
   await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();

@@ -10,7 +10,6 @@ import {
   type KeyboardEvent,
   type RefObject,
 } from "react";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 import {
@@ -19,6 +18,7 @@ import {
   usePadWanted,
   usePuzzleKeyboard,
 } from "../_shared/puzzle-keyboard";
+import { SolveBarButton } from "../_shared/solve-bar-button";
 import { SolveSlot } from "../_shared/solve-slot";
 import { LINE_WIDTH, wordsOfLine } from "./derive";
 import type * as schema from "./schema";
@@ -41,11 +41,6 @@ const BOOK_PAGE_STYLES = `@container book-page (min-width: ${NOWRAP_FROM_PX}px) 
   .book-text { padding-left: 0; text-indent: 0; }
   .book-turn { display: none; }
 }`;
-
-const barButton =
-  "flex h-12 w-12 shrink-0 items-center justify-center border-2 border-border bg-card text-card-foreground select-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-50";
-
-const keepFocus = (event: { preventDefault(): void }) => event.preventDefault();
 
 const panelTitle = "font-display text-lg font-bold tracking-[0.04em] uppercase";
 
@@ -147,6 +142,14 @@ export function Solver({
     );
     setWords(next);
     onStateChange({ answer: encode(next) });
+  }
+
+  function step(delta: -1 | 1) {
+    const next = selected + delta;
+    select(next);
+    if (inputs.current.some((input) => input === document.activeElement)) {
+      inputs.current[next]?.focus({ preventScroll: true });
+    }
   }
 
   function onPadKey(char: string) {
@@ -348,16 +351,12 @@ export function Solver({
             aria-label="Reference"
             className="flex items-stretch gap-1"
           >
-            <button
-              type="button"
-              aria-label="Previous reference"
+            <SolveBarButton
+              direction="previous"
+              label="Previous reference"
               disabled={selected <= 0}
-              className={barButton}
-              onPointerDown={keepFocus}
-              onClick={() => select(selected - 1)}
-            >
-              <ChevronLeftIcon aria-hidden="true" />
-            </button>
+              onClick={() => step(-1)}
+            />
             <div className="flex h-12 min-w-0 flex-1 items-center justify-between gap-2 border-2 border-border bg-card px-2 text-card-foreground">
               <span className="font-mono text-sm">
                 {`${selected + 1}/${refs.length} · ${current?.page}:${current?.line}:${current?.wordIndex}`}
@@ -366,16 +365,12 @@ export function Solver({
                 {words[selected]}
               </span>
             </div>
-            <button
-              type="button"
-              aria-label="Next reference"
+            <SolveBarButton
+              direction="next"
+              label="Next reference"
               disabled={selected >= refs.length - 1}
-              className={barButton}
-              onPointerDown={keepFocus}
-              onClick={() => select(selected + 1)}
-            >
-              <ChevronRightIcon aria-hidden="true" />
-            </button>
+              onClick={() => step(1)}
+            />
           </div>
           <PuzzleKeyboard
             layout="alpha"

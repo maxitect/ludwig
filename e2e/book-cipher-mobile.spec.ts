@@ -55,3 +55,19 @@ test("references are answered by tapping, with the page in view", async ({
   );
   await expect(page.getByRole("textbox", { name: /^Word 1:/ })).toHaveValue("");
 });
+
+test("a focused reference follows the bar, so a hardware key fills the shown one", async ({
+  page,
+}) => {
+  await openPuzzle(page, { typeKey: "book-cipher", slug: "hand-lens" });
+  await page.getByRole("textbox", { name: /^Word 1:/ }).tap();
+  await bar(page).getByRole("button", { name: "Next reference" }).tap();
+  await bar(page).getByRole("button", { name: "Next reference" }).tap();
+  await expect(bar(page)).toContainText("3/");
+  await page.keyboard.type("cat");
+  await expect(bar(page)).toContainText("cat");
+  await expect(page.getByRole("textbox", { name: /^Word 3:/ })).toHaveValue(
+    "cat",
+  );
+  await expect(page.getByRole("textbox", { name: /^Word 1:/ })).toHaveValue("");
+});

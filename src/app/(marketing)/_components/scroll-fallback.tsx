@@ -26,7 +26,6 @@ export function ScrollFallback() {
       if (!frame) frame = requestAnimationFrame(update);
     };
 
-    root.dataset.seqScroll = "";
     update();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
@@ -34,7 +33,6 @@ export function ScrollFallback() {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
-      delete root.dataset.seqScroll;
       root.style.removeProperty("--seq-progress");
     };
   }, []);

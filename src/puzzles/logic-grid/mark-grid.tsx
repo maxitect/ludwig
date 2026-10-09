@@ -12,7 +12,7 @@ export type MarkGridProps = {
   categories: Payload["categories"];
   marks: ReadonlyMap<string, Mark>;
   /** Category pairs the last Check named as wrong: every cell of the pair is framed. */
-  wrongPairs?: ReadonlyArray<WrongPart>;
+  wrongParts?: ReadonlyArray<WrongPart>;
   onCycle: (columnItem: Item, rowItem: Item, next: Mark | undefined) => void;
 };
 
@@ -34,7 +34,7 @@ const CELL = "size-9 shrink-0";
  * category but the first, and a cell exists only where the column's category comes before the row's.
  * Space or Enter cycles a cell through blank, no and yes; the arrow keys move between cells.
  */
-export function MarkGrid({ categories, marks, wrongPairs, onCycle }: MarkGridProps) {
+export function MarkGrid({ categories, marks, wrongParts, onCycle }: MarkGridProps) {
   const columns: Placed[] = categories
     .slice(0, -1)
     .flatMap(({ position, items }) =>
@@ -46,7 +46,7 @@ export function MarkGrid({ categories, marks, wrongPairs, onCycle }: MarkGridPro
       items.map((item) => ({ item, category: position })),
     );
   const isWrong = (row: number, col: number) =>
-    !!wrongPairs?.some(
+    !!wrongParts?.some(
       ({ first, second }) =>
         first === columns[col].category && second === rows[row].category,
     );

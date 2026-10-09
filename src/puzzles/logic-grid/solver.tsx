@@ -78,7 +78,7 @@ export function Solver({
       <MarkGrid
         categories={payload.categories}
         marks={marks}
-        wrongPairs={wrongParts}
+        wrongParts={wrongParts}
         onCycle={(column, row, next) => {
           const key = markKey(column.id, row.id);
           const nextMarks = new Map(marks);

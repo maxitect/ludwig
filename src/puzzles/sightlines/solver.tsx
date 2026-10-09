@@ -38,6 +38,12 @@ const WEDGE_RADIUS = 1.5;
 
 const key = (row: number, col: number) => `${row},${col}`;
 
+const toMarks = (cells: Set<string>) =>
+  [...cells].map((cell) => {
+    const [row, col] = cell.split(",").map(Number);
+    return { row, col };
+  });
+
 /** The facing wedge as an SVG path in cell units, apex on the observer. */
 function wedgePath({ row, col, facing, fovDeg }: Observer) {
   const cx = col + 0.5;
@@ -95,14 +101,7 @@ export function Solver({
   const cellRefs = useRef(new Map<string, HTMLDivElement>());
   const focusCursor = useRef(false);
 
-  const marks = useMemo(
-    () =>
-      [...marked].map((cell) => {
-        const [row, col] = cell.split(",").map(Number);
-        return { row, col };
-      }),
-    [marked],
-  );
+  const marks = useMemo(() => toMarks(marked), [marked]);
 
   useEffect(() => {
     registerCheck(() => (marks.length ? { marks } : null));
@@ -119,12 +118,7 @@ export function Solver({
     const next = new Set(marked);
     if (!next.delete(cell)) next.add(cell);
     setMarked(next);
-    onStateChange({
-      marks: [...next].map((entry) => {
-        const [r, c] = entry.split(",").map(Number);
-        return { row: r, col: c };
-      }),
-    });
+    onStateChange({ marks: toMarks(next) });
   }
 
   function onKeyDown(event: KeyboardEvent) {

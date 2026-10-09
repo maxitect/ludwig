@@ -66,7 +66,14 @@ export const payloadSchema = z
 export const solutionSchema = z.array(cell);
 
 export const answerSchema = z.object({
-  marks: z.array(markSelect.pick({ row: true, col: true })),
+  marks: z
+    .array(markSelect.pick({ row: true, col: true }))
+    .refine(
+      (marks) =>
+        new Set(marks.map(({ row, col }) => `${row},${col}`)).size ===
+        marks.length,
+      { message: "marked cells must be distinct" },
+    ),
 });
 
 export const attemptSchema = answerSchema;

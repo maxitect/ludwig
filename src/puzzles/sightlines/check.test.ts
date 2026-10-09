@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { check } from "./check";
-import type { Payload } from "./schema";
+import { answerSchema, type Payload } from "./schema";
 
 const payload: Payload = {
   rows: 1,
@@ -58,5 +58,13 @@ describe("check", () => {
       correct: false,
       cellsWrong: 2,
     });
+  });
+});
+
+describe("answerSchema", () => {
+  it("rejects a cell marked twice", () => {
+    const mark = { row: 0, col: 3 };
+    expect(answerSchema.safeParse({ marks: [mark, mark] }).success).toBe(false);
+    expect(answerSchema.safeParse({ marks: [mark] }).success).toBe(true);
   });
 });

@@ -7,7 +7,11 @@ import { MirroredSudoku } from "./mirrored-sudoku";
 import { ScrollFallback } from "./scroll-fallback";
 import "./title-sequence.css";
 
-const ROOMS = ["The Grid", "The Board", "The Mirror"] as const;
+const ROOMS = [
+  { name: "The Grid", to: "Word puzzles", href: "/puzzles#word" },
+  { name: "The Board", to: "Reverse Chess", href: "/reverse-chess" },
+  { name: "The Mirror", to: "Logic puzzles", href: "/puzzles#logic" },
+] as const;
 
 function ToppledPiece({
   className,
@@ -73,16 +77,18 @@ export function TitleSequence() {
             aria-label="A small silhouette walking across a grid"
             className="seq-walker h-14 w-full border-x-0 bg-background"
           />
-          <p aria-hidden="true" className="seq-captions">
-            {ROOMS.map((room, index) => (
-              <span
-                key={room}
+          <nav aria-label="Rooms" className="seq-captions">
+            {ROOMS.map(({ name, to, href }, index) => (
+              <Link
+                key={name}
+                href={href}
                 className={`seq-caption seq-caption-${index + 1}`}
               >
-                Room {index + 1}. {room}
-              </span>
+                Room {index + 1}. {name}
+                <span className="seq-caption-to"> · {to} →</span>
+              </Link>
             ))}
-          </p>
+          </nav>
         </div>
       </div>
       <section className="seq-finale">

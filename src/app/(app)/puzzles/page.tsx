@@ -25,7 +25,11 @@ export default async function PuzzlesPage() {
         </div>
       )}
       {categories.map((category) => (
-        <section key={category.key} className="flex flex-col gap-4">
+        <section
+          key={category.key}
+          id={category.key}
+          className="flex scroll-mt-24 flex-col gap-4"
+        >
           <h2 className="border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase">
             {category.name}
           </h2>

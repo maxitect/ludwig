@@ -191,7 +191,7 @@ These types come from the Radio Times special (section 1.2.1) and from KrazyDad'
 ## 3. Information architecture
 
 ```
-/                          Title-sequence landing (the signed-in Desk is post-launch)
+/                          Title-sequence landing for everyone (the signed-in Desk is post-launch). Its three room captions are links: The Grid to Word puzzles (/puzzles#word), The Board to Reverse Chess (/reverse-chess), The Mirror to Logic puzzles (/puzzles#logic)
 /sign-in  /sign-up
 /puzzles                   The Collection: all categories
 /puzzles/[type]            Category index (volumes, difficulty filter)

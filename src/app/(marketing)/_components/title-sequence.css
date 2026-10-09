@@ -284,6 +284,16 @@
   white-space: nowrap;
 }
 
+.seq-caption:hover .seq-caption-to,
+.seq-caption:focus-visible .seq-caption-to {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.seq-caption-to {
+  font-weight: 400;
+}
+
 .seq-finale {
   position: relative;
   display: grid;
@@ -403,10 +413,12 @@
   0%,
   26% {
     opacity: 1;
+    visibility: visible;
   }
   34%,
   100% {
     opacity: 0;
+    visibility: hidden;
   }
 }
 
@@ -414,14 +426,17 @@
   0%,
   28% {
     opacity: 0;
+    visibility: hidden;
   }
   38%,
   58% {
     opacity: 1;
+    visibility: visible;
   }
   66%,
   100% {
     opacity: 0;
+    visibility: hidden;
   }
 }
 
@@ -429,10 +444,12 @@
   0%,
   60% {
     opacity: 0;
+    visibility: hidden;
   }
   70%,
   100% {
     opacity: 1;
+    visibility: visible;
   }
 }
 

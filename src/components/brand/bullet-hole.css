@@ -37,9 +37,24 @@
   animation: 300ms linear 200ms both bullet-hole-fade-in;
 }
 
+/* The header is snapshotted on its own, outside the root's grain overlay, so it carries the same grain (it sits at the viewport origin, so the tiles line up). When the click came from a scrolled page, --vt-header is none and the header arrives with the new page. */
 :root:active-view-transition-type(bullet-hole) [data-site-header] {
-  view-transition-name: site-header;
+  view-transition-name: var(--vt-header, site-header);
+  position: relative;
   background-color: var(--color-background);
+}
+
+:root:active-view-transition-type(bullet-hole) [data-site-header]::after {
+  content: var(--vt-header-grain, "");
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-image: url("/textures/grain.png");
+  background-size: 512px 512px;
+  mix-blend-mode: var(--grain-blend);
+  filter: invert(var(--grain-invert));
+  opacity: 0.35;
 }
 
 :root:active-view-transition-type(bullet-hole)::view-transition-group(site-header),

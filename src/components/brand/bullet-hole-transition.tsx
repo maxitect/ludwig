@@ -8,10 +8,7 @@ const BULLET_HOLE_TYPE = "bullet-hole";
 /** The torn edge never falls below this fraction of --vt-r, so the hole still clears the farthest corner. */
 const MIN_EDGE_RADIUS = 0.92;
 
-const ROOT_HIDERS = new Set([
-  "::view-transition",
-  "::view-transition-group(root)",
-]);
+const ROOT_HIDERS = new Set(["::view-transition", "::view-transition-group(root)"]);
 
 const onlyForBulletHole = {
   [BULLET_HOLE_TYPE]: "bullet-hole-page",

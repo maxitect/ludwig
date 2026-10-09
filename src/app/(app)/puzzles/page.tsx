@@ -4,6 +4,10 @@ import { Credit, Walker } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { getCatalogue } from "@/lib/data/catalogue";
 
+type CatalogueType = Awaited<
+  ReturnType<typeof getCatalogue>
+>[number]["types"][number];
+
 export const metadata: Metadata = {
   title: "The Collection | Ludwig.",
   description: "Every puzzle type in the pocket collection, by category.",
@@ -41,28 +45,17 @@ export default async function PuzzlesPage() {
                     href={`/puzzles/${type.key}`}
                     className="flex h-full flex-col gap-2 border-2 border-border p-4 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
-                    <span className="flex items-center justify-between gap-3">
-                      <span className="font-display text-lg font-bold tracking-[0.04em] uppercase">
-                        {type.name}
-                      </span>
-                      <Badge variant="outline">{type.published} published</Badge>
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {type.description}
-                    </span>
+                    <TypeCardBody
+                      type={type}
+                      status={`${type.published} published`}
+                    />
                   </Link>
                 ) : (
                   <div
                     data-testid="coming-soon"
                     className="flex h-full flex-col gap-2 border-2 border-dashed border-muted-foreground p-4 text-muted-foreground"
                   >
-                    <span className="flex items-center justify-between gap-3">
-                      <span className="font-display text-lg font-bold tracking-[0.04em] uppercase">
-                        {type.name}
-                      </span>
-                      <Badge variant="outline">Coming soon</Badge>
-                    </span>
-                    <span className="text-sm">{type.description}</span>
+                    <TypeCardBody type={type} status="Coming soon" />
                   </div>
                 )}
               </li>
@@ -71,5 +64,25 @@ export default async function PuzzlesPage() {
         </section>
       ))}
     </main>
+  );
+}
+
+function TypeCardBody({
+  type,
+  status,
+}: {
+  type: CatalogueType;
+  status: string;
+}) {
+  return (
+    <>
+      <span className="flex items-center justify-between gap-3">
+        <span className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+          {type.name}
+        </span>
+        <Badge variant="outline">{status}</Badge>
+      </span>
+      <span className="text-sm text-muted-foreground">{type.description}</span>
+    </>
   );
 }

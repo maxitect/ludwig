@@ -24,13 +24,22 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
   "src/puzzles/_shared/digit-grid.tsx": ["text-ink"],
   "src/puzzles/_shared/chess-board/pieces.tsx": ["var(--color-shadow)"],
   "src/puzzles/_shared/chess-board/uncapture-tray.tsx": ["bg-paper"],
+  "src/puzzles/_shared/cipher-key/cipher-key-panel.tsx": [
+    "border-ink",
+    "bg-paper",
+    "text-ink",
+  ],
+  "src/puzzles/_shared/letter-tiles/letter-tile.tsx": ["bg-paper", "text-ink"],
+  "src/puzzles/acrostic/solver.tsx": ["bg-paper"],
+  "src/puzzles/anagram/solver.tsx": ["bg-paper"],
+  "src/puzzles/book-cipher/solver.tsx": ["border-ink", "bg-paper", "text-ink"],
   "src/puzzles/logic-grid/mark-grid.tsx": [
     "bg-paper",
     "text-ink",
     "border-ink",
   ],
   "src/puzzles/sudoku/solver.tsx": ["border-ink"],
-  "src/puzzles/rota/board.tsx": ["bg-paper"],
+  "src/puzzles/rota/board.tsx": ["border-ink", "bg-paper", "text-ink"],
   "src/puzzles/reverse-chess/side-to-move.tsx": ["bg-paper"],
   "src/puzzles/spot-difference/solver.tsx": ["bg-paper"],
 };

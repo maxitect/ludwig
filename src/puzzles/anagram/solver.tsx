@@ -9,7 +9,7 @@ import type * as schema from "./schema";
 const TILT_DEGREES = [-2, 1, 0, 2, -1];
 
 const tileClass =
-  "flex size-12 items-center justify-center border-2 border-border bg-card font-hand text-3xl text-hand uppercase shadow-[3px_3px_0_var(--cast)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:size-14";
+  "flex size-12 items-center justify-center border-2 border-border bg-paper font-hand text-3xl text-crayon uppercase shadow-[3px_3px_0_var(--cast)] focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:size-14";
 
 const tilt = (index: number) => ({
   transform: `rotate(${TILT_DEGREES[(index * 3 + 1) % TILT_DEGREES.length]}deg)`,

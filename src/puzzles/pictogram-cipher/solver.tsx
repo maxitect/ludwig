@@ -17,7 +17,7 @@ function Glyph({ assetKey }: { assetKey: string }) {
   return (
     <span
       aria-hidden="true"
-      className="block h-12 w-9 bg-current"
+      className="block h-12 w-9 bg-ink"
       style={{
         WebkitMaskImage: url,
         maskImage: url,

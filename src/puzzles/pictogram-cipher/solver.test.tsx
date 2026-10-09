@@ -150,7 +150,7 @@ describe("pictogram cipher solver", () => {
     expect(slot(3).getAttribute("aria-label")).toBe("Symbol 3, given E");
   });
 
-  it("draws glyphs through neutral asset files in the current text colour", () => {
+  it("draws glyphs through neutral asset files in the ink colour", () => {
     const { container } = render(
       <Solver
         payload={payload}
@@ -159,7 +159,7 @@ describe("pictogram cipher solver", () => {
         registerCheck={vi.fn()}
       />,
     );
-    const masks = [...container.querySelectorAll<HTMLElement>("span.bg-current")];
+    const masks = [...container.querySelectorAll<HTMLElement>("span.bg-ink")];
     expect(masks.length).toBeGreaterThan(0);
     for (const mask of masks) {
       expect(mask.style.maskImage).toMatch(/\/glyphs\/glyph-\d{2}\.svg/);

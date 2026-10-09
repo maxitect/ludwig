@@ -26,11 +26,11 @@ export function Solver({
     <div className="flex flex-col gap-6">
       <figure
         aria-label="The letter"
-        className="flex flex-col gap-3 border-2 border-border bg-card p-4 text-card-foreground shadow-[3px_3px_0_var(--cast)] sm:p-6"
+        className="flex flex-col gap-3 border-2 border-border bg-paper p-4 shadow-[3px_3px_0_var(--cast)] sm:p-6"
       >
         <ol className="flex flex-col gap-2">
           {lines.map((line, position) => (
-            <li key={position} className="-indent-6 pl-6 font-hand text-xl text-hand sm:text-2xl">
+            <li key={position} className="-indent-6 pl-6 font-hand text-xl text-crayon sm:text-2xl">
               {line}
             </li>
           ))}

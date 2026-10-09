@@ -23,7 +23,7 @@ Spec: `docs/SPEC.md` section 6. The look is the _Ludwig_ title sequence: texture
 - **Red is the only accent.** Blue appears only as shadow, focus rings and book covers (`book-blue`).
 - `--radius: 0`, so nothing has rounded corners, including shadcn defaults, focus rings, avatars and toasts.
 - Borders are 2px semantic `border` (never `border-ink`). Shadows are hard offsets in the `--cast` token (`shadow-[3px_3px_0_var(--cast)]`), never `var(--color-shadow)` and never soft grey blurs.
-- Raised surfaces use `bg-card text-card-foreground` (or `Card`), and handwritten entry uses `text-hand`. Raw `bg-paper`, `text-ink`, `border-ink` and `var(--color-shadow)` in `src/puzzles/**` and `src/components/**` fail `src/config/raw-tokens.test.ts`; grids that stay paper in Ink are allowlisted there.
+- Dialogs, menus and toasts use `bg-popover`; app panels use `bg-card text-card-foreground` (or `Card`). Puzzle pages and tiles that look like paper (book cipher, cipher key, anagram, acrostic, rota) stay `bg-paper text-ink border-ink` in both themes, with `text-crayon` handwriting and only the `--cast` shadow changing; `text-hand` is for entry on `card` surfaces. Raw `bg-paper`, `text-ink`, `border-ink` and `var(--color-shadow)` in `src/puzzles/**` and `src/components/**` fail `src/config/raw-tokens.test.ts`; grids that stay paper in Ink are allowlisted there.
 - Both themes (Paper and Ink) must work. Check `/dev/kitchen-sink` after changing any component.
 
 ## Typography

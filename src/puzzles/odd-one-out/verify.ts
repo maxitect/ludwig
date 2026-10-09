@@ -14,11 +14,7 @@ export function verifyOddOneOut(
   if (new Set(items).size !== items.length) {
     throw new Error("two items share a label");
   }
-  if (
-    !Number.isInteger(solution.itemPosition) ||
-    solution.itemPosition < 0 ||
-    solution.itemPosition >= items.length
-  ) {
+  if (solution.itemPosition < 0 || solution.itemPosition >= items.length) {
     throw new Error(
       `the odd item ${solution.itemPosition} is not one of the ${items.length} items`,
     );

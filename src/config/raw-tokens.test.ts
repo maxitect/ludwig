@@ -31,7 +31,6 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
   ],
   "src/puzzles/_shared/letter-tiles/letter-tile.tsx": ["bg-paper", "text-ink"],
   "src/puzzles/acrostic/solver.tsx": ["bg-paper"],
-  "src/puzzles/anagram/solver.tsx": ["bg-paper"],
   "src/puzzles/book-cipher/solver.tsx": ["border-ink", "bg-paper", "text-ink"],
   "src/puzzles/logic-grid/mark-grid.tsx": [
     "bg-paper",

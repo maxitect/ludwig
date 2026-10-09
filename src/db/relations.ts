@@ -388,6 +388,22 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.sightlinesAttemptMarks.attemptId,
     }),
   },
+  cctvMazePuzzles: {
+    walls: r.many.cctvMazeWalls({
+      from: r.cctvMazePuzzles.puzzleId,
+      to: r.cctvMazeWalls.puzzleId,
+    }),
+    cameras: r.many.cctvMazeCameras({
+      from: r.cctvMazePuzzles.puzzleId,
+      to: r.cctvMazeCameras.puzzleId,
+    }),
+  },
+  cctvMazeAttempts: {
+    steps: r.many.cctvMazeAttemptSteps({
+      from: r.cctvMazeAttempts.attemptId,
+      to: r.cctvMazeAttemptSteps.attemptId,
+    }),
+  },
   wordSearchPuzzles: {
     cells: r.many.wordSearchCells({
       from: r.wordSearchPuzzles.puzzleId,

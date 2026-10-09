@@ -14,6 +14,7 @@ import { attemptSchema as oddOneOutAttempt } from "./odd-one-out/schema";
 import { attemptSchema as pictogramCipherAttempt } from "./pictogram-cipher/schema";
 import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
 import { attemptSchema as rotaAttempt } from "./rota/schema";
+import { attemptSchema as sightlinesAttempt } from "./sightlines/schema";
 import { attemptSchema as spotDifferenceAttempt } from "./spot-difference/schema";
 import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
 import { attemptSchema as wordLadderAttempt } from "./word-ladder/schema";
@@ -37,6 +38,7 @@ const attemptSchemas = {
   "pictogram-cipher": pictogramCipherAttempt,
   "reverse-chess": reverseChessAttempt,
   rota: rotaAttempt,
+  sightlines: sightlinesAttempt,
   "spot-difference": spotDifferenceAttempt,
   sudoku: sudokuAttempt,
   "word-ladder": wordLadderAttempt,

@@ -15,6 +15,7 @@ import { Solver as oddOneOutSolver } from "./odd-one-out/solver";
 import { Solver as pictogramCipherSolver } from "./pictogram-cipher/solver";
 import { Solver as reverseChessSolver } from "./reverse-chess/solver";
 import { Solver as rotaSolver } from "./rota/solver";
+import { Solver as sightlinesSolver } from "./sightlines/solver";
 import { Solver as spotDifferenceSolver } from "./spot-difference/solver";
 import { Solver as sudokuSolver } from "./sudoku/solver";
 import { Solver as wordLadderSolver } from "./word-ladder/solver";
@@ -40,6 +41,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   "pictogram-cipher": pictogramCipherSolver,
   "reverse-chess": reverseChessSolver,
   rota: rotaSolver,
+  sightlines: sightlinesSolver,
   "spot-difference": spotDifferenceSolver,
   sudoku: sudokuSolver,
   "word-ladder": wordLadderSolver,

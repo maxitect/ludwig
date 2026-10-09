@@ -132,7 +132,7 @@ export const types = [
     key: "sightlines",
     categoryKey: "spatial",
     name: "Sightlines",
-    description: "Place pillars and observers, then mark the blind spots.",
+    description: "Mark every cell that no observer can see.",
     subtypeTable: "sightlines_puzzles",
     sort: 1,
   },

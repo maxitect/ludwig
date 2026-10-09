@@ -17,17 +17,17 @@ export function Wordmark({
 
   return (
     <span
-      className={`relative inline-block ${isSplat ? "bg-ink p-8" : ""} ${className}`}
+      className={`relative inline-block ${isSplat ? "p-8" : ""} ${className}`}
       {...props}
     >
       {isSplat && (
-        <InkSplat className="absolute left-4 top-2 h-3/4 w-1/2 text-blood" />
+        <InkSplat className="absolute left-4 top-2 h-3/4 w-1/2 text-ludwig-red ink:text-blood" />
       )}
       <svg
         role="img"
         aria-label="Ludwig"
         viewBox="-8 -74 302 104"
-        className={`relative block h-auto w-full ${isSplat ? "text-paper" : "text-ludwig-red"}`}
+        className={`relative block h-auto w-full ${isSplat ? "text-foreground" : "text-ludwig-red"}`}
       >
         <path d={PATH} fill="currentColor" />
       </svg>

@@ -33,7 +33,7 @@ export function SiteHeader({
         ))}
       </nav>
       <div className="ml-auto flex items-center gap-3 md:ml-0">
-        <Suspense fallback={<Walker className="h-8 w-28" />}>
+        <Suspense fallback={<Walker className="h-8! w-28!" />}>
           <UserSlot />
         </Suspense>
         <MobileNav collectionTransitionTypes={collectionTransitionTypes} />

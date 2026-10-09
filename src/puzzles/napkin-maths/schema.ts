@@ -9,11 +9,16 @@ import {
 const MIN_LINES = 2;
 const MAX_LINES = 12;
 const decimal = (schema: z.ZodString) =>
-  schema.regex(/^-?\d{1,12}(\.\d{1,6})?$/, "Enter a number such as 42 or 3.5");
+  schema.regex(/^-?\d{1,12}(\.\d{1,6})?$/, "Enter a number such as 42 or 3.5.");
 
 const puzzleSelect = createSelectSchema(napkinMathsPuzzles, { answer: decimal });
-const puzzleInsert = createInsertSchema(napkinMathsPuzzles, { answer: decimal });
-const lineInsert = createInsertSchema(napkinMathsLines);
+const puzzleInsert = createInsertSchema(napkinMathsPuzzles, {
+  questionText: (schema) => schema.min(1).max(300),
+  answer: decimal,
+});
+const lineInsert = createInsertSchema(napkinMathsLines, {
+  content: (schema) => schema.min(1).max(120),
+});
 const attemptSelect = createSelectSchema(napkinMathsAttempts, {
   answer: decimal,
 });

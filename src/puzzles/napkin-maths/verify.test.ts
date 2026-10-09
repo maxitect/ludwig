@@ -33,6 +33,14 @@ describe("verifyNapkinMaths", () => {
     expect(() => verifyNapkinMaths(content, { workings: " " })).toThrow("workings");
   });
 
+  it("holds the question and lines to the database length checks", () => {
+    expect(contentSchema.safeParse({ ...content, questionText: "q".repeat(300) }).success).toBe(true);
+    expect(contentSchema.safeParse({ ...content, questionText: "q".repeat(301) }).success).toBe(false);
+    expect(contentSchema.safeParse({ ...content, lines: ["x".repeat(120), "y"] }).success).toBe(true);
+    expect(contentSchema.safeParse({ ...content, lines: ["x".repeat(121), "y"] }).success).toBe(false);
+    expect(contentSchema.safeParse({ ...content, lines: ["", "y"] }).success).toBe(false);
+  });
+
   it("rejects a blank line", () => {
     expect(() =>
       verifyNapkinMaths({ ...content, lines: ["x + 1 = 5", " "] }, { workings }),

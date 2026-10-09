@@ -15,18 +15,20 @@ const payload: Payload = {
 function renderSolver(initialState: AttemptState | null = null, solved = false) {
   const onStateChange = vi.fn();
   const registerCheck = vi.fn();
+  const requestCheck = vi.fn();
   render(
     <Solver
       payload={payload}
       initialState={initialState}
       onStateChange={onStateChange}
       registerCheck={registerCheck}
+      requestCheck={requestCheck}
       solved={solved}
     />,
   );
   const read = () =>
     registerCheck.mock.calls.at(-1)?.[0] as () => { answer: string } | null;
-  return { onStateChange, read };
+  return { onStateChange, read, requestCheck };
 }
 
 describe("napkin maths solver", () => {
@@ -48,6 +50,15 @@ describe("napkin maths solver", () => {
     await userEvent.type(input, "4.5");
     expect(read()()).toEqual({ answer: "4.5" });
     expect(onStateChange).toHaveBeenLastCalledWith({ answer: "4.5" });
+  });
+
+  it("asks for a check when Enter is pressed in the field", async () => {
+    const { requestCheck } = renderSolver();
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "Your answer" }),
+      "4{Enter}",
+    );
+    expect(requestCheck).toHaveBeenCalledOnce();
   });
 
   it("restores the saved answer without trailing zeros", () => {

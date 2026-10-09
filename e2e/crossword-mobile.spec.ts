@@ -103,6 +103,17 @@ test("the clue sheet selects an entry", async ({ page }) => {
   ).toBeGreaterThan(1);
 });
 
+test("the clue sheet opens on the active clue", async ({ page }) => {
+  await openPuzzle(page, await largestCrypticCrosswordPuzzle());
+  await bar(page).getByRole("button", { name: "Previous clue" }).tap();
+  await pad(page).getByRole("button", { name: "Clues" }).tap();
+  const current = page
+    .getByRole("dialog", { name: "Clues" })
+    .locator("[aria-current=true]");
+  await expect(current).toBeFocused();
+  await expect(current).toBeInViewport();
+});
+
 test("a crossword is solved by tapping alone", async ({ page }) => {
   const quick = await quickCrosswordPuzzle();
   await openPuzzle(page, quick);

@@ -445,6 +445,15 @@ export function Solver({
       <Sheet open={cluesOpen} onOpenChange={setCluesOpen}>
         <SheetContent
           side="bottom"
+          onOpenAutoFocus={(event) => {
+            if (!(event.currentTarget instanceof HTMLElement)) return;
+            const current = event.currentTarget.querySelector<HTMLElement>(
+              "[aria-current=true]",
+            );
+            if (!current) return;
+            event.preventDefault();
+            current.focus();
+          }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             grid.current?.focus();

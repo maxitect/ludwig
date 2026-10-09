@@ -13,6 +13,19 @@ const cell = (page: Page, row: number, col: number) =>
     `[role="gridcell"][aria-label^="Row ${row + 1}, column ${col + 1},"]`,
   );
 
+async function screenshotBothThemes(page: Page, name: string) {
+  for (const theme of ["paper", "ink"]) {
+    await page.evaluate(
+      (value) => document.documentElement.setAttribute("data-theme", value),
+      theme,
+    );
+    await page.screenshot({
+      path: `.verification/T131/${name}-${theme}.png`,
+      fullPage: true,
+    });
+  }
+}
+
 async function fillWithOneMistake(
   page: Page,
   size: number,
@@ -56,9 +69,7 @@ for (const type of ["sudoku", "futoshiki"] as const) {
     await expect(
       page.getByRole("status").filter({ hasText: /marked wrong/ }),
     ).toContainText(/\d+ parts? (is|are) marked wrong/);
-    await page.screenshot({
-      path: `.verification/T131/${type}-${testInfo.project.name}.png`,
-    });
+    await screenshotBothThemes(page, `${type}-${testInfo.project.name}`);
 
     await cell(page, mistake.row, mistake.col).click();
     await page.keyboard.press("Backspace");
@@ -97,9 +108,7 @@ test("a wrong logic grid names its wrong category pairs and clears on the next e
   await expect(
     page.getByRole("status").filter({ hasText: /marked wrong/ }),
   ).toBeVisible();
-  await page.screenshot({
-    path: `.verification/T131/logic-grid-${testInfo.project.name}.png`,
-  });
+  await screenshotBothThemes(page, `logic-grid-${testInfo.project.name}`);
   await pair(first[0], first[1]).click();
   await expect(wrong).toHaveCount(0);
 });

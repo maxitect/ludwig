@@ -128,7 +128,6 @@
   --grain-blend: screen;
   --grain-invert: 1;
   --grid-paper-strength: 30%;
-  --piece-black-outline: var(--color-paper);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -157,7 +156,6 @@
     --grain-blend: screen;
     --grain-invert: 1;
     --grid-paper-strength: 30%;
-    --piece-black-outline: var(--color-paper);
   }
 }
 

@@ -34,6 +34,16 @@ const ARROW_KEYS = {
   ArrowRight: "right",
 } as const;
 
+const halo = (colour: string) =>
+  [
+    [-1, -1],
+    [1, -1],
+    [-1, 1],
+    [1, 1],
+  ]
+    .map(([x, y]) => `${x}px ${y}px 0 var(--color-${colour})`)
+    .join(", ");
+
 const ring = (colour: string, width: number) =>
   `inset 0 0 0 ${width}px var(--color-${colour})`;
 
@@ -172,10 +182,26 @@ export function ChessBoard({
           lightSquareNotationStyle: {
             color: "var(--color-ink)",
             fontFamily: "var(--font-sans)",
+            fontWeight: 700,
+            textShadow: halo("paper"),
           },
           darkSquareNotationStyle: {
             color: "var(--color-paper)",
             fontFamily: "var(--font-sans)",
+            fontWeight: 700,
+            textShadow: halo("ink"),
+          },
+          alphaNotationStyle: {
+            fontSize: "11px",
+            bottom: 0,
+            right: 3,
+            zIndex: 1,
+          },
+          numericNotationStyle: {
+            fontSize: "11px",
+            top: 0,
+            left: 3,
+            zIndex: 1,
           },
           squareRenderer: ({ piece, square, children }) => (
             <div

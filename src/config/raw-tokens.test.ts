@@ -13,7 +13,7 @@ const RAW_TOKENS = [
 
 type RawToken = (typeof RAW_TOKENS)[number]["name"];
 
-/** Intentional uses of raw tokens, by file. A grid stays paper in Ink by decision. */
+/** Intentional uses of raw tokens, by file. A grid, and a chess glyph's tile, stays paper in Ink by decision. */
 const ALLOWED: Record<string, readonly RawToken[]> = {
   "src/components/ui/card.tsx": ["bg-paper", "text-ink"],
   "src/puzzles/_shared/cell-grid/cell-grid.tsx": ["bg-paper", "text-ink"],
@@ -22,7 +22,7 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
     "text-ink",
   ],
   "src/puzzles/_shared/digit-grid.tsx": ["text-ink"],
-  "src/puzzles/_shared/chess-board/pieces.tsx": ["var(--color-shadow)"],
+  "src/puzzles/_shared/chess-board/uncapture-tray.tsx": ["bg-paper"],
   "src/puzzles/logic-grid/mark-grid.tsx": [
     "bg-paper",
     "text-ink",
@@ -30,8 +30,7 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
   ],
   "src/puzzles/sudoku/solver.tsx": ["border-ink"],
   "src/puzzles/rota/board.tsx": ["bg-paper"],
-  "src/puzzles/reverse-chess/last-move.tsx": ["bg-paper"],
-  "src/puzzles/reverse-chess/unwind.tsx": ["bg-paper"],
+  "src/puzzles/reverse-chess/side-to-move.tsx": ["bg-paper"],
   "src/puzzles/spot-difference/solver.tsx": ["bg-paper"],
 };
 

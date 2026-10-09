@@ -8,6 +8,7 @@ import { fromFen, notateRetro, toFen } from "./derive";
 import { stepRetro, toRetro, type RetroRejection } from "./engine";
 import { NotationToggle, useChessNotation } from "./notation-toggle";
 import { PlyChoices } from "./ply-choices";
+import { SideToMove } from "./side-to-move";
 import {
   REJECTION_TEXT,
   isKingAt,
@@ -96,19 +97,7 @@ export function Unwind({
         {payload.goalText && (
           <p data-testid="goal">Goal: {payload.goalText}</p>
         )}
-        <p className="flex items-center gap-2" data-testid="side-to-move">
-          <span
-            aria-hidden="true"
-            className={
-              payload.sideToMove === "white"
-                ? "size-4 border-2 border-border bg-paper"
-                : "size-4 border-2 border-border bg-ink"
-            }
-          />
-          <span>
-            {payload.sideToMove === "white" ? "White" : "Black"} to move
-          </span>
-        </p>
+        <SideToMove colour={payload.sideToMove} />
       </div>
 
       <ChessBoard

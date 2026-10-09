@@ -2,16 +2,13 @@ import type { CSSProperties, ReactElement, ReactNode } from "react";
 import type { PieceRenderObject } from "react-chessboard";
 import { pieceCode, type Colour, type PieceKind } from "./squares";
 
-const SHADOW_FILTER = [1, 2, 3, 4, 5, 6, 7, 8]
-  .map(
-    (step) =>
-      `drop-shadow(${step * 0.6}px ${step * 0.6}px 0 var(--color-shadow))`,
-  )
+const SHADOW_FILTER = [1.5, 3]
+  .map((step) => `drop-shadow(${step}px ${step}px 0 var(--cast))`)
   .join(" ");
 
 const FILL: CSSProperties = {
   fill: "var(--piece-fill)",
-  stroke: "var(--piece-outline, none)",
+  stroke: "var(--piece-outline)",
 };
 const LINE: CSSProperties = {
   fill: "none",
@@ -23,6 +20,12 @@ const DOT: CSSProperties = {
   stroke: "var(--piece-line)",
 };
 const BUTT: CSSProperties = { strokeLinecap: "butt" };
+const KING_CROSS = "M 22.5,11.63 L 22.5,6 M 20,8 L 25,8";
+const CROSS_HALO: CSSProperties = {
+  fill: "none",
+  stroke: "var(--piece-fill)",
+  strokeWidth: 4.5,
+};
 
 /** cburnett geometry (Colin M.L. Burnett, CC BY-SA 3.0); fills and strokes come from brand tokens. */
 const SHAPES = {
@@ -108,8 +111,8 @@ const SHAPES = {
   ),
   king: (
     <>
-      <path style={LINE} d="M 22.5,11.63 L 22.5,6" />
-      <path style={LINE} d="M 20,8 L 25,8" />
+      <path style={CROSS_HALO} d={KING_CROSS} />
+      <path style={LINE} d={KING_CROSS} />
       <path
         style={{ ...FILL, ...BUTT, strokeLinejoin: "miter" }}
         d="M 22.5,25 C 22.5,25 27,17.5 25.5,14.5 C 25.5,14.5 24.5,12 22.5,12 C 20.5,12 19.5,14.5 19.5,14.5 C 18,17.5 22.5,25 22.5,25"
@@ -129,12 +132,12 @@ const PIECE_COLOURS = {
   white: {
     fill: "var(--color-paper)",
     line: "var(--color-ink)",
-    outline: "none",
+    outline: "var(--color-ink)",
   },
   black: {
     fill: "var(--color-ink)",
     line: "var(--color-paper)",
-    outline: "var(--piece-black-outline, none)",
+    outline: "var(--color-paper)",
   },
 } as const satisfies Record<Colour, Record<string, string>>;
 

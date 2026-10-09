@@ -89,6 +89,25 @@ export async function quickCrosswordPuzzle() {
   };
 }
 
+/** The largest published cryptic crossword, with its entry count. */
+export async function largestCrypticCrosswordPuzzle() {
+  const all = await loadPublished<CrosswordContent>("crossword");
+  const [largest] = all
+    .filter(({ content }) => content.style === "cryptic")
+    .sort(
+      (a, b) => b.content.rows * b.content.cols - a.content.rows * a.content.cols,
+    );
+  if (!largest) {
+    throw new Error("No published cryptic crossword in content/crossword");
+  }
+  return {
+    typeKey: "crossword",
+    slug: largest.meta.slug,
+    title: largest.meta.title,
+    entries: largest.content.clues.length,
+  };
+}
+
 /** Any published Mode A reverse chess puzzle whose last move captured a piece and promoted nothing. */
 export async function uncapturePuzzle() {
   const all = await loadPublished<ReverseChessContent>("reverse-chess");

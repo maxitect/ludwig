@@ -33,6 +33,7 @@ import {
   useDeviceKeyboard,
   useKeyboardInset,
 } from "@/puzzles/_shared/puzzle-keyboard";
+import { SolveSlotProvider } from "@/puzzles/_shared/solve-slot";
 import type { WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
 import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
@@ -102,6 +103,7 @@ export function SolveChrome({
   const [wrongParts, setWrongParts] = useState<WrongPart[]>();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [slot, setSlot] = useState<HTMLDivElement | null>(null);
   const hydrated = useSyncExternalStore(
     subscribeNever,
     () => true,
@@ -256,6 +258,7 @@ export function SolveChrome({
   }
 
   return (
+    <SolveSlotProvider value={slot}>
     <section
       data-solve-mode
       className="flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
@@ -401,10 +404,12 @@ export function SolveChrome({
       )}
 
       <div
+        ref={setSlot}
         data-testid="solve-slot"
         style={{ marginBottom: keyboardInset }}
         className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
       />
     </section>
+    </SolveSlotProvider>
   );
 }

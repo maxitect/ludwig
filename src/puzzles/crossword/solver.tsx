@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/utils/cn";
 import {
@@ -12,6 +20,8 @@ import {
   type CellPosition,
   type Direction,
 } from "../_shared/cell-grid";
+import { PuzzleKeyboard, usePadWanted } from "../_shared/puzzle-keyboard";
+import { SolveSlot } from "../_shared/solve-slot";
 import type { SolverProps } from "../solver-types";
 import { deriveEntries, deriveWords, type Entry } from "./derive";
 import type * as schema from "./schema";
@@ -32,6 +42,90 @@ const entered = (
     const letter = letters.get(cellKey(row, col));
     return letter ? [{ row, col, letter }] : [];
   });
+
+type ClueTabsProps = {
+  entries: ReadonlyArray<Entry>;
+  direction: Direction;
+  activeEntry: Entry | undefined;
+  onDirection: (next: Direction) => void;
+  onSelect: (entry: Entry) => void;
+  listRef?: Ref<HTMLOListElement>;
+  className?: string;
+  listClassName?: string;
+};
+
+function ClueTabs({
+  entries,
+  direction,
+  activeEntry,
+  onDirection,
+  onSelect,
+  listRef,
+  className,
+  listClassName,
+}: ClueTabsProps) {
+  return (
+    <Tabs
+      className={className}
+      value={direction}
+      onValueChange={(value) => {
+        const next = DIRECTIONS.find((along) => along === value);
+        if (next) onDirection(next);
+      }}
+    >
+      <TabsList aria-label="Clue direction">
+        {DIRECTIONS.map((along) => (
+          <TabsTrigger key={along} value={along}>
+            {along}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+      {DIRECTIONS.map((along) => (
+        <TabsContent key={along} value={along}>
+          <ol
+            ref={along === direction ? listRef : undefined}
+            className={cn("relative flex flex-col overflow-y-auto", listClassName)}
+          >
+            {entries
+              .filter((entry) => entry.direction === along)
+              .map((entry) => {
+                const current = entry === activeEntry;
+                return (
+                  <li key={entry.number}>
+                    <button
+                      type="button"
+                      aria-current={current}
+                      onClick={() => onSelect(entry)}
+                      className={cn(
+                        "flex w-full gap-2 border-l-4 border-transparent px-2 py-1 text-left outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-ring",
+                        current && "border-foreground bg-muted",
+                      )}
+                    >
+                      <span className="w-6 shrink-0 font-display font-bold">
+                        {entry.number}
+                      </span>
+                      <span>
+                        {entry.clueText}{" "}
+                        <span className="whitespace-nowrap">
+                          {entry.enumeration}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+          </ol>
+        </TabsContent>
+      ))}
+    </Tabs>
+  );
+}
+
+const barButton =
+  "flex size-12 shrink-0 items-center justify-center border-2 border-border bg-card text-card-foreground select-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring active:border-ludwig-red active:text-ludwig-red";
+
+const keepFocus = (event: { preventDefault: () => void }) =>
+  event.preventDefault();
 
 export function Solver({
   payload,
@@ -64,6 +158,8 @@ export function Solver({
   }));
   const [cellNotice, setCellNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [cluesOpen, setCluesOpen] = useState(false);
+  const padWanted = usePadWanted();
   const grid = useRef<CellGridHandle>(null);
   const clueList = useRef<HTMLOListElement>(null);
 
@@ -82,6 +178,15 @@ export function Solver({
     [activeEntry],
   );
   const words = useMemo(() => deriveWords(entries, direction), [entries, direction]);
+  const sequence = useMemo(
+    () =>
+      DIRECTIONS.flatMap((along) =>
+        entries
+          .filter((entry) => entry.direction === along)
+          .sort((a, b) => a.number - b.number),
+      ),
+    [entries],
+  );
 
   useEffect(() => {
     registerCheck(() =>
@@ -138,6 +243,21 @@ export function Solver({
     grid.current?.focus();
   }
 
+  function step(delta: number) {
+    const at = activeEntry ? sequence.indexOf(activeEntry) : 0;
+    const next = sequence[(at + delta + sequence.length) % sequence.length];
+    if (next) selectEntry(next);
+  }
+
+  const crossing = entryAt(active, direction === "across" ? "down" : "across");
+
+  function toggleDirection() {
+    if (!crossing) return;
+    setDirection(crossing.direction);
+    setCellNotice("");
+    grid.current?.focus();
+  }
+
   const activeValue = letters.get(cellKey(active.row, active.col)) ?? "";
   const position = activeEntry
     ? activeEntry.cells.findIndex(
@@ -169,13 +289,46 @@ export function Solver({
     grid.current?.focus();
   }
 
+  const actions = (
+    <>
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        disabled={!checkCell || !activeValue || busy}
+        onClick={check}
+      >
+        Check cell
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        disabled={!revealCell || busy}
+        onClick={reveal}
+      >
+        Reveal cell
+      </Button>
+    </>
+  );
+  const cluesButton = (
+    <Button
+      type="button"
+      variant="secondary"
+      size="sm"
+      onClick={() => setCluesOpen(true)}
+    >
+      Clues
+    </Button>
+  );
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 touch:gap-0">
       <p className="sr-only">
         Type letters to fill the grid. Space switches between across and down,
         Tab moves to the next clue and Enter checks the grid.
       </p>
-      <p className="min-h-7 text-lg" aria-live="polite">
+      <p className="min-h-7 text-lg touch:sr-only" aria-live="polite">
         {activeEntry && (
           <>
             <span className="font-display font-bold">{label(activeEntry)}</span>{" "}
@@ -209,82 +362,114 @@ export function Solver({
           }}
           words={words}
         />
-        <Tabs
-          value={direction}
-          onValueChange={(value) => {
-            const next = DIRECTIONS.find((along) => along === value);
-            if (next) selectDirection(next);
-          }}
-        >
-          <TabsList aria-label="Clue direction">
-            {DIRECTIONS.map((along) => (
-              <TabsTrigger key={along} value={along}>
-                {along}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          {DIRECTIONS.map((along) => (
-            <TabsContent key={along} value={along}>
-              <ol
-                ref={along === direction ? clueList : undefined}
-                className="relative flex max-h-80 flex-col overflow-y-auto"
-              >
-                {entries
-                  .filter((entry) => entry.direction === along)
-                  .map((entry) => {
-                    const current = entry === activeEntry;
-                    return (
-                      <li key={entry.number}>
-                        <button
-                          type="button"
-                          aria-current={current}
-                          onClick={() => selectEntry(entry)}
-                          className={cn(
-                            "flex w-full gap-2 border-l-4 border-transparent px-2 py-1 text-left outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-ring",
-                            current && "border-foreground bg-muted",
-                          )}
-                        >
-                          <span className="w-6 shrink-0 font-display font-bold">
-                            {entry.number}
-                          </span>
-                          <span>
-                            {entry.clueText}{" "}
-                            <span className="whitespace-nowrap">
-                              {entry.enumeration}
-                            </span>
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-              </ol>
-            </TabsContent>
-          ))}
-        </Tabs>
+        <ClueTabs
+          className="touch:hidden"
+          entries={entries}
+          direction={direction}
+          activeEntry={activeEntry}
+          onDirection={selectDirection}
+          onSelect={selectEntry}
+          listRef={clueList}
+          listClassName="max-h-80"
+        />
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled={!checkCell || !activeValue || busy}
-          onClick={check}
-        >
-          Check cell
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled={!revealCell || busy}
-          onClick={reveal}
-        >
-          Reveal cell
-        </Button>
-        <p role="status" aria-live="polite">
+      <div className="flex flex-wrap items-center gap-3 touch:contents">
+        <div className="contents touch:hidden">{actions}</div>
+        <p role="status" aria-live="polite" className="touch:sr-only">
           {cellNotice}
         </p>
       </div>
+      <SolveSlot>
+        <div className="flex flex-col gap-1 pt-2">
+          <div
+            data-testid="clue-bar"
+            role="group"
+            aria-label="Clue"
+            className="flex items-stretch gap-1"
+          >
+            <button
+              type="button"
+              aria-label="Previous clue"
+              className={barButton}
+              onPointerDown={keepFocus}
+              onClick={() => step(-1)}
+            >
+              <ChevronLeftIcon aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              disabled={!crossing}
+              onPointerDown={keepFocus}
+              onClick={toggleDirection}
+              className="flex h-12 min-w-0 flex-1 items-center border-2 border-border bg-card px-2 text-left text-sm leading-tight text-card-foreground focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-100"
+            >
+              <span className="line-clamp-2">
+                {cellNotice ? (
+                  cellNotice
+                ) : activeEntry ? (
+                  <>
+                    <span className="font-display font-bold">
+                      {label(activeEntry)}
+                    </span>{" "}
+                    {activeEntry.clueText} {activeEntry.enumeration}
+                  </>
+                ) : null}
+              </span>
+            </button>
+            <button
+              type="button"
+              aria-label="Next clue"
+              className={barButton}
+              onPointerDown={keepFocus}
+              onClick={() => step(1)}
+            >
+              <ChevronRightIcon aria-hidden="true" />
+            </button>
+          </div>
+          {!padWanted && (
+            <div className="flex gap-1 [&>*]:flex-1" onPointerDown={keepFocus}>
+              {actions}
+              {cluesButton}
+            </div>
+          )}
+          <PuzzleKeyboard
+            layout="alpha"
+            onKey={(char) => grid.current?.type(char)}
+            onErase={() => grid.current?.erase()}
+          >
+            {actions}
+            {cluesButton}
+          </PuzzleKeyboard>
+        </div>
+      </SolveSlot>
+      <Sheet open={cluesOpen} onOpenChange={setCluesOpen}>
+        <SheetContent
+          side="bottom"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            grid.current?.focus();
+          }}
+        >
+          <SheetHeader>
+            <SheetTitle>Clues</SheetTitle>
+            <SheetDescription className="sr-only">
+              Choose a clue to jump to its entry.
+            </SheetDescription>
+          </SheetHeader>
+          <ClueTabs
+            className="px-4 pb-4"
+            entries={entries}
+            direction={direction}
+            activeEntry={activeEntry}
+            onDirection={selectDirection}
+            onSelect={(entry) => {
+              setCluesOpen(false);
+              selectEntry(entry);
+            }}
+            listClassName="max-h-[50dvh]"
+          />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -34,7 +34,7 @@ export function TextLines({
           {accent && (
             <tspan className="fill-ludwig-red font-bold">{accent}</tspan>
           )}
-          {clip(text, width - (accent?.length ?? 0))}
+          {clip(text, (heading ? width - 8 : width) - (accent?.length ?? 0))}
         </text>
       ))}
     </svg>

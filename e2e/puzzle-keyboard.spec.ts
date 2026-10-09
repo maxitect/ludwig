@@ -12,6 +12,14 @@ const cell = (page: Page, row: number, col: number) =>
     `[role="gridcell"][aria-label^="Row ${row}, column ${col},"]`,
   );
 
+test("desktop grid input keeps its normal input mode", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "desktop only");
+  await page.goto("/dev/kitchen-sink");
+  await expect(gridInput(page)).toBeAttached();
+  await expect(gridInput(page)).not.toHaveAttribute("inputmode", "none");
+  await expect(pad(page)).toHaveCount(0);
+});
+
 test.describe("puzzle keyboard", () => {
   test.beforeEach(async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "touch phones only");

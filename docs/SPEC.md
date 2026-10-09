@@ -629,6 +629,7 @@ All text and background pairs must pass WCAG AA. Red on paper (`#C40C12` on `#E9
 - **Crossword cells everywhere.** Square corners (`--radius: 0`), 2px ink borders, and small superscript clue numbers on cards and buttons where they make sense.
 - **Red hand-filled letters.** Letters the user enters in grids render in `--font-hand` and `--crayon`/`--ludwig-red`, with a ±2° random rotation per cell seeded by its index for stable SSR.
 - **Ink splat.** An SVG asset placed behind the wordmark on the landing hero and the sign-in card.
+- **Clinical, never soft.** No fades anywhere: no blurred shadows, no gradients that blend one colour into another, no cast shadow that fades along its length. Gradients appear only as hard-stop patterns (grid lines, checks, raking stripes).
 - **Silhouette walker.** A small black SVG figure that walks across grid cells. It is used as the **loading indicator** (`loading.tsx` / Suspense fallbacks) and on empty states.
 - **White chess pieces.** Large, with long blue shadows, used as decorative elements on the landing page and the Reverse Chess hub.
 - **Bullet-hole transition.** As the landing-to-app route transition, a torn circular hole expands to reveal the blue grid. This uses the View Transitions API through Next's view-transition support, with `prefers-reduced-motion` falling back to a fade.

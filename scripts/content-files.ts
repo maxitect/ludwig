@@ -9,6 +9,7 @@ import type { PuzzleRegistry } from "../src/puzzles/registry";
 
 const fileMetaSchema = contentMetaSchema.extend({
   reviewNote: z.string().optional(),
+  workings: z.string().optional(),
 });
 
 export type ContentMeta = z.infer<typeof fileMetaSchema>;
@@ -20,6 +21,8 @@ export type ContentFile = {
   meta: z.infer<typeof contentMetaSchema>;
   /** Why the content is unique, for types a machine cannot prove. Never stored. */
   reviewNote?: string;
+  /** The worked derivation, for review only. Never stored or evaluated. */
+  workings?: string;
   content: unknown;
   generated?: Provenance;
 };
@@ -82,13 +85,14 @@ export async function loadContentFiles(
             error: `meta.slug: must equal the file name "${slug}"`,
           });
         } else {
-          const { reviewNote, ...meta } = parsed.data.meta;
+          const { reviewNote, workings, ...meta } = parsed.data.meta;
           files.push({
             typeKey,
             slug,
             file,
             meta,
             reviewNote,
+            workings,
             content: parsed.data.content,
             generated: parsed.data.generated,
           });

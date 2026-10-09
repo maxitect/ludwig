@@ -253,6 +253,28 @@ export async function knightsKnavesAttemptFor(email: string) {
   }
 }
 
+export async function napkinMathsAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{
+      answer: string | null;
+      completed: boolean;
+    }>(
+      `select n.answer::text as answer, a.completed_at is not null as completed
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join napkin_maths_attempts n on n.attempt_id = a.id
+        where u.email = $1`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function oddOneOutAttemptFor(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { cn } from "@/utils/cn";
 import { loadFoundRegions, tapScene } from "@/lib/actions/spot-difference";
 import { SCENE_HEIGHT, SCENE_WIDTH, regionCentre } from "./engine";
 import { renderSceneNode } from "./scene";
@@ -21,12 +23,14 @@ const cursorCentre = ({ column, row }: Cursor) => ({
 
 function SceneView({
   label,
+  hiddenOnTouch,
   scene,
   found,
   cursor,
   onTap,
 }: {
   label: string;
+  hiddenOnTouch: boolean;
   scene: schema.SceneNode;
   found: ReadonlyMap<number, schema.Region>;
   cursor: Cursor | null;
@@ -37,7 +41,10 @@ function SceneView({
       role="img"
       aria-label={label}
       viewBox={`0 0 ${SCENE_WIDTH} ${SCENE_HEIGHT}`}
-      className="h-auto w-full cursor-crosshair touch-manipulation border-2 border-border bg-paper shadow-[3px_3px_0_var(--cast)] select-none"
+      className={cn(
+        "h-auto w-full cursor-crosshair touch-manipulation border-2 border-border bg-paper shadow-[3px_3px_0_var(--cast)] select-none",
+        hiddenOnTouch && "touch:hidden",
+      )}
       onClick={(event) => {
         const box = event.currentTarget.getBoundingClientRect();
         onTap({
@@ -118,6 +125,7 @@ export function Solver({
     column: COLUMNS / 2,
     row: ROWS / 2,
   });
+  const [side, setSide] = useState<0 | 1>(0);
   const [focused, setFocused] = useState(false);
   const completedByTap = useRef(false);
   const complete = found.size === differenceCount;
@@ -213,6 +221,22 @@ export function Solver({
         Shift and an arrow key moves five sectors, and press Enter to try the
         sector&rsquo;s centre.
       </p>
+      <ToggleGroup
+        type="single"
+        value={side === 0 ? "left" : "right"}
+        onValueChange={(next) => {
+          if (next) setSide(next === "left" ? 0 : 1);
+        }}
+        aria-label="Scene shown"
+        className="hidden touch:flex"
+      >
+        <ToggleGroupItem value="left" className="h-11 min-w-11">
+          Left
+        </ToggleGroupItem>
+        <ToggleGroupItem value="right" className="h-11 min-w-11">
+          Right
+        </ToggleGroupItem>
+      </ToggleGroup>
       <div
         role="group"
         aria-label="The two scenes"
@@ -220,10 +244,11 @@ export function Solver({
         onKeyDown={onKeyDown}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        className="grid gap-4 outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-ring sm:grid-cols-2"
+        className="grid gap-4 outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-ring sm:grid-cols-2 touch:grid-cols-1"
       >
         <SceneView
           label="Scene one"
+          hiddenOnTouch={side !== 0}
           scene={scenes[0]}
           found={found}
           cursor={activeCursor}
@@ -231,6 +256,7 @@ export function Solver({
         />
         <SceneView
           label="Scene two"
+          hiddenOnTouch={side !== 1}
           scene={scenes[1]}
           found={found}
           cursor={activeCursor}

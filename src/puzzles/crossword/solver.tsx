@@ -97,7 +97,7 @@ function ClueTabs({
                       aria-current={current}
                       onClick={() => onSelect(entry)}
                       className={cn(
-                        "flex w-full gap-2 border-l-4 border-transparent px-2 py-1 text-left outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-ring",
+                        "flex w-full gap-2 touch:min-h-11 border-l-4 border-transparent px-2 py-1 text-left outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-ring",
                         current && "border-foreground bg-muted",
                       )}
                     >
@@ -392,7 +392,7 @@ export function Solver({
             <button
               type="button"
               disabled={!crossing}
-              onPointerDown={keepFocus}
+              onMouseDown={keepFocus}
               onClick={toggleDirection}
               className="flex h-12 min-w-0 flex-1 items-center border-2 border-border bg-card px-2 text-left text-sm leading-tight text-card-foreground focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-100"
             >
@@ -416,7 +416,7 @@ export function Solver({
             />
           </div>
           {!padWanted && (
-            <div className="flex gap-1 [&>*]:flex-1" onPointerDown={keepFocus}>
+            <div className="flex gap-1 [&>*]:flex-1" onMouseDown={keepFocus}>
               {actions}
               {cluesButton}
             </div>

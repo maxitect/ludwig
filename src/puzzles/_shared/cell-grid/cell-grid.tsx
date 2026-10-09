@@ -205,12 +205,39 @@ export function CellGrid({
       toggleDirection();
     } else if (event.key === "Backspace" || event.key === "Delete") {
       event.preventDefault();
+      erasedByKey.current = true;
       erase();
     } else if (event.key.length === 1) {
       event.preventDefault();
       enter(event.key);
     }
   };
+
+  const erasedByKey = useRef(false);
+  const eraseRef = useRef(erase);
+  useEffect(() => {
+    eraseRef.current = erase;
+  });
+
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+    const onBeforeInput = (event: globalThis.InputEvent) => {
+      if (event.inputType !== "deleteContentBackward") return;
+      event.preventDefault();
+      if (erasedByKey.current) return;
+      eraseRef.current();
+    };
+    const clearKey = () => {
+      erasedByKey.current = false;
+    };
+    input.addEventListener("beforeinput", onBeforeInput);
+    input.addEventListener("keyup", clearKey);
+    return () => {
+      input.removeEventListener("beforeinput", onBeforeInput);
+      input.removeEventListener("keyup", clearKey);
+    };
+  }, []);
 
   const onInput = (event: InputEvent<HTMLInputElement>) => {
     const typed = event.currentTarget.value.slice(-1);

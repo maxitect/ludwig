@@ -18,10 +18,10 @@ const buttonVariants = cva(
         destructive: `${raised} bg-destructive text-destructive-foreground hover:bg-ink-soft hover:text-paper`,
       },
       size: {
-        default: "h-10 px-5 text-sm has-[>svg]:px-4",
-        sm: "h-8 gap-1.5 px-3 text-xs has-[>svg]:px-2.5",
+        default: "h-10 touch:h-11 px-5 text-sm has-[>svg]:px-4",
+        sm: "h-8 touch:h-11 touch:min-w-11 gap-1.5 px-3 text-xs has-[>svg]:px-2.5",
         lg: "h-12 px-8 text-base has-[>svg]:px-6",
-        icon: "size-10 [&_svg:not([class*='size-'])]:size-6 [&_svg]:stroke-2",
+        icon: "size-10 touch:size-11 [&_svg:not([class*='size-'])]:size-6 [&_svg]:stroke-2",
       },
     },
     defaultVariants: {

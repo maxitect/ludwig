@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
@@ -131,6 +131,45 @@ describe("CellGrid keyboard", () => {
     expect(cell(1, 1).textContent).toBe("");
     await user.keyboard("z");
     expect(cell(1, 1).textContent).toBe("Z");
+  });
+
+  it("erases once on a deleteContentBackward beforeinput", async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={{ [cellKey(0, 0)]: "A", [cellKey(0, 1)]: "B" }} />);
+    await user.click(cell(1, 3));
+    const input = screen.getByLabelText(/input$/);
+    fireEvent.keyDown(input, { key: "Unidentified", keyCode: 229 });
+    act(() => {
+      input.dispatchEvent(
+        new InputEvent("beforeinput", {
+          inputType: "deleteContentBackward",
+          cancelable: true,
+          bubbles: true,
+        }),
+      );
+    });
+    expect(cell(1, 2).textContent).toBe("");
+    expect(cell(1, 1).textContent).toBe("A");
+  });
+
+  it("does not erase twice when a physical Backspace is followed by its beforeinput", async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={{ [cellKey(0, 0)]: "A", [cellKey(0, 1)]: "B" }} />);
+    await user.click(cell(1, 2));
+    const input = screen.getByLabelText(/input$/);
+    fireEvent.keyDown(input, { key: "Backspace" });
+    act(() => {
+      input.dispatchEvent(
+        new InputEvent("beforeinput", {
+          inputType: "deleteContentBackward",
+          cancelable: true,
+          bubbles: true,
+        }),
+      );
+    });
+    fireEvent.keyUp(input, { key: "Backspace" });
+    expect(cell(1, 2).textContent).toBe("");
+    expect(cell(1, 1).textContent).toBe("A");
   });
 
   it("Tab jumps to the next word when words are supplied", async () => {

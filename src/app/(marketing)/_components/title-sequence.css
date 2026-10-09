@@ -529,3 +529,94 @@
     }
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports not (animation-timeline: view()) {
+    :where(:root:not([data-reduce-motion])) .title-sequence[data-seq-scroll] {
+      .seq-track {
+        height: 400dvh;
+      }
+
+      .seq-stage {
+        position: sticky;
+        top: 0;
+        height: 100dvh;
+        min-height: 0;
+      }
+
+      .seq-world,
+      .seq-hero,
+      .seq-wall-grid,
+      .seq-wall-board,
+      .seq-wall-mirror,
+      .seq-caption,
+      .seq-walker .walker-figure,
+      .seq-piece {
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-duration: 1s;
+        animation-play-state: paused;
+        animation-delay: calc(var(--seq-progress, 0) * -1s);
+      }
+
+      .seq-world {
+        animation-name: seq-world;
+      }
+
+      .seq-hero {
+        animation-name: seq-hero-out;
+      }
+
+      .seq-wall-grid {
+        animation-name: seq-wall-grid;
+      }
+
+      .seq-wall-board {
+        animation-name: seq-wall-board;
+      }
+
+      .seq-wall-mirror {
+        animation-name: seq-wall-mirror;
+      }
+
+      .seq-captions {
+        height: 2rem;
+      }
+
+      .seq-caption {
+        position: absolute;
+        left: 50%;
+        translate: -50% 0;
+      }
+
+      .seq-caption-1 {
+        animation-name: seq-caption-1;
+      }
+
+      .seq-caption-2 {
+        animation-name: seq-caption-2;
+      }
+
+      .seq-caption-3 {
+        animation-name: seq-caption-3;
+      }
+
+      .seq-walker .walker-figure {
+        animation-name: seq-walk;
+        animation-iteration-count: 1;
+      }
+
+      .seq-piece-a {
+        animation-name: seq-piece-a;
+      }
+
+      .seq-piece-b {
+        animation-name: seq-piece-b;
+      }
+
+      .seq-piece-c {
+        animation-name: seq-piece-c;
+      }
+    }
+  }
+}

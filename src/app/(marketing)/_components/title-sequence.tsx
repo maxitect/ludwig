@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PieceGlyph } from "@/puzzles/_shared/chess-board/pieces";
 import type { PieceKind } from "@/puzzles/_shared/chess-board/squares";
 import { MirroredSudoku } from "./mirrored-sudoku";
+import { ScrollFallback } from "./scroll-fallback";
 import "./title-sequence.css";
 
 const ROOMS = ["The Grid", "The Board", "The Mirror"] as const;
@@ -28,6 +29,7 @@ function ToppledPiece({
 export function TitleSequence() {
   return (
     <main className="title-sequence">
+      <ScrollFallback />
       <div className="seq-track">
         <div className="seq-stage">
           <div aria-hidden="true" className="seq-scene">

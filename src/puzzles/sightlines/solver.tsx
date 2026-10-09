@@ -219,7 +219,7 @@ export function Solver({
               fill="none"
               strokeWidth={0.07}
               strokeDasharray="0.14 0.1"
-              className="stroke-foreground"
+              className="stroke-ink"
             />
             {observers.map((observer) => (
               <g key={key(observer.row, observer.col)}>
@@ -233,7 +233,7 @@ export function Solver({
                   cx={observer.col + 0.5}
                   cy={observer.row + 0.5}
                   r={0.2}
-                  className="fill-foreground"
+                  className="fill-ink"
                 />
               </g>
             ))}

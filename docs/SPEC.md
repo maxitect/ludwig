@@ -704,7 +704,7 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 - **chess.js 1.4** (rules and FEN) and **react-chessboard 5.x** (board UI, piece renderer overridden). Check the v5 API, which uses an `options` prop, before building.
 - **motion** for animation.
 - Testing: **Vitest** for engines and checkers, **Playwright** for end-to-end flows.
-- **PWA:** `src/app/manifest.ts` (standalone, Paper colours), PNG icons in `public/icons/` and `src/app/apple-icon.png` (made by `scripts/dev/make-icons.ts`). There is no service worker until T118 (M7); installability needs only the manifest and HTTPS.
+- **PWA:** `src/app/manifest.ts` (standalone, Ink splash background), icons are "L." from the wordmark in `ludwig-red` on Ink: PNGs in `public/icons/`, `src/app/apple-icon.png` and `src/app/icon.svg` (made by `scripts/dev/make-icons.ts`). iOS launch screens are `public/splash/{paper,ink}-<w>x<h>@<ratio>.jpg` (made by `scripts/dev/make-splash.ts`): the ink-splat wordmark on the grain texture, chosen by the OS colour scheme through `appleWebApp.startupImage` in `layout.tsx` (a static image cannot follow the in-app theme). Android builds its own splash from the manifest. There is no service worker until T118 (M7); installability needs only the manifest and HTTPS.
 - Hosting: **Vercel**, with **Neon** Postgres from the Vercel Marketplace (section 7.7). The `pg` driver and `@vercel/functions` handle connection pooling.
 
 ### 7.2 Source layout

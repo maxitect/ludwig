@@ -387,12 +387,12 @@
   0%,
   26% {
     opacity: 1;
-    visibility: visible;
+    pointer-events: auto;
   }
   34%,
   100% {
     opacity: 0;
-    visibility: hidden;
+    pointer-events: none;
   }
 }
 
@@ -400,17 +400,17 @@
   0%,
   28% {
     opacity: 0;
-    visibility: hidden;
+    pointer-events: none;
   }
   38%,
   58% {
     opacity: 1;
-    visibility: visible;
+    pointer-events: auto;
   }
   66%,
   100% {
     opacity: 0;
-    visibility: hidden;
+    pointer-events: none;
   }
 }
 
@@ -418,12 +418,12 @@
   0%,
   60% {
     opacity: 0;
-    visibility: hidden;
+    pointer-events: none;
   }
   70%,
   100% {
     opacity: 1;
-    visibility: visible;
+    pointer-events: auto;
   }
 }
 
@@ -520,6 +520,11 @@
 
     .seq-caption-3 {
       animation-name: seq-caption-3;
+    }
+
+    .seq-captions .seq-caption:focus-visible {
+      z-index: 1;
+      animation-name: none;
     }
 
     .seq-walker .walker-figure {

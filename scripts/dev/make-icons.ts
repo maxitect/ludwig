@@ -19,7 +19,6 @@ type Icon = { file: string; size: number; span: number };
 /** "L." from the wordmark on Ink. `span` is the viewBox side in wordmark units; the maskable one keeps the glyphs inside the 80% safe zone, and the OS applies the mask, so no corners are baked in. */
 const ICONS: Icon[] = [
   { file: "public/icons/icon-192.png", size: 192, span: 118 },
-  { file: "public/icons/icon-512.png", size: 512, span: 118 },
   { file: "public/icons/icon-512-maskable.png", size: 512, span: 144 },
   { file: "src/app/apple-icon.png", size: 180, span: 118 },
 ];

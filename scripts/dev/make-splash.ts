@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { chromium } from "@playwright/test";
+import { type Browser, chromium } from "@playwright/test";
 import { Wordmark } from "../../src/components/brand/wordmark";
 import { themeColors } from "../../src/config/theme-colors";
 
@@ -46,9 +46,26 @@ function page(scheme: keyof typeof SCHEMES, { width }: Device) {
   </style>${wordmark}`;
 }
 
+/** Android draws its launch screen from the 512px manifest icon on `background_color` (Ink), so this one icon is the full wordmark on a transparent square. */
+async function writeLaunchIcon(browser: Browser) {
+  const { foreground, splat } = SCHEMES.ink;
+  const tab = await browser.newPage({ viewport: { width: 512, height: 512 } });
+  await tab.setContent(
+    page("ink", { width: 512, height: 512, ratio: 1 })
+      .replace(/body\{[^}]*\}/, "body{margin:0;width:100vw;height:100vh;display:grid;place-items:center}")
+      .replace(/body::before\{[^}]*\}/, "")
+      .replace(`color:${foreground}}`, `color:${foreground}}`)
+      .replace("</style>", `.w-full{width:${512 * 0.92}px}</style>`),
+  );
+  writeFileSync("public/icons/icon-512.png", await tab.screenshot({ type: "png", omitBackground: true }));
+  await tab.close();
+  console.log(`public/icons/icon-512.png (${splat})`);
+}
+
 async function main() {
   mkdirSync("public/splash", { recursive: true });
   const browser = await chromium.launch();
+  await writeLaunchIcon(browser);
   for (const device of DEVICES) {
     const context = await browser.newContext({
       viewport: { width: device.width, height: device.height },

@@ -20,7 +20,12 @@ function ToppledPiece({
     <div aria-hidden="true" className={`seq-piece ${className}`}>
       <div className="seq-cast" />
       <div className="seq-piece-body">
-        <PieceGlyph colour="white" piece={piece} />
+        <div className="seq-piece-paper size-full">
+          <PieceGlyph colour="white" piece={piece} />
+        </div>
+        <div className="seq-piece-ink size-full">
+          <PieceGlyph colour="black" piece={piece} />
+        </div>
       </div>
     </div>
   );

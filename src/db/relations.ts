@@ -336,6 +336,30 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.acrosticLines.puzzleId,
     }),
   },
+  knightsKnavesPuzzles: {
+    characters: r.many.knightsKnavesCharacters({
+      from: r.knightsKnavesPuzzles.puzzleId,
+      to: r.knightsKnavesCharacters.puzzleId,
+    }),
+  },
+  knightsKnavesCharacters: {
+    statements: r.many.knightsKnavesStatements({
+      from: [
+        r.knightsKnavesCharacters.puzzleId,
+        r.knightsKnavesCharacters.position,
+      ],
+      to: [
+        r.knightsKnavesStatements.puzzleId,
+        r.knightsKnavesStatements.characterPosition,
+      ],
+    }),
+  },
+  knightsKnavesAttempts: {
+    roles: r.many.knightsKnavesAttemptRoles({
+      from: r.knightsKnavesAttempts.attemptId,
+      to: r.knightsKnavesAttemptRoles.attemptId,
+    }),
+  },
   wordSearchPuzzles: {
     cells: r.many.wordSearchCells({
       from: r.wordSearchPuzzles.puzzleId,

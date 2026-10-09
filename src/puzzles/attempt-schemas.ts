@@ -7,6 +7,7 @@ import { attemptSchema as futoshikiAttempt } from "./futoshiki/schema";
 import { attemptSchema as gearTrainAttempt } from "./gear-train/schema";
 import { attemptSchema as gearsAttempt } from "./gears/schema";
 import { attemptSchema as keywordAttempt } from "./keyword/schema";
+import { attemptSchema as knightsKnavesAttempt } from "./knights-knaves/schema";
 import { attemptSchema as logicGridAttempt } from "./logic-grid/schema";
 import { attemptSchema as pictogramCipherAttempt } from "./pictogram-cipher/schema";
 import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
@@ -27,6 +28,7 @@ const attemptSchemas = {
   "gear-train": gearTrainAttempt,
   gears: gearsAttempt,
   keyword: keywordAttempt,
+  "knights-knaves": knightsKnavesAttempt,
   "logic-grid": logicGridAttempt,
   "pictogram-cipher": pictogramCipherAttempt,
   "reverse-chess": reverseChessAttempt,

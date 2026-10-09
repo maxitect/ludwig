@@ -231,6 +231,28 @@ export async function wordSearchAttemptFor(email: string) {
   }
 }
 
+export async function knightsKnavesAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ roles: string[]; completed: boolean }>(
+      `select coalesce(array_agg(r.character_position || ':' || r.role order by r.character_position) filter (where r.role is not null), '{}') as roles,
+              a.completed_at is not null as completed
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join knights_knaves_attempts k on k.attempt_id = a.id
+         left join knights_knaves_attempt_roles r on r.attempt_id = a.id
+        where u.email = $1
+        group by a.id`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function acrosticAttemptFor(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

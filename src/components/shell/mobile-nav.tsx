@@ -2,7 +2,7 @@
 
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { type ComponentProps, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -15,7 +15,11 @@ import {
 import { navLinks } from "@/config/nav";
 import { InstallHint } from "./install-hint";
 
-export function MobileNav() {
+export function MobileNav({
+  collectionTransitionTypes,
+}: {
+  collectionTransitionTypes?: ComponentProps<typeof Link>["transitionTypes"];
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -41,6 +45,9 @@ export function MobileNav() {
             <Link
               key={href}
               href={href}
+              transitionTypes={
+                href === "/puzzles" ? collectionTransitionTypes : undefined
+              }
               onClick={() => setOpen(false)}
               className="px-4 py-3 font-display text-lg font-semibold tracking-[0.04em] uppercase hover:bg-foreground hover:text-background focus-visible:outline-3 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-ring"
             >

@@ -1,19 +1,10 @@
-/* Torn-circle polygons are generated: 36 points each so clip-path interpolates. Only clip-path or opacity animates; no SVG filters. */
-@keyframes bullet-hole-open {
-  from {
-    clip-path: polygon(50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%);
-  }
-  to {
-    clip-path: polygon(134.6% 50.0%, 140.2% 65.9%, 137.9% 82.0%, 132.1% 97.4%, 122.7% 111.0%, 107.5% 118.5%, 96.3% 130.1%, 80.9% 134.9%, 65.3% 136.6%, 50.0% 135.8%, 36.2% 128.3%, 21.4% 128.6%, 8.0% 122.7%, -4.8% 115.3%, -16.9% 106.1%, -23.6% 92.5%, -36.4% 81.5%, -42.4% 66.3%, -44.8% 50.0%, -43.5% 33.5%, -33.8% 19.5%, -29.8% 3.9%, -18.9% -7.8%, -6.3% -17.1%, 7.3% -24.0%, 22.9% -24.5%, 35.5% -32.3%, 50.0% -34.1%, 64.9% -34.3%, 80.0% -32.4%, 92.7% -23.9%, 109.3% -20.7%, 122.0% -10.5%, 132.2% 2.5%, 139.1% 17.6%, 137.6% 34.6%);
-  }
-}
-
+/* The tear is a 36-point torn circle around --vt-x/--vt-y with radius --vt-r (set from the click), in lengths so it stays circular at any aspect ratio. Only clip-path or opacity animates; no SVG filters. */
 @keyframes bullet-hole-tear {
   from {
-    clip-path: polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%, 50.0% 50.0%);
+    clip-path: polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh), var(--vt-x, 50vw) var(--vt-y, 50vh));
   }
   to {
-    clip-path: polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 134.6% 50.0%, 140.2% 65.9%, 137.9% 82.0%, 132.1% 97.4%, 122.7% 111.0%, 107.5% 118.5%, 96.3% 130.1%, 80.9% 134.9%, 65.3% 136.6%, 50.0% 135.8%, 36.2% 128.3%, 21.4% 128.6%, 8.0% 122.7%, -4.8% 115.3%, -16.9% 106.1%, -23.6% 92.5%, -36.4% 81.5%, -42.4% 66.3%, -44.8% 50.0%, -43.5% 33.5%, -33.8% 19.5%, -29.8% 3.9%, -18.9% -7.8%, -6.3% -17.1%, 7.3% -24.0%, 22.9% -24.5%, 35.5% -32.3%, 50.0% -34.1%, 64.9% -34.3%, 80.0% -32.4%, 92.7% -23.9%, 109.3% -20.7%, 122.0% -10.5%, 132.2% 2.5%, 139.1% 17.6%, 137.6% 34.6%, 134.6% 50.0%);
+    clip-path: polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.984) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.000), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.964) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.170), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.978) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.356), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.903) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.521), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.782) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.656), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.630) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.751), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.473) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.819), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.366) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 1.005), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.178) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 1.011), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.000) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 1.038), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.169) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.957), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.333) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.914), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.503) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.871), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.630) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.751), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.757) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.635), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.833) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.481), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.984) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.358), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.952) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.168), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.969) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * 0.000), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.995) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.175), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.876) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.319), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.845) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.488), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.738) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.619), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.613) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.731), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.491) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.850), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.364) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.999), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.175) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.992), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * -0.000) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -1.022), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.168) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.951), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.343) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.942), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.495) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.858), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.654) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.780), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.739) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.620), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.822) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.475), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.981) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.357), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.947) calc(var(--vt-y, 50vh) + var(--vt-r, 150vmax) * -0.167), calc(var(--vt-x, 50vw) + var(--vt-r, 150vmax) * 0.984) var(--vt-y, 50vh));
   }
 }
 
@@ -32,17 +23,49 @@
 :root:active-view-transition-type(bullet-hole)::view-transition-group(root) {
   background-color: var(--color-background);
   background-image:
-    linear-gradient(var(--color-ring) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-ring) 1px, transparent 1px);
+    linear-gradient(var(--color-grid-blue) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-blue) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
 :root:active-view-transition-type(bullet-hole)::view-transition-old(root) {
-  animation: 600ms ease-in both bullet-hole-tear;
+  z-index: 1;
+  animation: 400ms ease-out both bullet-hole-tear;
 }
 
 :root:active-view-transition-type(bullet-hole)::view-transition-new(root) {
-  animation: 500ms ease-out 200ms both bullet-hole-open;
+  animation: 300ms linear 200ms both bullet-hole-fade-in;
+}
+
+/* The header is snapshotted on its own, outside the root's grain overlay, so it carries the same grain (it sits at the viewport origin, so the tiles line up). When the click came from a scrolled page, --vt-header is none and the header arrives with the new page. */
+:root:active-view-transition-type(bullet-hole) [data-site-header] {
+  view-transition-name: var(--vt-header, site-header);
+  position: relative;
+  background-color: var(--color-background);
+}
+
+:root:active-view-transition-type(bullet-hole) [data-site-header]::after {
+  content: var(--vt-header-grain, "");
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-image: url("/textures/grain.png");
+  background-size: 512px 512px;
+  mix-blend-mode: var(--grain-blend);
+  filter: invert(var(--grain-invert));
+  opacity: 0.35;
+}
+
+:root:active-view-transition-type(bullet-hole)::view-transition-group(site-header),
+:root:active-view-transition-type(bullet-hole)::view-transition-old(site-header),
+:root:active-view-transition-type(bullet-hole)::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* The old header stays up: the new one may still be streaming its user slot (Walker fallback). */
+:root:active-view-transition-type(bullet-hole)::view-transition-new(site-header) {
+  display: none;
 }
 
 /* Solved footer hole: a --hole-size square (an odd number of whole 24px cells, so the centre is a cell centre). It opens from its centre to the 36-point torn polygon on .bullet-hole, in lengths so clip-path interpolates. */

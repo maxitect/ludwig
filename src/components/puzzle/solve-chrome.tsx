@@ -16,8 +16,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -26,6 +28,11 @@ import {
   revealCell,
   saveState,
 } from "@/lib/actions/puzzles";
+import {
+  setDeviceKeyboard,
+  useDeviceKeyboard,
+  useKeyboardInset,
+} from "@/puzzles/_shared/puzzle-keyboard";
 import type { WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
 import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
@@ -114,6 +121,8 @@ export function SolveChrome({
   >(null);
   const latestCheck = useRef<() => void>(undefined);
   const solved = solvedMs !== null;
+  const deviceKeyboard = useDeviceKeyboard();
+  const keyboardInset = useKeyboardInset(deviceKeyboard);
 
   const registerCheck = useCallback<SolverProps["registerCheck"]>((read) => {
     readAnswer.current = read;
@@ -290,6 +299,13 @@ export function SolveChrome({
             <DropdownMenuItem disabled={pending} onSelect={reset}>
               Reset
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem
+              checked={deviceKeyboard}
+              onCheckedChange={setDeviceKeyboard}
+            >
+              Use my device&apos;s keyboard
+            </DropdownMenuCheckboxItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
@@ -386,6 +402,7 @@ export function SolveChrome({
 
       <div
         data-testid="solve-slot"
+        style={{ marginBottom: keyboardInset }}
         className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
       />
     </section>

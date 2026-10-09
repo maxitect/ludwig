@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   CellGrid,
   cellKey,
   type CellAnnotation,
+  type CellGridHandle,
   type Direction,
 } from "@/puzzles/_shared/cell-grid";
+import { PuzzleKeyboard } from "@/puzzles/_shared/puzzle-keyboard";
 
 const ROWS = 5;
 const COLS = 5;
@@ -43,9 +45,11 @@ function annotation(row: number, col: number): CellAnnotation | undefined {
 export function CellGridDemo() {
   const [values, setValues] = useState(INITIAL);
   const [direction, setDirection] = useState<Direction>("across");
+  const grid = useRef<CellGridHandle>(null);
   return (
     <div className="flex w-full flex-col gap-2">
       <CellGrid
+        ref={grid}
         label="Demo grid"
         rows={ROWS}
         cols={COLS}
@@ -62,6 +66,23 @@ export function CellGridDemo() {
         words={WORDS}
       />
       <p className="font-sans text-sm">Direction: {direction}</p>
+      <PuzzleKeyboard
+        layout="alpha"
+        onKey={(char) => grid.current?.type(char)}
+        onErase={() => grid.current?.erase()}
+      />
+      <p className="font-sans text-sm">Keyboard specimens (always shown)</p>
+      <PuzzleKeyboard
+        forceVisible
+        layout="digits"
+        digits={[1, 2, 3, 4, 5, 6, 7, 8, 9]}
+        onKey={() => {}}
+        onErase={() => {}}
+      >
+        <button type="button" className="h-12 border-2 border-border bg-card px-3 font-display font-bold uppercase text-card-foreground">
+          Check cell
+        </button>
+      </PuzzleKeyboard>
     </div>
   );
 }

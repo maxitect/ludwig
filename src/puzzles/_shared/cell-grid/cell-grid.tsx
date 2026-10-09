@@ -22,6 +22,10 @@ import {
   type CellPosition,
   type Direction,
 } from "./navigation";
+import {
+  showPad,
+  usePuzzleKeyboard,
+} from "@/puzzles/_shared/puzzle-keyboard/keyboard-store";
 
 export type CellAnnotation = { content: ReactNode; label: string };
 
@@ -66,7 +70,13 @@ export type CellGridProps = {
   ref?: Ref<CellGridHandle>;
 };
 
-export type CellGridHandle = { focus: () => void };
+export type CellGridHandle = {
+  focus: () => void;
+  /** Types a character as a physical key would. */
+  type: (char: string) => void;
+  /** Erases as Backspace would. */
+  erase: () => void;
+};
 
 const ARROWS: Partial<Record<string, CellPosition>> = {
   ArrowUp: { row: -1, col: 0 },
@@ -128,7 +138,7 @@ export function CellGrid({
   const cellRefs = useRef(new Map<CellKey, HTMLDivElement>());
   const cell = snappedCell(cols, rows);
 
-  useImperativeHandle(ref, () => ({ focus: () => inputRef.current?.focus() }));
+  const padActive = usePuzzleKeyboard();
 
   useEffect(() => {
     const focused = document.activeElement;
@@ -169,6 +179,12 @@ export function CellGrid({
     setActive(back);
   };
 
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+    type: enter,
+    erase,
+  }));
+
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     const arrow = ARROWS[event.key];
@@ -203,6 +219,7 @@ export function CellGrid({
   };
 
   const select = (position: CellPosition) => {
+    showPad();
     const engaged = rootRef.current?.contains(document.activeElement);
     if (engaged && position.row === active.row && position.col === active.col) {
       toggleDirection();
@@ -344,7 +361,7 @@ export function CellGrid({
         ref={inputRef}
         aria-label={`${label} input`}
         tabIndex={-1}
-        inputMode={inputMode}
+        inputMode={padActive ? "none" : inputMode}
         autoCapitalize="characters"
         autoComplete="off"
         autoCorrect="off"

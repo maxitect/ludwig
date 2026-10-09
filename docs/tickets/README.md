@@ -95,7 +95,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T056](./T056-type-odd-one-out.md) | Puzzle type: odd one out | T019 | ✔ | | done |
 | [T057](./T057-type-napkin-maths.md) | Puzzle type: napkin maths | T019 | ✔ | | done |
 | [T058](./T058-shared-visibility-engine.md) | Shared `visibility.ts` engine | T016 | | | done |
-| [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | todo |
+| [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | done |
 | [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | todo |
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | done |
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode D): tables, clue kinds, engine | T016 | ✔ | | done |
@@ -121,7 +121,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |
 | [T112](./T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | done |
 | [T113](./T113-solve-mode-layout.md) | Solve mode, the full-height phone layout for the solve page | T018, T112 | | | done |
-| [T114](./T114-puzzle-keyboard.md) | Shared on-screen `PuzzleKeyboard`, `CellGrid` keyboard mode and the device-keyboard setting | T113 | | | todo |
+| [T114](./T114-puzzle-keyboard.md) | Shared on-screen `PuzzleKeyboard`, `CellGrid` keyboard mode and the device-keyboard setting | T113 | | | done |
 | [T115](./T115-crossword-on-phones.md) | Crossword on phones (clue bar, clue sheet, keyboard) | T114 | | | todo |
 | [T116](./T116-keyboard-other-types.md) | On-screen keyboard for sudoku, futoshiki and the ciphers | T114 | | | todo |
 | [T117](./T117-touch-pass.md) | Touch pass (tap targets, chess tap-to-move, spot-difference compare, Android backspace, WebKit project) | T113 | | | todo |
@@ -132,7 +132,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T124](./T124-states-contrast-focus.md) | Disabled, error, contrast and focus states | T120 | | | done |
 | [T125](./T125-grid-lines-textures.md) | Single-draw grid lines, crossword numbers on phones, and textures | — | | | done |
 | [T126](./T126-themed-not-found.md) | Themed 404 page and the root script-tag error | — | | | done |
-| [T127](./T127-book-cipher-layout.md) | Book cipher: lines never wrap on desktop, clear continuations on phones, aligned references | T120 | | | todo |
+| [T127](./T127-book-cipher-layout.md) | Book cipher: lines never wrap on desktop, clear continuations on phones, aligned references | T120 | | | done |
 | [T128](./T128-page-polish.md) | Per-page polish (rota, hubs, collection, sign-in, kitchen sink) | T120 | | | done |
 | [T129](./T129-puzzle-preview-engine.md) | Puzzle preview engine and per-puzzle thumbnails | — | | | todo |
 | [T130](./T130-collection-type-thumbnails.md) | Collection type cards show a representative preview | T129, T128 | | | todo |

@@ -22,7 +22,7 @@ describe("verifyNapkinMaths", () => {
   });
 
   it("rejects a missing or blank answer", () => {
-    const { answer: _answer, ...withoutAnswer } = content;
+    const withoutAnswer = { questionText: content.questionText, lines: content.lines };
     expect(contentSchema.safeParse(withoutAnswer).success).toBe(false);
     expect(contentSchema.safeParse({ ...content, answer: "four" }).success).toBe(false);
     expect(() => verifyNapkinMaths({ ...content, answer: " " }, { workings })).toThrow("answer");

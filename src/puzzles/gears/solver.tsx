@@ -214,6 +214,7 @@ export function Solver({
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
+              variant="secondary"
               className="self-start"
               disabled={solved || !atConvergence}
               aria-describedby={offConvergence ? accuseHint : undefined}

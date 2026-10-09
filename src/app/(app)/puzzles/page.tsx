@@ -36,22 +36,35 @@ export default async function PuzzlesPage() {
           <ul className="grid gap-4 sm:grid-cols-2">
             {category.types.map((type) => (
               <li key={type.key}>
-                <Link
-                  href={`/puzzles/${type.key}`}
-                  className="flex h-full flex-col gap-2 border-2 border-border p-4 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
-                >
-                  <span className="flex items-center justify-between gap-3">
-                    <span className="font-display text-lg font-bold tracking-[0.04em] uppercase">
-                      {type.name}
+                {type.published > 0 ? (
+                  <Link
+                    href={`/puzzles/${type.key}`}
+                    className="flex h-full flex-col gap-2 border-2 border-border p-4 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  >
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+                        {type.name}
+                      </span>
+                      <Badge variant="outline">{type.published} published</Badge>
                     </span>
-                    <Badge variant="outline">
-                      {type.published} published
-                    </Badge>
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {type.description}
-                  </span>
-                </Link>
+                    <span className="text-sm text-muted-foreground">
+                      {type.description}
+                    </span>
+                  </Link>
+                ) : (
+                  <div
+                    data-testid="coming-soon"
+                    className="flex h-full flex-col gap-2 border-2 border-dashed border-muted-foreground p-4 text-muted-foreground"
+                  >
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+                        {type.name}
+                      </span>
+                      <Badge variant="outline">Coming soon</Badge>
+                    </span>
+                    <span className="text-sm">{type.description}</span>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

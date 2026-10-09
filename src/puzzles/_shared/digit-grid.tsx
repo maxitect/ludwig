@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/utils/cn";
+import { PuzzleKeyboard, usePadWanted } from "./puzzle-keyboard";
+import { SolveSlot } from "./solve-slot";
 import {
   CellGrid,
   cellKey,
@@ -69,7 +77,9 @@ export function DigitGrid({
   );
   const givens = useMemo(
     () =>
-      new Map(givenCells.map(({ row, col, digit }) => [cellKey(row, col), digit])),
+      new Map(
+        givenCells.map(({ row, col, digit }) => [cellKey(row, col), digit]),
+      ),
     [givenCells],
   );
   const given = useMemo(() => new Set(givens.keys()), [givens]);
@@ -95,6 +105,11 @@ export function DigitGrid({
   const [notesMode, setNotesMode] = useState(false);
   const checkOnEntry = useRef(false);
   const grid = useRef<CellGridHandle>(null);
+  const padWanted = usePadWanted();
+  const digitKeys = useMemo(
+    () => Array.from({ length: size }, (_, index) => index + 1),
+    [size],
+  );
   const wrong = useMemo(
     () => new Set(wrongCells?.map(({ row, col }) => cellKey(row, col))),
     [wrongCells],
@@ -167,10 +182,36 @@ export function DigitGrid({
     if (event.key.toLowerCase() === "n") setNotesMode((on) => !on);
   }
 
+  const actions = (
+    <>
+      <Toggle
+        pressed={notesMode}
+        onPressedChange={(on) => {
+          setNotesMode(on);
+          grid.current?.focus();
+        }}
+      >
+        Notes
+      </Toggle>
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        disabled={!notes.size}
+        onClick={() => {
+          report(digits, new Map());
+          grid.current?.focus();
+        }}
+      >
+        Clear notes
+      </Button>
+    </>
+  );
+
   return (
-    <div className="flex flex-col gap-6" onKeyDown={onKeyDown}>
+    <div className="flex flex-col gap-6 touch:gap-0" onKeyDown={onKeyDown}>
       <p className="sr-only">{instructions}</p>
-      <div className={cn("mx-auto w-full max-w-xl p-4", className)}>
+      <div className={cn("mx-auto w-full max-w-xl p-4 touch:px-0", className)}>
         <CellGrid
           {...gridProps}
           ref={grid}
@@ -209,32 +250,32 @@ export function DigitGrid({
           }}
         />
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <Toggle
-          pressed={notesMode}
-          onPressedChange={(on) => {
-            setNotesMode(on);
-            grid.current?.focus();
-          }}
-        >
-          Notes
-        </Toggle>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled={!notes.size}
-          onClick={() => {
-            report(digits, new Map());
-            grid.current?.focus();
-          }}
-        >
-          Clear notes
-        </Button>
-        <p role="status" aria-live="polite">
+      <div className="flex flex-wrap items-center gap-3 touch:contents">
+        <div className="contents touch:hidden">{actions}</div>
+        <p role="status" aria-live="polite" className="touch:sr-only">
           {notesMode ? "Notes on: digits are pencilled in." : ""}
         </p>
       </div>
+      <SolveSlot>
+        <div className="flex flex-col gap-1 pt-2">
+          {!padWanted && (
+            <div
+              className="flex gap-1 [&>*]:flex-1"
+              onPointerDown={(event) => event.preventDefault()}
+            >
+              {actions}
+            </div>
+          )}
+          <PuzzleKeyboard
+            layout="digits"
+            digits={digitKeys}
+            onKey={(char) => grid.current?.type(char)}
+            onErase={() => grid.current?.erase()}
+          >
+            {actions}
+          </PuzzleKeyboard>
+        </div>
+      </SolveSlot>
     </div>
   );
 }

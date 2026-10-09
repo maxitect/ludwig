@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/utils/cn";
+import { usePadWanted } from "../_shared/puzzle-keyboard";
 import { CipherKeyPanel } from "../_shared/cipher-key/cipher-key-panel";
 import { useCipherGuesses } from "../_shared/cipher-key/use-cipher-guesses";
 import type { SolverProps } from "../solver-types";
@@ -11,6 +13,7 @@ export function Solver({
   onStateChange,
   registerCheck,
 }: SolverProps<typeof schema>) {
+  const padWanted = usePadWanted();
   const { guesses, guess, clear } = useCipherGuesses({
     ciphertext,
     savedAnswer: initialState?.answer,
@@ -20,7 +23,7 @@ export function Solver({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-lg">
+      <p className={cn("text-lg", padWanted && "sr-only")}>
         Every letter has moved the same number of places along the alphabet.
         Find the shift, then write what each letter was before it moved.
       </p>

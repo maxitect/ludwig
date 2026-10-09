@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Suspense } from "react";
+import { type ComponentProps, Suspense } from "react";
 import { UserSlot } from "@/components/auth/user-slot";
 import { Walker, Wordmark } from "@/components/brand";
 import { navLinks } from "@/config/nav";
@@ -8,7 +8,7 @@ import { MobileNav } from "./mobile-nav";
 export function SiteHeader({
   collectionTransitionTypes,
 }: {
-  collectionTransitionTypes?: string[];
+  collectionTransitionTypes?: ComponentProps<typeof Link>["transitionTypes"];
 }) {
   return (
     <header
@@ -36,7 +36,7 @@ export function SiteHeader({
         <Suspense fallback={<Walker className="h-8 w-28" />}>
           <UserSlot />
         </Suspense>
-        <MobileNav />
+        <MobileNav collectionTransitionTypes={collectionTransitionTypes} />
       </div>
     </header>
   );

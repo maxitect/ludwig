@@ -111,10 +111,10 @@ export function Solver({
   return (
     <section
       onKeyDown={onKeyDown}
-      className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,32rem)_1fr]"
+      className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,26rem)_minmax(15rem,1fr)]"
     >
       <div className="flex flex-col gap-3">
-        <p className="text-sm">
+        <p>
           The board shows the final rota. Tap or select two tokens (or drag one
           onto another) to unswap them, until every worker is back on the
           intended rota. Press U to undo.
@@ -204,7 +204,7 @@ export function Solver({
           </p>
         </section>
         {restored && !solved && (
-          <p className="text-sm">
+          <p>
             Everyone is back on the intended rota. Press Check.
           </p>
         )}

@@ -196,6 +196,7 @@ function DiagramSections({
               <EntryList
                 entries={diagrams.filter(({ difficulty }) => difficulty === level)}
                 solved={solved}
+                showDifficulty={false}
               />
             </div>
           ))
@@ -260,10 +261,12 @@ function EntryList({
   entries,
   solved,
   href = gearHref,
+  showDifficulty = true,
 }: {
   entries: Entry[];
   solved: SolvedIds;
   href?: (slug: string) => string;
+  showDifficulty?: boolean;
 }) {
   return (
     <ul className="flex flex-col">
@@ -277,7 +280,9 @@ function EntryList({
               <Suspense fallback={null}>
                 <SolvedBadge puzzleId={puzzle.id} solved={solved} />
               </Suspense>
-              <Badge variant="difficulty" level={puzzle.difficulty} />
+              {showDifficulty && (
+                <Badge variant="difficulty" level={puzzle.difficulty} />
+              )}
             </span>
           </Link>
         </li>

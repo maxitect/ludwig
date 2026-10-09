@@ -48,6 +48,7 @@ export function CellGridDemo() {
   const grid = useRef<CellGridHandle>(null);
   return (
     <div className="flex w-full flex-col gap-2">
+      <div data-testid="keyboard-demo" className="flex flex-col gap-2">
       <CellGrid
         ref={grid}
         label="Demo grid"
@@ -71,6 +72,7 @@ export function CellGridDemo() {
         onKey={(char) => grid.current?.type(char)}
         onErase={() => grid.current?.erase()}
       />
+      </div>
       <p className="font-sans text-sm">Keyboard specimens (always shown)</p>
       <PuzzleKeyboard
         forceVisible

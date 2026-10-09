@@ -58,13 +58,18 @@ function onKeyDown(event: KeyboardEvent) {
   emit();
 }
 
+const touchMedia = () =>
+  typeof window.matchMedia === "function"
+    ? window.matchMedia(TOUCH_QUERY)
+    : null;
+
 function attach() {
   document.addEventListener("keydown", onKeyDown, true);
-  const media = window.matchMedia(TOUCH_QUERY);
-  media.addEventListener("change", emit);
+  const media = touchMedia();
+  media?.addEventListener("change", emit);
   return () => {
     document.removeEventListener("keydown", onKeyDown, true);
-    media.removeEventListener("change", emit);
+    media?.removeEventListener("change", emit);
   };
 }
 
@@ -81,7 +86,7 @@ function subscribe(listener: () => void) {
 }
 
 const padWanted = () =>
-  window.matchMedia(TOUCH_QUERY).matches && !getDeviceKeyboard() && !hardwareSeen;
+  touchMedia()?.matches === true && !getDeviceKeyboard() && !hardwareSeen;
 
 const padActive = () => padMounts > 0 && padWanted();
 

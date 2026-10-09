@@ -58,7 +58,7 @@ export function Solver({
             const result = answerSchema.safeParse({ answer: next });
             onStateChange({ answer: result.success ? result.data.answer : null });
           }}
-          className="font-hand text-3xl text-hand"
+          className="border-2 border-border bg-card px-3 font-hand text-3xl text-hand"
         />
         <p
           id={`${inputId}-hint`}

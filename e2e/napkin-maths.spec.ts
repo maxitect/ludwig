@@ -46,9 +46,7 @@ test("a keyboard solve of the numeric answer is saved and recorded", async ({
       !body.includes('"mode"')
     );
   });
-  await page.keyboard.press("Backspace");
-  await page.keyboard.press("Backspace");
-  await page.keyboard.type("54.0");
+  await input.fill("54.0");
   await saved;
   if (databaseAvailable) {
     await expect

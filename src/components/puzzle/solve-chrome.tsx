@@ -33,6 +33,7 @@ import {
   useDeviceKeyboard,
   useKeyboardInset,
 } from "@/puzzles/_shared/puzzle-keyboard";
+import { SolveSlotProvider } from "@/puzzles/_shared/solve-slot";
 import type { WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
 import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
@@ -102,6 +103,7 @@ export function SolveChrome({
   const [wrongParts, setWrongParts] = useState<WrongPart[]>();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [slot, setSlot] = useState<HTMLDivElement | null>(null);
   const hydrated = useSyncExternalStore(
     subscribeNever,
     () => true,
@@ -256,155 +258,158 @@ export function SolveChrome({
   }
 
   return (
-    <section
-      data-solve-mode
-      className="flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
-    >
-      <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
-        <Link
-          href={`/puzzles/${typeKey}`}
-          aria-label={`Back to ${typeName}`}
-          className="hidden size-10 shrink-0 items-center justify-center focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring touch:flex"
-        >
-          <ChevronLeftIcon aria-hidden="true" />
-        </Link>
-        <Credit
-          level={1}
-          top={category}
-          bottom={title}
-          className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl touch:min-w-0 touch:flex-1 touch:[&>span:first-child]:hidden touch:[&>span:last-child]:truncate touch:[&>span:last-child]:text-lg"
-        />
-        <div className="flex items-center gap-4 touch:shrink-0">
-          <Badge variant="difficulty" level={difficulty} className="touch:hidden" />
-          <p className="font-mono text-lg tabular-nums">
-            <span className="sr-only">Elapsed time </span>
-            {formatDuration(solved ? solvedMs : timer.displayMs)}
-          </p>
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Puzzle menu"
-              className="hidden touch:inline-flex"
-            >
-              <EllipsisVerticalIcon aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem disabled={pending || solved} onSelect={check}>
-              Check
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled={pending} onSelect={reset}>
-              Reset
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={deviceKeyboard}
-              onCheckedChange={setDeviceKeyboard}
-            >
-              Use my device&apos;s keyboard
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </header>
-
-      <div
-        key={attempt}
-        className="touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:px-4 touch:[--solver-height:100cqh] touch:[container-type:size]"
-        onKeyDown={(event) => {
-          if (
-            event.key === "Enter" &&
-            !event.defaultPrevented &&
-            event.target instanceof Element &&
-            !event.target.closest("button, a, input, textarea, select")
-          ) {
-            check();
-          }
-        }}
+    <SolveSlotProvider value={slot}>
+      <section
+        data-solve-mode
+        className="flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
       >
-        {signedIn || localState !== undefined ? (
-          <Solver
-            key={resumeLocal ? "local" : "initial"}
-            payload={payload}
-            initialState={
-              attempt === 0 ? (resumeLocal ? localState : initialState) : null
-            }
-            onStateChange={onStateChange}
-            registerCheck={registerCheck}
-            requestCheck={requestCheck}
-            solved={solved}
-            chessNotation={chessNotation}
-            rungProblems={rungProblems}
-            wrongParts={wrongParts}
-            checkCell={solved ? undefined : checkCell}
-            revealCell={solved ? undefined : revealCellValue}
+        <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
+          <Link
+            href={`/puzzles/${typeKey}`}
+            aria-label={`Back to ${typeName}`}
+            className="hidden size-10 shrink-0 items-center justify-center focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring touch:flex"
+          >
+            <ChevronLeftIcon aria-hidden="true" />
+          </Link>
+          <Credit
+            level={1}
+            top={category}
+            bottom={title}
+            className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl touch:min-w-0 touch:flex-1 touch:[&>span:first-child]:hidden touch:[&>span:last-child]:truncate touch:[&>span:last-child]:text-lg"
           />
-        ) : (
-          <Walker />
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-3 touch:hidden">
-        <Button onClick={check} disabled={pending || solved}>
-          Check
-        </Button>
-        <Button variant="secondary" onClick={reset} disabled={pending}>
-          Reset
-        </Button>
-      </div>
-
-      <div
-        role="status"
-        aria-live="polite"
-        className="min-h-6 touch:-order-1 touch:shrink-0 touch:truncate touch:px-4 touch:py-1"
-      >
-        {notice === "cell-sign-in" ? (
-          <p className="touch:truncate">
-            <Link href={signInHref} className="underline underline-offset-4">
-              Sign in
-            </Link>{" "}
-            to check or reveal individual cells.
-          </p>
-        ) : (
-          notice && (
-            <p className="touch:truncate">
-              {noticeText[notice]}
-              {notice === "wrong" && wrongParts?.length
-                ? ` ${wrongParts.length} ${wrongParts.length === 1 ? "part is" : "parts are"} marked wrong.`
-                : ""}
+          <div className="flex items-center gap-4 touch:shrink-0">
+            <Badge variant="difficulty" level={difficulty} className="touch:hidden" />
+            <p className="font-mono text-lg tabular-nums">
+              <span className="sr-only">Elapsed time </span>
+              {formatDuration(solved ? solvedMs : timer.displayMs)}
             </p>
-          )
-        )}
-      </div>
-
-      {solved && (
-        <footer className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto">
-          <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] touch:[--hole-size:216px]">
-            <BulletHole data-testid="solved-hole" />
-            <SolvedStamp delay={0.3} data-testid="solved-stamp" />
           </div>
-          <p>
-            Solved in{" "}
-            <span className="font-mono tabular-nums">
-              {formatDuration(solvedMs)}
-            </span>
-          </p>
-          {epilogue && <p data-testid="epilogue">{epilogue}</p>}
-          {nextHref && (
-            <Button asChild variant="secondary">
-              <Link href={nextHref}>Next in volume</Link>
-            </Button>
-          )}
-        </footer>
-      )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Puzzle menu"
+                className="hidden touch:inline-flex"
+              >
+                <EllipsisVerticalIcon aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem disabled={pending || solved} onSelect={check}>
+                Check
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled={pending} onSelect={reset}>
+                Reset
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem
+                checked={deviceKeyboard}
+                onCheckedChange={setDeviceKeyboard}
+              >
+                Use my device&apos;s keyboard
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
 
-      <div
-        data-testid="solve-slot"
-        style={{ marginBottom: keyboardInset }}
-        className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
-      />
-    </section>
+        <div
+          key={attempt}
+          className="touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:px-4 touch:[--solver-height:100cqh] touch:[container-type:size]"
+          onKeyDown={(event) => {
+            if (
+              event.key === "Enter" &&
+              !event.defaultPrevented &&
+              event.target instanceof Element &&
+              !event.target.closest("button, a, input, textarea, select")
+            ) {
+              check();
+            }
+          }}
+        >
+          {signedIn || localState !== undefined ? (
+            <Solver
+              key={resumeLocal ? "local" : "initial"}
+              payload={payload}
+              initialState={
+                attempt === 0 ? (resumeLocal ? localState : initialState) : null
+              }
+              onStateChange={onStateChange}
+              registerCheck={registerCheck}
+              requestCheck={requestCheck}
+              solved={solved}
+              chessNotation={chessNotation}
+              rungProblems={rungProblems}
+              wrongParts={wrongParts}
+              checkCell={solved ? undefined : checkCell}
+              revealCell={solved ? undefined : revealCellValue}
+            />
+          ) : (
+            <Walker />
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-3 touch:hidden">
+          <Button onClick={check} disabled={pending || solved}>
+            Check
+          </Button>
+          <Button variant="secondary" onClick={reset} disabled={pending}>
+            Reset
+          </Button>
+        </div>
+
+        <div
+          role="status"
+          aria-live="polite"
+          className="min-h-6 touch:-order-1 touch:shrink-0 touch:truncate touch:px-4 touch:py-1"
+        >
+          {notice === "cell-sign-in" ? (
+            <p className="touch:truncate">
+              <Link href={signInHref} className="underline underline-offset-4">
+                Sign in
+              </Link>{" "}
+              to check or reveal individual cells.
+            </p>
+          ) : (
+            notice && (
+              <p className="touch:truncate">
+                {noticeText[notice]}
+                {notice === "wrong" && wrongParts?.length
+                  ? ` ${wrongParts.length} ${wrongParts.length === 1 ? "part is" : "parts are"} marked wrong.`
+                  : ""}
+              </p>
+            )
+          )}
+        </div>
+
+        {solved && (
+          <footer className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto">
+            <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] touch:[--hole-size:216px]">
+              <BulletHole data-testid="solved-hole" />
+              <SolvedStamp delay={0.3} data-testid="solved-stamp" />
+            </div>
+            <p>
+              Solved in{" "}
+              <span className="font-mono tabular-nums">
+                {formatDuration(solvedMs)}
+              </span>
+            </p>
+            {epilogue && <p data-testid="epilogue">{epilogue}</p>}
+            {nextHref && (
+              <Button asChild variant="secondary">
+                <Link href={nextHref}>Next in volume</Link>
+              </Button>
+            )}
+          </footer>
+        )}
+
+        <div
+          ref={setSlot}
+          data-testid="solve-slot"
+          style={{ marginBottom: keyboardInset }}
+          className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
+        />
+      </section>
+    </SolveSlotProvider>
   );
 }

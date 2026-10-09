@@ -4,6 +4,7 @@ export {
   setDeviceKeyboard,
   showPad,
   useDeviceKeyboard,
+  usePadWanted,
   usePuzzleKeyboard,
 } from "./keyboard-store";
 export { useKeyboardInset } from "./use-keyboard-inset";

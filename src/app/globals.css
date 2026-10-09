@@ -6,6 +6,17 @@
   }
 }
 
+@custom-variant ink {
+  &:where([data-theme="ink"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme]) *) {
+      @slot;
+    }
+  }
+}
+
 @custom-variant motion-safe {
   @media (prefers-reduced-motion: no-preference) {
     &:where(:root:not([data-reduce-motion]) *) {

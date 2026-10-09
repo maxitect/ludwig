@@ -49,7 +49,7 @@ function Key({
 export function PuzzleKeyboard(props: PuzzleKeyboardProps) {
   const { onKey, onErase, children, className, forceVisible } = props;
   const wanted = usePadWanted();
-  useEffect(registerPad, []);
+  useEffect(() => (forceVisible ? undefined : registerPad()), [forceVisible]);
   if (!wanted && !forceVisible) return null;
 
   const rows =

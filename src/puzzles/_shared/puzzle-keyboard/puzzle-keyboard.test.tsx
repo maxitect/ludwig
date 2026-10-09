@@ -10,7 +10,7 @@ import { useKeyboardInset } from "./use-keyboard-inset";
 
 const CELLS = new Set([cellKey(0, 0), cellKey(0, 1), cellKey(0, 2)]);
 
-function Harness() {
+function Harness({ forceVisible }: { forceVisible?: boolean }) {
   const grid = useRef<CellGridHandle>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   return (
@@ -30,6 +30,7 @@ function Harness() {
       />
       <PuzzleKeyboard
         layout="alpha"
+        forceVisible={forceVisible}
         onKey={(char) => grid.current?.type(char)}
         onErase={() => grid.current?.erase()}
       />
@@ -81,6 +82,14 @@ describe("PuzzleKeyboard", () => {
     expect(screen.getByLabelText("Test input").getAttribute("inputmode")).toBe(
       "none",
     );
+  });
+
+  it("leaves the system keyboard alone for a specimen pad", () => {
+    stubTouch(true);
+    render(<Harness forceVisible />);
+    expect(
+      screen.getByLabelText("Test input").getAttribute("inputmode"),
+    ).not.toBe("none");
   });
 
   it("is hidden away from touch", () => {

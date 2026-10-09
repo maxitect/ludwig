@@ -1,6 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
+import { checkPuzzleAnswer } from "@/lib/data/puzzles";
 import {
   createTestUser,
   deleteTestUsers,
@@ -361,6 +362,17 @@ describe("sightlines module", () => {
     expect(
       check(await load(puzzleId), solution, { marks: solution }).correct,
     ).toBe(true);
+  });
+
+  it("returns no wrong-cell count to the client", async () => {
+    const wrong = await checkPuzzleAnswer("sightlines", puzzleId, {
+      marks: [{ row: 0, col: 4 }],
+    });
+    expect(wrong).toEqual({ correct: false });
+    const right = await checkPuzzleAnswer("sightlines", puzzleId, {
+      marks: await loadSolution(puzzleId),
+    });
+    expect(right).toEqual({ correct: true });
   });
 
   it("updates the layout in place", async () => {

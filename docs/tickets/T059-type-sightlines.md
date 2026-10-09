@@ -45,7 +45,7 @@ This is the S1E3 "perceptual puzzle" (SPEC §1.2): who could see the alcove past
   - _Verify (cli):_ it passes on the content and fails on a broken copy.
 - [ ] **AC4**: The payload contains the layout only.
   - _Verify (unit):_ the payload leak test passes.
-- [ ] **AC5**: `check` requires the marked set to equal the derived set, and returns `cellsWrong`, covering both missing and extra cells.
+- [ ] **AC5**: `check` requires the marked set to equal the derived set, and computes `cellsWrong`, covering both missing and extra cells. The count stays server-side: the result `checkPuzzleAnswer` returns to the browser is `{ correct }` only.
   - _Verify (unit)._
 - [ ] **AC6**: Signed in, marks persist and completion is recorded.
   - _Verify (browser + db):_ `sightlines_attempt_marks` has rows, and `completed_at` is set.

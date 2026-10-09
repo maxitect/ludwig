@@ -19,7 +19,9 @@ export const sightlinesModule = {
   meta: { key: "sightlines" },
   load,
   loadSolution,
-  check,
+  check: (payload, solution, answer) => ({
+    correct: check(payload, solution, answer).correct,
+  }),
   verify: verifySightlines,
   async upsertContent(tx, puzzleId, { grid, targetRow, targetCol, observers }) {
     const rows = grid.length;

@@ -163,28 +163,6 @@
   transform-origin: 20% 90%;
 }
 
-.seq-piece-ink {
-  display: none;
-}
-
-:root[data-theme="ink"] .seq-piece-paper {
-  display: none;
-}
-
-:root[data-theme="ink"] .seq-piece-ink {
-  display: block;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .seq-piece-paper {
-    display: none;
-  }
-
-  :root:not([data-theme]) .seq-piece-ink {
-    display: block;
-  }
-}
-
 .seq-cast {
   position: absolute;
   left: 10%;

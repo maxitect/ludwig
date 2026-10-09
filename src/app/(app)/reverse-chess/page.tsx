@@ -93,10 +93,10 @@ export default async function ReverseChessPage() {
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         {DECORATIVE_PIECES.map(({ piece, className }) => (
           <div key={piece} className={`hub-piece absolute ${className}`}>
-            <div className="hub-piece-paper size-full">
+            <div className="size-full ink:hidden">
               <PieceGlyph colour="white" piece={piece} />
             </div>
-            <div className="hub-piece-ink size-full">
+            <div className="hidden size-full ink:block">
               <PieceGlyph colour="black" piece={piece} />
             </div>
           </div>

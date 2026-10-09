@@ -91,8 +91,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T052](./T052-type-caesar-keyword.md) | Puzzle types: caesar and keyword (shared cipher-key panel) | T019 | ✔ | | done |
 | [T053](./T053-type-book-cipher.md) | Puzzle type: book cipher and `book_texts` | T052 | ✔ | | done |
 | [T054](./T054-type-pictogram-cipher.md) | Puzzle type: pictogram cipher and glyph set | T052 | ✔ | | done |
-| [T055](./T055-type-knights-knaves.md) | Puzzle type: knights and knaves | T019 | ✔ | | todo |
-| [T056](./T056-type-odd-one-out.md) | Puzzle type: odd one out | T019 | ✔ | | todo |
+| [T055](./T055-type-knights-knaves.md) | Puzzle type: knights and knaves | T019 | ✔ | | done |
+| [T056](./T056-type-odd-one-out.md) | Puzzle type: odd one out | T019 | ✔ | | done |
 | [T057](./T057-type-napkin-maths.md) | Puzzle type: napkin maths | T019 | ✔ | | todo |
 | [T058](./T058-shared-visibility-engine.md) | Shared `visibility.ts` engine | T016 | | | done |
 | [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | todo |
@@ -120,16 +120,16 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |
 | [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |
 | [T112](./T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | done |
-| [T113](./T113-solve-mode-layout.md) | Solve mode, the full-height phone layout for the solve page | T018, T112 | | | todo |
+| [T113](./T113-solve-mode-layout.md) | Solve mode, the full-height phone layout for the solve page | T018, T112 | | | done |
 | [T114](./T114-puzzle-keyboard.md) | Shared on-screen `PuzzleKeyboard`, `CellGrid` keyboard mode and the device-keyboard setting | T113 | | | todo |
 | [T115](./T115-crossword-on-phones.md) | Crossword on phones (clue bar, clue sheet, keyboard) | T114 | | | todo |
 | [T116](./T116-keyboard-other-types.md) | On-screen keyboard for sudoku, futoshiki and the ciphers | T114 | | | todo |
 | [T117](./T117-touch-pass.md) | Touch pass (tap targets, chess tap-to-move, spot-difference compare, Android backspace, WebKit project) | T113 | | | todo |
-| [T120](./T120-theme-surfaces-cast-shadows.md) | Theme-aware surfaces and cast shadows, with a guard against raw tokens | — | | | todo |
-| [T121](./T121-chess-piece-outlines.md) | Chess pieces outlined in the opposite colour in both themes | T120 | | | todo |
-| [T122](./T122-solved-footer-tear.md) | Solved footer, a small, ordered, framed tear behind the stamp | T120 | | | todo |
+| [T120](./T120-theme-surfaces-cast-shadows.md) | Theme-aware surfaces and cast shadows, with a guard against raw tokens | — | | | done |
+| [T121](./T121-chess-piece-outlines.md) | Chess pieces outlined in the opposite colour in both themes | T120 | | | done |
+| [T122](./T122-solved-footer-tear.md) | Solved footer, a small, ordered, framed tear behind the stamp | T120 | | | done |
 | [T123](./T123-simplify-bullet-route-transition.md) | Simplify the bullet-hole route transition into the Collection | T122 | | | todo |
-| [T124](./T124-states-contrast-focus.md) | Disabled, error, contrast and focus states | T120 | | | todo |
+| [T124](./T124-states-contrast-focus.md) | Disabled, error, contrast and focus states | T120 | | | done |
 | [T125](./T125-grid-lines-textures.md) | Single-draw grid lines, crossword numbers on phones, and textures | — | | | done |
 | [T126](./T126-themed-not-found.md) | Themed 404 page and the root script-tag error | — | | | done |
 | [T127](./T127-book-cipher-layout.md) | Book cipher: lines never wrap on desktop, clear continuations on phones, aligned references | T120 | | | todo |
@@ -139,7 +139,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T131](./T131-check-shows-wrong-parts.md) | A failed check names the wrong parts, in the shared contract and the UI | T048, T100 | | | todo |
 | [T134](./T134-volume-position.md) | Order puzzles within a volume by an authored position | — | ✔ | | todo |
 | [T135](./T135-crossword-content-polish.md) | Crossword content polish (fill, repeated roots, symmetry) | T080 | | | todo |
-| [T136](./T136-generated-sudoku-futoshiki-content.md) | Generated sudoku and futoshiki at difficulties 3 and 4 | T100 | | | todo |
+| [T136](./T136-generated-sudoku-futoshiki-content.md) | Generated sudoku and futoshiki at difficulties 3 and 4 | T100 | | | done |
 | [T137](./T137-reverse-chess-mode-letters.md) | Reverse Chess mode letters: Proof Game is Mode C, the Rota is Mode D | — | | | done |
 | [T138](./T138-v1-reveal-and-desk-scope.md) | Hide Reveal where it isn't built, and mark the Desk as post-launch | — | | | done |
 

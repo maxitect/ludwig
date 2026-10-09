@@ -169,11 +169,7 @@
   bottom: 6%;
   width: 210%;
   height: 34%;
-  background: linear-gradient(
-    90deg,
-    var(--color-shadow),
-    color-mix(in srgb, var(--color-shadow) 0%, transparent)
-  );
+  background: var(--color-shadow);
   clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 100%);
   opacity: 0.65;
 }

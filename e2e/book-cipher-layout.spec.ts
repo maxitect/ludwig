@@ -23,16 +23,17 @@ async function pageCount(page: Page) {
   return Number(label?.match(/of (\d+)/)?.[1]);
 }
 
-function wrappedLines(page: Page) {
+function brokenLines(page: Page) {
   return page.evaluate(() =>
     [...document.querySelectorAll<HTMLElement>(".book-line")]
       .filter((li) => {
+        const text = li.querySelector<HTMLElement>(".book-text")!;
         const tops = new Set(
           [...li.querySelectorAll<HTMLElement>("[data-word]")].map(
             (word) => word.offsetTop,
           ),
         );
-        return tops.size > 1;
+        return tops.size > 1 || text.scrollWidth > text.clientWidth;
       })
       .map((li) => li.textContent),
   );
@@ -42,7 +43,7 @@ test.describe("desktop and tablet widths", () => {
   test.skip(({ isMobile }) => isMobile, "desktop only");
 
   for (const width of [1280, 1024]) {
-    test(`no book line wraps at ${width}px`, async ({ page }) => {
+    test(`no book line wraps or overflows at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       for (const slug of slugs) {
         await openPuzzle(page, { typeKey: "book-cipher", slug });
@@ -51,7 +52,7 @@ test.describe("desktop and tablet widths", () => {
         await page.getByRole("region", { name: /page \d+ of/ }).focus();
         await page.keyboard.press("Home");
         for (let i = 1; i <= pages; i++) {
-          expect(await wrappedLines(page), `${slug} page ${i}`).toEqual([]);
+          expect(await brokenLines(page),`${slug} page ${i}`).toEqual([]);
           if (i < pages) await next.click();
         }
         const fontSize = await page

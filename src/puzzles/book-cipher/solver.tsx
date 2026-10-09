@@ -19,9 +19,9 @@ import type { SolverProps } from "../solver-types";
 const EMPTY = "_";
 
 /** Widest average advance of a book line in Jost, in em per character, with a margin for wide glyphs. */
-export const JOST_EM_PER_CHAR = 0.52;
-export const MIN_LINE_FONT_PX = 14;
-export const LINE_NUMBER_COLUMN_PX = 36;
+const JOST_EM_PER_CHAR = 0.52;
+const MIN_LINE_FONT_PX = 14;
+const LINE_NUMBER_COLUMN_PX = 36;
 const BODY_FONT = "1.125rem";
 
 const LINE_FONT_SIZE = `max(${MIN_LINE_FONT_PX}px, min(${BODY_FONT}, calc((100cqi - ${LINE_NUMBER_COLUMN_PX}px) / ${LINE_WIDTH * JOST_EM_PER_CHAR})))`;
@@ -45,9 +45,9 @@ function useRowStarts(
   useLayoutEffect(() => {
     const node = list.current;
     if (!node) return;
-    function measure() {
+    const measure = () => {
       const found: string[] = [];
-      for (const item of node!.querySelectorAll("li")) {
+      for (const item of node.querySelectorAll("li")) {
         let top: number | null = null;
         for (const word of item.querySelectorAll<HTMLElement>("[data-word]")) {
           if (top !== null && word.offsetTop > top + 2) {
@@ -57,7 +57,7 @@ function useRowStarts(
         }
       }
       setStarts(found.join(","));
-    }
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(node);
@@ -197,25 +197,25 @@ export function Solver({
                         <Fragment key={index}>
                           {index > 0 ? " " : null}
                           <span data-word={index + 1} className="relative">
-                          {rowStarts.includes(`${line}-${index + 1}`) ? (
-                            <span
-                              aria-hidden="true"
-                              className="book-turn absolute -left-[1.1em] text-ink-soft"
-                            >
-                              ↪
-                            </span>
-                          ) : null}
-                          {here ? (
-                            <mark
-                              aria-current="location"
-                              className="bg-ink px-1 text-paper"
-                            >
-                              <span className="sr-only">{`Page ${page}, line ${line}, word ${index + 1}: `}</span>
-                              {word}
-                            </mark>
-                          ) : (
-                            word
-                          )}
+                            {rowStarts.includes(`${line}-${index + 1}`) ? (
+                              <span
+                                aria-hidden="true"
+                                className="book-turn absolute -left-[1.1em] text-ink-soft"
+                              >
+                                ↪
+                              </span>
+                            ) : null}
+                            {here ? (
+                              <mark
+                                aria-current="location"
+                                className="bg-ink px-1 text-paper"
+                              >
+                                <span className="sr-only">{`Page ${page}, line ${line}, word ${index + 1}: `}</span>
+                                {word}
+                              </mark>
+                            ) : (
+                              word
+                            )}
                           </span>
                         </Fragment>
                       );

@@ -92,7 +92,13 @@ export default async function TypePage({
           </ul>
         </section>
       )}
-      <Suspense fallback={<Walker />}>
+      <Suspense
+        fallback={
+          <div className="min-h-[70dvh]">
+            <Walker />
+          </div>
+        }
+      >
         <PuzzleList
           typeKey={type.key}
           puzzles={catalogue.puzzles}

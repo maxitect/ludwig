@@ -39,7 +39,13 @@ export default async function SolvePage({
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-8 touch:h-dvh touch:max-w-none touch:gap-0 touch:overflow-hidden touch:p-0">
-      <Suspense fallback={<Walker />}>
+      <Suspense
+        fallback={
+          <div className="min-h-dvh">
+            <Walker />
+          </div>
+        }
+      >
         <Solve typeKey={type} slug={slug} summary={summary} />
       </Suspense>
     </main>

@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "ab05df77-2934-4010-ba42-cc053b59c44e",
+  "id": "f38e324d-302b-457c-a713-b4284fc01c60",
   "prevIds": [
-    "035a74dd-78f2-4b6f-b9d4-3be75ae55e57"
+    "e4d6dad5-fe38-4e55-904c-b443e8a96301"
   ],
   "ddl": [
     {
@@ -245,6 +245,15 @@
         "nw"
       ],
       "name": "compass8",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": [
+        "north",
+        "west"
+      ],
+      "name": "wall_side",
       "entityType": "enums",
       "schema": "public"
     },
@@ -953,6 +962,36 @@
     {
       "isRlsEnabled": false,
       "name": "sightlines_puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cctv_maze_attempt_steps",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cctv_maze_attempts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cctv_maze_cameras",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cctv_maze_puzzles",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "cctv_maze_walls",
       "entityType": "tables",
       "schema": "public"
     },
@@ -7518,6 +7557,324 @@
       "name": "attempt_id",
       "entityType": "columns",
       "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "step",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_attempts"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'cctv-maze'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_attempts"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "type": "compass8",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "facing",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "fov_deg",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "range_cells",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": {
+        "as": "'cctv-maze'",
+        "type": "stored"
+      },
+      "identity": null,
+      "name": "type_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "rows",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "cols",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "start_row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "start_col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "exit_row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "exit_col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "puzzle_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_walls"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "row",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_walls"
+    },
+    {
+      "type": "smallint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "col",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_walls"
+    },
+    {
+      "type": "wall_side",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "side",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "cctv_maze_walls"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "attempt_id",
+      "entityType": "columns",
+      "schema": "public",
       "table": "word_search_attempt_found"
     },
     {
@@ -10515,6 +10872,95 @@
     {
       "nameExplicit": true,
       "columns": [
+        "attempt_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cctv_maze_attempts",
+      "columnsTo": [
+        "attempt_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cctv_maze_attempt_steps_attempt_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "attempt_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "attempts",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cctv_maze_attempts_attempt_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cctv_maze_attempts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cctv_maze_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cctv_maze_cameras_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id",
+        "type_key"
+      ],
+      "schemaTo": "public",
+      "tableTo": "puzzles",
+      "columnsTo": [
+        "id",
+        "type_key"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cctv_maze_puzzles_puzzle_id_type_key_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "puzzle_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "cctv_maze_puzzles",
+      "columnsTo": [
+        "puzzle_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "cctv_maze_walls_puzzle_id_fk",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "cctv_maze_walls"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
         "attempt_id",
         "puzzle_id"
       ],
@@ -11184,6 +11630,42 @@
       "entityType": "pks",
       "schema": "public",
       "table": "sightlines_obstacles"
+    },
+    {
+      "columns": [
+        "attempt_id",
+        "step"
+      ],
+      "nameExplicit": true,
+      "name": "cctv_maze_attempt_steps_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "row",
+        "col"
+      ],
+      "nameExplicit": true,
+      "name": "cctv_maze_cameras_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "columns": [
+        "puzzle_id",
+        "row",
+        "col",
+        "side"
+      ],
+      "nameExplicit": true,
+      "name": "cctv_maze_walls_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "cctv_maze_walls"
     },
     {
       "columns": [
@@ -11917,6 +12399,26 @@
       "name": "sightlines_puzzles_pkey",
       "schema": "public",
       "table": "sightlines_puzzles",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "attempt_id"
+      ],
+      "nameExplicit": false,
+      "name": "cctv_maze_attempts_pkey",
+      "schema": "public",
+      "table": "cctv_maze_attempts",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "puzzle_id"
+      ],
+      "nameExplicit": false,
+      "name": "cctv_maze_puzzles_pkey",
+      "schema": "public",
+      "table": "cctv_maze_puzzles",
       "entityType": "pks"
     },
     {
@@ -13246,6 +13748,111 @@
       "entityType": "checks",
       "schema": "public",
       "table": "sightlines_puzzles"
+    },
+    {
+      "value": "\"step\" >= 0",
+      "name": "cctv_maze_attempt_steps_step_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "value": "\"row\" >= 0",
+      "name": "cctv_maze_attempt_steps_row_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "value": "\"col\" >= 0",
+      "name": "cctv_maze_attempt_steps_col_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_attempt_steps"
+    },
+    {
+      "value": "\"row\" >= 0",
+      "name": "cctv_maze_cameras_row_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "value": "\"col\" >= 0",
+      "name": "cctv_maze_cameras_col_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "value": "\"fov_deg\" between 1 and 360",
+      "name": "cctv_maze_cameras_fov_deg_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "value": "\"range_cells\" >= 1",
+      "name": "cctv_maze_cameras_range_cells_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_cameras"
+    },
+    {
+      "value": "\"rows\" between 3 and 15",
+      "name": "cctv_maze_puzzles_rows_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "value": "\"cols\" between 3 and 15",
+      "name": "cctv_maze_puzzles_cols_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "value": "\"start_row\" between 0 and \"rows\" - 1",
+      "name": "cctv_maze_puzzles_start_row_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "value": "\"start_col\" between 0 and \"cols\" - 1",
+      "name": "cctv_maze_puzzles_start_col_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "value": "\"exit_row\" between 0 and \"rows\" - 1",
+      "name": "cctv_maze_puzzles_exit_row_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "value": "\"exit_col\" between 0 and \"cols\" - 1",
+      "name": "cctv_maze_puzzles_exit_col_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_puzzles"
+    },
+    {
+      "value": "\"row\" >= 0",
+      "name": "cctv_maze_walls_row_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_walls"
+    },
+    {
+      "value": "\"col\" >= 0",
+      "name": "cctv_maze_walls_col_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "cctv_maze_walls"
     },
     {
       "value": "\"row\" >= 0",

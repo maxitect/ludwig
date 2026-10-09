@@ -22,15 +22,16 @@ skills: []
 
 The research, measurements and rejected alternatives are in `docs/research/landing-wall-animation.md`.
 
-The research also found that on phones and tablets the left side wall swings in front of The Board for the whole Board window, and at 1280px for a moment at 50%. Nothing drawn on the Board would be visible at 390px today, so the camera fix is part of this ticket.
+The research also found that the left side wall swings across the view and covers the back wall. At 390px and 768px it covers The Board for the whole Board window, so nothing drawn on the Board would be visible. The owner likes that effect: the wall sweeping across forms a partition between rooms. So this ticket makes it a deliberate feature, **a wall crossing between rooms**. The wall sweeps across only in the transition windows, hiding the swap from one room's wall to the next, and the camera settles during each room's dwell window so the room's content is fully visible.
 
 ## Scope
 
 **In**
 
-- **Camera.**
-  - The peak of `@keyframes seq-world` reads `rotateY(var(--seq-swing))`, with `--seq-swing` set to 4° below 48rem, 12° from 48rem and 16° from 64rem. These are the measured values at which the left wall no longer covers the Board (research §2).
-  - The other keyframe stops stay as they are.
+- **Camera and wall crossings.**
+  - Every room is left through a wall. The side wall (`.seq-wall-left`) sweeps across the view and fully covers the back wall at three track positions: **33%** (The Grid to The Board), **65%** (The Board to The Mirror) and **88%** (The Mirror to the finale). The wall swap behind it (`seq-wall-grid`, `seq-wall-board` and `seq-wall-mirror` opacity, currently 28–38% and 60–70%) is timed to happen while the wall covers the view, so the change of room reads as passing through a partition, not a crossfade. Retime those opacity keyframes if the crossing peaks need it.
+  - `@keyframes seq-world` gets stops: crossing peaks at 33%, 65% and 88% use `rotateY(22deg) rotateX(4deg) translateZ(260px)` (today's 50% pose; tune per viewport so the wall reads as solid at 390px, 768px and 1280px), and calm stops between them use `rotateY(var(--seq-calm))` with `--seq-calm` set to 4° below 48rem, 12° from 48rem and 16° from 64rem. These are the measured values at which the side wall does not cover the Board (research §2). The start and end poses stay as they are.
+  - The side wall must read as a wall, not a glitch: opaque and textured at the peak (it is the same grid tile as the floor today), no flicker from the opacity swaps, and the crossing lasts about 10% of the track (a wall sweeps past, it doesn't linger).
 - **The Board.**
   - Pieces are `PieceGlyph` children of `.seq-wall-board`, one cell (`var(--seq-cell)`) square, placed in cell units from a centred e-file.
   - The checker is recentred with `background-position: calc(50% + var(--seq-cell) / 2) 0`, so e8 is light in Paper.
@@ -64,6 +65,7 @@ The research also found that on phones and tablets the left side wall swings in 
 **Out**
 
 - Restructuring the duplicated native and fallback rule blocks in `title-sequence.css`.
+- A door, window or gap in the crossing wall, and any change to the wall artwork.
 - The one layout and style recalc per scroll frame that the landing already does (T069).
 - New artwork (the knife in a square), or more motion on the toppled foreground pieces.
 - three.js, WebGL or any new dependency.
@@ -79,8 +81,8 @@ The research also found that on phones and tablets the left side wall swings in 
 
 ## Acceptance criteria
 
-- [ ] **AC1**: The Board is no longer hidden by the side wall.
-  - _Verify (browser):_ In `e2e/landing-walls.spec.ts`, at 390×844, 768×1024 and 1280×800, for track progress 0.38 to 0.60 in 0.02 steps, take a screenshot clipped to the middle 80% of `.seq-wall-board`'s bounding box, hide `.seq-wall-left`, and screenshot again. The two buffers are identical at every step.
+- [ ] **AC1**: Each room is seen unobstructed, and each room is left through a wall.
+  - _Verify (browser):_ In `e2e/landing-walls.spec.ts`, at 390×844, 768×1024 and 1280×800, for dwell windows (Grid 0.06 to 0.26, Board 0.41 to 0.58, Mirror 0.72 to 0.86, in 0.02 steps), take a screenshot clipped to the middle 80% of the room's wall, hide `.seq-wall-left`, and screenshot again. The two buffers are identical at every step. At progress 0.33, 0.65 and 0.88, the side wall's on-screen bounding box covers at least 70% of the viewport width, and the active room's wall opacity changes only between 0.30 and 0.36, 0.62 and 0.68, and 0.85 and 0.91 respectively. Take a screenshot of each crossing at each viewport.
 - [ ] **AC2**: The game unwinds in cell units on the scroll timeline.
   - _Verify (browser):_ At progress 0.40, the queen's computed `translate` is `0px 0px`. At 0.58, it is three cells up: `0px -240px` with today's 80px `--seq-cell`. The black d-pawn's opacity is 0 at 0.46 and 1 at 0.50. Take screenshots at 0.40, 0.46, 0.52 and 0.58 at 1280px and 390px.
 - [ ] **AC3**: The game is legal.

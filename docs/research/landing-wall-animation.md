@@ -131,3 +131,7 @@ Both words sit inside columns 0 to 2, so they are visible on a phone. Each word 
   - `getAnimations()` empty under reduced motion and with `data-reduce-motion`;
   - a frame-time guard at 390px with 4× throttle.
 - **Fallback in e2e.** Run the spec in Playwright's Firefox, launched with `firefoxUserPrefs: { "layout.css.scroll-driven-animations.enabled": false }` so the fallback is exercised even when a newer Firefox ships view timelines. Assert that `data-seq-scroll` is set and that the queen's computed `translate` at 50% matches Chromium's.
+
+## 9. Decision update: the side wall becomes a feature
+
+The owner likes the side wall sweeping across the view, because it reads as a wall between rooms. The recommendation in section 2 (shrink the swing so the wall never covers the Board) is superseded: keep the large swing, but only at three crossing points (33%, 65% and 88% of the track), with the camera calm in each room's dwell window using the measured safe angles. The room swaps are retimed to happen while the wall covers the view. T140 carries this, and its AC1 checks both halves: unobstructed dwell windows, and the wall covering at least 70% of the viewport width at each crossing. The safe-angle table in section 2 still applies to the dwell windows.

@@ -7,13 +7,19 @@ import { contentMetaSchema } from "../src/lib/data/puzzle-upsert";
 import { type Provenance, generatedSchema } from "../src/puzzles/generators";
 import type { PuzzleRegistry } from "../src/puzzles/registry";
 
-export type ContentMeta = z.infer<typeof contentMetaSchema>;
+const fileMetaSchema = contentMetaSchema.extend({
+  reviewNote: z.string().optional(),
+});
+
+export type ContentMeta = z.infer<typeof fileMetaSchema>;
 
 export type ContentFile = {
   typeKey: string;
   slug: string;
   file: string;
-  meta: ContentMeta;
+  meta: z.infer<typeof contentMetaSchema>;
+  /** Why the content is unique, for types a machine cannot prove. Never stored. */
+  reviewNote?: string;
   content: unknown;
   generated?: Provenance;
 };
@@ -46,7 +52,7 @@ export async function loadContentFiles(
     const typeDir = path.join(contentDir, typeKey);
     if (!existsSync(typeDir)) continue;
     const fileSchema = z.object({
-      meta: contentMetaSchema,
+      meta: fileMetaSchema,
       content: module.schema.contentSchema,
       generated: generatedSchema.optional(),
     });
@@ -76,7 +82,16 @@ export async function loadContentFiles(
             error: `meta.slug: must equal the file name "${slug}"`,
           });
         } else {
-          files.push({ typeKey, slug, file, ...parsed.data });
+          const { reviewNote, ...meta } = parsed.data.meta;
+          files.push({
+            typeKey,
+            slug,
+            file,
+            meta,
+            reviewNote,
+            content: parsed.data.content,
+            generated: parsed.data.generated,
+          });
         }
       } catch (error) {
         failures.push({

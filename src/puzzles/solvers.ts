@@ -10,6 +10,7 @@ import { Solver as gearsSolver } from "./gears/solver";
 import { Solver as keywordSolver } from "./keyword/solver";
 import { Solver as knightsKnavesSolver } from "./knights-knaves/solver";
 import { Solver as logicGridSolver } from "./logic-grid/solver";
+import { Solver as oddOneOutSolver } from "./odd-one-out/solver";
 import { Solver as pictogramCipherSolver } from "./pictogram-cipher/solver";
 import { Solver as reverseChessSolver } from "./reverse-chess/solver";
 import { Solver as rotaSolver } from "./rota/solver";
@@ -33,6 +34,7 @@ export const solvers: Readonly<Record<string, SolverComponent | null>> = {
   keyword: keywordSolver,
   "knights-knaves": knightsKnavesSolver,
   "logic-grid": logicGridSolver,
+  "odd-one-out": oddOneOutSolver,
   "pictogram-cipher": pictogramCipherSolver,
   "reverse-chess": reverseChessSolver,
   rota: rotaSolver,

@@ -12,6 +12,7 @@ import { gearsModule } from "./gears/module";
 import { keywordModule } from "./keyword/module";
 import { knightsKnavesModule } from "./knights-knaves/module";
 import { logicGridModule } from "./logic-grid/module";
+import { oddOneOutModule } from "./odd-one-out/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
@@ -76,8 +77,14 @@ export type PuzzleTypeModule<
   ): Promise<z.infer<S["attemptSchema"]> | null>;
   /** Deletes the attempt's saved state, so a reset survives a reload. */
   clearAttemptState(attemptId: string): Promise<void>;
-  /** Throws if the content is not uniquely solvable. */
-  verify?(content: z.infer<S["contentSchema"]>): void;
+  /**
+   * Throws if the content is not uniquely solvable. `authoring` carries the file's meta notes
+   * that are not stored, for types whose uniqueness only a human can judge.
+   */
+  verify?(
+    content: z.infer<S["contentSchema"]>,
+    authoring: { reviewNote?: string },
+  ): void;
 };
 
 export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;
@@ -94,6 +101,7 @@ export const registry: PuzzleRegistry = {
   [keywordModule.meta.key]: keywordModule,
   [knightsKnavesModule.meta.key]: knightsKnavesModule,
   [logicGridModule.meta.key]: logicGridModule,
+  [oddOneOutModule.meta.key]: oddOneOutModule,
   [pictogramCipherModule.meta.key]: pictogramCipherModule,
   [reverseChessModule.meta.key]: reverseChessModule,
   [rotaModule.meta.key]: rotaModule,

@@ -42,11 +42,19 @@ export async function verifyPuzzles(
   const { files, failures } = await loadContentFiles(registry, contentDir);
   const all: ContentFailure[] = [...failures];
   const durations = new Map<string, number>();
-  for (const { typeKey, slug, file, meta, content, generated } of files) {
+  for (const {
+    typeKey,
+    slug,
+    file,
+    meta,
+    reviewNote,
+    content,
+    generated,
+  } of files) {
     const started = performance.now();
     try {
       if (generated) verifyRegeneration(generated, meta.difficulty, content);
-      registry[typeKey].verify?.(content);
+      registry[typeKey].verify?.(content, { reviewNote });
       durations.set(`${typeKey}/${slug}`, Math.round(performance.now() - started));
     } catch (error) {
       all.push({

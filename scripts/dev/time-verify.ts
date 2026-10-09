@@ -7,13 +7,13 @@ async function main() {
   const { registry, contentDir } = await resolveCliOptions(process.argv.slice(2));
   const { files } = await loadContentFiles(registry, contentDir);
   const byType = new Map<string, number[]>();
-  for (const { typeKey, slug, content } of files) {
+  for (const { typeKey, slug, content, reviewNote } of files) {
     const verify = registry[typeKey].verify;
     if (!verify) continue;
     const samples: number[] = [];
     for (let i = 0; i < RUNS; i++) {
       const started = performance.now();
-      verify(content);
+      verify(content, { reviewNote });
       samples.push(performance.now() - started);
     }
     samples.sort((a, b) => a - b);

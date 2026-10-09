@@ -253,6 +253,28 @@ export async function knightsKnavesAttemptFor(email: string) {
   }
 }
 
+export async function oddOneOutAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{
+      itemPosition: number | null;
+      completed: boolean;
+    }>(
+      `select o.item_position as "itemPosition", a.completed_at is not null as completed
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join odd_one_out_attempts o on o.attempt_id = a.id
+        where u.email = $1`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function acrosticAttemptFor(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

@@ -187,6 +187,7 @@ Plus **This Week**: the `weekly_pairs` seed and the `/this-week` page.
 - **Puzzle previews** (T129–T130): a static preview per type drawn from the payload, shown on shelf cards and on the Collection type cards.
 
   Both land before the accessibility audit and the performance pass.
+- **Landing wall motion** (T140, nice-to-have, research in `docs/research/landing-wall-animation.md`): a game unwinding on The Board, letters filling The Grid and digits in The Mirror, scrubbed by scroll, plus the camera fix that keeps The Board visible on phones. It does not block the audit, the performance pass or launch.
 - **Footer** with the cburnett attribution and the not-affiliated note.
 - **Production domain,** a final seed, launch.
 

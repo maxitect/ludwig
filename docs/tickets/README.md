@@ -142,6 +142,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T136](./T136-generated-sudoku-futoshiki-content.md) | Generated sudoku and futoshiki at difficulties 3 and 4 | T100 | | | done |
 | [T137](./T137-reverse-chess-mode-letters.md) | Reverse Chess mode letters: Proof Game is Mode C, the Rota is Mode D | — | | | done |
 | [T138](./T138-v1-reveal-and-desk-scope.md) | Hide Reveal where it isn't built, and mark the Desk as post-launch | — | | | done |
+| [T140](./T140-landing-wall-motion.md) | Landing walls come alive, a game unwinding on The Board, letters on The Grid and digits in The Mirror (nice-to-have) | T067 | | | todo |
 
 ## M6: Radio Times set
 

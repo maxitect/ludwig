@@ -360,6 +360,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.knightsKnavesAttemptRoles.attemptId,
     }),
   },
+  oddOneOutPuzzles: {
+    items: r.many.oddOneOutItems({
+      from: r.oddOneOutPuzzles.puzzleId,
+      to: r.oddOneOutItems.puzzleId,
+    }),
+  },
   wordSearchPuzzles: {
     cells: r.many.wordSearchCells({
       from: r.wordSearchPuzzles.puzzleId,

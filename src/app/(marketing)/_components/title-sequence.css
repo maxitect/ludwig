@@ -169,11 +169,7 @@
   bottom: 6%;
   width: 210%;
   height: 34%;
-  background: linear-gradient(
-    90deg,
-    var(--color-shadow),
-    color-mix(in srgb, var(--color-shadow) 0%, transparent)
-  );
+  background: var(--color-shadow);
   clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 100%);
   opacity: 0.65;
 }
@@ -260,6 +256,16 @@
   background: var(--background);
   padding: 0.25rem 0.5rem;
   white-space: nowrap;
+}
+
+.seq-caption:hover .seq-caption-to,
+.seq-caption:focus-visible .seq-caption-to {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.seq-caption-to {
+  font-weight: 400;
 }
 
 .seq-finale {
@@ -381,10 +387,12 @@
   0%,
   26% {
     opacity: 1;
+    pointer-events: auto;
   }
   34%,
   100% {
     opacity: 0;
+    pointer-events: none;
   }
 }
 
@@ -392,14 +400,17 @@
   0%,
   28% {
     opacity: 0;
+    pointer-events: none;
   }
   38%,
   58% {
     opacity: 1;
+    pointer-events: auto;
   }
   66%,
   100% {
     opacity: 0;
+    pointer-events: none;
   }
 }
 
@@ -407,10 +418,12 @@
   0%,
   60% {
     opacity: 0;
+    pointer-events: none;
   }
   70%,
   100% {
     opacity: 1;
+    pointer-events: auto;
   }
 }
 
@@ -439,18 +452,100 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    :where(:root:not([data-reduce-motion])) {
-      .seq-track {
-        height: 400dvh;
-        view-timeline: --seq block;
-      }
+  :where(:root:not([data-reduce-motion])) {
+    .seq-track {
+      height: 400dvh;
+    }
 
-      .seq-stage {
-        position: sticky;
-        top: 0;
-        height: 100dvh;
-        min-height: 0;
+    .seq-stage {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      min-height: 0;
+    }
+
+    .seq-world,
+    .seq-hero,
+    .seq-wall-grid,
+    .seq-wall-board,
+    .seq-wall-mirror,
+    .seq-caption,
+    .seq-walker .walker-figure,
+    .seq-piece {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-iteration-count: 1;
+      animation-duration: 1s;
+      animation-play-state: paused;
+      animation-delay: calc(var(--seq-progress, 0) * -1s);
+    }
+
+    .seq-world {
+      animation-name: seq-world;
+    }
+
+    .seq-hero {
+      animation-name: seq-hero-out;
+    }
+
+    .seq-wall-grid {
+      animation-name: seq-wall-grid;
+    }
+
+    .seq-wall-board {
+      animation-name: seq-wall-board;
+    }
+
+    .seq-wall-mirror {
+      animation-name: seq-wall-mirror;
+    }
+
+    .seq-captions {
+      height: 2rem;
+    }
+
+    .seq-caption {
+      position: absolute;
+      left: 50%;
+      translate: -50% 0;
+    }
+
+    .seq-caption-1 {
+      animation-name: seq-caption-1;
+    }
+
+    .seq-caption-2 {
+      animation-name: seq-caption-2;
+    }
+
+    .seq-caption-3 {
+      animation-name: seq-caption-3;
+    }
+
+    .seq-captions .seq-caption:focus-visible {
+      z-index: 1;
+      animation-name: none;
+    }
+
+    .seq-walker .walker-figure {
+      animation-name: seq-walk;
+    }
+
+    .seq-piece-a {
+      animation-name: seq-piece-a;
+    }
+
+    .seq-piece-b {
+      animation-name: seq-piece-b;
+    }
+
+    .seq-piece-c {
+      animation-name: seq-piece-c;
+    }
+
+    @supports (animation-timeline: view()) {
+      .seq-track {
+        view-timeline: --seq block;
       }
 
       .seq-world,
@@ -461,70 +556,11 @@
       .seq-caption,
       .seq-walker .walker-figure,
       .seq-piece {
-        animation-timing-function: linear;
-        animation-fill-mode: both;
+        animation-duration: auto;
+        animation-play-state: running;
+        animation-delay: 0s;
         animation-timeline: --seq;
         animation-range: entry 100% exit 0%;
-      }
-
-      .seq-world {
-        animation-name: seq-world;
-      }
-
-      .seq-hero {
-        animation-name: seq-hero-out;
-      }
-
-      .seq-wall-grid {
-        animation-name: seq-wall-grid;
-      }
-
-      .seq-wall-board {
-        animation-name: seq-wall-board;
-      }
-
-      .seq-wall-mirror {
-        animation-name: seq-wall-mirror;
-      }
-
-      .seq-captions {
-        height: 2rem;
-      }
-
-      .seq-caption {
-        position: absolute;
-        left: 50%;
-        translate: -50% 0;
-      }
-
-      .seq-caption-1 {
-        animation-name: seq-caption-1;
-      }
-
-      .seq-caption-2 {
-        animation-name: seq-caption-2;
-      }
-
-      .seq-caption-3 {
-        animation-name: seq-caption-3;
-      }
-
-      .seq-walker .walker-figure {
-        animation-name: seq-walk;
-        animation-duration: auto;
-        animation-iteration-count: 1;
-      }
-
-      .seq-piece-a {
-        animation-name: seq-piece-a;
-      }
-
-      .seq-piece-b {
-        animation-name: seq-piece-b;
-      }
-
-      .seq-piece-c {
-        animation-name: seq-piece-c;
       }
     }
   }

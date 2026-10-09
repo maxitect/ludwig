@@ -4,9 +4,14 @@ import { Button } from "@/components/ui/button";
 import { PieceGlyph } from "@/puzzles/_shared/chess-board/pieces";
 import type { PieceKind } from "@/puzzles/_shared/chess-board/squares";
 import { MirroredSudoku } from "./mirrored-sudoku";
+import { ScrollFallback } from "./scroll-fallback";
 import "./title-sequence.css";
 
-const ROOMS = ["The Grid", "The Board", "The Mirror"] as const;
+const ROOMS = [
+  { name: "The Grid", to: "Word puzzles", href: "/puzzles#word" },
+  { name: "The Board", to: "Reverse Chess", href: "/reverse-chess" },
+  { name: "The Mirror", to: "Logic puzzles", href: "/puzzles#logic" },
+] as const;
 
 function ToppledPiece({
   className,
@@ -19,7 +24,12 @@ function ToppledPiece({
     <div aria-hidden="true" className={`seq-piece ${className}`}>
       <div className="seq-cast" />
       <div className="seq-piece-body">
-        <PieceGlyph colour="white" piece={piece} />
+        <div className="size-full ink:hidden">
+          <PieceGlyph colour="white" piece={piece} />
+        </div>
+        <div className="hidden size-full ink:block">
+          <PieceGlyph colour="black" piece={piece} />
+        </div>
       </div>
     </div>
   );
@@ -28,6 +38,7 @@ function ToppledPiece({
 export function TitleSequence() {
   return (
     <main className="title-sequence">
+      <ScrollFallback />
       <div className="seq-track">
         <div className="seq-stage">
           <div aria-hidden="true" className="seq-scene">
@@ -66,16 +77,18 @@ export function TitleSequence() {
             aria-label="A small silhouette walking across a grid"
             className="seq-walker h-14 w-full border-x-0 bg-background"
           />
-          <p aria-hidden="true" className="seq-captions">
-            {ROOMS.map((room, index) => (
-              <span
-                key={room}
+          <nav aria-label="Rooms" className="seq-captions">
+            {ROOMS.map(({ name, to, href }, index) => (
+              <Link
+                key={name}
+                href={href}
                 className={`seq-caption seq-caption-${index + 1}`}
               >
-                Room {index + 1}. {room}
-              </span>
+                Room {index + 1}. {name}
+                <span className="seq-caption-to"> · {to} →</span>
+              </Link>
             ))}
-          </p>
+          </nav>
         </div>
       </div>
       <section className="seq-finale">

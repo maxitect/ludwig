@@ -191,7 +191,7 @@ These types come from the Radio Times special (section 1.2.1) and from KrazyDad'
 ## 3. Information architecture
 
 ```
-/                          Title-sequence landing (the signed-in Desk is post-launch)
+/                          Title-sequence landing for everyone (the signed-in Desk is post-launch). Its three room captions are links: The Grid to Word puzzles (/puzzles#word), The Board to Reverse Chess (/reverse-chess), The Mirror to Logic puzzles (/puzzles#logic)
 /sign-in  /sign-up
 /puzzles                   The Collection: all categories
 /puzzles/[type]            Category index (volumes, difficulty filter)
@@ -612,7 +612,7 @@ Defined in `src/app/globals.css` with Tailwind v4 `@theme` and mapped onto shadc
 **Dark theme ("Ink", modelled on the title card):**
 
 - `background` → `#0A0B0D` with grain, `foreground` → paper
-- `card` and `popover` → ink, so raised surfaces are dark, not blue; the light `border` and the light `--cast` shadow separate them from the page
+- `card` and `popover` → ink, so dialogs, menus and toasts are dark, not blue; the light `border` and the light `--cast` shadow separate them from the page. Puzzle "pages" (book cipher book and references, cipher key panel, anagram and letter tiles, acrostic letter, rota tokens) are not `card`: they use the `paper-sheet` utility (ink border, paper fill, ink text) and stay paper in Ink, like paper on a desk. Their block shadow is `--sheet-cast`: the same as `--cast` in Paper, and paper at 70% in Ink, lighter than `--cast` so the sheet stands out
 - `muted` → paper at 14% over ink (dark, non-blue), used for active clue rows, hover states and selected toggle cells
 - `--cast` → paper at 45% (3.8:1 against ink), `--hand` → paper (crayon is too dark on ink)
 - `destructive` → ludwig-red at 65% over paper (blood is invisible on ink, and plain ludwig-red is only 3.2:1), 4.5:1 or better against ink, so error text and the `aria-invalid` underline pass; `destructive-foreground` → ink
@@ -625,10 +625,11 @@ All text and background pairs must pass WCAG AA. Red on paper (`#C40C12` on `#E9
 
 - **Paper grain.** A single tiled noise PNG of about 512px, kept under 40 KB and generated once from an SVG `feTurbulence`. It is applied through a `body::before` overlay with `mix-blend-mode: multiply` at around 0.35 opacity. It is never a live SVG filter, for performance.
 - **Raking light.** An optional `.raking` utility adds a large diagonal linear-gradient of blue-grey shadow stripes at low opacity, used on hero sections and the landing page.
-- **Grid paper.** The `.grid-paper` background is a CSS `background-image` of dot-and-cross (·×) on a 24px pitch, used on the Casebook, Settings, the signed-in landing desk and in scratch areas. It fills the page down to the footer, and in Ink its marks are toned down to 30%.
+- **Grid paper.** The `.grid-paper` background is a CSS `background-image` of dot-and-cross (·×) on a 24px pitch, used on the Casebook, Settings and in scratch areas. It fills the page down to the footer, and in Ink its marks are toned down to 30%.
 - **Crossword cells everywhere.** Square corners (`--radius: 0`), 2px ink borders, and small superscript clue numbers on cards and buttons where they make sense.
 - **Red hand-filled letters.** Letters the user enters in grids render in `--font-hand` and `--crayon`/`--ludwig-red`, with a ±2° random rotation per cell seeded by its index for stable SSR.
-- **Ink splat.** An SVG asset placed behind the wordmark on the landing hero and the sign-in card.
+- **Ink splat.** An SVG asset placed behind the wordmark on the landing hero and the sign-in card. On the landing hero the wordmark has no box: it sits on the textured page in the foreground colour (ink in Paper, paper in Ink) with the splat behind it. The splat is `ludwig-red` (the button red) in Paper, so it stays clear of the black text, and `blood` in Ink.
+- **Clinical, never soft.** No fades anywhere: no blurred shadows, no gradients that blend one colour into another, no cast shadow that fades along its length. Gradients appear only as hard-stop patterns (grid lines, checks, raking stripes).
 - **Silhouette walker.** A small black SVG figure that walks across grid cells. It is used as the **loading indicator** (`loading.tsx` / Suspense fallbacks) and on empty states.
 - **White chess pieces.** Large, with long blue shadows, used as decorative elements on the landing page and the Reverse Chess hub.
 - **Bullet-hole transition.** As the landing-to-app route transition, a torn circular hole expands to reveal the blue grid. This uses the View Transitions API through Next's view-transition support, with `prefers-reduced-motion` falling back to a fade.
@@ -657,7 +658,7 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 
 - **Lucide** (`lucide-react`, ISC): the shadcn default, used for general UI such as search, pencil, eraser, undo, settings, timer, check, eye, lightbulb and grid.
 - **Tabler Icons** (`@tabler/icons-react`, MIT): used for chess glyphs in UI chrome (`IconChessKing`, `IconChessQueen`, `IconChessKnight`, `IconChessBishop`, `IconChessRook`, `IconChess`) and cog/gear variants. Lucide's chess coverage is thin.
-- **Board pieces:** a dedicated SVG set. White pieces are paper with an ink outline and black pieces ink with a paper outline, in both themes, with a long cast shadow built from at most two `drop-shadow` passes in the `--cast` token. File and rank labels are bold with a hard halo in the opposite colour so they stay readable over pieces. Off the board (the uncapture tray and the side-to-move king) a glyph sits on a paper tile, so black reads as black in Ink too. The king's cross has a halo in the piece's body colour, so it shows on either square. cburnett (Lichess) is GPL-2.0+/CC BY-SA, so it needs attribution and may have copyleft implications. If that is a problem, the alternatives are commissioned or self-drawn pieces. A decision is needed (see section 10).
+- **Board pieces:** a dedicated SVG set. White pieces are paper with an ink outline in both themes, so they stay legible on light squares. Black pieces are ink with a paper outline, in both themes. Each has the long blue-grey `shadow` drop shadow, a stack of eight 0.6px `drop-shadow` steps; keep that look. File and rank labels are bold with a hard halo in the opposite colour so they stay readable over pieces. Off the board (the uncapture tray and the side-to-move king) a glyph sits on a paper tile, so black reads as black in Ink too. The king's cross has a halo in the piece's body colour, so it shows on either square. cburnett (Lichess) is GPL-2.0+/CC BY-SA, so it needs attribution and may have copyleft implications. If that is a problem, the alternatives are commissioned or self-drawn pieces. A decision is needed (see section 10).
 - Phosphor and game-icons.net are **not** used in v1. A single primary icon set keeps the style consistent, and game-icons needs CC BY attribution.
 - Icon stroke is 2px to match the borders, and icons are always ink or paper, never red unless they are active.
 

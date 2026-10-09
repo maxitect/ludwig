@@ -48,13 +48,14 @@ export async function verifyPuzzles(
     file,
     meta,
     reviewNote,
+    workings,
     content,
     generated,
   } of files) {
     const started = performance.now();
     try {
       if (generated) verifyRegeneration(generated, meta.difficulty, content);
-      registry[typeKey].verify?.(content, { reviewNote });
+      registry[typeKey].verify?.(content, { reviewNote, workings });
       durations.set(`${typeKey}/${slug}`, Math.round(performance.now() - started));
     } catch (error) {
       all.push({

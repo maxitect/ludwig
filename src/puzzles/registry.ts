@@ -12,6 +12,7 @@ import { gearsModule } from "./gears/module";
 import { keywordModule } from "./keyword/module";
 import { knightsKnavesModule } from "./knights-knaves/module";
 import { logicGridModule } from "./logic-grid/module";
+import { napkinMathsModule } from "./napkin-maths/module";
 import { oddOneOutModule } from "./odd-one-out/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
 import { reverseChessModule } from "./reverse-chess/module";
@@ -83,7 +84,7 @@ export type PuzzleTypeModule<
    */
   verify?(
     content: z.infer<S["contentSchema"]>,
-    authoring: { reviewNote?: string },
+    authoring: { reviewNote?: string; workings?: string },
   ): void;
 };
 
@@ -101,6 +102,7 @@ export const registry: PuzzleRegistry = {
   [keywordModule.meta.key]: keywordModule,
   [knightsKnavesModule.meta.key]: knightsKnavesModule,
   [logicGridModule.meta.key]: logicGridModule,
+  [napkinMathsModule.meta.key]: napkinMathsModule,
   [oddOneOutModule.meta.key]: oddOneOutModule,
   [pictogramCipherModule.meta.key]: pictogramCipherModule,
   [reverseChessModule.meta.key]: reverseChessModule,

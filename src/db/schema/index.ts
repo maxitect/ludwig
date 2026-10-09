@@ -8,6 +8,7 @@ export * from "../../puzzles/anagram/tables";
 export * from "../../puzzles/acrostic/tables";
 export * from "../../puzzles/knights-knaves/tables";
 export * from "../../puzzles/odd-one-out/tables";
+export * from "../../puzzles/napkin-maths/tables";
 export * from "../../puzzles/crossword/tables";
 export * from "../../puzzles/spot-difference/tables";
 export * from "../../puzzles/sudoku/tables";

@@ -360,6 +360,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.knightsKnavesAttemptRoles.attemptId,
     }),
   },
+  napkinMathsPuzzles: {
+    lines: r.many.napkinMathsLines({
+      from: r.napkinMathsPuzzles.puzzleId,
+      to: r.napkinMathsLines.puzzleId,
+    }),
+  },
   oddOneOutPuzzles: {
     items: r.many.oddOneOutItems({
       from: r.oddOneOutPuzzles.puzzleId,

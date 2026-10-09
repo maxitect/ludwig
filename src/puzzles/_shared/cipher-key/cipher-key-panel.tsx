@@ -181,7 +181,7 @@ export function CipherKeyPanel({
               key={letter}
               className={cn(
                 "flex flex-col items-center gap-1",
-                !present.has(letter) && "opacity-30",
+                !present.has(letter) && "text-ink-soft",
               )}
             >
               {symbols ? (

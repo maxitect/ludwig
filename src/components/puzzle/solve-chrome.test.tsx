@@ -144,8 +144,10 @@ describe("SolveChrome signed out", () => {
     });
     cleanup();
     renderChrome(false);
-    expect((await screen.findByLabelText("Restored")).textContent).toBe(
-      '{"answer":"abc"}',
+    await waitFor(() =>
+      expect(screen.getByLabelText("Restored").textContent).toBe(
+        '{"answer":"abc"}',
+      ),
     );
   });
 

@@ -11,7 +11,7 @@ import {
   useState,
   useTransition,
 } from "react";
-import { BulletHole, Credit, Walker } from "@/components/brand";
+import { BulletHole, Credit } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -126,10 +126,13 @@ function SolveBoard({
   const [attempt, setAttempt] = useState(0);
   const [slot, setSlot] = useState<HTMLDivElement | null>(null);
   const [localState, setLocalState] = useState<unknown>(undefined);
+  const localRead = useRef(false);
   useEffect(() => {
     let current = true;
     readProgress(puzzleId).then((entry) => {
-      if (current) setLocalState(entry?.state ?? null);
+      if (!current) return;
+      localRead.current = true;
+      setLocalState(entry?.state ?? null);
     });
     return () => {
       current = false;
@@ -187,7 +190,10 @@ function SolveBoard({
   const onStateChange = useCallback<SolverProps["onStateChange"]>(
     (state) => {
       setWrongParts(undefined);
-      if (!signedIn) return writeProgress(puzzleId, typeKey, state);
+      if (!signedIn) {
+        if (localRead.current) writeProgress(puzzleId, typeKey, state);
+        return;
+      }
       clearTimeout(saveTimeout.current);
       pendingState.current = state;
       saveTimeout.current = setTimeout(flushSave, SAVE_DEBOUNCE_MS);
@@ -349,26 +355,22 @@ function SolveBoard({
             }
           }}
         >
-          {signedIn || localState !== undefined ? (
-            <Solver
-              key={resumeLocal ? "local" : "initial"}
-              payload={payload}
-              initialState={
-                attempt === 0 ? (resumeLocal ? localState : initialState) : null
-              }
-              onStateChange={onStateChange}
-              registerCheck={registerCheck}
-              requestCheck={requestCheck}
-              solved={solved}
-              chessNotation={chessNotation}
-              rungProblems={rungProblems}
-              wrongParts={wrongParts}
-              checkCell={solved ? undefined : checkCell}
-              revealCell={solved ? undefined : revealCellValue}
-            />
-          ) : (
-            <Walker />
-          )}
+          <Solver
+            key={resumeLocal ? "local" : "initial"}
+            payload={payload}
+            initialState={
+              attempt === 0 ? (resumeLocal ? localState : initialState) : null
+            }
+            onStateChange={onStateChange}
+            registerCheck={registerCheck}
+            requestCheck={requestCheck}
+            solved={solved}
+            chessNotation={chessNotation}
+            rungProblems={rungProblems}
+            wrongParts={wrongParts}
+            checkCell={solved ? undefined : checkCell}
+            revealCell={solved ? undefined : revealCellValue}
+          />
         </div>
 
         <div className="flex flex-wrap gap-3 touch:hidden">

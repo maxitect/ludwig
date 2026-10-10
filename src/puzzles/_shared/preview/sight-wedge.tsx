@@ -1,4 +1,5 @@
 import { polar } from "../cog-path";
+import { cellCentre } from "./mini-grid";
 
 const BEARING = {
   n: 0,
@@ -10,8 +11,6 @@ const BEARING = {
   w: 270,
   nw: 315,
 } as const;
-
-export const cellCentre = (index: number) => index * 10 + 5;
 
 /** An observer's field of view on a `MiniGrid`: an outlined wedge, or a circle at 360 degrees. Reach is in grid units. */
 export function SightWedge({

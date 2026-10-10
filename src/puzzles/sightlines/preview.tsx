@@ -1,5 +1,5 @@
-import { MiniGrid } from "../_shared/preview/mini-grid";
-import { cellCentre, SightWedge } from "../_shared/preview/sight-wedge";
+import { CELL, cellCentre, MiniGrid } from "../_shared/preview/mini-grid";
+import { SightWedge } from "../_shared/preview/sight-wedge";
 import type { Payload } from "./schema";
 
 const REACH = 22;
@@ -13,7 +13,7 @@ export function Preview({
     <MiniGrid rows={rows} cols={cols}>
       <path
         d={obstacles
-          .map(({ row, col }) => `M${col * 10} ${row * 10}h10v10h-10z`)
+          .map(({ row, col }) => `M${col * CELL} ${row * CELL}h${CELL}v${CELL}h-${CELL}z`)
           .join("")}
         className="fill-ink"
       />

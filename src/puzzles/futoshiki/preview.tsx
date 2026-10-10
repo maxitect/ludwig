@@ -1,4 +1,4 @@
-import { MiniGrid } from "../_shared/preview/mini-grid";
+import { CELL, cellCentre, MiniGrid } from "../_shared/preview/mini-grid";
 import type { Payload } from "./schema";
 
 const SIGNS = {
@@ -24,8 +24,8 @@ export function Preview({
       {inequalities.map(({ row, col, direction, relation }) => (
         <text
           key={`${row}-${col}-${direction}`}
-          x={direction === "right" ? (col + 1) * 10 : col * 10 + 5}
-          y={direction === "right" ? row * 10 + 5 : (row + 1) * 10}
+          x={direction === "right" ? (col + 1) * CELL : cellCentre(col)}
+          y={direction === "right" ? cellCentre(row) : (row + 1) * CELL}
           textAnchor="middle"
           dominantBaseline="central"
           fontSize={7}

@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 
-const CELL = 10;
+export const CELL = 10;
 const PAD = 1;
 
 type Position = { row: number; col: number };
 type Label = Position & { text: string };
+
+export const cellCentre = (index: number) => index * CELL + CELL / 2;
 
 const square = ({ row, col }: Position) =>
   `M${col * CELL} ${row * CELL}h${CELL}v${CELL}h-${CELL}z`;

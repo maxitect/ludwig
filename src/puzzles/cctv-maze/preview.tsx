@@ -1,8 +1,6 @@
-import { MiniGrid } from "../_shared/preview/mini-grid";
-import { cellCentre, SightWedge } from "../_shared/preview/sight-wedge";
+import { CELL, cellCentre, MiniGrid } from "../_shared/preview/mini-grid";
+import { SightWedge } from "../_shared/preview/sight-wedge";
 import type { Payload } from "./schema";
-
-const CELL = 10;
 
 export function Preview({
   payload: {

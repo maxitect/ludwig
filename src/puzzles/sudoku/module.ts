@@ -11,6 +11,8 @@ import {
   sudokuAttempts,
   sudokuGivens,
   sudokuPuzzles,
+  sudokuRegionCells,
+  sudokuRegionSets,
 } from "./tables";
 import { verifySudoku } from "./verify";
 
@@ -21,7 +23,7 @@ export const sudokuModule = {
   loadSolution,
   check,
   verify: verifySudoku,
-  async upsertContent(tx, puzzleId, { givens }) {
+  async upsertContent(tx, puzzleId, { givens, regions }) {
     await tx.insert(sudokuPuzzles).values({ puzzleId }).onConflictDoNothing();
     await tx.delete(sudokuGivens).where(
       and(
@@ -38,6 +40,30 @@ export const sudokuModule = {
       .onConflictDoUpdate({
         target: [sudokuGivens.puzzleId, sudokuGivens.row, sudokuGivens.col],
         set: { digit: sql`excluded.digit` },
+      });
+    if (!regions) {
+      await tx
+        .delete(sudokuRegionSets)
+        .where(eq(sudokuRegionSets.puzzleId, puzzleId));
+      return;
+    }
+    await tx
+      .insert(sudokuRegionSets)
+      .values({ puzzleId, kind: regions.kind })
+      .onConflictDoUpdate({
+        target: sudokuRegionSets.puzzleId,
+        set: { kind: regions.kind },
+      });
+    await tx
+      .insert(sudokuRegionCells)
+      .values(regions.cells.map((cell) => ({ ...cell, puzzleId })))
+      .onConflictDoUpdate({
+        target: [
+          sudokuRegionCells.puzzleId,
+          sudokuRegionCells.row,
+          sudokuRegionCells.col,
+        ],
+        set: { region: sql`excluded.region` },
       });
   },
   async replaceAttemptState(tx, attemptId, { cells, notes }) {

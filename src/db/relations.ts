@@ -265,6 +265,16 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.sudokuPuzzles.puzzleId,
       to: r.sudokuGivens.puzzleId,
     }),
+    regionSet: r.one.sudokuRegionSets({
+      from: r.sudokuPuzzles.puzzleId,
+      to: r.sudokuRegionSets.puzzleId,
+    }),
+  },
+  sudokuRegionSets: {
+    cells: r.many.sudokuRegionCells({
+      from: r.sudokuRegionSets.puzzleId,
+      to: r.sudokuRegionCells.puzzleId,
+    }),
   },
   sudokuAttempts: {
     cells: r.many.sudokuAttemptCells({

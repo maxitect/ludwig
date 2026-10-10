@@ -602,6 +602,7 @@ Defined in `src/app/globals.css` with Tailwind v4 `@theme` and mapped onto shadc
 | `--shadow-soft` | `#4C5462` | Muted borders and icons on dark |
 | `--grid-blue` | `#004060` | The "tear-through" blue grid revealed under bullet holes |
 | `--book-blue` | `#3A7FB0` | Pocket Puzzle Collection covers (volume cards), focus rings (3.4:1 on paper, 4.5:1 on ink, so a ring reads on paper and ink cells in both themes) |
+| `--rainbow-1` to `--rainbow-9` | `#F2C9C4`, `#F4D9B0`, `#EEE6A6`, `#CDE5A8`, `#A9DFC4`, `#A8DDE3`, `#B6CCF0`, `#CDB9EC`, `#EBB9DA` | The nine colour groups of a rainbow sudoku. Light tints with ink text above 9:1, the same in both themes because grids stay paper in Ink. Each group also carries a letter A to I, so colour is never the only signal |
 
 **shadcn mapping (light / "Paper"):**
 

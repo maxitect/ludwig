@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   check,
   foreignKey,
+  pgEnum,
   pgTable,
   primaryKey,
   smallint,
@@ -49,6 +50,53 @@ export const sudokuGivens = pgTable(
     check("sudoku_givens_row_check", sql`${table.row} between 0 and 8`),
     check("sudoku_givens_col_check", sql`${table.col} between 0 and 8`),
     check("sudoku_givens_digit_check", sql`${table.digit} between 1 and 9`),
+  ],
+);
+
+export const sudokuRegionKindEnum = pgEnum("sudoku_region_kind", [
+  "jigsaw",
+  "rainbow",
+]);
+
+export const sudokuRegionSets = pgTable(
+  "sudoku_region_sets",
+  {
+    puzzleId: uuid("puzzle_id").primaryKey(),
+    kind: sudokuRegionKindEnum("kind").notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "sudoku_region_sets_puzzle_id_fk",
+      columns: [table.puzzleId],
+      foreignColumns: [sudokuPuzzles.puzzleId],
+    }).onDelete("cascade"),
+  ],
+);
+
+export const sudokuRegionCells = pgTable(
+  "sudoku_region_cells",
+  {
+    puzzleId: uuid("puzzle_id").notNull(),
+    row: smallint("row").notNull(),
+    col: smallint("col").notNull(),
+    region: smallint("region").notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "sudoku_region_cells_pkey",
+      columns: [table.puzzleId, table.row, table.col],
+    }),
+    foreignKey({
+      name: "sudoku_region_cells_puzzle_id_fk",
+      columns: [table.puzzleId],
+      foreignColumns: [sudokuRegionSets.puzzleId],
+    }).onDelete("cascade"),
+    check("sudoku_region_cells_row_check", sql`${table.row} between 0 and 8`),
+    check("sudoku_region_cells_col_check", sql`${table.col} between 0 and 8`),
+    check(
+      "sudoku_region_cells_region_check",
+      sql`${table.region} between 0 and 8`,
+    ),
   ],
 );
 

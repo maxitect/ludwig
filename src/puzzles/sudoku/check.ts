@@ -1,17 +1,23 @@
-import { conflictingIndexes, gridFromGivens, type Grid } from "./engine";
+import {
+  conflictingIndexes,
+  gridFromGivens,
+  unitsFor,
+  type Grid,
+} from "./engine";
 import type { Answer, Payload, Solution } from "./schema";
 
 const SIZE = 9;
 
 /**
- * Any completion that respects the givens and repeats no digit in a row, column or box is correct.
+ * Any completion that respects the givens and repeats no digit in a unit (row, column, and box or region) is correct.
  * Wrong cells are the ones that break a rule or overwrite a given, never a comparison with the solution.
  */
 export function check(payload: Payload, _solution: Solution, answer: Answer) {
   const givens = gridFromGivens(payload.givens);
   const grid: Grid = Array(SIZE * SIZE).fill(0);
-  for (const { row, col, digit } of answer.cells) grid[row * SIZE + col] = digit;
-  const wrong = conflictingIndexes(grid);
+  for (const { row, col, digit } of answer.cells)
+    grid[row * SIZE + col] = digit;
+  const wrong = conflictingIndexes(grid, unitsFor(payload.regions));
   grid.forEach((digit, index) => {
     if (!digit || (givens[index] && givens[index] !== digit)) wrong.add(index);
   });

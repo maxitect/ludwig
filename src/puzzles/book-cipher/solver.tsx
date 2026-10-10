@@ -200,6 +200,9 @@ export function Solver({
             <p className="font-mono text-sm text-ink-soft">{author}</p>
           </header>
           <div
+            role="region"
+            aria-label="Page text"
+            tabIndex={phoneReader ? undefined : 0}
             className={cn(
               "@container/book-page touch:min-h-0 touch:overflow-y-auto",
               phoneReader && "touch:min-h-auto touch:overflow-visible",

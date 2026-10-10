@@ -2,7 +2,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadContentFiles } from "../../../scripts/content-files";
 import { crosswordModule } from "./module";
-import type { Content } from "./schema";
+import { contentSchema } from "./schema";
 
 const { files, failures } = await loadContentFiles(
   { crossword: crosswordModule },
@@ -15,7 +15,9 @@ describe("crossword content", () => {
     expect(files.length).toBeGreaterThan(0);
   });
 
-  it.each(files.map((file) => [file.slug, file.content as Content] as const))(
+  it.each(
+    files.map((file) => [file.slug, contentSchema.parse(file.content)] as const),
+  )(
     "%s is rotationally symmetric by 180 degrees",
     (_slug, { rows, cols, cells }) => {
       const keys = new Set(cells.map(({ row, col }) => `${row},${col}`));

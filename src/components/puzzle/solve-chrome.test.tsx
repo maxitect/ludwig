@@ -86,6 +86,7 @@ solverStub.current = Solver;
 function renderChrome(
   signedIn = true,
   initialState: SolverProps["initialState"] = null,
+  completion: { durationMs: number | null } | null = null,
 ) {
   render(
     <SolveChrome
@@ -97,6 +98,7 @@ function renderChrome(
       difficulty={1}
       payload={{}}
       initialState={initialState}
+      completion={completion}
       signedIn={signedIn}
       signInHref="/sign-in"
       nextHref={null}
@@ -119,6 +121,33 @@ describe("SolveChrome Enter", () => {
     screen.getByRole("application", { name: "Own Enter" }).focus();
     await userEvent.keyboard("{Enter}");
     expect(actions.checkAnswer).not.toHaveBeenCalled();
+  });
+});
+
+describe("SolveChrome already solved", () => {
+  it("opens solved with the recorded time and refuses check and reset", async () => {
+    renderChrome(true, { answer: "x" }, { durationMs: 83_000 });
+    expect(await screen.findByText("01:23", { selector: "span" })).toBeTruthy();
+    expect(screen.getByTestId("solved-stamp")).toBeTruthy();
+    for (const name of ["Check", "Reset"]) {
+      for (const button of screen.getAllByRole("button", { name })) {
+        expect((button as HTMLButtonElement).disabled).toBe(true);
+      }
+    }
+    screen.getByRole("group", { name: "Board" }).focus();
+    await userEvent.keyboard("{Enter}");
+    expect(actions.checkAnswer).not.toHaveBeenCalled();
+    expect(actions.clearState).not.toHaveBeenCalled();
+  });
+
+  it("opens solved from a completed local entry when signed out", async () => {
+    renderChrome(false);
+    await userEvent.click(await screen.findByRole("button", { name: "Place" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Check" })[0]);
+    await screen.findByText(/Solved in/);
+    cleanup();
+    renderChrome(false);
+    await screen.findByText(/Solved in/);
   });
 });
 

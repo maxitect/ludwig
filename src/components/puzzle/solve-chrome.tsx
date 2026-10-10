@@ -71,6 +71,7 @@ type SolveChromeProps = {
   difficulty: number;
   payload: SolverProps["payload"];
   initialState: SolverProps["initialState"];
+  completion: { durationMs: number | null } | null;
   signedIn: boolean;
   chessNotation?: SolverProps["chessNotation"];
   signInHref: string;
@@ -105,13 +106,16 @@ function SolveBoard({
   difficulty,
   payload,
   initialState,
+  completion,
   Solver,
   signedIn,
   chessNotation,
   signInHref,
   nextHref,
 }: SolveChromeProps & { Solver: ComponentType<SolverProps> }) {
-  const [solvedMs, setSolvedMs] = useState<number | null>(null);
+  const [solvedMs, setSolvedMs] = useState<number | null>(
+    completion ? (completion.durationMs ?? 0) : null,
+  );
   const [epilogue, setEpilogue] = useState<string | null>(null);
   const [rungProblems, setRungProblems] = useState<RungProblem[]>();
   const [wrongParts, setWrongParts] = useState<WrongPart[]>();
@@ -132,6 +136,9 @@ function SolveBoard({
       if (!current) return;
       localRead.current = true;
       setLocalState(entry?.state ?? null);
+      if (entry?.completedAt !== undefined) {
+        setSolvedMs((current) => current ?? entry.durationMs ?? 0);
+      }
     });
     return () => {
       current = false;
@@ -263,6 +270,7 @@ function SolveBoard({
   );
 
   function reset() {
+    if (solved) return;
     clearTimeout(saveTimeout.current);
     pendingState.current = null;
     readAnswer.current = null;
@@ -367,7 +375,11 @@ function SolveBoard({
               <Button onClick={check} disabled={pending || solved}>
                 Check
               </Button>
-              <Button variant="secondary" onClick={reset} disabled={pending}>
+              <Button
+                variant="secondary"
+                onClick={reset}
+                disabled={pending || solved}
+              >
                 Reset
               </Button>
             </div>
@@ -384,7 +396,11 @@ function SolveBoard({
           <Button onClick={check} disabled={pending || solved}>
             Check
           </Button>
-          <Button variant="secondary" onClick={reset} disabled={pending}>
+          <Button
+                variant="secondary"
+                onClick={reset}
+                disabled={pending || solved}
+              >
             Reset
           </Button>
         </div>

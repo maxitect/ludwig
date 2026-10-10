@@ -27,7 +27,10 @@ function walk(fen: string, plies: readonly Ply[]) {
   for (const [index, ply] of plies.entries()) {
     const result = stepRetro(positions[index], toRetro(ply), index > 0);
     if (!result.ok) {
-      return { positions, invalid: { index, reason: result.reason } as Invalid };
+      return {
+        positions,
+        invalid: { index, reason: result.reason } as Invalid,
+      };
     }
     positions.push(result.prior);
   }
@@ -42,6 +45,9 @@ export function Unwind({
   chessNotation,
   onStateChange,
   registerCheck,
+  requestCheck,
+  requestReset,
+  solved,
 }: SolverProps<typeof schema>) {
   const fen = useMemo(() => toFen(payload), [payload]);
   const [plies, setPlies] = useState<Ply[]>(() => initialState?.plies ?? []);
@@ -94,17 +100,27 @@ export function Unwind({
         <p className="font-display text-2xl font-bold uppercase tracking-[0.04em]">
           Take back {payload.plyCount} half-moves
         </p>
-        {payload.goalText && (
-          <p data-testid="goal">Goal: {payload.goalText}</p>
-        )}
-        <SideToMove colour={fromFen(board).sideToMove} />
+        {payload.goalText && <p data-testid="goal">Goal: {payload.goalText}</p>}
+        <div className="flex items-center justify-between gap-3">
+          <SideToMove colour={fromFen(board).sideToMove} />
+          <div className="hidden gap-2 touch:flex">
+            <Button size="sm" onClick={requestCheck} disabled={solved}>
+              Check
+            </Button>
+            <Button size="sm" variant="secondary" onClick={requestReset}>
+              Reset
+            </Button>
+          </div>
+        </div>
       </div>
 
       <ChessBoard
         position={fromFen(board).pieces}
         onRetroDrop={drop}
         interactive={canAdd}
-        arrows={last ? [{ from: endpoints(last).from, to: endpoints(last).to }] : []}
+        arrows={
+          last ? [{ from: endpoints(last).from, to: endpoints(last).to }] : []
+        }
         highlights={last ? [endpoints(last).from, endpoints(last).to] : []}
       />
 
@@ -139,7 +155,8 @@ export function Unwind({
                     role="alert"
                     className="font-semibold underline decoration-ludwig-red decoration-2 underline-offset-4"
                   >
-                    Step {index + 1} is not possible. {REJECTION_TEXT[invalid.reason]}
+                    Step {index + 1} is not possible.{" "}
+                    {REJECTION_TEXT[invalid.reason]}
                   </span>
                 )}
               </li>

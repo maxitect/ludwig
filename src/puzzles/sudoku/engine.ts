@@ -1,11 +1,45 @@
-import type { Given, Solution } from "./schema";
+import type { Given, Regions, Solution } from "./schema";
 
 const SIZE = 9;
 const CELLS = SIZE * SIZE;
 const ALL_DIGITS = 0b1111111110;
 
-const boxOf = (index: number) =>
-  Math.floor(index / 27) * 3 + Math.floor((index % SIZE) / 3);
+/** Cell indexes of each nine-cell unit in which every digit appears once. */
+export type Units = ReadonlyArray<ReadonlyArray<number>>;
+
+export const rowUnits: Units = Array.from({ length: SIZE }, (_, row) =>
+  Array.from({ length: SIZE }, (_, col) => row * SIZE + col),
+);
+export const colUnits: Units = Array.from({ length: SIZE }, (_, col) =>
+  Array.from({ length: SIZE }, (_, row) => row * SIZE + col),
+);
+export const boxUnits: Units = Array.from({ length: SIZE }, (_, box) =>
+  Array.from(
+    { length: SIZE },
+    (_, k) =>
+      (Math.floor(box / 3) * 3 + Math.floor(k / 3)) * SIZE +
+      (box % 3) * 3 +
+      (k % 3),
+  ),
+);
+
+export const classicUnits: Units = [...rowUnits, ...colUnits, ...boxUnits];
+
+const regionUnits = ({ cells }: Regions): Units => {
+  const units: number[][] = Array.from({ length: SIZE }, () => []);
+  for (const { row, col, region } of cells)
+    units[region].push(row * SIZE + col);
+  return units;
+};
+
+/** Classic sudoku uses rows, columns and boxes; jigsaw swaps the boxes for its regions; rainbow adds its colour groups. Rows and columns always come first. */
+export function unitsFor(regions?: Regions | null): Units {
+  if (!regions) return classicUnits;
+  if (regions.kind === "jigsaw") {
+    return [...rowUnits, ...colUnits, ...regionUnits(regions)];
+  }
+  return [...classicUnits, ...regionUnits(regions)];
+}
 
 const bitCount = (mask: number) => {
   let count = 0;
@@ -30,27 +64,22 @@ export function toSolution(grid: Grid): Solution {
   }));
 }
 
-/** Indexes of filled cells that share a digit with another cell of their row, column or box. */
-export function conflictingIndexes(grid: Grid) {
+/** Indexes of filled cells that share a digit with another cell of one of the units. */
+export function conflictingIndexes(grid: Grid, units: Units = classicUnits) {
   const conflicts = new Set<number>();
-  const units = [
-    (index: number) => Math.floor(index / SIZE),
-    (index: number) => index % SIZE,
-    boxOf,
-  ];
-  for (const unitOf of units) {
-    const seen = new Map<string, number>();
-    grid.forEach((digit, index) => {
-      if (!digit) return;
-      const key = `${unitOf(index)}:${digit}`;
-      const other = seen.get(key);
+  for (const unit of units) {
+    const seen = new Map<number, number>();
+    for (const index of unit) {
+      const digit = grid[index];
+      if (!digit) continue;
+      const other = seen.get(digit);
       if (other === undefined) {
-        seen.set(key, index);
+        seen.set(digit, index);
       } else {
         conflicts.add(other);
         conflicts.add(index);
       }
-    });
+    }
   }
   return conflicts;
 }
@@ -59,24 +88,29 @@ export function conflictingIndexes(grid: Grid) {
  * Finds up to `limit` completions of the grid by backtracking on the empty cell with the fewest
  * candidates. Contradictory givens yield none.
  */
-export function enumerateSolutions(start: Grid, limit: number) {
+export function enumerateSolutions(
+  start: Grid,
+  limit: number,
+  units: Units = classicUnits,
+) {
   const grid = [...start];
-  if (conflictingIndexes(grid).size) return [];
-  const rows = Array<number>(SIZE).fill(0);
-  const cols = Array<number>(SIZE).fill(0);
-  const boxes = Array<number>(SIZE).fill(0);
+  if (conflictingIndexes(grid, units).size) return [];
+  const unitsOf: number[][] = Array.from({ length: CELLS }, () => []);
+  units.forEach((unit, id) => {
+    for (const index of unit) unitsOf[index].push(id);
+  });
+  const used = Array<number>(units.length).fill(0);
   grid.forEach((digit, index) => {
     if (!digit) return;
-    const bit = 1 << digit;
-    rows[Math.floor(index / SIZE)] |= bit;
-    cols[index % SIZE] |= bit;
-    boxes[boxOf(index)] |= bit;
+    for (const id of unitsOf[index]) used[id] |= 1 << digit;
   });
 
   const found: Grid[] = [];
-  const candidates = (index: number) =>
-    ALL_DIGITS &
-    ~(rows[Math.floor(index / SIZE)] | cols[index % SIZE] | boxes[boxOf(index)]);
+  const candidates = (index: number) => {
+    let taken = 0;
+    for (const id of unitsOf[index]) taken |= used[id];
+    return ALL_DIGITS & ~taken;
+  };
 
   function search() {
     let best = -1;
@@ -97,21 +131,14 @@ export function enumerateSolutions(start: Grid, limit: number) {
       found.push([...grid]);
       return;
     }
-    const row = Math.floor(best / SIZE);
-    const col = best % SIZE;
-    const box = boxOf(best);
     for (let digit = 1; digit <= SIZE && found.length < limit; digit++) {
       const bit = 1 << digit;
       if (!(bestMask & bit)) continue;
       grid[best] = digit;
-      rows[row] |= bit;
-      cols[col] |= bit;
-      boxes[box] |= bit;
+      for (const id of unitsOf[best]) used[id] |= bit;
       search();
       grid[best] = 0;
-      rows[row] &= ~bit;
-      cols[col] &= ~bit;
-      boxes[box] &= ~bit;
+      for (const id of unitsOf[best]) used[id] &= ~bit;
     }
   }
 
@@ -123,12 +150,16 @@ export function enumerateSolutions(start: Grid, limit: number) {
 export function countSolutions(
   givens: ReadonlyArray<Given>,
   limit = 2,
+  units: Units = classicUnits,
 ): number {
-  return enumerateSolutions(gridFromGivens(givens), limit).length;
+  return enumerateSolutions(gridFromGivens(givens), limit, units).length;
 }
 
 /** The first completion of the givens, or null when there is none. */
-export function solve(givens: ReadonlyArray<Given>): Solution | null {
-  const [first] = enumerateSolutions(gridFromGivens(givens), 1);
+export function solve(
+  givens: ReadonlyArray<Given>,
+  units: Units = classicUnits,
+): Solution | null {
+  const [first] = enumerateSolutions(gridFromGivens(givens), 1, units);
   return first ? toSolution(first) : null;
 }

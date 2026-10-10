@@ -25,7 +25,7 @@ type Placed = CellPosition & { digit: number };
 
 type DigitGridProps = Pick<
   CellGridProps,
-  "label" | "cellClassName" | "edges" | "cellRem"
+  "label" | "cellClassName" | "edges" | "cellRem" | "annotation"
 > & {
   size: number;
   givens: ReadonlyArray<Placed>;

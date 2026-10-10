@@ -53,7 +53,15 @@
   --color-shadow-soft: #4C5462;
   --color-grid-blue: #004060;
   --color-book-blue: #3A7FB0;
-
+  --color-rainbow-1: #F2C9C4;
+  --color-rainbow-2: #F4D9B0;
+  --color-rainbow-3: #EEE6A6;
+  --color-rainbow-4: #CDE5A8;
+  --color-rainbow-5: #A9DFC4;
+  --color-rainbow-6: #A8DDE3;
+  --color-rainbow-7: #B6CCF0;
+  --color-rainbow-8: #CDB9EC;
+  --color-rainbow-9: #EBB9DA;
 }
 
 @theme inline {

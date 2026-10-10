@@ -39,6 +39,7 @@ export function MiniGrid({
   cells,
   labels = [],
   box,
+  tints,
   children,
 }: {
   rows: number;
@@ -46,6 +47,8 @@ export function MiniGrid({
   cells?: readonly Position[];
   labels?: readonly Label[];
   box?: number;
+  /** Drawn on the cells, under the grid lines and labels. */
+  tints?: ReactNode;
   children?: ReactNode;
 }) {
   const width = cols * CELL;
@@ -74,6 +77,7 @@ export function MiniGrid({
         className="fill-paper stroke-ink"
         strokeWidth={0.6}
       />
+      {tints}
       {thick.length > 0 && (
         <path
           d={thick

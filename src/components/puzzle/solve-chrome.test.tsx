@@ -19,6 +19,11 @@ vi.mock("@/puzzles/solvers", () => ({
 }));
 
 const { SolveChrome } = await import("./solve-chrome");
+// Restoring progress imports these on demand; a cold import of every attempt schema can outlast waitFor on a loaded CI runner.
+await Promise.all([
+  import("@/lib/forms/local-progress"),
+  import("@/puzzles/attempt-schemas"),
+]);
 
 afterEach(cleanup);
 beforeEach(() => {

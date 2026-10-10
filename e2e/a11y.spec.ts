@@ -81,6 +81,8 @@ test.describe("axe, signed out", () => {
       "/reverse-chess",
       "/gears",
       "/this-week",
+      "/puzzles/sudoku/torn-edges",
+      "/puzzles/sudoku/colour-bars",
     ]) {
       test(`${theme} ${path}`, async ({ page }) => audit(page, theme, path));
     }

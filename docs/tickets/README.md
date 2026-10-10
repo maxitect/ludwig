@@ -116,8 +116,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T065](./T065-settings-page.md) | Settings page (theme, notation, reduced motion, display name) | T015, T030 | | | done |
 | [T066](./T066-bullet-hole-transitions.md) | Bullet-hole view transitions | T018 | | | done |
 | [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
-| [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117, T120–T138 | | ✔ | todo |
-| [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116, T120–T138 | | | todo |
+| [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117, T120–T138 | | ✔ | done |
+| [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116, T120–T138 | | | done |
 | [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |
 | [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |
 | [T112](./T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | done |
@@ -138,7 +138,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T129](./T129-puzzle-preview-engine.md) | Puzzle preview engine and per-puzzle thumbnails | — | | | done |
 | [T130](./T130-collection-type-thumbnails.md) | Collection type cards show a representative preview | T129, T128 | | | done |
 | [T131](./T131-check-shows-wrong-parts.md) | A failed check names the wrong parts, in the shared contract and the UI | T048, T100 | | | done |
-| [T134](./T134-volume-position.md) | Order puzzles within a volume by an authored position | — | ✔ | | todo |
+| [T134](./T134-volume-position.md) | Order puzzles within a volume by an authored position | — | ✔ | | done |
 | [T135](./T135-crossword-content-polish.md) | Crossword content polish (fill, repeated roots, symmetry) | T080 | | | done |
 | [T136](./T136-generated-sudoku-futoshiki-content.md) | Generated sudoku and futoshiki at difficulties 3 and 4 | T100 | | | done |
 | [T137](./T137-reverse-chess-mode-letters.md) | Reverse Chess mode letters: Proof Game is Mode C, the Rota is Mode D | — | | | done |
@@ -151,7 +151,7 @@ Not on the launch path (PLAN §3 M6).
 
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
-| [T084](./T084-sudoku-region-variants.md) | Sudoku: jigsaw and rainbow region variants | T046 | ✔ | | todo |
+| [T084](./T084-sudoku-region-variants.md) | Sudoku: jigsaw and rainbow region variants | T046 | ✔ | | done |
 | [T085](./T085-type-chess-problem.md) | Puzzle type: chess problem (forward mate in N) | T025, T028, T018, T071 | ✔ | | todo |
 | [T086](./T086-type-railroad.md) | Puzzle type: railroad | T021 | ✔ | | todo |
 | [T087](./T087-type-star-battle.md) | Puzzle type: star battle | T084 | ✔ | | todo |

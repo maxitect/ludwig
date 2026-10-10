@@ -66,7 +66,7 @@ export const content = {
     { direction: "down", row: 8, col: 6, clueText: "Slippery snake-like fish", segments: [3] },
     { direction: "across", row: 9, col: 0, clueText: "Golf peg", segments: [3] },
     { direction: "across", row: 9, col: 6, clueText: "Happening", segments: [5] },
-    { direction: "across", row: 10, col: 0, clueText: "Painting or sculpture", segments: [3] },
+    { direction: "across", row: 10, col: 0, clueText: "What a gallery hangs on its walls", segments: [3] },
     { direction: "across", row: 10, col: 6, clueText: "Handed over for a while", segments: [4] },
   ],
 } satisfies Content;

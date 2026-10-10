@@ -35,7 +35,7 @@ export const content = {
     { direction: "down", row: 0, col: 7, clueText: "Mark left by a healed wound", segments: [4] },
     { direction: "down", row: 0, col: 8, clueText: "Book of maps", segments: [5] },
     { direction: "down", row: 0, col: 9, clueText: "Deliberately old-fashioned", segments: [5] },
-    { direction: "across", row: 1, col: 0, clueText: "Car, in American slang", segments: [4] },
+    { direction: "across", row: 1, col: 0, clueText: "Camera setting that does the thinking, for short", segments: [4] },
     { direction: "down", row: 1, col: 0, clueText: "Law passed by parliament", segments: [3] },
     { direction: "across", row: 1, col: 6, clueText: "Group of eight", segments: [5] },
     { direction: "down", row: 1, col: 10, clueText: "At that time", segments: [4] },

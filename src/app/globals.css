@@ -140,7 +140,7 @@
   --primary-foreground: var(--color-paper);
   --secondary: var(--color-paper);
   --secondary-foreground: var(--color-ink);
-  --muted: color-mix(in srgb, var(--color-paper) 14%, var(--color-ink));
+  --muted: color-mix(in srgb, var(--color-paper) 28%, var(--color-ink));
   --muted-foreground: var(--color-paper-shade);
   --accent: var(--color-book-blue);
   --accent-foreground: var(--color-ink);
@@ -169,7 +169,7 @@
     --primary-foreground: var(--color-paper);
     --secondary: var(--color-paper);
     --secondary-foreground: var(--color-ink);
-    --muted: color-mix(in srgb, var(--color-paper) 14%, var(--color-ink));
+    --muted: color-mix(in srgb, var(--color-paper) 28%, var(--color-ink));
     --muted-foreground: var(--color-paper-shade);
     --accent: var(--color-book-blue);
     --accent-foreground: var(--color-ink);

@@ -457,9 +457,9 @@ describe("initial_position goal", () => {
 });
 
 describe("solution ply count", () => {
-  async function modeB(tx: Tx) {
+  async function modeB(tx: Tx, slug?: string) {
     await ensureTypes(tx);
-    const puzzleId = await insertPuzzle(tx, "reverse-chess");
+    const puzzleId = await insertPuzzle(tx, "reverse-chess", slug);
     await tx
       .insert(reverseChessPuzzles)
       .values({ ...unwindColumns, puzzleId, plyCount: 3 });
@@ -529,6 +529,30 @@ describe("solution ply count", () => {
       await forceDeferred(tx);
     });
     expect(error?.message).toMatch(/has ply_count 3 but 4 solution plies/);
+  });
+
+  it("rejects moving a solution ply to another puzzle at commit", async () => {
+    const error = await pgError(async (tx) => {
+      const from = await modeB(tx);
+      const to = await modeB(tx, "two");
+      await forceDeferred(tx);
+      await tx.execute(sql`set constraints all deferred`);
+      await tx
+        .update(reverseChessSolutionPlies)
+        .set({ puzzleId: to, ply: 4 })
+        .where(
+          and(
+            eq(reverseChessSolutionPlies.puzzleId, from),
+            eq(reverseChessSolutionPlies.ply, 3),
+          ),
+        );
+      await tx
+        .update(reverseChessPuzzles)
+        .set({ plyCount: 4 })
+        .where(eq(reverseChessPuzzles.puzzleId, to));
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/has ply_count 3 but 2 solution plies/);
   });
 
   it("requires Mode A to have exactly one ply", async () => {

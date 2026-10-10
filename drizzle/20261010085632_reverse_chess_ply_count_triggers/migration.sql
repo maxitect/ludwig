@@ -1,10 +1,9 @@
-CREATE OR REPLACE FUNCTION public.trg_reverse_chess_solution_ply_count()
-RETURNS trigger
+CREATE OR REPLACE FUNCTION public.check_reverse_chess_solution_ply_count(target uuid)
+RETURNS void
 LANGUAGE plpgsql
 SET search_path TO ''
 AS $$
 DECLARE
-  target uuid := CASE WHEN TG_OP = 'DELETE' THEN OLD.puzzle_id ELSE NEW.puzzle_id END;
   puzzle public.reverse_chess_puzzles%ROWTYPE;
   plies integer;
 BEGIN
@@ -15,7 +14,7 @@ BEGIN
     SELECT 1 FROM public.reverse_chess_goals g
     WHERE g.puzzle_id = target AND g.kind = 'initial_position'
   ) THEN
-    RETURN NULL;
+    RETURN;
   END IF;
   SELECT count(*) INTO plies
   FROM public.reverse_chess_solution_plies s
@@ -30,6 +29,21 @@ BEGIN
       target, plies
       USING ERRCODE = 'integrity_constraint_violation';
   END IF;
+END;
+$$;
+--> statement-breakpoint
+CREATE OR REPLACE FUNCTION public.trg_reverse_chess_solution_ply_count()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO ''
+AS $$
+BEGIN
+  IF TG_OP <> 'INSERT' THEN
+    PERFORM public.check_reverse_chess_solution_ply_count(OLD.puzzle_id);
+  END IF;
+  IF TG_OP <> 'DELETE' AND (TG_OP = 'INSERT' OR NEW.puzzle_id <> OLD.puzzle_id) THEN
+    PERFORM public.check_reverse_chess_solution_ply_count(NEW.puzzle_id);
+  END IF;
   RETURN NULL;
 END;
 $$;
@@ -41,7 +55,7 @@ CREATE CONSTRAINT TRIGGER trg_reverse_chess_puzzles_solution_ply_count
   EXECUTE FUNCTION public.trg_reverse_chess_solution_ply_count();
 --> statement-breakpoint
 CREATE CONSTRAINT TRIGGER trg_reverse_chess_goals_solution_ply_count
-  AFTER INSERT OR UPDATE OF kind OR DELETE ON public.reverse_chess_goals
+  AFTER INSERT OR UPDATE OF kind, puzzle_id OR DELETE ON public.reverse_chess_goals
   DEFERRABLE INITIALLY DEFERRED
   FOR EACH ROW
   EXECUTE FUNCTION public.trg_reverse_chess_solution_ply_count();

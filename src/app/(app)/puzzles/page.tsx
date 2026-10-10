@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Credit, Walker } from "@/components/brand";
+import {
+  CompleteBadge,
+  type SolvedIds,
+} from "@/components/puzzle/solved-badge";
 import { TypeThumbnail } from "@/components/puzzle/puzzle-thumbnail";
 import { Badge } from "@/components/ui/badge";
+import { getSolvedPuzzleIds } from "@/lib/data/attempts";
 import { getCatalogue } from "@/lib/data/catalogue";
 
 type CatalogueType = Awaited<
@@ -20,6 +26,10 @@ export default async function PuzzlesPage() {
     types.some(({ published }) => published > 0),
   );
 
+  const solved = getSolvedPuzzleIds(
+    categories.flatMap(({ types }) => types.flatMap(({ puzzleIds }) => puzzleIds)),
+  );
+
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
       <Credit level={1} top="Pocket puzzles" bottom="The Collection" />
@@ -35,8 +45,14 @@ export default async function PuzzlesPage() {
           id={category.key}
           className="flex scroll-mt-24 flex-col gap-4"
         >
-          <h2 className="border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase">
+          <h2 className="flex items-center justify-between gap-3 border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase">
             {category.name}
+            <Suspense fallback={null}>
+              <CompleteBadge
+                puzzleIds={category.types.flatMap(({ puzzleIds }) => puzzleIds)}
+                solved={solved}
+              />
+            </Suspense>
           </h2>
           <ul className="grid gap-4 sm:grid-cols-2">
             {category.types.map((type) => (
@@ -49,6 +65,7 @@ export default async function PuzzlesPage() {
                     <TypeCardBody
                       type={type}
                       status={`${type.published} published`}
+                      solved={solved}
                     />
                   </Link>
                 ) : (
@@ -56,7 +73,7 @@ export default async function PuzzlesPage() {
                     data-testid="coming-soon"
                     className="flex h-full flex-col gap-2 border-2 border-dashed border-muted-foreground p-4 text-muted-foreground"
                   >
-                    <TypeCardBody type={type} status="Coming soon" />
+                    <TypeCardBody type={type} status="Coming soon" solved={solved} />
                   </div>
                 )}
               </li>
@@ -71,9 +88,11 @@ export default async function PuzzlesPage() {
 function TypeCardBody({
   type,
   status,
+  solved,
 }: {
   type: CatalogueType;
   status: string;
+  solved: SolvedIds;
 }) {
   return (
     <>
@@ -86,7 +105,12 @@ function TypeCardBody({
         <span className="font-display text-lg font-bold tracking-[0.04em] uppercase">
           {type.name}
         </span>
-        <Badge variant="outline">{status}</Badge>
+        <span className="flex items-center gap-2">
+          <Suspense fallback={null}>
+            <CompleteBadge puzzleIds={type.puzzleIds} solved={solved} />
+          </Suspense>
+          <Badge variant="outline">{status}</Badge>
+        </span>
       </span>
       <span className="text-sm text-muted-foreground">{type.description}</span>
     </>

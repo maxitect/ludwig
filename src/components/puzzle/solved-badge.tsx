@@ -21,3 +21,25 @@ export async function SolvedBadge({
     </Badge>
   );
 }
+
+/** Awaits the shared solved-ids promise; renders only when `puzzleIds` is non-empty and every one is solved. */
+export async function CompleteBadge({
+  puzzleIds,
+  solved,
+  className,
+}: {
+  puzzleIds: string[];
+  solved: SolvedIds;
+  className?: string;
+}) {
+  const ids = await solved;
+  if (puzzleIds.length === 0 || !puzzleIds.every((id) => ids.has(id))) {
+    return null;
+  }
+  return (
+    <Badge variant="outline" className={className}>
+      <Check aria-hidden="true" />
+      Complete
+    </Badge>
+  );
+}

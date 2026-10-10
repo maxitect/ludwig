@@ -118,7 +118,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T067](./T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
 | [T068](./T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117, T120–T138 | | ✔ | done |
 | [T069](./T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116, T120–T138 | | | done |
-| [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069 | | | todo |
+| [T070](./T070-production-launch.md) | Production launch on the Vercel domain | T068, T069, T143, T144, T146 | | | todo |
 | [T077](./T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |
 | [T112](./T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | done |
 | [T113](./T113-solve-mode-layout.md) | Solve mode, the full-height phone layout for the solve page | T018, T112 | | | done |
@@ -145,6 +145,10 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T138](./T138-v1-reveal-and-desk-scope.md) | Hide Reveal where it isn't built, and mark the Desk as post-launch | — | | | done |
 | [T140](./T140-landing-wall-motion.md) | Landing walls come alive, a game unwinding on The Board, letters on The Grid and digits in The Mirror (nice-to-have) | T067 | | | done |
 | [T142](./T142-solve-page-lcp.md) | Solve-page LCP on crossword and reverse chess (post-launch) | T069 | | | todo |
+| [T143](./T143-email-verification-password-reset.md) | Email verification, password reset and password change through Resend | — | ✔ | ✔ | todo |
+| [T144](./T144-about-page.md) | About page (who made this, why, and how to get in touch) | — | | ✔ | todo |
+| [T145](./T145-spot-difference-engraved-scenes.md) | Spot the difference: authored engraving scenes replace the procedural SVG | — | ✔ | | todo |
+| [T146](./T146-spot-difference-launch-scenes.md) | Spot the difference: five launch scenes from public-domain engravings | T145 | | ✔ | todo |
 
 ## M6: Radio Times set
 

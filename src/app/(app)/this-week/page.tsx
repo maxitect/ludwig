@@ -3,7 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { Credit, Walker } from "@/components/brand";
-import { SolvedBadge, type SolvedIds } from "@/components/puzzle/solved-badge";
+import { SolvedBadge } from "@/components/puzzle/solved-badge";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,

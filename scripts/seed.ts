@@ -1,7 +1,7 @@
 import path from "node:path";
 import { createInterface } from "node:readline/promises";
 import { pathToFileURL } from "node:url";
-import { and, count, eq, inArray, notExists, notInArray, or, sql } from "drizzle-orm";
+import { and, count, eq, gt, inArray, notExists, notInArray, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as defaultLookups from "../content/lookups";
@@ -131,6 +131,13 @@ export async function seed({
       { inserted: 0, updated: 0, removed: 0 },
     ]),
   );
+
+  // Puzzles are written one transaction each, so two puzzles swapping positions would collide
+  // on the unique constraint. Negating every position first frees the positive range.
+  await db
+    .update(puzzles)
+    .set({ volumePosition: sql`-${puzzles.volumePosition}` })
+    .where(gt(puzzles.volumePosition, 0));
 
   for (const { typeKey, slug, file, meta, content } of files) {
     try {

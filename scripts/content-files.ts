@@ -7,10 +7,27 @@ import { contentMetaSchema } from "../src/lib/data/puzzle-upsert";
 import { type Provenance, generatedSchema } from "../src/puzzles/generators";
 import type { PuzzleRegistry } from "../src/puzzles/registry";
 
-const fileMetaSchema = contentMetaSchema.extend({
-  reviewNote: z.string().optional(),
-  workings: z.string().optional(),
-});
+const fileMetaSchema = contentMetaSchema
+  .extend({
+    reviewNote: z.string().optional(),
+    workings: z.string().optional(),
+  })
+  .refine(
+    ({ volume, volumePosition }) =>
+      volume === undefined || volumePosition !== undefined,
+    {
+      path: ["volumePosition"],
+      message: "volumePosition is required when the file names a volume",
+    },
+  )
+  .refine(
+    ({ volume, volumePosition }) =>
+      volume !== undefined || volumePosition === undefined,
+    {
+      path: ["volumePosition"],
+      message: "volumePosition is only allowed when the file names a volume",
+    },
+  );
 
 export type ContentMeta = z.infer<typeof fileMetaSchema>;
 

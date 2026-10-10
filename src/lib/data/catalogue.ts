@@ -3,13 +3,18 @@ import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import { isPublished } from "./puzzles";
 
-/** Volume order, then slug, so the choice is stable. Puzzles outside a volume come last. */
+/** Volume order, then position, then slug, so the choice is stable. Puzzles outside a volume come last. */
 function firstInVolumeOrder<
-  T extends { slug: string; volume: { sort: number } | null },
+  T extends {
+    slug: string;
+    volumePosition: number | null;
+    volume: { sort: number } | null;
+  },
 >(puzzles: T[]) {
   return puzzles.toSorted(
     (a, b) =>
       (a.volume?.sort ?? Infinity) - (b.volume?.sort ?? Infinity) ||
+      (a.volumePosition ?? 0) - (b.volumePosition ?? 0) ||
       a.slug.localeCompare(b.slug),
   )[0];
 }
@@ -27,7 +32,7 @@ export async function getCatalogue() {
         orderBy: { sort: "asc" },
         with: {
           puzzles: {
-            columns: { id: true, slug: true },
+            columns: { id: true, slug: true, volumePosition: true },
             where: { RAW: isPublished },
             with: { volume: { columns: { sort: true } } },
           },
@@ -87,14 +92,14 @@ export async function getTypeCatalogue(typeKey: string) {
   };
 }
 
-/** Includes the next published puzzle in the same volume, ordered by slug. */
+/** Includes the next published puzzle in the same volume, ordered by position. */
 export async function getPuzzleSummary(typeKey: string, slug: string) {
   "use cache";
   cacheLife("minutes");
   cacheTag("puzzles");
   const puzzle = await db.query.puzzles.findFirst({
     where: { typeKey, slug, RAW: isPublished },
-    columns: { title: true, difficulty: true },
+    columns: { title: true, difficulty: true, volumePosition: true },
     with: {
       type: {
         columns: { name: true },
@@ -104,22 +109,25 @@ export async function getPuzzleSummary(typeKey: string, slug: string) {
         columns: { id: true },
         with: {
           puzzles: {
-            columns: { typeKey: true, slug: true },
-            where: { slug: { gt: slug }, RAW: isPublished },
-            orderBy: { slug: "asc" },
-            limit: 1,
+            columns: { typeKey: true, slug: true, volumePosition: true },
+            where: { RAW: isPublished },
+            orderBy: { volumePosition: "asc" },
           },
         },
       },
     },
   });
   if (!puzzle) return null;
+  const position = puzzle.volumePosition ?? 0;
   return {
     title: puzzle.title,
     difficulty: puzzle.difficulty,
     typeName: puzzle.type.name,
     categoryName: puzzle.type.category.name,
-    next: puzzle.volume?.puzzles[0] ?? null,
+    next:
+      puzzle.volume?.puzzles.find(
+        ({ volumePosition }) => (volumePosition ?? 0) > position,
+      ) ?? null,
   };
 }
 

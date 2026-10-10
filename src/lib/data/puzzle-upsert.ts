@@ -15,6 +15,7 @@ export const contentMetaSchema = puzzleInsertSchema
     difficulty: true,
     sourceNote: true,
     publishedAt: true,
+    volumePosition: true,
   })
   .extend({ volume: z.string().optional() });
 
@@ -78,6 +79,7 @@ async function writePuzzle(
 
     const values = {
       ...columns,
+      volumePosition: volumeId ? (columns.volumePosition ?? null) : null,
       sourceNote: columns.sourceNote ?? null,
       publishedAt: columns.publishedAt ?? null,
       volumeId,

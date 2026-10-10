@@ -56,8 +56,13 @@ const lookups = {
   ],
 };
 
-const contentFile = (slug: string, items: { position: number; label: string }[]) =>
-  `export const meta = { slug: "${slug}", title: "Fixture ${slug}", difficulty: 2, volume: "__fixture-volume" };
+let nextPosition = 1;
+const contentFile = (
+  slug: string,
+  items: { position: number; label: string }[],
+  volumePosition = nextPosition++,
+) =>
+  `export const meta = { slug: "${slug}", title: "Fixture ${slug}", difficulty: 2, volume: "__fixture-volume", volumePosition: ${volumePosition} };
 export const content = { note: "note-${slug}", items: ${JSON.stringify(items)} };
 `;
 
@@ -120,6 +125,27 @@ describe("seed", () => {
     expect(second.types.__fixture).toEqual({ inserted: 0, updated: 2, removed: 0 });
     expect(second.lookups.types.inserted).toBe(0);
     expect(await countPuzzles()).toBe(2);
+  });
+
+  it("lets two puzzles swap volume positions", async () => {
+    write("a", contentFile("a", items, 1));
+    write("b", contentFile("b", items, 2));
+    await run();
+    freshDir();
+    write("a", contentFile("a", items, 2));
+    write("b", contentFile("b", items, 1));
+
+    const swapped = await run();
+    expect(swapped.failures).toEqual([]);
+    const rows = await db
+      .select({ slug: puzzles.slug, position: puzzles.volumePosition })
+      .from(puzzles)
+      .where(eq(puzzles.typeKey, "__fixture"))
+      .orderBy(puzzles.volumePosition);
+    expect(rows).toEqual([
+      { slug: "b", position: 1 },
+      { slug: "a", position: 2 },
+    ]);
   });
 
   it("replaces child rows instead of merging them", async () => {

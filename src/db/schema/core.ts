@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   date,
+  integer,
   pgEnum,
   pgTable,
   primaryKey,
@@ -93,6 +94,7 @@ export const puzzles = pgTable(
     title: text("title").notNull(),
     difficulty: smallint("difficulty").notNull(),
     volumeId: uuid("volume_id").references(() => volumes.id),
+    volumePosition: integer("volume_position"),
     sourceNote: text("source_note"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -102,7 +104,15 @@ export const puzzles = pgTable(
   (table) => [
     unique("puzzles_type_key_slug_unique").on(table.typeKey, table.slug),
     unique("puzzles_id_type_key_unique").on(table.id, table.typeKey),
+    unique("puzzles_volume_id_volume_position_unique").on(
+      table.volumeId,
+      table.volumePosition,
+    ),
     check("puzzles_difficulty_check", sql`${table.difficulty} between 1 and 5`),
+    check(
+      "puzzles_volume_position_check",
+      sql`(${table.volumeId} is null) = (${table.volumePosition} is null)`,
+    ),
   ],
 );
 
@@ -126,6 +136,7 @@ export const weeklyPuzzles = pgTable(
 
 export const puzzleInsertSchema = createInsertSchema(puzzles, {
   difficulty: (schema) => schema.min(1).max(5),
+  volumePosition: (schema) => schema.min(1).nullish(),
 });
 
 export const weeklyPuzzleInsertSchema = createInsertSchema(weeklyPuzzles);

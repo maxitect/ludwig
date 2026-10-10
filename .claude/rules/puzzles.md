@@ -23,6 +23,7 @@ Every type in `src/puzzles/<type>/` has the same shape. Use `/new-puzzle-type` t
 | `derive.ts`        | Pure derivations used instead of stored values                                                     | schema types             |
 | `engine.ts`        | Pure simulation, generation and solving (flagship and generated types only)                        | schema types             |
 | `solver.tsx`       | `"use client"` UI                                                                                  | components, schema types |
+| `preview.tsx`      | Pure server component `Preview({ payload })`: a small static SVG of the starting state, no `"use client"`, under about 300 nodes | `_shared/preview/`, schema types, pure engines |
 
 - Register every type's server module in `src/puzzles/registry.ts`. A `PuzzleTypeModule` is `{ schema, meta, load, loadSolution, check, checkCell?, revealCell?, upsertContent, replaceAttemptState, loadAttemptState, clearAttemptState, verify? }`. Grid types add the per-cell hooks (SPEC §4.1). `loadAttemptState` reads back what `replaceAttemptState` wrote, and `clearAttemptState` deletes it.
 - `upsertContent` updates a puzzle's content in place: upsert on natural keys, delete only rows missing from the content, and never delete the subtype row of an existing puzzle. Content row ids (gears, rota workers and clues) stay stable across re-seeds, and `db:seed` never writes a `*_attempt*` table. Rows that `*_attempt*` tables reference must keep an FK without cascade, so a content change that removes them fails the seed for that puzzle. Child tables with no id and no attempt reference may be deleted and re-inserted (this also avoids transient unique violations when rows swap values).
@@ -30,6 +31,7 @@ Every type in `src/puzzles/<type>/` has the same shape. Use `/new-puzzle-type` t
 - **Engine-internal types.** A pure engine may declare its own internal types (for example spot the difference `Change`, `SceneObject`, `Kind`, `Colour`) when no table or schema covers them. The user approved this on 2026-10-03, so they need no sign-off. Anything that crosses the engine boundary (payload, answer, content, attempt state) still derives from the type's `schema.ts`.
 - A `load.ts` may call `loadSolution` when the payload is derived from the solution (anagram's tiles), provided it never returns an **(S)** value. The payload leak test (`payloadSchema.strict()` on a real `load` result) must prove it.
 - Shared pure code goes in `src/puzzles/_shared/`.
+- **Previews are not part of the module either.** Register each type's `Preview` in `src/puzzles/previews.ts`, typed so it must list every key in the registry (a new type fails typecheck until it ships one). A preview takes the `payloadSchema` payload only, so no **(S)** value can reach a shelf page. Draw with `_shared/preview/` parts on a paper surface (`fill-paper`, `fill-ink`), with no filters.
 - **Typed solvers use `PuzzleKeyboard`** (`src/puzzles/_shared/puzzle-keyboard/`) in solve mode, wired to the grid through `CellGridHandle.type` and `erase`. Never open the system keyboard for a typed solver on touch.
 
 ## Purity

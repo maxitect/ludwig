@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { ArrowRight } from "lucide-react";
 import { Credit, Walker } from "@/components/brand";
 import { SolvedBadge, type SolvedIds } from "@/components/puzzle/solved-badge";
+import { PuzzleThumbnail } from "@/components/puzzle/puzzle-thumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
@@ -251,7 +252,12 @@ function TrainSection({
         <ArrowRight aria-hidden="true" />
       </Link>
       {trains.length > 0 && (
-        <EntryList entries={trains} solved={solved} href={trainHref} />
+        <EntryList
+          entries={trains}
+          solved={solved}
+          href={trainHref}
+          typeKey="gear-train"
+        />
       )}
     </section>
   );
@@ -261,11 +267,13 @@ function EntryList({
   entries,
   solved,
   href = gearHref,
+  typeKey = "gears",
   showDifficulty = true,
 }: {
   entries: Entry[];
   solved: SolvedIds;
   href?: (slug: string) => string;
+  typeKey?: string;
   showDifficulty?: boolean;
 }) {
   return (
@@ -273,7 +281,8 @@ function EntryList({
       {entries.map((puzzle) => (
         <li key={puzzle.id} className="border-b-2 border-border">
           <Link href={href(puzzle.slug)} className={linkClass}>
-            <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
+            <PuzzleThumbnail typeKey={typeKey} puzzleId={puzzle.id} />
+            <span className="mr-auto font-display text-lg font-semibold tracking-[0.04em] uppercase">
               {puzzle.title}
             </span>
             <span className="flex items-center gap-3">

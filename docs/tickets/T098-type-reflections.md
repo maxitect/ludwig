@@ -38,6 +38,7 @@ A mirror-and-beam puzzle in the spirit of the show's sightline and CCTV puzzles 
   - a satisfied pair turns ink;
   - keyboard: arrows to move, `/` and `\` to place.
 - **Content:** 5 original puzzles from 5×5 to 8×8, with up to 16 slots each.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

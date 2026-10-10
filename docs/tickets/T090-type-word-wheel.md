@@ -27,6 +27,7 @@ The Radio Times word wheel gives nine letters with a compulsory centre. The play
 - **Check and save:** a server action accepts a submitted word when it fits the wheel and is in `words`, then stores it. Completion is set when the target is found. The client never receives the dictionary or the word list.
 - **Solver UI:** a circular wheel of letter tiles, the centre emphasised. Type or tap to build a word. The list of found words. The rating (Average, Good, Genius) with counts derived on the server.
 - **Content:** 5 original wheels.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

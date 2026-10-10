@@ -25,6 +25,7 @@ Troix is the Radio Times special's three-symbol take on binairo. Fill a 6×6 or 
 - **`check.ts`:** returns `cellsWrong`.
 - **Solver UI:** `CellInput`, where a tap cycles X, O, I and blank, and the keys `x`, `o`, `i` and Backspace work. A run of three, or a line over its quota, is marked. The symbols are drawn in the hand font, not as letters in the body font.
 - **Content:** 5 original puzzles: 2 at 6×6 and 3 at 9×9.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

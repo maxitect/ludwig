@@ -7,6 +7,7 @@ import { Credit, Walker } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PuzzleThumbnail } from "@/components/puzzle/puzzle-thumbnail";
 import { getTypeCatalogue, getTypeStaticParams } from "@/lib/data/catalogue";
 
 const DIFFICULTIES = [1, 2, 3, 4, 5];
@@ -172,7 +173,8 @@ async function PuzzleList({
                       href={`/puzzles/${typeKey}/${puzzle.slug}`}
                       className="flex items-center justify-between gap-4 py-3 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
-                      <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
+                      <PuzzleThumbnail typeKey={typeKey} puzzleId={puzzle.id} />
+                      <span className="mr-auto font-display text-lg font-semibold tracking-[0.04em] uppercase">
                         {puzzle.title}
                       </span>
                       <Badge variant="difficulty" level={puzzle.difficulty} />

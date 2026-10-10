@@ -32,6 +32,7 @@ Railroad (also called train tracks) is one of the Radio Times grid puzzles. You 
   - row and column counts turn complete or over;
   - the track-piece glyphs are ink-line SVG.
 - **Content:** 5 original puzzles from 6×6 to 8×8.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

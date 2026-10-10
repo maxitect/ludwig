@@ -29,6 +29,7 @@ Star battle is one of the Radio Times grid puzzles: place K stars in every row, 
   - keyboard: arrows, `s` for a star, `.` for a dot;
   - a star that touches another or overfills a unit is marked.
 - **Content:** 5 original puzzles: 2 at 1 star (6×6 to 8×8) and 3 at 2 stars (8×8 to 10×10).
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

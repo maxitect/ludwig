@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Suspense } from "react";
 import { Credit } from "@/components/brand";
 import { SolvedBadge, type SolvedIds } from "@/components/puzzle/solved-badge";
+import { PuzzleThumbnail } from "@/components/puzzle/puzzle-thumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
@@ -215,7 +216,8 @@ function ModeSections({ hub, solved }: { hub: Hub; solved: SolvedIds }) {
                 href={`/puzzles/reverse-chess/${puzzle.slug}`}
                 className="flex items-center justify-between gap-4 py-3 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
-                <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">
+                <PuzzleThumbnail typeKey="reverse-chess" puzzleId={puzzle.id} />
+                <span className="mr-auto font-display text-lg font-semibold tracking-[0.04em] uppercase">
                   {puzzle.title}
                 </span>
                 <span className="flex items-center gap-3">

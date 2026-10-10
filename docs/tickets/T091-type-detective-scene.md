@@ -40,6 +40,7 @@ The Radio Times special hid 50 TV crime-drama titles in one illustrated street. 
   - a "found N of M" counter;
   - Reveal lists the titles and rings their regions.
 - **Keyboard:** a focusable sector grid over the scene, as in spot-difference (T061), with Enter to pin a sector centre.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

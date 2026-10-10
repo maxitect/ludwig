@@ -29,6 +29,7 @@ Alan Connor's chess problem in the Radio Times special works forwards: "If you m
 - **Solver UI:** the T028 board. The player moves White, the engine's Black reply is shown with a short delay and labelled "B", and the final move is labelled "C". Reset and undo work. The Reverse Chess notation setting applies to the move list.
 - **Content:** 5 original problems: 2 mate in 1 and 3 mate in 2.
 - **FEN authoring for all chess content (user, 2026-10-07).** Chess-problem content files give the position as a FEN string, and the content schema parses it into the piece rows the tables already hold (nothing about the DB changes). Convert every Reverse Chess content file from piece lists to FEN in the same PR, so all chess content uses one format, and update SPEC §4.6 and the Reverse Chess content section. `puzzles:verify` and `db:seed` must give identical rows before and after the conversion (compare a dump of the piece tables).
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

@@ -29,6 +29,7 @@ Norinori is one of KrazyDad's lab formats (SPEC §1.1). Shade two cells per regi
   - the same keyboard model as star battle (T087), whichever lands first owns it;
   - shaded cells that break the domino rule are marked.
 - **Content:** 5 original puzzles from 6×6 to 10×10.
+- **Preview:** add `src/puzzles/<type>/preview.tsx` (T129) and register it in `src/puzzles/previews.ts`. Typecheck fails until you do.
 
 **Out**
 

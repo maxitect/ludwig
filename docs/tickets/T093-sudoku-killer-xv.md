@@ -31,6 +31,7 @@ Killer and XV sudoku are KrazyDad staples (SPEC §1.1). Like T084's region varia
   - X and V glyphs on the cell edges, positioned like the futoshiki signs;
   - a cage over its sum, or a broken XV pair, is marked.
 - **Content:** 3 original killer puzzles (at least one with no givens) and 2 original XV puzzles.
+- **Preview:** extend `src/puzzles/sudoku/preview.tsx` (T129) to draw cage outlines with their sums and the X and V marks from the payload.
 
 **Out**
 

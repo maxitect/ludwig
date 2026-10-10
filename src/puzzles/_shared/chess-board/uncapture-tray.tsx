@@ -12,6 +12,11 @@ const UNCAPTURE_PIECES = [
   "pawn",
 ] as const satisfies readonly PieceKind[];
 
+const FRAME = {
+  white: "bg-paper",
+  black: "bg-ink",
+} as const satisfies Record<Colour, string>;
+
 export type UncaptureChoice = (typeof UNCAPTURE_PIECES)[number] | "none";
 
 const isChoice = (value: string): value is UncaptureChoice =>
@@ -41,7 +46,9 @@ export function UncaptureTray({
           aria-label={`${colour} ${piece}`}
           className="size-12 p-0 data-[state=on]:border-primary data-[state=on]:bg-muted"
         >
-          <span className="block size-9 bg-paper [&_svg]:size-full!">
+          <span
+            className={`block size-9 [&_svg]:size-full! ${FRAME[colour]}`}
+          >
             <PieceGlyph colour={colour} piece={piece} shadow={false} />
           </span>
         </ToggleGroupItem>

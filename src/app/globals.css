@@ -251,10 +251,10 @@
 
 @keyframes walker-cross {
   from {
-    left: 0;
+    translate: 0 0;
   }
   to {
-    left: calc(100% - 1.5rem);
+    translate: calc(100cqw - 1.5rem) 0;
   }
 }
 
@@ -283,7 +283,7 @@
 }
 
 .walker-leg {
-  transform-origin: 12px 30px;
+  transform-origin: 50% 62.5%;
 }
 
 .walker-leg-a {

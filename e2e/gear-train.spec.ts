@@ -4,12 +4,13 @@ import { content as firstLink } from "../content/gear-train/first-link";
 import { content as lastDeparture } from "../content/gear-train/last-departure";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, gearTrainAttemptFor } from "./helpers/db";
-import { clickCheck } from "./helpers/solve";
+import { clickCheck, openPuzzle } from "./helpers/solve";
 
 type Board = { rows: number; cols: number };
 type Peg = { row: number; col: number };
 
-const open = (page: Page, slug: string) => page.goto(`/puzzles/gear-train/${slug}`);
+const open = (page: Page, slug: string) =>
+  openPuzzle(page, { typeKey: "gear-train", slug });
 const board = (page: Page) => page.getByRole("group", { name: "Pegboard" });
 const tray = (page: Page, teeth: number) =>
   page.getByRole("button", { name: new RegExp(`^${teeth}-tooth cog`) });

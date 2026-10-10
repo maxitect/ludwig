@@ -40,6 +40,7 @@ pnpm db:migrate       # Apply migrations (uses DATABASE_URL_UNPOOLED)
 pnpm db:seed          # Upsert lookups + content/ into the DB
 pnpm db:studio        # Drizzle Studio
 pnpm puzzles:verify   # Schema-parse, derive and uniqueness-check every content file
+pnpm perf:lighthouse  # Lighthouse over the fixed URL list against `pnpm start --port 3069` (build first)
 ```
 
 Some scripts are added during M0 and M1 (see `docs/PLAN.md`). If one is missing, add it to `package.json` as part of the ticket that needs it.

@@ -7,7 +7,7 @@ import {
   type Guesses,
 } from "../_shared/cipher-key/cipher-key";
 import { cn } from "@/utils/cn";
-import { usePadWanted } from "../_shared/puzzle-keyboard";
+import { usePadWanted, useTouchPhone } from "../_shared/puzzle-keyboard";
 import { CipherKeyPanel } from "../_shared/cipher-key/cipher-key-panel";
 import type { SolverProps } from "../solver-types";
 import { glyphCipher, symbolName } from "./derive";
@@ -40,7 +40,9 @@ export function Solver({
   onStateChange,
   registerCheck,
 }: SolverProps<typeof schema>) {
+  const touchPhone = useTouchPhone();
   const padWanted = usePadWanted();
+  const phoneKeyboardOff = touchPhone && !padWanted;
   const { letterOf, assetKeyOf, ciphertext } = useMemo(
     () => glyphCipher(payload),
     [payload],
@@ -98,7 +100,7 @@ export function Solver({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className={cn("text-lg", padWanted && "sr-only")}>
+      <p className={cn("text-lg touch:sr-only", phoneKeyboardOff && "touch:not-sr-only")}>
         Every stick figure stands for one letter, always the same one. A few are
         already filled in. Work out the rest from the words they make.
       </p>

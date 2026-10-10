@@ -228,7 +228,7 @@ src/puzzles/<type>/
 ```
 
 - Types come from `z.infer<…>` on schemas composed from the generated table schemas. There are no hand-written duplicates and no `any`.
-- `registry.ts` maps each `type_key` to its server module (`schema`, `meta`, `load`, `loadSolution`, `check`, `upsertContent` and the attempt-state functions). Client solvers live in a separate map, `solvers.ts`, which only the solve page imports, so scripts can load the registry without any client code.
+- `registry.ts` maps each `type_key` to its server module (`schema`, `meta`, `load`, `loadSolution`, `check`, `upsertContent` and the attempt-state functions). Client solvers live in a separate map, `solvers.tsx` (one lazy chunk per solver), which only the solve chrome imports, so scripts can load the registry without any client code.
 - **Per-cell hooks (optional, grid types).** A type whose answer is a grid may add two members to its module, first implemented by `crossword`:
   - `checkCell(payload, solution, row, col, value) → { correct }`: whether `value` is the solution's value at that cell.
   - `revealCell(solution, row, col) → value | null`: the one value at that cell, or null when there is no such cell.

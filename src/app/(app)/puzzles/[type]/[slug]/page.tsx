@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Credit, Walker } from "@/components/brand";
+import { Walker } from "@/components/brand";
 import { SolveChrome } from "@/components/puzzle/solve-chrome";
-import { Badge } from "@/components/ui/badge";
 import {
   getPuzzleStaticParams,
   getPuzzleSummary,
@@ -11,7 +10,6 @@ import {
 import { getAttemptState } from "@/lib/data/attempts";
 import { getPuzzleForPlay } from "@/lib/data/puzzles";
 import { getCurrentUser, getUserChessNotation } from "@/lib/data/user";
-import { getSolver } from "@/puzzles/solvers";
 
 export const generateStaticParams = getPuzzleStaticParams;
 
@@ -66,28 +64,12 @@ async function Solve({
     getCurrentUser(),
   ]);
   if (!play) notFound();
-  const Solver = getSolver(typeKey);
   const [initialState, chessNotation] = user
     ? await Promise.all([
         getAttemptState(user.id, play.puzzle.id),
         getUserChessNotation(user.id),
       ])
     : [null, undefined];
-
-  if (!Solver) {
-    return (
-      <section className="flex flex-col gap-4">
-        <Credit
-          level={1}
-          top={summary.categoryName}
-          bottom={summary.title}
-          className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl"
-        />
-        <Badge variant="difficulty" level={summary.difficulty} />
-        <p>The solver for {summary.typeName} is not open yet.</p>
-      </section>
-    );
-  }
 
   return (
     <SolveChrome
@@ -99,7 +81,6 @@ async function Solve({
       difficulty={summary.difficulty}
       payload={play.payload}
       initialState={initialState}
-      Solver={Solver}
       signedIn={user !== null}
       chessNotation={chessNotation}
       signInHref={`/sign-in?next=${encodeURIComponent(`/puzzles/${typeKey}/${slug}`)}`}

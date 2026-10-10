@@ -2,11 +2,13 @@ import { expect, type Page } from "@playwright/test";
 
 type CrosswordCell = { row: number; col: number; letter: string };
 
+/** The solver renders on the server and its chunk loads on demand, so wait for it to hydrate before any input. */
 export async function openPuzzle(
   page: Page,
   puzzle: { typeKey: string; slug: string },
 ) {
   await page.goto(`/puzzles/${puzzle.typeKey}/${puzzle.slug}`);
+  await page.waitForLoadState("networkidle");
 }
 
 export async function typeAnagram(page: Page, letters: string) {

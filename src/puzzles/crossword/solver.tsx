@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type Ref } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Ref,
+} from "react";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/utils/cn";
 import {
@@ -25,6 +26,10 @@ import { SolveSlot } from "../_shared/solve-slot";
 import type { SolverProps } from "../solver-types";
 import { deriveEntries, deriveWords, type Entry } from "./derive";
 import type * as schema from "./schema";
+
+const ClueSheet = lazy(() =>
+  import("./clue-sheet").then((module) => ({ default: module.ClueSheet })),
+);
 
 const DIRECTIONS = ["across", "down"] as const;
 
@@ -156,6 +161,8 @@ export function Solver({
   const [cellNotice, setCellNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [cluesOpen, setCluesOpen] = useState(false);
+  const [cluesEverOpened, setCluesEverOpened] = useState(false);
+  if (cluesOpen && !cluesEverOpened) setCluesEverOpened(true);
   const padWanted = usePadWanted();
   const grid = useRef<CellGridHandle>(null);
   const clueList = useRef<HTMLOListElement>(null);
@@ -431,43 +438,28 @@ export function Solver({
           </PuzzleKeyboard>
         </div>
       </SolveSlot>
-      <Sheet open={cluesOpen} onOpenChange={setCluesOpen}>
-        <SheetContent
-          side="bottom"
-          onOpenAutoFocus={(event) => {
-            if (!(event.currentTarget instanceof HTMLElement)) return;
-            const current = event.currentTarget.querySelector<HTMLElement>(
-              "[aria-current=true]",
-            );
-            if (!current) return;
-            event.preventDefault();
-            current.focus();
-          }}
-          onCloseAutoFocus={(event) => {
-            event.preventDefault();
-            grid.current?.focus();
-          }}
-        >
-          <SheetHeader>
-            <SheetTitle>Clues</SheetTitle>
-            <SheetDescription className="sr-only">
-              Choose a clue to jump to its entry.
-            </SheetDescription>
-          </SheetHeader>
-          <ClueTabs
-            className="px-4 pb-4"
-            entries={entries}
-            direction={direction}
-            activeEntry={activeEntry}
-            onDirection={selectDirection}
-            onSelect={(entry) => {
-              setCluesOpen(false);
-              selectEntry(entry);
-            }}
-            listClassName="max-h-[50dvh]"
-          />
-        </SheetContent>
-      </Sheet>
+      {cluesEverOpened && (
+        <Suspense fallback={null}>
+          <ClueSheet
+            open={cluesOpen}
+            onOpenChange={setCluesOpen}
+            onClosed={() => grid.current?.focus()}
+          >
+            <ClueTabs
+              className="px-4 pb-4"
+              entries={entries}
+              direction={direction}
+              activeEntry={activeEntry}
+              onDirection={selectDirection}
+              onSelect={(entry) => {
+                setCluesOpen(false);
+                selectEntry(entry);
+              }}
+              listClassName="max-h-[50dvh]"
+            />
+          </ClueSheet>
+        </Suspense>
+      )}
     </div>
   );
 }

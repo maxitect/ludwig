@@ -1,4 +1,5 @@
 import "server-only";
+import { cacheLife, cacheTag } from "next/cache";
 import { and, eq, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { puzzles } from "@/db/schema";
@@ -10,7 +11,11 @@ export const isPublished = (table: typeof puzzles) =>
 
 const published = isPublished(puzzles);
 
+/** The payload carries no solution and no session data, so it is cached for everyone and revalidated with the catalogue. */
 export async function getPuzzleForPlay(typeKey: string, slug: string) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("puzzles");
   const [puzzle] = await db
     .select({
       id: puzzles.id,

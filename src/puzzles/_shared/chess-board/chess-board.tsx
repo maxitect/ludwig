@@ -108,6 +108,17 @@ export function ChessBoard({
     return false;
   }
 
+  function handleSquareClick({ square, piece }: SquareHandlerArgs) {
+    const tapped = square as Square;
+    setCursor(tapped);
+    if (picked) {
+      if (picked !== tapped) drop(picked, tapped);
+      setPicked(null);
+    } else if (piece) {
+      setPicked(tapped);
+    }
+  }
+
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key in ARROW_KEYS) {
       event.preventDefault();
@@ -176,6 +187,7 @@ export function ChessBoard({
           showAnimations: !reducedMotion,
           animationDurationInMs: reducedMotion ? 0 : 200,
           onPieceDrop: handleDrop,
+          onSquareClick: interactive ? handleSquareClick : undefined,
           squareStyles,
           lightSquareStyle: { backgroundColor: "var(--color-paper)" },
           darkSquareStyle: { backgroundColor: "var(--color-ink)" },
@@ -232,7 +244,7 @@ export function ChessBoard({
         </svg>
       )}
       <p id={`${boardId}-help`} className="sr-only">
-        Drag a piece backwards, or use the arrow keys to move between squares
+        Drag a piece backwards, tap a piece and then a square, or use the arrow keys to move between squares
         and Enter to pick up and drop a piece.
       </p>
       <p aria-live="polite" className="sr-only">

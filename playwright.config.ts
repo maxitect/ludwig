@@ -29,5 +29,10 @@ export default defineConfig({
         hasTouch: true,
       },
     },
+    {
+      name: "iphone",
+      testMatch: /(-mobile|smoke)\.spec\.ts$/,
+      use: { ...devices["iPhone 15"] },
+    },
   ],
 });

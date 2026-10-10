@@ -316,7 +316,7 @@ export function Solver({
                     inputs.current[index]?.focus();
                   }}
                   className={cn(
-                    "border-2 border-ink px-1 py-1 text-center font-mono text-sm focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring",
+                    "border-2 border-ink px-1 py-1 text-center touch:min-h-11 font-mono text-sm focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring",
                     index === selected && "bg-ink text-paper",
                   )}
                 >
@@ -336,7 +336,7 @@ export function Solver({
                   onPointerDown={showPad}
                   onFocus={() => select(index)}
                   onChange={(event) => write(index, event.currentTarget.value)}
-                  className="min-w-0 flex-1 border-b-2 border-ink px-1 font-hand text-2xl text-crayon focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  className="min-w-0 flex-1 touch:h-11 border-b-2 border-ink px-1 font-hand text-2xl text-crayon focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
                 />
               </li>
             ))}

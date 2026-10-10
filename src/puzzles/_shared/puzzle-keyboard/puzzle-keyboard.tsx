@@ -37,7 +37,7 @@ function Key({
       type="button"
       aria-label={label}
       className={keyClass}
-      onPointerDown={(event) => event.preventDefault()}
+      onMouseDown={(event) => event.preventDefault()}
       onClick={onPress}
     >
       {children ?? label}
@@ -66,7 +66,7 @@ export function PuzzleKeyboard(props: PuzzleKeyboardProps) {
       {children && (
         <div
           className="flex gap-1 [&>*]:flex-1"
-          onPointerDown={(event) => event.preventDefault()}
+          onMouseDown={(event) => event.preventDefault()}
         >
           {children}
         </div>

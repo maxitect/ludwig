@@ -126,7 +126,7 @@ export function RotaBoard({
                     onDragStart={(event) =>
                       event.dataTransfer.setData("text/plain", token.id)
                     }
-                    className={`relative z-10 flex size-[76%] cursor-grab items-center justify-center paper-sheet font-display text-[0.7rem] font-bold tracking-wide focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-default sm:text-sm ${
+                    className={`relative z-10 flex size-[76%] touch:size-11 touch:shrink-0 cursor-grab items-center justify-center paper-sheet font-display text-[0.7rem] font-bold tracking-wide focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-default sm:text-sm ${
                       selectedId === token.id ? "bg-ludwig-red text-paper" : ""
                     }`}
                   >

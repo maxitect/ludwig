@@ -267,7 +267,7 @@ export function SolveChrome({
           <Link
             href={`/puzzles/${typeKey}`}
             aria-label={`Back to ${typeName}`}
-            className="hidden size-10 shrink-0 items-center justify-center focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring touch:flex"
+            className="hidden size-11 shrink-0 items-center justify-center focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring touch:flex"
           >
             <ChevronLeftIcon aria-hidden="true" />
           </Link>

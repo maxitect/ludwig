@@ -96,7 +96,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T057](./T057-type-napkin-maths.md) | Puzzle type: napkin maths | T019 | ✔ | | done |
 | [T058](./T058-shared-visibility-engine.md) | Shared `visibility.ts` engine | T016 | | | done |
 | [T059](./T059-type-sightlines.md) | Puzzle type: sightlines | T058, T021 | ✔ | | done |
-| [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | todo |
+| [T060](./T060-type-cctv-maze.md) | Puzzle type: CCTV maze | T058, T021 | ✔ | | done |
 | [T061](./T061-type-spot-difference.md) | Puzzle type: spot the difference (seeded SVG scenes) | T018 | ✔ | | done |
 | [T062](./T062-rota-tables-engine.md) | Rota (Reverse Chess Mode D): tables, clue kinds, engine | T016 | ✔ | | done |
 | [T063](./T063-rota-ui-content.md) | Rota UI, hub integration and content | T062, T028, T031 | | | done |
@@ -105,7 +105,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T082](./T082-gear-train-tables-engine.md) | Gear train (Gear Puzzle Mode B): tables, engine, uniqueness search | T016, T034 | ✔ | | done |
 | [T083](./T083-gear-train-ui-content.md) | Gear train UI, gears hub integration and content | T082, T043 | | | done |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
-| [T132](./T132-drop-rota-attempt-instigator.md) | Drop the unused `rota_attempts.instigator_worker_id` column | T063 | ✔ | | todo |
+| [T132](./T132-drop-rota-attempt-instigator.md) | Drop the unused `rota_attempts.instigator_worker_id` column | T063 | ✔ | | review |
 | [T133](./T133-reverse-chess-ply-count-trigger.md) | Enforce `reverse_chess_puzzles.ply_count` for every mode with a trigger | T081 | ✔ | | todo |
 
 ## M5: Polish and launch
@@ -122,9 +122,9 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T112](./T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | done |
 | [T113](./T113-solve-mode-layout.md) | Solve mode, the full-height phone layout for the solve page | T018, T112 | | | done |
 | [T114](./T114-puzzle-keyboard.md) | Shared on-screen `PuzzleKeyboard`, `CellGrid` keyboard mode and the device-keyboard setting | T113 | | | done |
-| [T115](./T115-crossword-on-phones.md) | Crossword on phones (clue bar, clue sheet, keyboard) | T114 | | | todo |
-| [T116](./T116-keyboard-other-types.md) | On-screen keyboard for sudoku, futoshiki and the ciphers | T114 | | | todo |
-| [T117](./T117-touch-pass.md) | Touch pass (tap targets, chess tap-to-move, spot-difference compare, Android backspace, WebKit project) | T113 | | | todo |
+| [T115](./T115-crossword-on-phones.md) | Crossword on phones (clue bar, clue sheet, keyboard) | T114 | | | done |
+| [T116](./T116-keyboard-other-types.md) | On-screen keyboard for sudoku, futoshiki and the ciphers | T114 | | | done |
+| [T117](./T117-touch-pass.md) | Touch pass (tap targets, chess tap-to-move, spot-difference compare, Android backspace, WebKit project) | T113 | | | review |
 | [T120](./T120-theme-surfaces-cast-shadows.md) | Theme-aware surfaces and cast shadows, with a guard against raw tokens | — | | | done |
 | [T121](./T121-chess-piece-outlines.md) | Chess pieces outlined in the opposite colour in both themes | T120 | | | done |
 | [T122](./T122-solved-footer-tear.md) | Solved footer, a small, ordered, framed tear behind the stamp | T120 | | | done |
@@ -134,7 +134,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T126](./T126-themed-not-found.md) | Themed 404 page and the root script-tag error | — | | | done |
 | [T127](./T127-book-cipher-layout.md) | Book cipher: lines never wrap on desktop, clear continuations on phones, aligned references | T120 | | | done |
 | [T128](./T128-page-polish.md) | Per-page polish (rota, hubs, collection, sign-in, kitchen sink) | T120 | | | done |
-| [T129](./T129-puzzle-preview-engine.md) | Puzzle preview engine and per-puzzle thumbnails | — | | | todo |
+| [T129](./T129-puzzle-preview-engine.md) | Puzzle preview engine and per-puzzle thumbnails | — | | | done |
 | [T130](./T130-collection-type-thumbnails.md) | Collection type cards show a representative preview | T129, T128 | | | todo |
 | [T131](./T131-check-shows-wrong-parts.md) | A failed check names the wrong parts, in the shared contract and the UI | T048, T100 | | | done |
 | [T134](./T134-volume-position.md) | Order puzzles within a volume by an authored position | — | ✔ | | todo |

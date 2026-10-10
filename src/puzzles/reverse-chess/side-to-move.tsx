@@ -5,7 +5,7 @@ export function SideToMove({ colour }: { colour: Colour }) {
     <p className="flex items-center gap-2" data-testid="side-to-move">
       <span
         aria-hidden="true"
-        className="block size-8 bg-paper [&_svg]:size-full!"
+        className={`block size-8 [&_svg]:size-full! ${colour === "white" ? "bg-paper" : "bg-ink"}`}
       >
         <PieceGlyph colour={colour} piece="king" shadow={false} />
       </span>

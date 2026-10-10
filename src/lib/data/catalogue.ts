@@ -3,6 +3,17 @@ import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import { isPublished } from "./puzzles";
 
+/** Volume order, then slug, so the choice is stable. Puzzles outside a volume come last. */
+function firstInVolumeOrder<
+  T extends { slug: string; volume: { sort: number } | null },
+>(puzzles: T[]) {
+  return puzzles.toSorted(
+    (a, b) =>
+      (a.volume?.sort ?? Infinity) - (b.volume?.sort ?? Infinity) ||
+      a.slug.localeCompare(b.slug),
+  )[0];
+}
+
 export async function getCatalogue() {
   "use cache";
   cacheLife("minutes");
@@ -14,7 +25,13 @@ export async function getCatalogue() {
       types: {
         columns: { key: true, name: true, description: true },
         orderBy: { sort: "asc" },
-        with: { puzzles: { columns: { id: true }, where: { RAW: isPublished } } },
+        with: {
+          puzzles: {
+            columns: { id: true, slug: true },
+            where: { RAW: isPublished },
+            with: { volume: { columns: { sort: true } } },
+          },
+        },
       },
     },
   });
@@ -23,6 +40,7 @@ export async function getCatalogue() {
     types: category.types.map(({ puzzles, ...type }) => ({
       ...type,
       published: puzzles.length,
+      representativeId: firstInVolumeOrder(puzzles)?.id ?? null,
     })),
   }));
 }

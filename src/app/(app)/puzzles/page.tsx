@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Credit, Walker } from "@/components/brand";
+import { TypeThumbnail } from "@/components/puzzle/puzzle-thumbnail";
 import { Badge } from "@/components/ui/badge";
 import { getCatalogue } from "@/lib/data/catalogue";
 
@@ -76,6 +77,11 @@ function TypeCardBody({
 }) {
   return (
     <>
+      <TypeThumbnail
+        typeKey={type.key}
+        puzzleId={type.representativeId}
+        className="w-full max-w-60 sm:w-full"
+      />
       <span className="flex items-center justify-between gap-3">
         <span className="font-display text-lg font-bold tracking-[0.04em] uppercase">
           {type.name}

@@ -196,6 +196,7 @@ function SolveBoard({
   const onStateChange = useCallback<SolverProps["onStateChange"]>(
     (state) => {
       setWrongParts(undefined);
+      if (solved) return;
       if (!signedIn) {
         if (localRead.current) writeProgress(puzzleId, typeKey, state);
         return;
@@ -204,7 +205,7 @@ function SolveBoard({
       pendingState.current = state;
       saveTimeout.current = setTimeout(flushSave, SAVE_DEBOUNCE_MS);
     },
-    [puzzleId, typeKey, signedIn, flushSave],
+    [puzzleId, typeKey, signedIn, solved, flushSave],
   );
 
   function check() {

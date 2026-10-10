@@ -149,6 +149,14 @@ describe("SolveChrome already solved", () => {
     renderChrome(false);
     await screen.findByText(/Solved in/);
   });
+
+  it("saves no edit made after solving", async () => {
+    renderChrome(true, { answer: "x" }, { durationMs: 83_000 });
+    await screen.findByTestId("solved-stamp");
+    await userEvent.click(screen.getByRole("button", { name: "Place" }));
+    cleanup();
+    expect(actions.saveState).not.toHaveBeenCalled();
+  });
 });
 
 describe("SolveChrome Reset", () => {

@@ -1,9 +1,10 @@
 import { Chess } from "chess.js";
 import { describe, expect, it } from "vitest";
+import { pieceCode } from "@/puzzles/_shared/chess-board/squares";
 import { WALL_START, WALL_UN_MOVES } from "./wall-board";
 
-const code = (colour: string, piece: string) =>
-  `${colour === "white" ? "w" : "b"}${piece === "knight" ? "n" : piece[0]}`;
+const chessCode = (color: string, type: string) =>
+  `${color}${type.toUpperCase()}`;
 
 function replay() {
   const chess = new Chess();
@@ -17,11 +18,12 @@ describe("landing wall board", () => {
     const played = chess
       .board()
       .flat()
-      .filter((cell) => cell !== null && Number(cell.square[1]) >= 3)
-      .map((cell) => `${cell!.square}:${cell!.color}${cell!.type}`)
+      .filter((cell) => cell !== null)
+      .filter((cell) => Number(cell.square[1]) >= 3)
+      .map((cell) => `${cell.square}:${chessCode(cell.color, cell.type)}`)
       .sort();
     const drawn = WALL_START.map(
-      ({ colour, piece, square }) => `${square}:${code(colour, piece)}`,
+      ({ colour, piece, square }) => `${square}:${pieceCode(colour, piece)}`,
     ).sort();
     expect(drawn).toEqual(played);
   });
@@ -29,17 +31,17 @@ describe("landing wall board", () => {
   it("makes each un-move the reverse of the matching game move", () => {
     const { moves } = replay();
     const reversed = [moves[3], moves[2], moves[1]];
-    const queenStart = WALL_START.find(({ piece }) => piece === "queen")!;
+    const queenStart = WALL_START.find(({ piece }) => piece === "queen");
     expect(WALL_UN_MOVES.map(({ square }) => square)).toEqual(
       reversed.map((move) => move.to),
     );
-    expect(queenStart.square).toBe(reversed[0].to);
+    expect(queenStart?.square).toBe(reversed[0].to);
     expect(WALL_UN_MOVES.map(({ to }) => to)).toEqual(
       reversed.map((move) => move.from),
     );
     WALL_UN_MOVES.forEach((unMove, index) => {
-      expect(code(unMove.colour, unMove.piece)).toBe(
-        `${reversed[index].color}${reversed[index].piece}`,
+      expect(pieceCode(unMove.colour, unMove.piece)).toBe(
+        chessCode(reversed[index].color, reversed[index].piece),
       );
     });
   });

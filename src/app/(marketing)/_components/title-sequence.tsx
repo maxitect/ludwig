@@ -4,6 +4,7 @@ import { Credit, Raking, Walker, Wordmark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { PieceGlyph } from "@/puzzles/_shared/chess-board/pieces";
 import type { PieceKind } from "@/puzzles/_shared/chess-board/squares";
+import { cn } from "@/utils/cn";
 import { MirroredSudoku } from "./mirrored-sudoku";
 import { ScrollFallback } from "./scroll-fallback";
 import { wallCell, WALL_START, WALL_UN_MOVES, type WallPiece } from "./wall-board";
@@ -44,10 +45,12 @@ function wordLetterStyle(index: number): CSSProperties {
 function GridWord({
   className,
   letters,
+  seed = 0,
   skip = 0,
 }: {
   className: string;
   letters: string;
+  seed?: number;
   skip?: number;
 }) {
   return (
@@ -56,7 +59,7 @@ function GridWord({
         <span
           key={index}
           className={index < skip ? "invisible" : undefined}
-          style={wordLetterStyle(index + (className === "seq-grid-ink" ? 4 : 0))}
+          style={wordLetterStyle(seed + index)}
         >
           {letter}
         </span>
@@ -66,7 +69,7 @@ function GridWord({
 }
 
 function WallPieceGlyph({
-  className = "",
+  className,
   piece: { colour, piece, square },
   to,
 }: {
@@ -84,7 +87,7 @@ function WallPieceGlyph({
   } as CSSProperties;
   return (
     <div
-      className={`seq-bpiece ${Math.abs(col) > 1 ? "seq-bpiece-far" : ""} ${className}`}
+      className={cn("seq-bpiece", Math.abs(col) > 1 && "seq-bpiece-far", className)}
       style={style}
     >
       <PieceGlyph colour={colour} piece={piece} />
@@ -105,7 +108,7 @@ export function TitleSequence() {
               <div className="seq-plane seq-wall-right" />
               <div className="seq-plane seq-wall seq-wall-grid">
                 <GridWord className="seq-grid-ludwig" letters="LUDWIG" />
-                <GridWord className="seq-grid-ink" letters="INK" skip={1} />
+                <GridWord className="seq-grid-ink" letters="INK" seed={4} skip={1} />
               </div>
               <div className="seq-plane seq-wall seq-wall-board">
                 {WALL_START.filter(({ piece }) => piece !== "queen").map(

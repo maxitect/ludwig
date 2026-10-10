@@ -17,13 +17,13 @@
 @media (min-width: 64rem) {
   .title-sequence {
     --seq-calm: 16deg;
-    --seq-peak: 44deg;
+    --seq-peak: 62deg;
   }
 }
 
-@media (min-width: 110rem) {
+@media (min-width: 128rem) {
   .title-sequence {
-    --seq-peak: 62deg;
+    --seq-peak: 74deg;
   }
 }
 

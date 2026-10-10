@@ -4,6 +4,27 @@
   --seq-ink: color-mix(in srgb, var(--foreground) 88%, transparent);
   --seq-tile: color-mix(in srgb, var(--color-shadow) 70%, transparent);
   --seq-rake: var(--color-shadow);
+  --seq-calm: 4deg;
+  --seq-peak: 22deg;
+}
+
+@media (min-width: 48rem) {
+  .title-sequence {
+    --seq-calm: 12deg;
+  }
+}
+
+@media (min-width: 64rem) {
+  .title-sequence {
+    --seq-calm: 16deg;
+    --seq-peak: 62deg;
+  }
+}
+
+@media (min-width: 128rem) {
+  .title-sequence {
+    --seq-peak: 74deg;
+  }
 }
 
 :root[data-theme="ink"] .title-sequence {
@@ -96,15 +117,55 @@
   background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat;
 }
 
+.seq-grid-word {
+  position: absolute;
+  left: 0;
+  display: flex;
+  color: var(--color-primary);
+  font-family: var(--font-hand);
+  font-size: calc(var(--seq-cell) * 0.8);
+  line-height: var(--seq-cell);
+  text-align: center;
+}
+
+.seq-grid-word > span {
+  width: var(--seq-cell);
+  height: var(--seq-cell);
+}
+
+.seq-grid-ludwig {
+  top: 0;
+  flex-direction: column;
+}
+
+.seq-grid-ink {
+  top: calc(var(--seq-cell) * 4);
+}
+
 .seq-wall-board {
   opacity: 0;
+  overflow: clip;
   background-image: conic-gradient(
     var(--seq-ink) 25%,
     transparent 0 50%,
     var(--seq-ink) 0 75%,
     transparent 0
   );
+  background-position: calc(50% + var(--seq-cell) / 2) 0;
   background-size: calc(var(--seq-cell) * 2) calc(var(--seq-cell) * 2);
+}
+
+.seq-bpiece {
+  position: absolute;
+  left: calc(50% - var(--seq-cell) / 2 + var(--col) * var(--seq-cell));
+  top: calc(var(--row) * var(--seq-cell));
+  width: var(--seq-cell);
+  height: var(--seq-cell);
+}
+
+.seq-bpiece-white-pawn,
+.seq-bpiece-black-pawn {
+  opacity: 0;
 }
 
 .seq-wall-mirror {
@@ -307,6 +368,10 @@
 }
 
 @media (max-width: 47.99rem) {
+  .seq-bpiece-far {
+    display: none;
+  }
+
   .seq-piece-a {
     left: -1rem;
   }
@@ -323,10 +388,20 @@
 
 @keyframes seq-world {
   from {
-    transform: rotateY(-16deg) translateZ(0);
+    transform: rotateY(-16deg) rotateX(0deg) translateZ(0px);
   }
-  50% {
-    transform: rotateY(22deg) rotateX(4deg) translateZ(260px);
+  6%,
+  26%,
+  40%,
+  58%,
+  72%,
+  86% {
+    transform: rotateY(var(--seq-calm)) rotateX(0deg) translateZ(0px);
+  }
+  33%,
+  65%,
+  88% {
+    transform: rotateY(var(--seq-peak)) rotateX(4deg) translateZ(260px);
   }
   to {
     transform: rotateY(-6deg) rotateX(-6deg) translateZ(520px);
@@ -348,10 +423,10 @@
 
 @keyframes seq-wall-grid {
   0%,
-  28% {
+  30% {
     opacity: 1;
   }
-  38%,
+  36%,
   100% {
     opacity: 0;
   }
@@ -359,14 +434,14 @@
 
 @keyframes seq-wall-board {
   0%,
-  28% {
+  30% {
     opacity: 0;
   }
-  38%,
-  60% {
+  36%,
+  62% {
     opacity: 1;
   }
-  70%,
+  68%,
   100% {
     opacity: 0;
   }
@@ -374,10 +449,10 @@
 
 @keyframes seq-wall-mirror {
   0%,
-  60% {
+  62% {
     opacity: 0;
   }
-  70%,
+  68%,
   100% {
     opacity: 1;
   }
@@ -389,7 +464,7 @@
     opacity: 1;
     pointer-events: auto;
   }
-  34%,
+  32%,
   100% {
     opacity: 0;
     pointer-events: none;
@@ -398,16 +473,16 @@
 
 @keyframes seq-caption-2 {
   0%,
-  28% {
+  34% {
     opacity: 0;
     pointer-events: none;
   }
-  38%,
+  40%,
   58% {
     opacity: 1;
     pointer-events: auto;
   }
-  66%,
+  64%,
   100% {
     opacity: 0;
     pointer-events: none;
@@ -416,14 +491,118 @@
 
 @keyframes seq-caption-3 {
   0%,
-  60% {
+  66% {
     opacity: 0;
     pointer-events: none;
   }
-  70%,
+  72%,
   100% {
     opacity: 1;
     pointer-events: auto;
+  }
+}
+
+@keyframes seq-grid-ludwig {
+  0%,
+  12% {
+    clip-path: inset(0 0 100% 0);
+    animation-timing-function: steps(6, end);
+  }
+  24%,
+  100% {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes seq-grid-ink {
+  0%,
+  24% {
+    clip-path: inset(0 66.667% 0 0);
+    animation-timing-function: steps(2, end);
+  }
+  28%,
+  100% {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes seq-board-queen {
+  0%,
+  41% {
+    translate: 0 0;
+  }
+  45%,
+  100% {
+    translate: calc(var(--dx) * var(--seq-cell)) calc(var(--dy) * var(--seq-cell));
+  }
+}
+
+@keyframes seq-board-white-pawn {
+  0%,
+  41% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  43%,
+  47% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  51%,
+  100% {
+    opacity: 1;
+    translate: calc(var(--dx) * var(--seq-cell)) calc(var(--dy) * var(--seq-cell));
+  }
+}
+
+@keyframes seq-board-black-pawn {
+  0%,
+  47% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  49%,
+  53% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  56%,
+  100% {
+    opacity: 1;
+    translate: calc(var(--dx) * var(--seq-cell)) calc(var(--dy) * var(--seq-cell));
+  }
+}
+
+@keyframes seq-mirror-r4 {
+  0%,
+  72% {
+    opacity: 0;
+  }
+  78%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes seq-mirror-r5 {
+  0%,
+  78% {
+    opacity: 0;
+  }
+  84%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes seq-mirror-r6 {
+  0%,
+  84% {
+    opacity: 0;
+  }
+  90%,
+  100% {
+    opacity: 1;
   }
 }
 
@@ -471,7 +650,13 @@
     .seq-wall-mirror,
     .seq-caption,
     .seq-walker .walker-figure,
-    .seq-piece {
+    .seq-piece,
+    .seq-grid-ludwig,
+    .seq-grid-ink,
+    .seq-bpiece-queen,
+    .seq-bpiece-white-pawn,
+    .seq-bpiece-black-pawn,
+    .seq-mirror-digit {
       animation-timing-function: linear;
       animation-fill-mode: both;
       animation-iteration-count: 1;
@@ -543,6 +728,38 @@
       animation-name: seq-piece-c;
     }
 
+    .seq-grid-ludwig {
+      animation-name: seq-grid-ludwig;
+    }
+
+    .seq-grid-ink {
+      animation-name: seq-grid-ink;
+    }
+
+    .seq-bpiece-queen {
+      animation-name: seq-board-queen;
+    }
+
+    .seq-bpiece-white-pawn {
+      animation-name: seq-board-white-pawn;
+    }
+
+    .seq-bpiece-black-pawn {
+      animation-name: seq-board-black-pawn;
+    }
+
+    .seq-mirror-r4 {
+      animation-name: seq-mirror-r4;
+    }
+
+    .seq-mirror-r5 {
+      animation-name: seq-mirror-r5;
+    }
+
+    .seq-mirror-r6 {
+      animation-name: seq-mirror-r6;
+    }
+
     @supports (animation-timeline: view()) {
       .seq-track {
         view-timeline: --seq block;
@@ -555,7 +772,13 @@
       .seq-wall-mirror,
       .seq-caption,
       .seq-walker .walker-figure,
-      .seq-piece {
+      .seq-piece,
+      .seq-grid-ludwig,
+      .seq-grid-ink,
+      .seq-bpiece-queen,
+      .seq-bpiece-white-pawn,
+      .seq-bpiece-black-pawn,
+      .seq-mirror-digit {
         animation-duration: auto;
         animation-play-state: running;
         animation-delay: 0s;

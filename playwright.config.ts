@@ -30,6 +30,18 @@ export default defineConfig({
       },
     },
     {
+      name: "landing-fallback",
+      testMatch: /landing-walls\.spec\.ts$/,
+      use: {
+        ...devices["Desktop Firefox"],
+        launchOptions: {
+          firefoxUserPrefs: {
+            "layout.css.scroll-driven-animations.enabled": false,
+          },
+        },
+      },
+    },
+    {
       name: "iphone",
       testMatch: /(-mobile|smoke)\.spec\.ts$/,
       use: { ...devices["iPhone 15"] },

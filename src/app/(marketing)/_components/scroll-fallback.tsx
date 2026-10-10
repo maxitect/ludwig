@@ -12,6 +12,7 @@ export function ScrollFallback() {
     const track = root?.querySelector<HTMLElement>(".seq-track");
     if (!root || !track) return;
 
+    root.dataset.seqScroll = "";
     let frame = 0;
     const update = () => {
       frame = 0;
@@ -34,6 +35,7 @@ export function ScrollFallback() {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       root.style.removeProperty("--seq-progress");
+      delete root.dataset.seqScroll;
     };
   }, []);
 

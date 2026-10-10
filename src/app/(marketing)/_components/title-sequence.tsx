@@ -1,10 +1,13 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { Credit, Raking, Walker, Wordmark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { PieceGlyph } from "@/puzzles/_shared/chess-board/pieces";
 import type { PieceKind } from "@/puzzles/_shared/chess-board/squares";
+import { cn } from "@/utils/cn";
 import { MirroredSudoku } from "./mirrored-sudoku";
 import { ScrollFallback } from "./scroll-fallback";
+import { wallCell, WALL_START, WALL_UN_MOVES, type WallPiece } from "./wall-board";
 import "./title-sequence.css";
 
 const ROOMS = [
@@ -35,6 +38,63 @@ function ToppledPiece({
   );
 }
 
+function wordLetterStyle(index: number): CSSProperties {
+  return { rotate: `${((index * 37) % 5) - 2}deg` };
+}
+
+function GridWord({
+  className,
+  letters,
+  seed = 0,
+  skip = 0,
+}: {
+  className: string;
+  letters: string;
+  seed?: number;
+  skip?: number;
+}) {
+  return (
+    <div className={`seq-grid-word ${className}`}>
+      {Array.from(letters, (letter, index) => (
+        <span
+          key={index}
+          className={index < skip ? "invisible" : undefined}
+          style={wordLetterStyle(seed + index)}
+        >
+          {letter}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function WallPieceGlyph({
+  className,
+  piece: { colour, piece, square },
+  to,
+}: {
+  className?: string;
+  piece: WallPiece;
+  to?: WallPiece["square"];
+}) {
+  const { col, row } = wallCell(square);
+  const target = to ? wallCell(to) : { col, row };
+  const style = {
+    "--col": col,
+    "--row": row,
+    "--dx": target.col - col,
+    "--dy": target.row - row,
+  } as CSSProperties;
+  return (
+    <div
+      className={cn("seq-bpiece", Math.abs(col) > 1 && "seq-bpiece-far", className)}
+      style={style}
+    >
+      <PieceGlyph colour={colour} piece={piece} />
+    </div>
+  );
+}
+
 export function TitleSequence() {
   return (
     <main className="title-sequence">
@@ -46,10 +106,27 @@ export function TitleSequence() {
               <div className="seq-plane seq-floor" />
               <div className="seq-plane seq-wall-left" />
               <div className="seq-plane seq-wall-right" />
-              <div className="seq-plane seq-wall seq-wall-grid" />
-              <div className="seq-plane seq-wall seq-wall-board" />
+              <div className="seq-plane seq-wall seq-wall-grid">
+                <GridWord className="seq-grid-ludwig" letters="LUDWIG" />
+                <GridWord className="seq-grid-ink" letters="INK" seed={4} skip={1} />
+              </div>
+              <div className="seq-plane seq-wall seq-wall-board">
+                {WALL_START.filter(({ piece }) => piece !== "queen").map(
+                  (piece) => (
+                    <WallPieceGlyph key={piece.square} piece={piece} />
+                  ),
+                )}
+                {WALL_UN_MOVES.map(({ id, to, ...piece }) => (
+                  <WallPieceGlyph
+                    key={id}
+                    className={`seq-bpiece-${id}`}
+                    piece={piece}
+                    to={to}
+                  />
+                ))}
+              </div>
               <div className="seq-plane seq-wall seq-wall-mirror">
-                <MirroredSudoku className="size-full" />
+                <MirroredSudoku className="size-full" writeIn />
               </div>
             </div>
           </div>

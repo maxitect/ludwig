@@ -91,7 +91,10 @@ export function ChessBoard({
   useEffect(() => {
     rootRef.current
       ?.querySelectorAll<HTMLElement>("[aria-roledescription]")
-      .forEach((node) => node.setAttribute("tabindex", "-1"));
+      .forEach((node) => {
+        node.setAttribute("tabindex", "-1");
+        node.setAttribute("aria-hidden", "true");
+      });
   });
 
   function drop(source: Square, target: Square) {

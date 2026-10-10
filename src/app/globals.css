@@ -192,6 +192,11 @@
     border-color: var(--border);
   }
 
+  :where(a, button, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);

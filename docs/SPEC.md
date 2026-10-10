@@ -649,7 +649,7 @@ Install components with `pnpm dlx shadcn@latest add …`, then restyle them in p
 | Component | Ludwig treatment |
 |---|---|
 | Button (primary) | Red fill, paper text, Josefin 700 caps, 0 radius, 2px `border`, 3px hard offset shadow in `--cast` that collapses on press |
-| Button (disabled) | Every variant: `muted` fill, `muted-foreground` text, a `muted-foreground` border and no shadow (ghost keeps no fill or border). Never opacity, so a disabled button looks the same in both themes and no grain shows through the fill. Disabled menu items (the solve-page CHECK on phones) use `muted-foreground` text, not opacity |
+| Button (disabled) | Every variant: `muted` fill, `muted-foreground` text, a `muted-foreground` border and no shadow (ghost keeps no fill or border). Disabled Tabs and Toggles follow the same treatment. Never opacity, so a disabled button looks the same in both themes and no grain shows through the fill. Disabled menu items (the solve-page CHECK on phones) use `muted-foreground` text, not opacity |
 | Button (secondary) | Paper fill, ink border, ink text. Hover inverts to an ink fill (a "black square") |
 | Input | Bottom-border-only "answer line", or a cell variant (`<CellInput>`): one square per letter, handwritten red entry |
 | Card | `card` surface (paper in Paper, ink in Ink) with grain, 2px `border` and a `--cast` block shadow. Optional clue number in the top-left corner. Volume cards styled as Pocket Puzzle Collection covers (book-blue, white signature, pale caps band) |

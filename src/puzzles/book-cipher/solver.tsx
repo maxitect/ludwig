@@ -17,6 +17,7 @@ import {
   showPad,
   usePadWanted,
   usePuzzleKeyboard,
+  useTouchPhone,
 } from "../_shared/puzzle-keyboard";
 import { SolveBarButton } from "../_shared/solve-bar-button";
 import { SolveSlot } from "../_shared/solve-slot";
@@ -114,6 +115,7 @@ export function Solver({
   const rowStarts = useRowStarts(bookLines, page);
   const padActive = usePuzzleKeyboard();
   const padWanted = usePadWanted();
+  const phoneReader = useTouchPhone() && !padWanted;
 
   useEffect(() => {
     registerCheck(() =>
@@ -178,7 +180,7 @@ export function Solver({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className={cn("text-lg", padWanted && "sr-only")}>
+      <p className={cn("text-lg touch:sr-only", phoneReader && "touch:not-sr-only")}>
         Each reference names a page, a line and a word in the book. Find the
         word, write it down, and read the message the words make together.
       </p>
@@ -189,8 +191,8 @@ export function Solver({
           tabIndex={0}
           onKeyDown={onReaderKeyDown}
           className={cn(
-            "paper-sheet order-2 flex flex-col gap-4 p-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:order-1 lg:p-4",
-            padWanted && "order-1 max-h-(--solver-height)",
+            "paper-sheet order-2 flex flex-col gap-4 p-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:order-1 lg:p-4 touch:order-1 touch:max-h-(--solver-height)",
+            phoneReader && "touch:order-2 touch:max-h-none",
           )}
         >
           <header className="flex flex-col gap-1">
@@ -199,8 +201,8 @@ export function Solver({
           </header>
           <div
             className={cn(
-              "@container/book-page",
-              padWanted && "min-h-0 overflow-y-auto",
+              "@container/book-page touch:min-h-0 touch:overflow-y-auto",
+              phoneReader && "touch:min-h-auto touch:overflow-visible",
             )}
           >
             <ol
@@ -297,8 +299,8 @@ export function Solver({
         <section
           aria-label="References"
           className={cn(
-            "paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 lg:order-2 lg:p-4",
-            padWanted && "order-2",
+            "paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 lg:order-2 lg:p-4 touch:order-2",
+            phoneReader && "touch:order-1",
           )}
         >
           <h2 className={panelTitle}>References</h2>

@@ -4,10 +4,17 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { z } from "zod";
 import { Credit, Walker } from "@/components/brand";
+import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  CompleteBadge,
+  SolvedBadge,
+  type SolvedIds,
+} from "@/components/puzzle/solved-badge";
 import { PuzzleThumbnail } from "@/components/puzzle/puzzle-thumbnail";
+import { getSolvedPuzzleIds } from "@/lib/data/attempts";
 import { getTypeCatalogue, getTypeStaticParams } from "@/lib/data/catalogue";
 
 const DIFFICULTIES = [1, 2, 3, 4, 5];
@@ -51,11 +58,20 @@ export default async function TypePage({
   const catalogue = await getTypeCatalogue(typeKey);
   if (!catalogue) notFound();
   const { type, volumes } = catalogue;
+  const solved = getSolvedPuzzleIds(catalogue.puzzles.map(({ id }) => id));
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
       <header className="flex flex-col gap-3">
+        <BackLink href="/puzzles" label="Back to Collection" />
         <Credit level={1} top={type.category.name} bottom={type.name} />
+        <Suspense fallback={null}>
+          <CompleteBadge
+            puzzleIds={catalogue.puzzles.map(({ id }) => id)}
+            solved={solved}
+            className="self-start"
+          />
+        </Suspense>
         <p>{type.description}</p>
         {Object.hasOwn(EPIGRAPHS, type.key) && (
           <figure className="border-l-4 border-ludwig-red pl-4">
@@ -103,6 +119,7 @@ export default async function TypePage({
         <PuzzleList
           typeKey={type.key}
           puzzles={catalogue.puzzles}
+          solved={solved}
           searchParams={searchParams}
         />
       </Suspense>
@@ -113,10 +130,12 @@ export default async function TypePage({
 async function PuzzleList({
   typeKey,
   puzzles,
+  solved,
   searchParams,
 }: {
   typeKey: string;
   puzzles: NonNullable<Awaited<ReturnType<typeof getTypeCatalogue>>>["puzzles"];
+  solved: SolvedIds;
   searchParams: PageProps<"/puzzles/[type]">["searchParams"];
 }) {
   const { difficulty: rawDifficulty } = await searchParams;
@@ -177,7 +196,12 @@ async function PuzzleList({
                       <span className="mr-auto font-display text-lg font-semibold tracking-[0.04em] uppercase">
                         {puzzle.title}
                       </span>
-                      <Badge variant="difficulty" level={puzzle.difficulty} />
+                      <span className="flex items-center gap-3">
+                        <Suspense fallback={null}>
+                          <SolvedBadge puzzleId={puzzle.id} solved={solved} />
+                        </Suspense>
+                        <Badge variant="difficulty" level={puzzle.difficulty} />
+                      </span>
                     </Link>
                   </li>
                 ))}

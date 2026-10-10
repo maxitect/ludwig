@@ -8,7 +8,7 @@ export function PuzzleMenuButton(props: ComponentProps<typeof Button>) {
       variant="ghost"
       size="icon"
       aria-label="Puzzle menu"
-      className="hidden touch:inline-flex"
+      className="hidden touch:group-has-[[data-solve-slot]:not(:empty)]/solve:inline-flex"
       {...props}
     >
       <EllipsisVerticalIcon aria-hidden="true" />

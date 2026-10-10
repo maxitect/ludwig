@@ -45,6 +45,7 @@ export async function getCatalogue() {
     types: category.types.map(({ puzzles, ...type }) => ({
       ...type,
       published: puzzles.length,
+      puzzleIds: puzzles.map(({ id }) => id),
       representativeId: firstInVolumeOrder(puzzles)?.id ?? null,
     })),
   }));

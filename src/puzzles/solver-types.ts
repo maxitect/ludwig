@@ -14,6 +14,8 @@ export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
   solved?: boolean;
   /** Asks the chrome to check the registered answer now, for types that complete without a Check press. */
   requestCheck?(): void;
+  /** Asks the chrome to reset the puzzle, for solvers that draw their own Check and Reset buttons. */
+  requestReset?(): void;
   /** The rungs the last Check rejected, for the word ladder. A new array arrives with every wrong Check. */
   rungProblems?: RungProblem[];
   /** The parts the last full Check named as wrong. The chrome clears them on the player's next edit. */

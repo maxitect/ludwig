@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   clearAttemptState,
   completeAttempt,
+  getCompletion,
   getOrCreateAttempt,
   recordHint,
   replaceAttemptState,
@@ -55,6 +56,7 @@ export async function saveState(
   if (!typeKey) return notFound;
   const parsed = getPuzzleModule(typeKey).schema.attemptSchema.safeParse(state);
   if (!parsed.success) return invalid;
+  if (await getCompletion(user.id, puzzleId)) return invalid;
   const attempt = await getOrCreateAttempt(user.id, puzzleId);
   await replaceAttemptState(attempt.id, parsed.data);
   return { ok: true };
@@ -65,6 +67,7 @@ export async function clearState(
 ): Promise<{ ok: true } | ActionError> {
   const user = await requireUser();
   if (!puzzleIdSchema.safeParse(puzzleId).success) return invalid;
+  if (await getCompletion(user.id, puzzleId)) return invalid;
   await clearAttemptState(user.id, puzzleId);
   return { ok: true };
 }
@@ -72,6 +75,7 @@ export async function clearState(
 /**
  * Full mode checks `answer` as a whole and completes the attempt when correct.
  * Signed out, full mode only checks: no attempt or hint rows are written.
+ * A solved puzzle is final: saving, clearing, cell checks and reveals are refused.
  * Cell mode ignores `answer`: the cell's own `value` is checked and one hint recorded.
  */
 export async function checkAnswer(
@@ -90,6 +94,7 @@ export async function checkAnswer(
 
   if (data.mode === "cell") {
     if (!user) throw new Error("Unauthorised");
+    if (await getCompletion(user.id, puzzleId)) return invalid;
     const result = await checkPuzzleCell(
       typeKey,
       puzzleId,
@@ -126,6 +131,7 @@ export async function revealCell(
   }
   const typeKey = await getPublishedTypeKey(puzzleId);
   if (!typeKey) return notFound;
+  if (await getCompletion(user.id, puzzleId)) return invalid;
   const value = await revealPuzzleCell(
     typeKey,
     puzzleId,

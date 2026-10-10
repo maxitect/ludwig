@@ -7,7 +7,7 @@ import {
   getPuzzleStaticParams,
   getPuzzleSummary,
 } from "@/lib/data/catalogue";
-import { getAttemptState } from "@/lib/data/attempts";
+import { getAttemptState, getCompletion } from "@/lib/data/attempts";
 import { getPuzzleForPlay } from "@/lib/data/puzzles";
 import { getCurrentUser, getUserChessNotation } from "@/lib/data/user";
 
@@ -64,12 +64,13 @@ async function Solve({
     getCurrentUser(),
   ]);
   if (!play) notFound();
-  const [initialState, chessNotation] = user
+  const [initialState, chessNotation, completion] = user
     ? await Promise.all([
         getAttemptState(user.id, play.puzzle.id),
         getUserChessNotation(user.id),
+        getCompletion(user.id, play.puzzle.id),
       ])
-    : [null, undefined];
+    : [null, undefined, null];
 
   return (
     <SolveChrome
@@ -81,6 +82,7 @@ async function Solve({
       difficulty={summary.difficulty}
       payload={play.payload}
       initialState={initialState}
+      completion={completion}
       signedIn={user !== null}
       chessNotation={chessNotation}
       signInHref={`/sign-in?next=${encodeURIComponent(`/puzzles/${typeKey}/${slug}`)}`}

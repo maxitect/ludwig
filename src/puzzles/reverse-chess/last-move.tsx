@@ -30,6 +30,9 @@ export function LastMove({
   initialState,
   onStateChange,
   registerCheck,
+  requestCheck,
+  requestReset,
+  solved,
 }: SolverProps<typeof schema>) {
   const fen = useMemo(() => toFen(payload), [payload]);
   const [draft, setDraft] = useState<Draft | null>(() =>
@@ -78,7 +81,22 @@ export function LastMove({
         <p className="font-display text-2xl font-bold uppercase tracking-[0.04em]">
           What was the last move?
         </p>
-        <SideToMove colour={payload.sideToMove} />
+        <div className="flex items-center justify-between gap-3">
+          <SideToMove colour={payload.sideToMove} />
+          <div className="hidden gap-2 touch:flex">
+            <Button size="sm" onClick={requestCheck} disabled={solved}>
+              Check
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={requestReset}
+              disabled={solved}
+            >
+              Reset
+            </Button>
+          </div>
+        </div>
       </div>
 
       <ChessBoard

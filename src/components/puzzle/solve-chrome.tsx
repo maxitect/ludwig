@@ -12,8 +12,10 @@ import {
   useTransition,
 } from "react";
 import { BulletHole, Credit } from "@/components/brand";
+import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/utils/cn";
 import {
   checkAnswer,
   clearState,
@@ -27,7 +29,7 @@ import {
 import { SolveSlotProvider } from "@/puzzles/_shared/solve-slot";
 import type { WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
-import { getSolver } from "@/puzzles/solvers";
+import { getSolver, ownsTouchControls } from "@/puzzles/solvers";
 import type { SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
 import {
@@ -51,12 +53,7 @@ const SolvedStamp = dynamic(() =>
 
 type ReadAnswer = Parameters<SolverProps["registerCheck"]>[0];
 
-type Notice =
-  | "wrong"
-  | "incomplete"
-  | "cell-sign-in"
-  | "error"
-  | "not-saved";
+type Notice = "wrong" | "incomplete" | "cell-sign-in" | "error" | "not-saved";
 
 const noticeText: Record<Exclude<Notice, "cell-sign-in">, string> = {
   wrong: "Not quite. Keep going.",
@@ -74,6 +71,7 @@ type SolveChromeProps = {
   difficulty: number;
   payload: SolverProps["payload"];
   initialState: SolverProps["initialState"];
+  completion: { durationMs: number | null } | null;
   signedIn: boolean;
   chessNotation?: SolverProps["chessNotation"];
   signInHref: string;
@@ -108,13 +106,16 @@ function SolveBoard({
   difficulty,
   payload,
   initialState,
+  completion,
   Solver,
   signedIn,
   chessNotation,
   signInHref,
   nextHref,
 }: SolveChromeProps & { Solver: ComponentType<SolverProps> }) {
-  const [solvedMs, setSolvedMs] = useState<number | null>(null);
+  const [solvedMs, setSolvedMs] = useState<number | null>(
+    completion ? (completion.durationMs ?? 0) : null,
+  );
   const [epilogue, setEpilogue] = useState<string | null>(null);
   const [rungProblems, setRungProblems] = useState<RungProblem[]>();
   const [wrongParts, setWrongParts] = useState<WrongPart[]>();
@@ -123,12 +124,21 @@ function SolveBoard({
   const [slot, setSlot] = useState<HTMLDivElement | null>(null);
   const [localState, setLocalState] = useState<unknown>(undefined);
   const localRead = useRef(false);
+  const solveMode = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const section = solveMode.current;
+    section?.setAttribute("data-solve-mode", "");
+    return () => section?.removeAttribute("data-solve-mode");
+  }, []);
   useEffect(() => {
     let current = true;
     readProgress(puzzleId).then((entry) => {
       if (!current) return;
       localRead.current = true;
       setLocalState(entry?.state ?? null);
+      if (entry?.completedAt !== undefined) {
+        setSolvedMs((current) => current ?? entry.durationMs ?? 0);
+      }
     });
     return () => {
       current = false;
@@ -186,6 +196,7 @@ function SolveBoard({
   const onStateChange = useCallback<SolverProps["onStateChange"]>(
     (state) => {
       setWrongParts(undefined);
+      if (solved) return;
       if (!signedIn) {
         if (localRead.current) writeProgress(puzzleId, typeKey, state);
         return;
@@ -194,7 +205,7 @@ function SolveBoard({
       pendingState.current = state;
       saveTimeout.current = setTimeout(flushSave, SAVE_DEBOUNCE_MS);
     },
-    [puzzleId, typeKey, signedIn, flushSave],
+    [puzzleId, typeKey, signedIn, solved, flushSave],
   );
 
   function check() {
@@ -260,6 +271,7 @@ function SolveBoard({
   );
 
   function reset() {
+    if (solved) return;
     clearTimeout(saveTimeout.current);
     pendingState.current = null;
     readAnswer.current = null;
@@ -284,10 +296,17 @@ function SolveBoard({
   return (
     <SolveSlotProvider value={slot}>
       <section
+        ref={solveMode}
         data-solve-mode
-        className="flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
+        className="group/solve flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
       >
-        <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
+        <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(1rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
+          <div className="touch:hidden">
+            <BackLink
+              href={`/puzzles/${typeKey}`}
+              label={`Back to ${typeName}`}
+            />
+          </div>
           <Link
             href={`/puzzles/${typeKey}`}
             aria-label={`Back to ${typeName}`}
@@ -302,7 +321,11 @@ function SolveBoard({
             className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl touch:min-w-0 touch:flex-1 touch:[&>span:first-child]:hidden touch:[&>span:last-child]:truncate touch:[&>span:last-child]:text-lg"
           />
           <div className="flex items-center gap-4 touch:shrink-0">
-            <Badge variant="difficulty" level={difficulty} className="touch:hidden" />
+            <Badge
+              variant="difficulty"
+              level={difficulty}
+              className="touch:hidden"
+            />
             <p className="inline-block min-w-[5ch] font-mono text-lg tabular-nums">
               {localState === undefined ? null : (
                 <>
@@ -314,13 +337,7 @@ function SolveBoard({
           </div>
           <Deferred
             load={loadPuzzleMenu}
-            props={{
-              pending,
-              solved,
-              deviceKeyboard,
-              onCheck: check,
-              onReset: reset,
-            }}
+            props={{ deviceKeyboard }}
             fallback={<PuzzleMenuButton />}
           />
         </header>
@@ -348,6 +365,7 @@ function SolveBoard({
             onStateChange={onStateChange}
             registerCheck={registerCheck}
             requestCheck={requestCheck}
+            requestReset={reset}
             solved={solved}
             chessNotation={chessNotation}
             rungProblems={rungProblems}
@@ -355,13 +373,37 @@ function SolveBoard({
             checkCell={solved ? undefined : checkCell}
             revealCell={solved ? undefined : revealCellValue}
           />
+          {!ownsTouchControls.has(typeKey) && (
+            <div className="hidden gap-3 py-4 touch:flex touch:group-has-[[data-solve-slot]:not(:empty)]/solve:hidden">
+              <Button onClick={check} disabled={pending || solved}>
+                Check
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={reset}
+                disabled={pending || solved}
+              >
+                Reset
+              </Button>
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-wrap gap-3 touch:hidden">
+        <div
+          className={cn(
+            "flex flex-wrap gap-3 touch:hidden",
+            !ownsTouchControls.has(typeKey) &&
+              "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:shrink-0 touch:px-4 touch:py-2",
+          )}
+        >
           <Button onClick={check} disabled={pending || solved}>
             Check
           </Button>
-          <Button variant="secondary" onClick={reset} disabled={pending}>
+          <Button
+                variant="secondary"
+                onClick={reset}
+                disabled={pending || solved}
+              >
             Reset
           </Button>
         </div>
@@ -414,6 +456,7 @@ function SolveBoard({
         <div
           ref={setSlot}
           data-testid="solve-slot"
+          data-solve-slot
           style={{ marginBottom: keyboardInset }}
           className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
         />

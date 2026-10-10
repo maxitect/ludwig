@@ -40,3 +40,6 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
 export function getSolver(typeKey: string) {
   return Object.hasOwn(solvers, typeKey) ? solvers[typeKey] : null;
 }
+
+/** Types whose solver draws its own touch Check and Reset buttons through `requestCheck` and `requestReset`. */
+export const ownsTouchControls = new Set(["reverse-chess"]);

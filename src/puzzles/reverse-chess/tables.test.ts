@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 import { content as proofContent } from "../../../content/reverse-chess/two-promotions";
 import { content as unwind } from "./fixtures/dev-unwind";
@@ -27,6 +27,7 @@ import {
   reverseChessGoals,
   reverseChessPieces,
   reverseChessPuzzles,
+  reverseChessSolutionPlies,
 } from "./tables";
 
 const TYPES = sql`
@@ -63,10 +64,26 @@ const unwindColumns = {
   fullmove: unwind.fullmove,
 };
 
+async function addPlies(tx: Tx, puzzleId: string, count: number) {
+  await tx.insert(reverseChessSolutionPlies).values(
+    Array.from({ length: count }, (_, i) => ({
+      puzzleId,
+      ply: i + 1,
+      fromFile: "h" as const,
+      fromRank: 2,
+      toFile: "h" as const,
+      toRank: 3,
+      unpromote: false,
+      special: "none" as const,
+    })),
+  );
+}
+
 async function insertSubtype(tx: Tx, puzzleId: string) {
   await tx
     .insert(reverseChessPuzzles)
     .values({ ...puzzleColumns, puzzleId, plyCount: 1 });
+  await addPlies(tx, puzzleId, 1);
 }
 
 const piece = { file: "e", rank: 4, colour: "white", piece: "king" } as const;
@@ -175,6 +192,7 @@ describe("reverse_chess_goals", () => {
     await tx
       .insert(reverseChessPuzzles)
       .values({ ...unwindColumns, puzzleId, plyCount: 2 });
+    await addPlies(tx, puzzleId, 2);
     return puzzleId;
   }
 
@@ -414,6 +432,7 @@ describe("initial_position goal", () => {
     await tx
       .insert(reverseChessPuzzles)
       .values({ ...unwindColumns, puzzleId, plyCount: 2 });
+    await addPlies(tx, puzzleId, 2);
     return puzzleId;
   }
 
@@ -434,6 +453,118 @@ describe("initial_position goal", () => {
     expect(stored.rows).toEqual([
       { kind: "initial_position", ply_count: 10, squares: 0 },
     ]);
+  });
+});
+
+describe("solution ply count", () => {
+  async function modeB(tx: Tx) {
+    await ensureTypes(tx);
+    const puzzleId = await insertPuzzle(tx, "reverse-chess");
+    await tx
+      .insert(reverseChessPuzzles)
+      .values({ ...unwindColumns, puzzleId, plyCount: 3 });
+    await addPlies(tx, puzzleId, 3);
+    await tx
+      .insert(reverseChessGoals)
+      .values({ puzzleId, kind: "piece_count", displayText: "goal" });
+    await tx
+      .insert(reverseChessGoalPieceCount)
+      .values({ puzzleId, colour: "black", piece: "pawn", count: 8 });
+    return puzzleId;
+  }
+
+  it("commits when ply_count equals the number of solution plies", async () => {
+    expect(
+      await pgError(async (tx) => {
+        await modeB(tx);
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+  });
+
+  it("rejects a ply_count change on the puzzle side at commit", async () => {
+    const error = await pgError(async (tx) => {
+      const puzzleId = await modeB(tx);
+      await forceDeferred(tx);
+      await tx
+        .update(reverseChessPuzzles)
+        .set({ plyCount: 4 })
+        .where(eq(reverseChessPuzzles.puzzleId, puzzleId));
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/has ply_count 4 but 3 solution plies/);
+  });
+
+  it("rejects deleting a solution ply at commit", async () => {
+    const error = await pgError(async (tx) => {
+      const puzzleId = await modeB(tx);
+      await forceDeferred(tx);
+      await tx
+        .delete(reverseChessSolutionPlies)
+        .where(
+          and(
+            eq(reverseChessSolutionPlies.puzzleId, puzzleId),
+            eq(reverseChessSolutionPlies.ply, 3),
+          ),
+        );
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/has ply_count 3 but 2 solution plies/);
+  });
+
+  it("rejects inserting an extra solution ply at commit", async () => {
+    const error = await pgError(async (tx) => {
+      const puzzleId = await modeB(tx);
+      await forceDeferred(tx);
+      await tx.insert(reverseChessSolutionPlies).values({
+        puzzleId,
+        ply: 4,
+        fromFile: "h",
+        fromRank: 3,
+        toFile: "h",
+        toRank: 4,
+        unpromote: false,
+        special: "none",
+      });
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/has ply_count 3 but 4 solution plies/);
+  });
+
+  it("requires Mode A to have exactly one ply", async () => {
+    const error = await pgError(async (tx) => {
+      await ensureTypes(tx);
+      const puzzleId = await insertPuzzle(tx, "reverse-chess");
+      await tx
+        .insert(reverseChessPuzzles)
+        .values({ ...puzzleColumns, puzzleId, plyCount: 2 });
+      await addPlies(tx, puzzleId, 2);
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/Mode A and needs exactly one solution ply, has 2/);
+  });
+
+  it("leaves a Proof Game to its own ply_count rule", async () => {
+    expect(
+      await pgError(async (tx) => {
+        await ensureTypes(tx);
+        const puzzleId = await insertPuzzle(tx, "reverse-chess");
+        await tx.insert(reverseChessPuzzles).values({
+          ...unwindColumns,
+          sideToMove: "white",
+          fullmove: 6,
+          puzzleId,
+          plyCount: 10,
+        });
+        await tx.insert(reverseChessGoals).values({
+          puzzleId,
+          kind: "initial_position",
+          displayText: "Back to the starting position",
+        });
+        await addPlies(tx, puzzleId, 2);
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
   });
 });
 

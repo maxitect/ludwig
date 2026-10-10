@@ -10,6 +10,7 @@ import {
   puzzleTypes,
   puzzles,
   reverseChessPuzzles,
+  reverseChessSolutionPlies,
   rotaPuzzles,
 } from "@/db/schema";
 import { gearsModule } from "./gears/module";
@@ -69,8 +70,9 @@ beforeAll(async () => {
       ids[typeKey] = row.id;
       return row.id;
     };
+    const reverseChessId = await insert("reverse-chess");
     await tx.insert(reverseChessPuzzles).values({
-      puzzleId: await insert("reverse-chess"),
+      puzzleId: reverseChessId,
       mode: "last_move",
       sideToMove: "black",
       whiteKingside: false,
@@ -80,6 +82,16 @@ beforeAll(async () => {
       halfmove: 0,
       fullmove: 1,
       plyCount: 1,
+    });
+    await tx.insert(reverseChessSolutionPlies).values({
+      puzzleId: reverseChessId,
+      ply: 1,
+      fromFile: "a",
+      fromRank: 2,
+      toFile: "a",
+      toRank: 3,
+      unpromote: false,
+      special: "none",
     });
     const gearsId = await insert("gears");
     await tx.insert(gearPuzzles).values({

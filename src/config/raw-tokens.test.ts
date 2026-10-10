@@ -15,7 +15,6 @@ type RawToken = (typeof RAW_TOKENS)[number]["name"];
 
 /** Intentional uses of raw tokens, by file. Grids, paper sheets' inner marks and a chess glyph's tile stay paper-coloured in Ink by decision. */
 const ALLOWED: Record<string, readonly RawToken[]> = {
-  "src/components/ui/badge.tsx": ["border-ink"],
   "src/components/ui/card.tsx": ["bg-paper", "text-ink"],
   "src/puzzles/_shared/cell-grid/cell-grid.tsx": ["bg-paper", "text-ink"],
   "src/puzzles/_shared/highlight-path/highlight-path-grid.tsx": [

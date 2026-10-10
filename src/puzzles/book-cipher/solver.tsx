@@ -115,7 +115,8 @@ export function Solver({
   const rowStarts = useRowStarts(bookLines, page);
   const padActive = usePuzzleKeyboard();
   const padWanted = usePadWanted();
-  const phoneReader = useTouchPhone() && !padWanted;
+  const touchPhone = useTouchPhone();
+  const phoneReader = touchPhone && !padWanted;
 
   useEffect(() => {
     registerCheck(() =>
@@ -202,7 +203,7 @@ export function Solver({
           <div
             role="region"
             aria-label="Page text"
-            tabIndex={phoneReader ? undefined : 0}
+            tabIndex={touchPhone && !phoneReader ? 0 : undefined}
             className={cn(
               "@container/book-page touch:min-h-0 touch:overflow-y-auto",
               phoneReader && "touch:min-h-auto touch:overflow-visible",

@@ -15,6 +15,7 @@ import { BulletHole, Credit } from "@/components/brand";
 import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/utils/cn";
 import {
   checkAnswer,
   clearState,
@@ -52,12 +53,7 @@ const SolvedStamp = dynamic(() =>
 
 type ReadAnswer = Parameters<SolverProps["registerCheck"]>[0];
 
-type Notice =
-  | "wrong"
-  | "incomplete"
-  | "cell-sign-in"
-  | "error"
-  | "not-saved";
+type Notice = "wrong" | "incomplete" | "cell-sign-in" | "error" | "not-saved";
 
 const noticeText: Record<Exclude<Notice, "cell-sign-in">, string> = {
   wrong: "Not quite. Keep going.",
@@ -286,11 +282,14 @@ function SolveBoard({
     <SolveSlotProvider value={slot}>
       <section
         data-solve-mode
-        className="flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
+        className="group/solve flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
       >
-        <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
+        <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(1rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
           <div className="touch:hidden">
-            <BackLink href={`/puzzles/${typeKey}`} label={`Back to ${typeName}`} />
+            <BackLink
+              href={`/puzzles/${typeKey}`}
+              label={`Back to ${typeName}`}
+            />
           </div>
           <Link
             href={`/puzzles/${typeKey}`}
@@ -306,7 +305,11 @@ function SolveBoard({
             className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl touch:min-w-0 touch:flex-1 touch:[&>span:first-child]:hidden touch:[&>span:last-child]:truncate touch:[&>span:last-child]:text-lg"
           />
           <div className="flex items-center gap-4 touch:shrink-0">
-            <Badge variant="difficulty" level={difficulty} className="touch:hidden" />
+            <Badge
+              variant="difficulty"
+              level={difficulty}
+              className="touch:hidden"
+            />
             <p className="inline-block min-w-[5ch] font-mono text-lg tabular-nums">
               {localState === undefined ? null : (
                 <>
@@ -318,13 +321,7 @@ function SolveBoard({
           </div>
           <Deferred
             load={loadPuzzleMenu}
-            props={{
-              pending,
-              solved,
-              deviceKeyboard,
-              onCheck: check,
-              onReset: reset,
-            }}
+            props={{ deviceKeyboard }}
             fallback={<PuzzleMenuButton />}
           />
         </header>
@@ -352,6 +349,7 @@ function SolveBoard({
             onStateChange={onStateChange}
             registerCheck={registerCheck}
             requestCheck={requestCheck}
+            requestReset={reset}
             solved={solved}
             chessNotation={chessNotation}
             rungProblems={rungProblems}
@@ -359,9 +357,25 @@ function SolveBoard({
             checkCell={solved ? undefined : checkCell}
             revealCell={solved ? undefined : revealCellValue}
           />
+          {typeKey !== "reverse-chess" && (
+            <div className="hidden gap-3 py-4 touch:flex touch:group-has-[[data-solve-slot]:not(:empty)]/solve:hidden">
+              <Button onClick={check} disabled={pending || solved}>
+                Check
+              </Button>
+              <Button variant="secondary" onClick={reset} disabled={pending}>
+                Reset
+              </Button>
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-wrap gap-3 touch:hidden">
+        <div
+          className={cn(
+            "flex flex-wrap gap-3 touch:hidden",
+            typeKey !== "reverse-chess" &&
+              "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:shrink-0 touch:px-4 touch:py-2",
+          )}
+        >
           <Button onClick={check} disabled={pending || solved}>
             Check
           </Button>
@@ -418,6 +432,7 @@ function SolveBoard({
         <div
           ref={setSlot}
           data-testid="solve-slot"
+          data-solve-slot
           style={{ marginBottom: keyboardInset }}
           className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
         />

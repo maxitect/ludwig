@@ -29,7 +29,10 @@ afterEach(cleanup);
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.clear();
-  actions.checkAnswer.mockResolvedValue({ ok: true, result: { correct: true } });
+  actions.checkAnswer.mockResolvedValue({
+    ok: true,
+    result: { correct: true },
+  });
   actions.clearState.mockResolvedValue({ ok: true });
   actions.saveState.mockResolvedValue({ ok: true });
   actions.revealCell.mockResolvedValue({ ok: true, value: "Q" });
@@ -122,7 +125,7 @@ describe("SolveChrome Enter", () => {
 describe("SolveChrome Reset", () => {
   it("clears the saved state when signed in", async () => {
     renderChrome();
-    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Reset" })[0]);
     expect(actions.clearState).toHaveBeenCalledWith(
       "00000000-0000-0000-0000-000000000001",
     );
@@ -131,7 +134,7 @@ describe("SolveChrome Reset", () => {
   it("clears the local entry and calls no action when signed out", async () => {
     renderChrome(false);
     await userEvent.click(await screen.findByRole("button", { name: "Place" }));
-    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Reset" })[0]);
     expect(actions.clearState).not.toHaveBeenCalled();
     expect(localStorage.getItem(progressKey)).toBeNull();
   });
@@ -159,7 +162,7 @@ describe("SolveChrome signed out", () => {
   it("checks through the action and marks the local entry complete", async () => {
     renderChrome(false);
     await userEvent.click(await screen.findByRole("button", { name: "Place" }));
-    await userEvent.click(screen.getByRole("button", { name: "Check" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Check" })[0]);
     await screen.findByText(/Solved in/);
     expect(actions.checkAnswer).toHaveBeenCalledTimes(1);
     const stored = JSON.parse(localStorage.getItem(progressKey) ?? "");
@@ -183,7 +186,7 @@ describe("SolveChrome signed out", () => {
     });
     renderChrome(false);
     await userEvent.click(await screen.findByRole("button", { name: "Place" }));
-    await userEvent.click(screen.getByRole("button", { name: "Check" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Check" })[0]);
     await screen.findByText(/Solved in/);
     vi.restoreAllMocks();
   });
@@ -262,12 +265,14 @@ describe("SolveChrome cell hooks", () => {
     screen.getByRole("group", { name: "Board" }).focus();
     await userEvent.keyboard("{Enter}");
     await screen.findByText(/Solved in/);
-    expect(
-      screen.getByRole("button", { name: "Cell check" }),
-    ).toHaveProperty("disabled", true);
-    expect(
-      screen.getByRole("button", { name: "Cell reveal" }),
-    ).toHaveProperty("disabled", true);
+    expect(screen.getByRole("button", { name: "Cell check" })).toHaveProperty(
+      "disabled",
+      true,
+    );
+    expect(screen.getByRole("button", { name: "Cell reveal" })).toHaveProperty(
+      "disabled",
+      true,
+    );
   });
 });
 
@@ -277,7 +282,7 @@ describe("SolveChrome pending save", () => {
   it("sends one save when Check and unmount follow a state change", async () => {
     renderChrome();
     await userEvent.click(screen.getByRole("button", { name: "Place" }));
-    await userEvent.click(screen.getByRole("button", { name: "Check" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "Check" })[0]);
     await screen.findByText(/Solved in/);
     cleanup();
     expect(actions.saveState).toHaveBeenCalledTimes(1);

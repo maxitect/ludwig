@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 
 const tooling = [/^docs\//, /\.md$/, /^\.claude\//, /^scripts\/dev\//];
 
@@ -36,6 +37,22 @@ function withoutToolingScripts(json) {
     if (command.includes("scripts/dev/")) delete pkg.scripts[key];
   }
   return JSON.stringify(pkg);
+}
+
+function wantsPreview() {
+  const branch = process.env.VERCEL_GIT_COMMIT_REF ?? "";
+  if (/\[preview\]/i.test(process.env.VERCEL_GIT_COMMIT_MESSAGE ?? "")) return true;
+  if (!branch.startsWith("ticket/")) return false;
+  try {
+    const ticket = readFileSync(`docs/tickets/${branch.slice("ticket/".length)}.md`, "utf8");
+    return /^preview:\s*true\s*$/m.test(ticket.split("---")[1] ?? "");
+  } catch {
+    return false;
+  }
+}
+
+if (process.env.VERCEL_ENV === "preview" && !wantsPreview()) {
+  decide(true, "previews are opt-in: set `preview: true` in the ticket frontmatter or put [preview] in the commit message");
 }
 
 try {

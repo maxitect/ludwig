@@ -7,10 +7,10 @@ import {
   GridPaper,
   InkSplat,
   Raking,
-  SolvedStamp,
   Walker,
   Wordmark,
 } from "@/components/brand";
+import { SolvedStamp } from "@/components/brand/solved-stamp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {

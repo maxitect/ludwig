@@ -2,16 +2,16 @@
 
 import { ChevronLeftIcon, EllipsisVerticalIcon } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
+  type ComponentType,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
   useTransition,
 } from "react";
-import { BulletHole, Credit, SolvedStamp, Walker } from "@/components/brand";
+import { BulletHole, Credit, Walker } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,7 +36,8 @@ import {
 import { SolveSlotProvider } from "@/puzzles/_shared/solve-slot";
 import type { WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
-import type { SolverComponent, SolverProps } from "@/puzzles/solver-types";
+import { getSolver } from "@/puzzles/solvers";
+import type { SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
 import {
   clearProgress,
@@ -48,7 +49,9 @@ import { usePuzzleTimer } from "./use-puzzle-timer";
 
 const SAVE_DEBOUNCE_MS = 800;
 
-const subscribeNever = () => () => {};
+const SolvedStamp = dynamic(() =>
+  import("@/components/brand/solved-stamp").then((m) => m.SolvedStamp),
+);
 
 type ReadAnswer = Parameters<SolverProps["registerCheck"]>[0];
 
@@ -75,14 +78,32 @@ type SolveChromeProps = {
   difficulty: number;
   payload: SolverProps["payload"];
   initialState: SolverProps["initialState"];
-  Solver: SolverComponent;
   signedIn: boolean;
   chessNotation?: SolverProps["chessNotation"];
   signInHref: string;
   nextHref: string | null;
 };
 
-export function SolveChrome({
+export function SolveChrome(props: SolveChromeProps) {
+  const Solver = getSolver(props.typeKey);
+  if (!Solver) {
+    return (
+      <section className="flex flex-col gap-4">
+        <Credit
+          level={1}
+          top={props.category}
+          bottom={props.title}
+          className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl"
+        />
+        <Badge variant="difficulty" level={props.difficulty} />
+        <p>The solver for {props.typeName} is not open yet.</p>
+      </section>
+    );
+  }
+  return <SolveBoard {...props} Solver={Solver} />;
+}
+
+function SolveBoard({
   puzzleId,
   typeKey,
   typeName,
@@ -96,7 +117,7 @@ export function SolveChrome({
   chessNotation,
   signInHref,
   nextHref,
-}: SolveChromeProps) {
+}: SolveChromeProps & { Solver: ComponentType<SolverProps> }) {
   const [solvedMs, setSolvedMs] = useState<number | null>(null);
   const [epilogue, setEpilogue] = useState<string | null>(null);
   const [rungProblems, setRungProblems] = useState<RungProblem[]>();
@@ -104,15 +125,16 @@ export function SolveChrome({
   const [notice, setNotice] = useState<Notice | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [slot, setSlot] = useState<HTMLDivElement | null>(null);
-  const hydrated = useSyncExternalStore(
-    subscribeNever,
-    () => true,
-    () => false,
-  );
-  const localState = useMemo(
-    () => (hydrated ? (readProgress(puzzleId)?.state ?? null) : undefined),
-    [hydrated, puzzleId],
-  );
+  const [localState, setLocalState] = useState<unknown>(undefined);
+  useEffect(() => {
+    let current = true;
+    readProgress(puzzleId).then((entry) => {
+      if (current) setLocalState(entry?.state ?? null);
+    });
+    return () => {
+      current = false;
+    };
+  }, [puzzleId]);
   const resumeLocal = initialState === null && localState != null;
   const [pending, startTransition] = useTransition();
   const timer = usePuzzleTimer(solvedMs === null);

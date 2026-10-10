@@ -27,17 +27,20 @@ const sans = Jost({
 const band = Barlow_Semi_Condensed({
   subsets: ["latin"],
   weight: "600",
+  preload: false,
   variable: "--font-barlow",
 });
 
 const hand = Caveat_Brush({
   subsets: ["latin"],
   weight: "400",
+  preload: false,
   variable: "--font-caveat",
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
+  preload: false,
   variable: "--font-jetbrains",
 });
 

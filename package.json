@@ -25,7 +25,8 @@
     "puzzles:gears-report": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/gears-playtest-report.ts",
     "puzzles:gen": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/gen-puzzle.ts",
     "puzzles:grade": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/grade-puzzles.ts",
-    "puzzles:gen-gears": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-gears.ts"
+    "puzzles:gen-gears": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-gears.ts",
+    "perf:lighthouse": "node scripts/dev/lighthouse.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -56,10 +57,12 @@
     "@types/pg": "8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "chrome-launcher": "^1.2.2",
     "drizzle-kit": "1.0.0-rc.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.7",
     "jsdom": "^30.1.1",
+    "lighthouse": "^13.5.0",
     "server-only": "^0.0.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",

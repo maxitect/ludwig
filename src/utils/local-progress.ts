@@ -1,10 +1,4 @@
-import {
-  type LocalProgress,
-  localProgressSchema,
-  type MergeEntry,
-  mergeEntrySchema,
-} from "@/lib/forms/local-progress";
-import { getAttemptSchema } from "@/puzzles/attempt-schemas";
+import type { LocalProgress, MergeEntry } from "@/lib/forms/local-progress";
 
 const PREFIX = "ludwig:progress:";
 
@@ -20,14 +14,42 @@ function guarded<T>(access: () => T, fallback: T): T {
 const removeKey = (key: string) =>
   guarded(() => localStorage.removeItem(key), undefined);
 
-function parseEntry(key: string): LocalProgress | null {
+/** Reads the stored entry with a cheap shape check. Zod loads on demand in `parseEntry`, so saving progress never pulls it into the solve page. */
+function readEntry(key: string): LocalProgress | null {
   const raw = guarded(() => localStorage.getItem(key), null);
   if (raw === null) return null;
   try {
-    const entry = localProgressSchema.parse(JSON.parse(raw));
-    const attemptSchema = getAttemptSchema(entry.typeKey);
+    const entry: unknown = JSON.parse(raw);
+    if (
+      typeof entry === "object" &&
+      entry !== null &&
+      "typeKey" in entry &&
+      typeof entry.typeKey === "string" &&
+      "startedAt" in entry &&
+      typeof entry.startedAt === "number"
+    ) {
+      return entry as LocalProgress;
+    }
+  } catch {
+    // falls through to discard the unreadable entry
+  }
+  removeKey(key);
+  return null;
+}
+
+/** Validates the stored entry and its state, loading the schemas on demand so the table definitions and zod stay out of the shared bundle. */
+async function parseEntry(key: string): Promise<LocalProgress | null> {
+  const entry = readEntry(key);
+  if (entry === null) return null;
+  try {
+    const [{ localProgressSchema }, { getAttemptSchema }] = await Promise.all([
+      import("@/lib/forms/local-progress"),
+      import("@/puzzles/attempt-schemas"),
+    ]);
+    const valid = localProgressSchema.parse(entry);
+    const attemptSchema = getAttemptSchema(valid.typeKey);
     if (!attemptSchema) throw new Error("No attempt schema for the type");
-    return { ...entry, state: attemptSchema.parse(entry.state) };
+    return { ...valid, state: attemptSchema.parse(valid.state) };
   } catch {
     removeKey(key);
     return null;
@@ -50,7 +72,7 @@ export function writeProgress(
   typeKey: string,
   state: unknown,
 ) {
-  const existing = readProgress(puzzleId);
+  const existing = readEntry(PREFIX + puzzleId);
   writeEntry(puzzleId, {
     typeKey,
     state,
@@ -62,7 +84,7 @@ export function writeProgress(
 
 /** Marks the stored entry complete once. A puzzle with no stored entry stays unmarked. */
 export function completeProgress(puzzleId: string, durationMs: number) {
-  const existing = readProgress(puzzleId);
+  const existing = readEntry(PREFIX + puzzleId);
   if (!existing || existing.completedAt !== undefined) return;
   writeEntry(puzzleId, { ...existing, completedAt: Date.now(), durationMs });
 }
@@ -71,18 +93,23 @@ export function clearProgress(puzzleId: string) {
   removeKey(PREFIX + puzzleId);
 }
 
-export function readAllProgress(): MergeEntry[] {
+export async function readAllProgress(): Promise<MergeEntry[]> {
   const keys = guarded(
     () => Object.keys(localStorage).filter((key) => key.startsWith(PREFIX)),
     [],
   );
-  return keys.flatMap((key) => {
-    const puzzleId = key.slice(PREFIX.length);
-    if (!mergeEntrySchema.shape.puzzleId.safeParse(puzzleId).success) {
-      removeKey(key);
-      return [];
-    }
-    const entry = parseEntry(key);
-    return entry ? [{ ...entry, puzzleId }] : [];
-  });
+  if (keys.length === 0) return [];
+  const { mergeEntrySchema } = await import("@/lib/forms/local-progress");
+  const entries = await Promise.all(
+    keys.map(async (key) => {
+      const puzzleId = key.slice(PREFIX.length);
+      if (!mergeEntrySchema.shape.puzzleId.safeParse(puzzleId).success) {
+        removeKey(key);
+        return [];
+      }
+      const entry = await parseEntry(key);
+      return entry ? [{ ...entry, puzzleId }] : [];
+    }),
+  );
+  return entries.flat();
 }

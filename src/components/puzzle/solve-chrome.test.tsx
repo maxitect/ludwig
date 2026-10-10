@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -12,6 +12,11 @@ const actions = vi.hoisted(() => ({
   saveState: vi.fn(),
 }));
 vi.mock("@/lib/actions/puzzles", () => actions);
+
+const solverStub = vi.hoisted(() => ({ current: null as unknown }));
+vi.mock("@/puzzles/solvers", () => ({
+  getSolver: () => solverStub.current,
+}));
 
 const { SolveChrome } = await import("./solve-chrome");
 
@@ -68,6 +73,8 @@ function Solver({
   );
 }
 
+solverStub.current = Solver;
+
 function renderChrome(
   signedIn = true,
   initialState: SolverProps["initialState"] = null,
@@ -82,7 +89,6 @@ function renderChrome(
       difficulty={1}
       payload={{}}
       initialState={initialState}
-      Solver={Solver}
       signedIn={signedIn}
       signInHref="/sign-in"
       nextHref={null}
@@ -186,8 +192,10 @@ describe("SolveChrome signed in with a local entry awaiting merge", () => {
   it("resumes the local state when the server has none", async () => {
     localStorage.setItem(progressKey, localEntry);
     renderChrome(true);
-    expect((await screen.findByLabelText("Restored")).textContent).toBe(
-      '{"answer":"abc"}',
+    await waitFor(() =>
+      expect(screen.getByLabelText("Restored").textContent).toBe(
+        '{"answer":"abc"}',
+      ),
     );
   });
 
@@ -224,7 +232,9 @@ describe("SolveChrome cell hooks", () => {
 
   it("asks a signed-out player to sign in and calls no action", async () => {
     renderChrome(false);
-    await userEvent.click(screen.getByRole("button", { name: "Cell check" }));
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Cell check" }),
+    );
     await userEvent.click(screen.getByRole("button", { name: "Cell reveal" }));
     expect(actions.checkAnswer).not.toHaveBeenCalled();
     expect(actions.revealCell).not.toHaveBeenCalled();

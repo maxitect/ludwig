@@ -12,10 +12,12 @@ const entry = JSON.stringify({
 beforeEach(() => localStorage.clear());
 
 describe("readAllProgress", () => {
-  it("returns valid entries and discards a key that is not a puzzle id", () => {
+  it("returns valid entries and discards a key that is not a puzzle id", async () => {
     localStorage.setItem(`ludwig:progress:${puzzleId}`, entry);
     localStorage.setItem("ludwig:progress:not-a-uuid", entry);
-    expect(readAllProgress().map((item) => item.puzzleId)).toEqual([puzzleId]);
+    expect((await readAllProgress()).map((item) => item.puzzleId)).toEqual([
+      puzzleId,
+    ]);
     expect(localStorage.getItem("ludwig:progress:not-a-uuid")).toBeNull();
   });
 });

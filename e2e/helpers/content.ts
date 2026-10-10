@@ -33,6 +33,13 @@ async function loadPublished<T>(typeKey: string) {
   );
 }
 
+/** The first published puzzle of any type, for route-level checks that need only a valid solve URL. */
+export async function firstPublishedSlug(typeKey: string) {
+  const [first] = await loadPublished<unknown>(typeKey);
+  if (!first) throw new Error(`No published puzzle in content/${typeKey}`);
+  return first.meta.slug;
+}
+
 /** Any published anagram; the answer comes straight from its content file. */
 export async function anagramPuzzle() {
   const [first] = await loadPublished<AnagramContent>("anagram");

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --configLoader runner",
     "test:e2e": "playwright test",
     "preflight": "tsx scripts/dev/preflight.ts",
     "ticket:setup": "tsx scripts/dev/setup.ts",

@@ -52,10 +52,12 @@ export async function anagramPuzzle() {
   };
 }
 
-/** Any published sudoku; its solution is solved from the givens in its content file. */
+/** Any published classic sudoku; its solution is solved from the givens in its content file. */
 export async function sudokuPuzzle() {
-  const [first] = await loadPublished<SudokuContent>("sudoku");
-  if (!first) throw new Error("No published sudoku in content/sudoku");
+  const first = (await loadPublished<SudokuContent>("sudoku")).find(
+    ({ content }) => !content.regions,
+  );
+  if (!first) throw new Error("No published classic sudoku in content/sudoku");
   const solution = solve(first.content.givens);
   if (!solution) throw new Error(`Sudoku ${first.meta.slug} has no solution`);
   return {

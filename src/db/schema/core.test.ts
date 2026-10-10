@@ -97,6 +97,53 @@ describe("constraints", () => {
     ).toBeUndefined();
   });
 
+  it("keeps volume_position NULL exactly when volume_id is NULL, unique per volume", async () => {
+    const withVolume = async (
+      tx: Tx,
+      rows: { slug: string; volumePosition: number | null }[],
+      volumeId: boolean = true,
+    ) => {
+      await seedTypes(tx);
+      const [volume] = await tx
+        .insert(volumes)
+        .values({ slug: "v", title: "V", cover: "blue", sort: 1 })
+        .returning({ id: volumes.id });
+      await tx.insert(puzzles).values(
+        rows.map((row) => ({
+          ...puzzleBase,
+          ...row,
+          volumeId: volumeId ? volume.id : null,
+        })),
+      );
+    };
+    expect(
+      await pgErrorCode((tx) =>
+        withVolume(tx, [{ slug: "x", volumePosition: null }]),
+      ),
+    ).toBe("23514");
+    expect(
+      await pgErrorCode((tx) =>
+        withVolume(tx, [{ slug: "x", volumePosition: 1 }], false),
+      ),
+    ).toBe("23514");
+    expect(
+      await pgErrorCode((tx) =>
+        withVolume(tx, [
+          { slug: "x", volumePosition: 1 },
+          { slug: "y", volumePosition: 1 },
+        ]),
+      ),
+    ).toBe("23505");
+    expect(
+      await pgErrorCode((tx) =>
+        withVolume(tx, [
+          { slug: "x", volumePosition: 1 },
+          { slug: "y", volumePosition: 2 },
+        ]),
+      ),
+    ).toBeUndefined();
+  });
+
   it("scopes slugs per type", async () => {
     expect(
       await pgErrorCode(async (tx) => {

@@ -105,7 +105,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T082](./T082-gear-train-tables-engine.md) | Gear train (Gear Puzzle Mode B): tables, engine, uniqueness search | T016, T034 | ✔ | | done |
 | [T083](./T083-gear-train-ui-content.md) | Gear train UI, gears hub integration and content | T082, T043 | | | done |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
-| [T132](./T132-drop-rota-attempt-instigator.md) | Drop the unused `rota_attempts.instigator_worker_id` column | T063 | ✔ | | review |
+| [T132](./T132-drop-rota-attempt-instigator.md) | Stop naming `rota_attempts.instigator_worker_id` in the Drizzle schema | T063 | | | review |
+| [T141](./T141-drop-rota-instigator-column.md) | Drop the `rota_attempts.instigator_worker_id` column (after T132 is in production) | T132 | ✔ | | todo |
 | [T133](./T133-reverse-chess-ply-count-trigger.md) | Enforce `reverse_chess_puzzles.ply_count` for every mode with a trigger | T081 | ✔ | | todo |
 
 ## M5: Polish and launch

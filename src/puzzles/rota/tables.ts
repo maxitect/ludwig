@@ -258,7 +258,6 @@ export const rotaAttempts = pgTable(
     puzzleId: uuid("puzzle_id")
       .notNull()
       .default(sql`NULL`),
-    instigatorWorkerId: uuid("instigator_worker_id"),
   },
   (table) => [
     foreignKey({
@@ -266,11 +265,6 @@ export const rotaAttempts = pgTable(
       columns: [table.attemptId, table.puzzleId, table.typeKey],
       foreignColumns: [attempts.id, attempts.puzzleId, attempts.typeKey],
     }).onDelete("cascade"),
-    foreignKey({
-      name: "rota_attempts_instigator_fk",
-      columns: [table.puzzleId, table.instigatorWorkerId],
-      foreignColumns: [rotaWorkers.puzzleId, rotaWorkers.id],
-    }),
     unique("rota_attempts_attempt_id_puzzle_id_unique").on(
       table.attemptId,
       table.puzzleId,

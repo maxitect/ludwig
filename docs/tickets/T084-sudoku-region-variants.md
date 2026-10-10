@@ -30,6 +30,7 @@ The Radio Times special ran a jigsaw sudoku and a rainbow sudoku (SPEC §1.2.1).
   - rainbow tints each colour group, keeps the box borders, and also marks each group with a pattern or label so it isn't told apart by colour alone.
   - The region-border overlay lives in `src/puzzles/_shared/` because star battle (T087) reuses it.
 - **Content:** 3 original jigsaw puzzles and 2 original rainbow puzzles.
+- **Preview:** extend `src/puzzles/sudoku/preview.tsx` (T129) to draw jigsaw region borders and rainbow groups from the payload, reusing the shared overlay where it fits.
 
 **Out**
 

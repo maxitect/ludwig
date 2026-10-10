@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useOpenRequested } from "@/components/after-hydration";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +24,7 @@ type AccountDropdownProps = { name: string; theme: Theme };
 
 export function AccountDropdown({ name, theme }: AccountDropdownProps) {
   const router = useRouter();
+  const openRequested = useOpenRequested();
 
   async function signOut() {
     await authClient.signOut();
@@ -33,7 +35,7 @@ export function AccountDropdown({ name, theme }: AccountDropdownProps) {
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu defaultOpen={openRequested}>
       <DropdownMenuTrigger asChild>
         <AccountButton name={name} />
       </DropdownMenuTrigger>

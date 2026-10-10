@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { type ComponentProps, useState } from "react";
+import { useOpenRequested } from "@/components/after-hydration";
 import {
   Sheet,
   SheetContent,
@@ -19,7 +20,7 @@ export type MobileNavProps = {
 };
 
 export function MobileNavSheet({ collectionTransitionTypes }: MobileNavProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(useOpenRequested());
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

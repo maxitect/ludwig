@@ -9,7 +9,11 @@ import { clickCheck } from "./helpers/solve";
 type Board = { rows: number; cols: number };
 type Peg = { row: number; col: number };
 
-const open = (page: Page, slug: string) => page.goto(`/puzzles/gear-train/${slug}`);
+/** The solver chunk loads on demand, so wait for it before the first key press. */
+const open = async (page: Page, slug: string) => {
+  await page.goto(`/puzzles/gear-train/${slug}`);
+  await page.waitForLoadState("networkidle");
+};
 const board = (page: Page) => page.getByRole("group", { name: "Pegboard" });
 const tray = (page: Page, teeth: number) =>
   page.getByRole("button", { name: new RegExp(`^${teeth}-tooth cog`) });

@@ -1,5 +1,6 @@
 "use client";
 
+import { useOpenRequested } from "@/components/after-hydration";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -26,8 +27,9 @@ export function PuzzleMenu({
   onCheck,
   onReset,
 }: PuzzleMenuProps) {
+  const openRequested = useOpenRequested();
   return (
-    <DropdownMenu>
+    <DropdownMenu defaultOpen={openRequested}>
       <DropdownMenuTrigger asChild>
         <PuzzleMenuButton />
       </DropdownMenuTrigger>

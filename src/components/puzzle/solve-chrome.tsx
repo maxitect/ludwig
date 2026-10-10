@@ -5,7 +5,6 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   type ComponentType,
-  lazy,
   useCallback,
   useEffect,
   useRef,
@@ -37,15 +36,14 @@ import {
   readProgress,
   writeProgress,
 } from "@/utils/local-progress";
-import { AfterHydration } from "@/components/after-hydration";
+import { Deferred } from "@/components/after-hydration";
 import { PuzzleMenuButton } from "./puzzle-menu-button";
 import { usePuzzleTimer } from "./use-puzzle-timer";
 
 const SAVE_DEBOUNCE_MS = 800;
 
-const PuzzleMenu = lazy(() =>
-  import("./puzzle-menu").then((module) => ({ default: module.PuzzleMenu })),
-);
+const loadPuzzleMenu = () =>
+  import("./puzzle-menu").then((module) => module.PuzzleMenu);
 
 const SolvedStamp = dynamic(() =>
   import("@/components/brand/solved-stamp").then((m) => m.SolvedStamp),
@@ -314,15 +312,17 @@ function SolveBoard({
               )}
             </p>
           </div>
-          <AfterHydration fallback={<PuzzleMenuButton />}>
-            <PuzzleMenu
-              pending={pending}
-              solved={solved}
-              deviceKeyboard={deviceKeyboard}
-              onCheck={check}
-              onReset={reset}
-            />
-          </AfterHydration>
+          <Deferred
+            load={loadPuzzleMenu}
+            props={{
+              pending,
+              solved,
+              deviceKeyboard,
+              onCheck: check,
+              onReset: reset,
+            }}
+            fallback={<PuzzleMenuButton />}
+          />
         </header>
 
         <div

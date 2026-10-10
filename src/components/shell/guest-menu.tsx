@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { lazy } from "react";
-import { AfterHydration } from "@/components/after-hydration";
+import { Deferred } from "@/components/after-hydration";
 import { ThemeButton } from "./theme-button";
 
-const ThemeMenu = lazy(() =>
-  import("./theme-menu").then((module) => ({ default: module.ThemeMenu })),
-);
+const loadThemeMenu = () =>
+  import("./theme-menu").then((module) => module.ThemeMenu);
 
 export function GuestMenu() {
   return (
@@ -15,9 +13,7 @@ export function GuestMenu() {
       <Link href="/sign-in" className="underline underline-offset-4">
         Sign in
       </Link>
-      <AfterHydration fallback={<ThemeButton />}>
-        <ThemeMenu />
-      </AfterHydration>
+      <Deferred load={loadThemeMenu} props={{}} fallback={<ThemeButton />} />
     </div>
   );
 }

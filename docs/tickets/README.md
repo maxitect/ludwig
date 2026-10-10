@@ -106,8 +106,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T083](./T083-gear-train-ui-content.md) | Gear train UI, gears hub integration and content | T082, T043 | | | done |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
 | [T132](./T132-drop-rota-attempt-instigator.md) | Stop naming `rota_attempts.instigator_worker_id` in the Drizzle schema | T063 | | | done |
-| [T141](./T141-drop-rota-instigator-column.md) | Drop the `rota_attempts.instigator_worker_id` column (after T132 is in production) | T132 | ✔ | | todo |
-| [T133](./T133-reverse-chess-ply-count-trigger.md) | Enforce `reverse_chess_puzzles.ply_count` for every mode with a trigger | T081 | ✔ | | todo |
+| [T141](./T141-drop-rota-instigator-column.md) | Drop the `rota_attempts.instigator_worker_id` column (after T132 is in production) | T132 | ✔ | | done |
+| [T133](./T133-reverse-chess-ply-count-trigger.md) | Enforce `reverse_chess_puzzles.ply_count` for every mode with a trigger | T081 | ✔ | | done |
 
 ## M5: Polish and launch
 
@@ -136,14 +136,14 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T127](./T127-book-cipher-layout.md) | Book cipher: lines never wrap on desktop, clear continuations on phones, aligned references | T120 | | | done |
 | [T128](./T128-page-polish.md) | Per-page polish (rota, hubs, collection, sign-in, kitchen sink) | T120 | | | done |
 | [T129](./T129-puzzle-preview-engine.md) | Puzzle preview engine and per-puzzle thumbnails | — | | | done |
-| [T130](./T130-collection-type-thumbnails.md) | Collection type cards show a representative preview | T129, T128 | | | todo |
+| [T130](./T130-collection-type-thumbnails.md) | Collection type cards show a representative preview | T129, T128 | | | done |
 | [T131](./T131-check-shows-wrong-parts.md) | A failed check names the wrong parts, in the shared contract and the UI | T048, T100 | | | done |
 | [T134](./T134-volume-position.md) | Order puzzles within a volume by an authored position | — | ✔ | | todo |
-| [T135](./T135-crossword-content-polish.md) | Crossword content polish (fill, repeated roots, symmetry) | T080 | | | todo |
+| [T135](./T135-crossword-content-polish.md) | Crossword content polish (fill, repeated roots, symmetry) | T080 | | | done |
 | [T136](./T136-generated-sudoku-futoshiki-content.md) | Generated sudoku and futoshiki at difficulties 3 and 4 | T100 | | | done |
 | [T137](./T137-reverse-chess-mode-letters.md) | Reverse Chess mode letters: Proof Game is Mode C, the Rota is Mode D | — | | | done |
 | [T138](./T138-v1-reveal-and-desk-scope.md) | Hide Reveal where it isn't built, and mark the Desk as post-launch | — | | | done |
-| [T140](./T140-landing-wall-motion.md) | Landing walls come alive, a game unwinding on The Board, letters on The Grid and digits in The Mirror (nice-to-have) | T067 | | | todo |
+| [T140](./T140-landing-wall-motion.md) | Landing walls come alive, a game unwinding on The Board, letters on The Grid and digits in The Mirror (nice-to-have) | T067 | | | done |
 
 ## M6: Radio Times set
 

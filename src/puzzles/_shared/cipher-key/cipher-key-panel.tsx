@@ -19,7 +19,8 @@ import {
   type Guesses,
 } from "./cipher-key";
 
-const compactSymbol = "contents touch:[&>span]:h-8 touch:[&>span]:w-6";
+const compactSymbol =
+  "contents touch:[&>span]:h-8 touch:[&>span]:w-6 touch-short:[&>span]:h-6 touch-short:[&>span]:w-4.5";
 
 type Props = {
   ciphertext: string;
@@ -176,7 +177,7 @@ export function CipherKeyPanel({
                 if (/^[a-z]$/i.test(typed)) enter(letter, typed);
               }}
               className={cn(
-                "size-9 border-2 border-ink text-center font-hand text-2xl touch:h-9 touch:w-full touch:text-xl uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive disabled:border-dashed disabled:bg-transparent",
+                "size-9 border-2 border-ink text-center font-hand text-2xl touch:h-9 touch:w-full touch:text-xl touch-short:h-8 uppercase caret-transparent focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring aria-invalid:border-destructive disabled:border-dashed disabled:bg-transparent",
                 isLocked ? "bg-paper-shade" : "text-crayon",
               )}
             />
@@ -193,7 +194,7 @@ export function CipherKeyPanel({
   );
 
   return (
-    <div className="paper-sheet flex flex-col gap-6 p-4 sm:p-6 touch:gap-3">
+    <div className="paper-sheet flex flex-col gap-6 p-4 sm:p-6 touch:gap-3 touch-short:p-3">
       <p className="sr-only">
         Each slot stands for one letter of the cipher. Type the letter you think
         it stands for, and Backspace clears it. The message below updates as you
@@ -217,7 +218,7 @@ export function CipherKeyPanel({
       <div
         aria-hidden="true"
         data-testid="ciphertext"
-        className="flex flex-wrap gap-x-6 gap-y-3 leading-none"
+        className="flex flex-wrap gap-x-6 gap-y-3 leading-none touch-short:gap-y-1"
       >
         {words.map((word, wordIndex) => (
           <span key={wordIndex} className="flex border-b-2 border-paper-shade">
@@ -239,7 +240,7 @@ export function CipherKeyPanel({
                     </span>
                   )}
                   <span
-                    className="h-8 font-hand text-2xl text-crayon uppercase"
+                    className="h-8 font-hand text-2xl text-crayon uppercase touch-short:h-6 touch-short:text-xl"
                     style={
                       isLetter
                         ? {

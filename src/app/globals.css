@@ -6,6 +6,12 @@
   }
 }
 
+@custom-variant touch-short {
+  @media (pointer: coarse) and (max-width: 47.999rem) and (max-height: 44.999rem) {
+    @slot;
+  }
+}
+
 @custom-variant ink {
   &:where([data-theme="ink"] *) {
     @slot;

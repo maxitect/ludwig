@@ -50,6 +50,8 @@ vi.mock("@/lib/data/puzzles", async (importOriginal) =>
   dataAccessSpies.wrap(await importOriginal()),
 );
 
+vi.mock("next/cache", () => ({ cacheLife: () => {}, cacheTag: () => {} }));
+
 const session = vi.hoisted(() => ({ userId: null as string | null }));
 vi.mock("next/headers", () => ({
   headers: async () => new Headers(),

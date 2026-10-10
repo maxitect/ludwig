@@ -271,7 +271,7 @@ export function CipherKeyPanel({
           )
           .join(", ")}`}
       </p>
-      {!touch && keyGroup}
+      {!touch && <div className="touch:hidden">{keyGroup}</div>}
       <div className="touch:hidden">{clearButton}</div>
       {touch && (
         <SolveSlot>

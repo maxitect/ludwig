@@ -10,13 +10,18 @@ const previewURL =
     ? `https://${env.VERCEL_URL}`
     : undefined;
 
+const previewBranchURL =
+  env.VERCEL_ENV === "preview" && env.VERCEL_BRANCH_URL
+    ? `https://${env.VERCEL_BRANCH_URL}`
+    : undefined;
+
 const configuredURL = env.BETTER_AUTH_URL ?? previewURL;
 
 export const authBaseURL = configuredURL?.replace(/\/+$/, "");
 
 export const auth = betterAuth({
   baseURL: authBaseURL,
-  trustedOrigins: [env.BETTER_AUTH_URL, previewURL].filter(
+  trustedOrigins: [env.BETTER_AUTH_URL, previewURL, previewBranchURL].filter(
     (origin) => origin !== undefined,
   ),
   secret: env.BETTER_AUTH_SECRET,

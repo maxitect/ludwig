@@ -29,7 +29,7 @@ function DifficultyCells({ level }: { level: number }) {
       key={i}
       data-slot="difficulty-cell"
       data-filled={i < level}
-      className="size-3 border-2 border-border bg-transparent data-[filled=true]:bg-foreground"
+      className="size-3 border-2 border-border bg-transparent data-[filled=true]:bg-foreground forced-colors:data-[filled=true]:bg-[CanvasText] group-data-[variant=book]/card:border-ink group-data-[variant=book]/card:data-[filled=true]:bg-ink"
     />
   ))
 }

@@ -47,7 +47,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex h-10 min-w-10 items-center justify-center gap-2 border-2 border-border bg-background px-4 font-display text-sm font-bold tracking-[0.04em] whitespace-nowrap text-foreground uppercase transition-[color,background-color] not-first:-ml-0.5 group-data-[orientation=vertical]/tabs:not-first:ml-0 group-data-[orientation=vertical]/tabs:not-first:-mt-0.5 hover:bg-muted focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-foreground data-[state=active]:text-background [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "inline-flex h-10 min-w-10 items-center justify-center gap-2 border-2 border-border bg-background px-4 font-display text-sm font-bold tracking-[0.04em] whitespace-nowrap text-foreground uppercase transition-[color,background-color] not-first:-ml-0.5 group-data-[orientation=vertical]/tabs:not-first:ml-0 group-data-[orientation=vertical]/tabs:not-first:-mt-0.5 hover:bg-muted focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:border-muted-foreground disabled:bg-muted disabled:text-muted-foreground data-[state=active]:bg-foreground data-[state=active]:text-background [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}

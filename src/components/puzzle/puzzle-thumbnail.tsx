@@ -63,7 +63,7 @@ export function TypeThumbnail({
   return (
     <div
       aria-hidden="true"
-      className={cn(frameClass, "border-dashed opacity-50", className)}
+      className={cn(frameClass, "border-dashed! opacity-50", className)}
     >
       {Object.hasOwn(previews, typeKey) && <SampleMotif typeKey={typeKey} />}
     </div>

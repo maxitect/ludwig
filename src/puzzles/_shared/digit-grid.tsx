@@ -261,7 +261,7 @@ export function DigitGrid({
           {!padWanted && (
             <div
               className="flex gap-1 [&>*]:flex-1"
-              onPointerDown={(event) => event.preventDefault()}
+              onMouseDown={(event) => event.preventDefault()}
             >
               {actions}
             </div>

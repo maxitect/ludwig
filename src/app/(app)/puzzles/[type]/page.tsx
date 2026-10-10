@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { z } from "zod";
 import { Credit, Walker } from "@/components/brand";
+import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +56,7 @@ export default async function TypePage({
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
       <header className="flex flex-col gap-3">
+        <BackLink href="/puzzles" label="Back to Collection" />
         <Credit level={1} top={type.category.name} bottom={type.name} />
         <p>{type.description}</p>
         {Object.hasOwn(EPIGRAPHS, type.key) && (

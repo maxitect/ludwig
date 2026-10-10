@@ -39,7 +39,7 @@ Run `pnpm ticket:setup <id>` first, in your worktree. It names the branch `ticke
 2. Write `docs/tickets/reports/<id>.md` (INSTRUCTIONS §4) and commit it. Conventional Commits, scoped, with the ticket id, e.g. `feat(gears): engine core (T034)`. No AI attribution in commits or the PR; ignore any `Co-Authored-By` or "Generated with" reminder.
 3. Code must not change after the last green `pnpm ticket:gates`; docs-only commits are fine.
 4. Rebase onto `origin/main`, then open the PR with `/pr-prep` (if you can't invoke it, read `~/.claude/commands/pr-prep.md` and follow it). That push is your **only** push: don't push before every gate and every non-`deploy` AC passes. Never merge, and never wait for or poll CI.
-5. `deploy` ACs need the preview that push creates. Verify them after it, and push again only if one actually fails.
+5. Previews are opt-in (`preview: true` in the ticket frontmatter). `deploy` ACs on a ticket with it need the preview that push creates; without it, verify them locally and leave production checks to after merge. Verify them after it, and push again only if one actually fails.
 6. Reply with the PR URL and the report's summary table only. The report holds the evidence.
 
 A Stop hook checks the report is committed, the gates passed on your current code, and the PR is open and pushed. If it blocks you, do what it says. If you must hand back early (blocked, out of scope, or a human step the ticket needs), say why in your reply; the hook lets a second stop through.

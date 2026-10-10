@@ -6,6 +6,7 @@ epic: E1
 depends_on: []
 migrations: false
 requires_human: false
+preview: false
 spec: ["SPEC §x.y"]
 skills: []
 ---

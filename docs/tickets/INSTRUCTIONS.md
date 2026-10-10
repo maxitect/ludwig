@@ -94,7 +94,7 @@ The Vercel and Neon MCP plugins and CLIs are installed and authenticated for the
 
 Rules:
 
-- **Previews:** every pushed PR branch gets a preview deployment and its own Neon branch. Verify deployed ACs there: `vercel curl` for API checks, a `get_access_to_vercel_url` share link for browser checks. Sign up test users on previews only. Each push costs a preview build and a CI run, so push as few times as possible (the agent files).
+- **Previews are opt-in.** `scripts/dev/vercel-ignore.mjs` skips every preview build unless the ticket frontmatter has `preview: true` or the head commit message contains `[preview]`. Everything else is verified locally (§3), and `deploy` ACs are verified on production after merge. For opted-in tickets, every pushed PR branch gets a preview deployment and its own Neon branch. Verify deployed ACs there: `vercel curl` for API checks, a `get_access_to_vercel_url` share link for browser checks. Sign up test users on previews only. Each push costs a preview build and a CI run, so push as few times as possible (the agent files).
 - **Neon reads:** read-only SQL (`run_sql` with `SELECT`) on any branch, including production `main`, is allowed for verification. Pass `branch_id` for preview branches.
 - **Neon writes:** writing SQL is allowed on preview branches. On production `main`, any write, delete or schema change, and every destructive Neon operation (deleting branches, resetting, dropping), needs the user's explicit approval first. Implementers ask the orchestrator, and the orchestrator asks the user. The one standing exception: the orchestrator deletes a merged ticket's preview branch during cleanup (`pnpm ticket:merge` and `pnpm ticket:cleanup`).
 - **Vercel changes:** reads are always fine. Changing project settings, env vars, protection or domains needs the user's approval, except that the orchestrator may add a missing per-environment secret generated with `openssl rand` and piped straight in, without printing it.
@@ -160,4 +160,4 @@ Re-verified: AC<n> (<method>) PASS, … · gates ✔
 
 ## 5. Ticket file format
 
-See `_TEMPLATE.md`. The frontmatter keys are `id`, `title`, `milestone`, `epic`, `depends_on`, `migrations`, `requires_human`, `spec` and `skills`. Acceptance criteria are numbered `AC1…ACn`. Each AC has a `Verify (<method>)` line that says exactly what to run and what result is expected.
+See `_TEMPLATE.md`. The frontmatter keys are `id`, `title`, `milestone`, `epic`, `depends_on`, `migrations`, `requires_human`, `preview`, `spec` and `skills`. `preview: true` opts the ticket's PR branch into Vercel preview deployments (see §3.1); it is only for tickets that touch auth, env, config, routing, caching or migrations. Acceptance criteria are numbered `AC1…ACn`. Each AC has a `Verify (<method>)` line that says exactly what to run and what result is expected.

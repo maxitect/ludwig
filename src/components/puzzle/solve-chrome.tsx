@@ -12,6 +12,7 @@ import {
   useTransition,
 } from "react";
 import { BulletHole, Credit } from "@/components/brand";
+import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -288,6 +289,9 @@ function SolveBoard({
         className="flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
       >
         <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
+          <div className="touch:hidden">
+            <BackLink href={`/puzzles/${typeKey}`} label={`Back to ${typeName}`} />
+          </div>
           <Link
             href={`/puzzles/${typeKey}`}
             aria-label={`Back to ${typeName}`}

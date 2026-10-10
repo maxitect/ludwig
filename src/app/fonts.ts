@@ -36,14 +36,12 @@ const hand = Caveat_Brush({
   subsets: ["latin"],
   weight: "400",
   preload: false,
-  display: "optional",
   variable: "--font-caveat",
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   preload: false,
-  display: "optional",
   variable: "--font-jetbrains",
 });
 

@@ -97,7 +97,7 @@ export function Unwind({
         {payload.goalText && (
           <p data-testid="goal">Goal: {payload.goalText}</p>
         )}
-        <SideToMove colour={payload.sideToMove} />
+        <SideToMove colour={fromFen(board).sideToMove} />
       </div>
 
       <ChessBoard

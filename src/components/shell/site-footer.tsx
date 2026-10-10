@@ -1,6 +1,6 @@
 export function SiteFooter() {
   return (
-    <footer className="group-has-[[data-solve-mode]]/body:touch:hidden mt-auto flex flex-col gap-2 border-t-2 border-border px-4 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-sm">
+    <footer className="group-data-solve-mode/body:touch:hidden mt-auto flex flex-col gap-2 border-t-2 border-border px-4 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-sm">
       <p>Unofficial fan site, not affiliated with the BBC.</p>
       <p>
         Chess pieces by Colin M.L. Burnett (cburnett), licensed{" "}

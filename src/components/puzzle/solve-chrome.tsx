@@ -121,6 +121,12 @@ function SolveBoard({
   const [localState, setLocalState] = useState<unknown>(undefined);
   const localRead = useRef(false);
   useEffect(() => {
+    document.body.dataset.solveMode = "";
+    return () => {
+      delete document.body.dataset.solveMode;
+    };
+  }, []);
+  useEffect(() => {
     let current = true;
     readProgress(puzzleId).then((entry) => {
       if (!current) return;
@@ -281,7 +287,6 @@ function SolveBoard({
   return (
     <SolveSlotProvider value={slot}>
       <section
-        data-solve-mode
         className="group/solve flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
       >
         <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(1rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">

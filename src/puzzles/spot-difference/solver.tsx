@@ -230,10 +230,10 @@ export function Solver({
         aria-label="Scene shown"
         className="hidden touch:flex"
       >
-        <ToggleGroupItem value="left" className="h-11 min-w-11">
+        <ToggleGroupItem value="left">
           Left
         </ToggleGroupItem>
-        <ToggleGroupItem value="right" className="h-11 min-w-11">
+        <ToggleGroupItem value="right">
           Right
         </ToggleGroupItem>
       </ToggleGroup>

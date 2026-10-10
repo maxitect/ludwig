@@ -5,12 +5,14 @@ import {
   SCENE_HEIGHT,
   SCENE_WIDTH,
 } from "../src/puzzles/spot-difference/engine";
+import { content, meta } from "../content/spot-difference/away-day";
 import { openPuzzle } from "./helpers/solve";
 
 test.skip(({ isMobile }) => !isMobile, "touch phones only");
 
-const puzzle = { typeKey: "spot-difference", slug: "away-day" };
-const { differences } = generateScene(2024, 8, 1);
+const puzzle = { typeKey: "spot-difference", slug: meta.slug };
+const { sceneSeed, differenceCount, generatorVersion } = content;
+const { differences } = generateScene(sceneSeed, differenceCount, generatorVersion);
 
 async function tapAt(scene: Locator, point: { x: number; y: number }) {
   const box = await scene.boundingBox();
@@ -32,12 +34,12 @@ test("shows one scene at a time and counts taps in either", async ({ page }) => 
   await expect(two).toBeHidden();
 
   await tapAt(one, regionCentre(differences[0].region));
-  await expect(page.getByText("Found 1 of 8 differences.")).toBeVisible();
+  await expect(page.getByText(`Found 1 of ${differenceCount} differences.`)).toBeVisible();
 
   await page.getByRole("radio", { name: "Right" }).tap();
   await expect(two).toBeVisible();
   await expect(one).toBeHidden();
 
   await tapAt(two, regionCentre(differences[1].region));
-  await expect(page.getByText("Found 2 of 8 differences.")).toBeVisible();
+  await expect(page.getByText(`Found 2 of ${differenceCount} differences.`)).toBeVisible();
 });

@@ -185,6 +185,8 @@ export function CellGrid({
     erase,
   }));
 
+  const erasedByKey = useRef(false);
+
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     const arrow = ARROWS[event.key];
@@ -213,7 +215,10 @@ export function CellGrid({
     }
   };
 
-  const erasedByKey = useRef(false);
+  const onKeyUp = () => {
+    erasedByKey.current = false;
+  };
+
   const eraseRef = useRef(erase);
   useEffect(() => {
     eraseRef.current = erase;
@@ -228,15 +233,8 @@ export function CellGrid({
       if (erasedByKey.current) return;
       eraseRef.current();
     };
-    const clearKey = () => {
-      erasedByKey.current = false;
-    };
     input.addEventListener("beforeinput", onBeforeInput);
-    input.addEventListener("keyup", clearKey);
-    return () => {
-      input.removeEventListener("beforeinput", onBeforeInput);
-      input.removeEventListener("keyup", clearKey);
-    };
+    return () => input.removeEventListener("beforeinput", onBeforeInput);
   }, []);
 
   const onInput = (event: InputEvent<HTMLInputElement>) => {
@@ -262,6 +260,7 @@ export function CellGrid({
       className="group relative w-full [container-type:inline-size]"
       style={{ maxWidth: `${cols * cellRem}rem` }}
       onKeyDown={onKeyDown}
+      onKeyUp={onKeyUp}
     >
       <div
         ref={gridRef}

@@ -172,6 +172,26 @@ describe("CellGrid keyboard", () => {
     expect(cell(1, 1).textContent).toBe("A");
   });
 
+  it("still erases on deleteContentBackward after a Backspace released on a cell", async () => {
+    const user = userEvent.setup();
+    render(<Harness initial={{ [cellKey(0, 0)]: "A", [cellKey(0, 1)]: "B" }} />);
+    await user.click(cell(1, 2));
+    fireEvent.keyDown(cell(1, 2), { key: "Backspace" });
+    fireEvent.keyUp(cell(1, 2), { key: "Backspace" });
+    expect(cell(1, 2).textContent).toBe("");
+    const input = screen.getByLabelText(/input$/);
+    act(() => {
+      input.dispatchEvent(
+        new InputEvent("beforeinput", {
+          inputType: "deleteContentBackward",
+          cancelable: true,
+          bubbles: true,
+        }),
+      );
+    });
+    expect(cell(1, 1).textContent).toBe("");
+  });
+
   it("Tab jumps to the next word when words are supplied", async () => {
     const user = userEvent.setup();
     const words = [

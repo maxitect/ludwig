@@ -107,7 +107,12 @@ export function Unwind({
             <Button size="sm" onClick={requestCheck} disabled={solved}>
               Check
             </Button>
-            <Button size="sm" variant="secondary" onClick={requestReset}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={requestReset}
+              disabled={solved}
+            >
               Reset
             </Button>
           </div>

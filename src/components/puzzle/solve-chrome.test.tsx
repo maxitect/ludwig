@@ -16,6 +16,7 @@ vi.mock("@/lib/actions/puzzles", () => actions);
 const solverStub = vi.hoisted(() => ({ current: null as unknown }));
 vi.mock("@/puzzles/solvers", () => ({
   getSolver: () => solverStub.current,
+  ownsTouchControls: new Set(),
 }));
 
 const { SolveChrome } = await import("./solve-chrome");

@@ -29,7 +29,7 @@ import {
 import { SolveSlotProvider } from "@/puzzles/_shared/solve-slot";
 import type { WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
-import { getSolver } from "@/puzzles/solvers";
+import { getSolver, ownsTouchControls } from "@/puzzles/solvers";
 import type { SolverProps } from "@/puzzles/solver-types";
 import { formatDuration } from "@/utils/format-duration";
 import {
@@ -373,7 +373,7 @@ function SolveBoard({
             checkCell={solved ? undefined : checkCell}
             revealCell={solved ? undefined : revealCellValue}
           />
-          {typeKey !== "reverse-chess" && (
+          {!ownsTouchControls.has(typeKey) && (
             <div className="hidden gap-3 py-4 touch:flex touch:group-has-[[data-solve-slot]:not(:empty)]/solve:hidden">
               <Button onClick={check} disabled={pending || solved}>
                 Check
@@ -392,7 +392,7 @@ function SolveBoard({
         <div
           className={cn(
             "flex flex-wrap gap-3 touch:hidden",
-            typeKey !== "reverse-chess" &&
+            !ownsTouchControls.has(typeKey) &&
               "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:shrink-0 touch:px-4 touch:py-2",
           )}
         >

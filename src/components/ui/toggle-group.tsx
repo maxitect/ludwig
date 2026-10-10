@@ -47,7 +47,7 @@ function ToggleGroupItem({
       data-size={context.size || size}
       className={cn(
         toggleVariants({ size: context.size || size }),
-        "w-auto min-w-0 shrink-0 px-3 not-first:-ml-0.5 focus-visible:z-10",
+        "w-auto min-w-0 shrink-0 px-3 not-first:-ml-0.5 focus-visible:z-10 data-[state=on]:z-10",
         className
       )}
       {...props}

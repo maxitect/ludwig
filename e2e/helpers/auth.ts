@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-export const PASSWORD = "correct-horse-battery";
+const PASSWORD = "correct-horse-battery";
 
 const runId = Date.now().toString(36);
 let counter = 0;

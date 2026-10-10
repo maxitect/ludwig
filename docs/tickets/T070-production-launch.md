@@ -3,7 +3,7 @@ id: T070
 title: Production launch on the Vercel domain
 milestone: M5
 epic: E10
-depends_on: [T068, T069]
+depends_on: [T068, T069, T143, T144, T146]
 migrations: false
 requires_human: false
 spec: ["SPEC §7.5", "SPEC §7.7", "SPEC §8", "PLAN §3 M5"]

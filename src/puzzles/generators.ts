@@ -8,7 +8,7 @@ import {
 import { futoshikiGenerators } from "./futoshiki/generate";
 import { gradeFutoshiki } from "./futoshiki/grade";
 import { contentSchema as futoshikiContent } from "./futoshiki/schema";
-import { gridFromGivens } from "./sudoku/engine";
+import { gridFromGivens, unitsFor } from "./sudoku/engine";
 import { sudokuGenerators } from "./sudoku/generate";
 import { gradeSudoku } from "./sudoku/grade";
 import { contentSchema as sudokuContent } from "./sudoku/schema";
@@ -48,8 +48,10 @@ export function regenerate(
 
 /** Grades a type's content by technique alone, or null when it needs trial and error. */
 const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
-  sudoku: (content) =>
-    gradeSudoku(gridFromGivens(sudokuContent.parse(content).givens)),
+  sudoku: (content) => {
+    const { givens, regions } = sudokuContent.parse(content);
+    return gradeSudoku(gridFromGivens(givens), 5, unitsFor(regions));
+  },
   futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
 };
 

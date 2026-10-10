@@ -7,13 +7,13 @@ const ALL_DIGITS = 0b1111111110;
 /** Cell indexes of each nine-cell unit in which every digit appears once. */
 export type Units = ReadonlyArray<ReadonlyArray<number>>;
 
-const rowUnits: Units = Array.from({ length: SIZE }, (_, row) =>
+export const rowUnits: Units = Array.from({ length: SIZE }, (_, row) =>
   Array.from({ length: SIZE }, (_, col) => row * SIZE + col),
 );
-const colUnits: Units = Array.from({ length: SIZE }, (_, col) =>
+export const colUnits: Units = Array.from({ length: SIZE }, (_, col) =>
   Array.from({ length: SIZE }, (_, row) => row * SIZE + col),
 );
-const boxUnits: Units = Array.from({ length: SIZE }, (_, box) =>
+export const boxUnits: Units = Array.from({ length: SIZE }, (_, box) =>
   Array.from(
     { length: SIZE },
     (_, k) =>
@@ -32,7 +32,7 @@ const regionUnits = ({ cells }: Regions): Units => {
   return units;
 };
 
-/** Classic sudoku uses rows, columns and boxes; jigsaw swaps the boxes for its regions; rainbow adds its colour groups. */
+/** Classic sudoku uses rows, columns and boxes; jigsaw swaps the boxes for its regions; rainbow adds its colour groups. Rows and columns always come first. */
 export function unitsFor(regions?: Regions | null): Units {
   if (!regions) return classicUnits;
   if (regions.kind === "jigsaw") {

@@ -1,6 +1,5 @@
-import { MiniGrid } from "../_shared/preview/mini-grid";
+import { CELL, MiniGrid } from "../_shared/preview/mini-grid";
 import { RegionBorders } from "../_shared/preview/region-borders";
-import { CELL } from "../_shared/preview/mini-grid";
 import type { Payload } from "./schema";
 import { GROUP_FILLS, regionLookup } from "./regions";
 

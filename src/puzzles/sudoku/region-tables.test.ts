@@ -7,13 +7,7 @@ import {
   pgErrorCode,
   type Tx,
 } from "@/db/integrity/harness";
-import {
-  puzzleCategories,
-  puzzleTypes,
-  puzzles,
-  sudokuRegionCells,
-  sudokuRegionSets,
-} from "@/db/schema";
+import { puzzles, sudokuRegionCells, sudokuRegionSets } from "@/db/schema";
 import { content as tornEdges } from "../../../content/sudoku/torn-edges";
 import { content as testCard } from "../../../content/sudoku/test-card";
 import { check } from "./check";

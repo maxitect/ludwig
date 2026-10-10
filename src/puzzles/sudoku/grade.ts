@@ -14,26 +14,18 @@ import {
   type Technique,
 } from "../_shared/generate/candidates";
 import type { Difficulty } from "../_shared/generate/pipeline";
-import type { Grid } from "./engine";
+import {
+  boxUnits,
+  classicUnits,
+  colUnits,
+  rowUnits,
+  type Grid,
+  type Units,
+} from "./engine";
 
 const SIZE = 9;
 
-const rowUnits = Array.from({ length: SIZE }, (_, row) =>
-  Array.from({ length: SIZE }, (_, col) => row * SIZE + col),
-);
-const colUnits = Array.from({ length: SIZE }, (_, col) =>
-  Array.from({ length: SIZE }, (_, row) => row * SIZE + col),
-);
-const boxUnits = Array.from({ length: SIZE }, (_, box) =>
-  Array.from(
-    { length: SIZE },
-    (_, k) =>
-      (Math.floor(box / 3) * 3 + Math.floor(k / 3)) * SIZE +
-      (box % 3) * 3 +
-      (k % 3),
-  ),
-);
-const units = [...rowUnits, ...colUnits, ...boxUnits];
+const lines = [...rowUnits, ...colUnits];
 
 const openWith = (state: CandidateState, cells: ReadonlyArray<number>, digit: number) =>
   cells.filter((index) => !state.grid[index] && state.cand[index] & bit(digit));
@@ -198,12 +190,12 @@ const xyzWing: Technique = {
   },
 };
 
-/** Easiest first. A puzzle's difficulty is the level of the hardest technique it needs. */
-export const ladder: ReadonlyArray<Technique> = [
+/** Easiest first, for the given houses (boxes, jigsaw regions or rainbow colour groups). A puzzle's difficulty is the level of the hardest technique it needs. */
+const ladderFor = (houses: Units): ReadonlyArray<Technique> => [
   nakedSingle,
   hiddenSingle,
-  lockedCandidates("pointing", boxUnits, [...rowUnits, ...colUnits]),
-  lockedCandidates("box/line", [...rowUnits, ...colUnits], boxUnits),
+  lockedCandidates("pointing", houses, lines),
+  lockedCandidates("box/line", lines, houses),
   nakedSubset("naked pair", 2, 3),
   hiddenSubset("hidden pair", 2, 3),
   fish("x-wing", 2, 4),
@@ -214,10 +206,17 @@ export const ladder: ReadonlyArray<Technique> = [
   hiddenSubset("hidden triple", 3, 5),
 ];
 
+export const ladder = ladderFor(boxUnits);
+
 /** Grades a grid of givens by technique alone, or null when techniques up to `maxLevel` cannot finish it. */
 export function gradeSudoku(
   givens: Grid,
   maxLevel: Difficulty = 5,
+  units: Units = classicUnits,
 ): Grade | null {
-  return gradeByTechnique(createState(givens, SIZE, units), ladder, maxLevel);
+  return gradeByTechnique(
+    createState(givens, SIZE, units),
+    ladderFor(units.slice(lines.length)),
+    maxLevel,
+  );
 }

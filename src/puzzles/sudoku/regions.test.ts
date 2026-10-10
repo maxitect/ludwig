@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { content as testCard } from "../../../content/sudoku/test-card";
 import { content as tornEdges } from "../../../content/sudoku/torn-edges";
+import { gradeContent } from "../generators";
 import { check } from "./check";
 import { countSolutions, solve, unitsFor } from "./engine";
 import { solution as classicSolution } from "./fixture";
@@ -63,6 +64,10 @@ describe.each(variants)("%s sudoku", (_kind, content) => {
     expect(() => verifySudoku({ ...content, givens: contradictory })).toThrow(
       /no solution/,
     );
+  });
+
+  it("is graded with its own units", () => {
+    expect(gradeContent("sudoku", content)).not.toBeNull();
   });
 
   it("accepts its own solution and names a cell that breaks a unit", () => {

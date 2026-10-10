@@ -41,7 +41,6 @@ for (const { slug, name, content } of variants) {
         path: `${SHOTS}/ac6-${slug}-${theme}-${width}.png`,
       });
     }
-    await page.emulateMedia({ forcedColors: "none" });
     await page.addStyleTag({
       content: "html { filter: grayscale(1) !important; }",
     });

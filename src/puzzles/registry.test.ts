@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fixtureModule } from "./__fixture/module";
-import { getPuzzleModule } from "./registry";
+import { getPuzzleModule, registry } from "./registry";
 
 describe("getPuzzleModule", () => {
   it("throws on an unknown type", () => {
@@ -14,5 +14,11 @@ describe("getPuzzleModule", () => {
   it("returns a registered module", () => {
     const source = { [fixtureModule.meta.key]: fixtureModule };
     expect(getPuzzleModule(fixtureModule.meta.key, source)).toBe(fixtureModule);
+  });
+
+  it("keys every module by its own meta key", () => {
+    for (const [key, module] of Object.entries(registry)) {
+      expect(module.meta.key).toBe(key);
+    }
   });
 });

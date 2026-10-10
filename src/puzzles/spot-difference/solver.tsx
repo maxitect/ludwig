@@ -1,8 +1,9 @@
 "use client";
 
-import { createElement, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadFoundRegions, tapScene } from "@/lib/actions/spot-difference";
 import { SCENE_HEIGHT, SCENE_WIDTH, regionCentre } from "./engine";
+import { renderSceneNode } from "./scene";
 import type { SolverProps } from "../solver-types";
 import type * as schema from "./schema";
 
@@ -10,20 +11,6 @@ const SECTOR = 10;
 const COLUMNS = SCENE_WIDTH / SECTOR;
 const ROWS = SCENE_HEIGHT / SECTOR;
 const GUIDE_EVERY = 5;
-
-const camelCase = (name: string) =>
-  name.replace(/-([a-z0-9])/g, (_, char: string) => char.toUpperCase());
-
-function renderNode(node: schema.SceneNode, key: number): React.ReactNode {
-  const props = Object.fromEntries(
-    Object.entries(node.attrs).map(([name, value]) => [camelCase(name), value]),
-  );
-  return createElement(
-    node.tag,
-    { key, ...props },
-    node.children?.map(renderNode),
-  );
-}
 
 type Cursor = { column: number; row: number };
 
@@ -59,7 +46,7 @@ function SceneView({
         });
       }}
     >
-      {renderNode(scene, 0)}
+      {renderSceneNode(scene, 0)}
       {[...found].map(([index, region]) => {
         const { x, y } = regionCentre(region);
         return (

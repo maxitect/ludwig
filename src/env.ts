@@ -10,6 +10,7 @@ const envSchema = z
     CRON_SECRET: z.string().min(16).optional(),
     VERCEL_ENV: z.string().optional(),
     VERCEL_URL: z.string().optional(),
+    VERCEL_BRANCH_URL: z.string().optional(),
   })
   .refine((value) => value.BETTER_AUTH_URL || value.VERCEL_ENV === "preview", {
     path: ["BETTER_AUTH_URL"],

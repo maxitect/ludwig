@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne, or, sql } from "drizzle-orm";
 import { DatabaseError } from "pg";
 import { z } from "zod";
 import type { db as appDb } from "@/db";
@@ -25,6 +25,8 @@ type ContentMeta = z.infer<typeof contentMetaSchema>;
  * Writes one puzzle (supertype, subtype and children) in a single transaction, updating an
  * existing `(type_key, slug)` in place so content row ids stay stable and attempt data is never
  * touched. A content change that removes a row attempt data references fails the whole puzzle.
+ * A puzzle holding the wanted volume position is moved to its negative until its own file is
+ * seeded, so two puzzles can swap places across separate transactions.
  * Inside a transaction it runs as a savepoint.
  */
 export async function upsertPuzzle(
@@ -84,6 +86,18 @@ async function writePuzzle(
       publishedAt: columns.publishedAt ?? null,
       volumeId,
     };
+    if (values.volumeId && values.volumePosition !== null) {
+      await tx
+        .update(puzzles)
+        .set({ volumePosition: sql`-${puzzles.volumePosition}` })
+        .where(
+          and(
+            eq(puzzles.volumeId, values.volumeId),
+            eq(puzzles.volumePosition, values.volumePosition),
+            or(ne(puzzles.typeKey, typeKey), ne(puzzles.slug, columns.slug)),
+          ),
+        );
+    }
     const [existing] = await tx
       .select({ id: puzzles.id })
       .from(puzzles)

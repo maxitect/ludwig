@@ -14,7 +14,7 @@ const fileMetaSchema = contentMetaSchema
   })
   .refine(
     ({ volume, volumePosition }) =>
-      volume === undefined || volumePosition !== undefined,
+      volume === undefined || volumePosition != null,
     {
       path: ["volumePosition"],
       message: "volumePosition is required when the file names a volume",
@@ -22,7 +22,7 @@ const fileMetaSchema = contentMetaSchema
   )
   .refine(
     ({ volume, volumePosition }) =>
-      volume !== undefined || volumePosition === undefined,
+      volume !== undefined || volumePosition == null,
     {
       path: ["volumePosition"],
       message: "volumePosition is only allowed when the file names a volume",

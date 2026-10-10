@@ -243,6 +243,14 @@ describe("verifyPuzzles", () => {
     expect(failures[0].error).toContain("content.items.0.label");
   });
 
+  it("requires a volume position when the file names a volume", async () => {
+    write("np", contentFile("np", items).replace(/volumePosition: \d+/, "volumePosition: null"));
+
+    const { failures } = await verifyPuzzles(registry, contentDir);
+
+    expect(failures[0].error).toContain("volumePosition is required");
+  });
+
   it("reports a failing verify hook", async () => {
     write("dup", contentFile("dup", [
       { position: 0, label: "same" },

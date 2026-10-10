@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronLeftIcon, EllipsisVerticalIcon } from "lucide-react";
+import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   type ComponentType,
+  lazy,
   useCallback,
   useEffect,
   useRef,
@@ -15,21 +16,12 @@ import { BulletHole, Credit } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   checkAnswer,
   clearState,
   revealCell,
   saveState,
 } from "@/lib/actions/puzzles";
 import {
-  setDeviceKeyboard,
   useDeviceKeyboard,
   useKeyboardInset,
 } from "@/puzzles/_shared/puzzle-keyboard";
@@ -45,9 +37,15 @@ import {
   readProgress,
   writeProgress,
 } from "@/utils/local-progress";
+import { AfterHydration } from "@/components/after-hydration";
+import { PuzzleMenuButton } from "./puzzle-menu-button";
 import { usePuzzleTimer } from "./use-puzzle-timer";
 
 const SAVE_DEBOUNCE_MS = 800;
+
+const PuzzleMenu = lazy(() =>
+  import("./puzzle-menu").then((module) => ({ default: module.PuzzleMenu })),
+);
 
 const SolvedStamp = dynamic(() =>
   import("@/components/brand/solved-stamp").then((m) => m.SolvedStamp),
@@ -307,38 +305,24 @@ function SolveBoard({
           />
           <div className="flex items-center gap-4 touch:shrink-0">
             <Badge variant="difficulty" level={difficulty} className="touch:hidden" />
-            <p className="font-mono text-lg tabular-nums">
-              <span className="sr-only">Elapsed time </span>
-              {formatDuration(solved ? solvedMs : timer.displayMs)}
+            <p className="inline-block min-w-[5ch] font-mono text-lg tabular-nums">
+              {localState === undefined ? null : (
+                <>
+                  <span className="sr-only">Elapsed time </span>
+                  {formatDuration(solved ? solvedMs : timer.displayMs)}
+                </>
+              )}
             </p>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Puzzle menu"
-                className="hidden touch:inline-flex"
-              >
-                <EllipsisVerticalIcon aria-hidden="true" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem disabled={pending || solved} onSelect={check}>
-                Check
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled={pending} onSelect={reset}>
-                Reset
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem
-                checked={deviceKeyboard}
-                onCheckedChange={setDeviceKeyboard}
-              >
-                Use my device&apos;s keyboard
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AfterHydration fallback={<PuzzleMenuButton />}>
+            <PuzzleMenu
+              pending={pending}
+              solved={solved}
+              deviceKeyboard={deviceKeyboard}
+              onCheck={check}
+              onReset={reset}
+            />
+          </AfterHydration>
         </header>
 
         <div

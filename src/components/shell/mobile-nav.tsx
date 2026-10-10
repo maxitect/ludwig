@@ -1,62 +1,20 @@
 "use client";
 
-import { MenuIcon } from "lucide-react";
-import Link from "next/link";
-import { type ComponentProps, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { navLinks } from "@/config/nav";
-import { InstallHint } from "./install-hint";
+import { lazy } from "react";
+import { AfterHydration } from "@/components/after-hydration";
+import { MenuButton } from "./menu-button";
+import type { MobileNavProps } from "./mobile-nav-sheet";
 
-export function MobileNav({
-  collectionTransitionTypes,
-}: {
-  collectionTransitionTypes?: ComponentProps<typeof Link>["transitionTypes"];
-}) {
-  const [open, setOpen] = useState(false);
+const MobileNavSheet = lazy(() =>
+  import("./mobile-nav-sheet").then((module) => ({
+    default: module.MobileNavSheet,
+  })),
+);
 
+export function MobileNav({ collectionTransitionTypes }: MobileNavProps) {
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="secondary" size="sm" className="md:hidden">
-          <MenuIcon aria-hidden="true" />
-          <span className="sr-only">Menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent
-        side="bottom"
-        className="pb-[env(safe-area-inset-bottom)]"
-      >
-        <SheetHeader>
-          <SheetTitle>Menu</SheetTitle>
-          <SheetDescription className="sr-only">
-            Site navigation
-          </SheetDescription>
-        </SheetHeader>
-        <nav aria-label="Primary" className="flex flex-col pb-4">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              transitionTypes={
-                href === "/puzzles" ? collectionTransitionTypes : undefined
-              }
-              onClick={() => setOpen(false)}
-              className="px-4 py-3 font-display text-lg font-semibold tracking-[0.04em] uppercase hover:bg-foreground hover:text-background focus-visible:outline-3 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-ring"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <InstallHint />
-      </SheetContent>
-    </Sheet>
+    <AfterHydration fallback={<MenuButton />}>
+      <MobileNavSheet collectionTransitionTypes={collectionTransitionTypes} />
+    </AfterHydration>
   );
 }

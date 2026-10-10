@@ -1,51 +1,20 @@
 "use client";
 
-import { ChevronDownIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { authClient } from "@/lib/auth-client";
-import {
-  applyTheme,
-  readStoredTheme,
-  writeThemeCookie,
-  type Theme,
-} from "@/utils/theme";
-import { applyReduceMotion } from "@/utils/reduce-motion";
-import { ThemeRadioGroup } from "./theme-radio-group";
+import { lazy } from "react";
+import { AfterHydration } from "@/components/after-hydration";
+import type { Theme } from "@/utils/theme";
+import { AccountButton } from "./account-button";
 
-type AccountMenuProps = { name: string; theme: Theme };
+const AccountDropdown = lazy(() =>
+  import("./account-dropdown").then((module) => ({
+    default: module.AccountDropdown,
+  })),
+);
 
-export function AccountMenu({ name, theme }: AccountMenuProps) {
-  const router = useRouter();
-
-  async function signOut() {
-    await authClient.signOut();
-    writeThemeCookie(null);
-    applyReduceMotion(false);
-    applyTheme(readStoredTheme());
-    router.refresh();
-  }
-
+export function AccountMenu({ name, theme }: { name: string; theme: Theme }) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="sm" className="max-w-40">
-          <span className="truncate">{name}</span>
-          <ChevronDownIcon aria-hidden="true" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <ThemeRadioGroup persistedTheme={theme} />
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={signOut}>Sign out</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <AfterHydration fallback={<AccountButton name={name} />}>
+      <AccountDropdown name={name} theme={theme} />
+    </AfterHydration>
   );
 }

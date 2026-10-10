@@ -1,14 +1,13 @@
 "use client";
 
-import { SunMoonIcon } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ThemeRadioGroup } from "./theme-radio-group";
+import { lazy } from "react";
+import { AfterHydration } from "@/components/after-hydration";
+import { ThemeButton } from "./theme-button";
+
+const ThemeMenu = lazy(() =>
+  import("./theme-menu").then((module) => ({ default: module.ThemeMenu })),
+);
 
 export function GuestMenu() {
   return (
@@ -16,16 +15,9 @@ export function GuestMenu() {
       <Link href="/sign-in" className="underline underline-offset-4">
         Sign in
       </Link>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="sm" aria-label="Theme">
-            <SunMoonIcon aria-hidden="true" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <ThemeRadioGroup />
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <AfterHydration fallback={<ThemeButton />}>
+        <ThemeMenu />
+      </AfterHydration>
     </div>
   );
 }

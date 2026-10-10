@@ -28,7 +28,9 @@ const firstSlug = (type: string) =>
     .sort()[0]
     ?.replace(/\.ts$/, "");
 
-const pages = [
+const only = process.env.ONLY?.split(",");
+
+const allPages = [
   { name: "landing", path: "/" },
   { name: "puzzles", path: "/puzzles" },
   { name: "hub-reverse-chess", path: "/reverse-chess" },
@@ -40,6 +42,8 @@ const pages = [
       : [];
   }),
 ];
+
+const pages = only ? allPages.filter((page) => only.includes(page.name)) : allPages;
 
 const settings = {
   formFactor: "mobile",

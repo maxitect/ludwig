@@ -49,6 +49,15 @@ async function findAttempt(userId: string, puzzleId: string) {
   });
 }
 
+/** The user's recorded completion for a puzzle, or null while it is unsolved. */
+export async function getCompletion(userId: string, puzzleId: string) {
+  const completed = await db.query.attempts.findFirst({
+    where: { userId, puzzleId, completedAt: { isNotNull: true } },
+    columns: { durationMs: true },
+  });
+  return completed ?? null;
+}
+
 /** The user's saved state for a puzzle, parsed by the type's `attemptSchema`, or null when there is none. */
 export async function getAttemptState(userId: string, puzzleId: string) {
   const attempt = await findAttempt(userId, puzzleId);

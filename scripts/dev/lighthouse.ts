@@ -88,7 +88,6 @@ async function main() {
       const runs = [await measure(chrome.port, url)];
       while (!meets(runs[0]) && runs.length <= retries) {
         runs.push(await measure(chrome.port, url));
-        if (runs.length > retries) break;
       }
       const ranked = [...runs].sort((a, b) => a.performance - b.performance);
       const median = ranked[Math.floor(ranked.length / 2)];

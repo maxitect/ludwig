@@ -105,7 +105,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T082](./T082-gear-train-tables-engine.md) | Gear train (Gear Puzzle Mode B): tables, engine, uniqueness search | T016, T034 | ✔ | | done |
 | [T083](./T083-gear-train-ui-content.md) | Gear train UI, gears hub integration and content | T082, T043 | | | done |
 | [T064](./T064-this-week.md) | This Week page and the weekly schedule | T019 | | | done |
-| [T132](./T132-drop-rota-attempt-instigator.md) | Stop naming `rota_attempts.instigator_worker_id` in the Drizzle schema | T063 | | | review |
+| [T132](./T132-drop-rota-attempt-instigator.md) | Stop naming `rota_attempts.instigator_worker_id` in the Drizzle schema | T063 | | | done |
 | [T141](./T141-drop-rota-instigator-column.md) | Drop the `rota_attempts.instigator_worker_id` column (after T132 is in production) | T132 | ✔ | | todo |
 | [T133](./T133-reverse-chess-ply-count-trigger.md) | Enforce `reverse_chess_puzzles.ply_count` for every mode with a trigger | T081 | ✔ | | todo |
 
@@ -125,7 +125,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T114](./T114-puzzle-keyboard.md) | Shared on-screen `PuzzleKeyboard`, `CellGrid` keyboard mode and the device-keyboard setting | T113 | | | done |
 | [T115](./T115-crossword-on-phones.md) | Crossword on phones (clue bar, clue sheet, keyboard) | T114 | | | done |
 | [T116](./T116-keyboard-other-types.md) | On-screen keyboard for sudoku, futoshiki and the ciphers | T114 | | | done |
-| [T117](./T117-touch-pass.md) | Touch pass (tap targets, chess tap-to-move, spot-difference compare, Android backspace, WebKit project) | T113 | | | review |
+| [T117](./T117-touch-pass.md) | Touch pass (tap targets, chess tap-to-move, spot-difference compare, Android backspace, WebKit project) | T113 | | | done |
 | [T120](./T120-theme-surfaces-cast-shadows.md) | Theme-aware surfaces and cast shadows, with a guard against raw tokens | — | | | done |
 | [T121](./T121-chess-piece-outlines.md) | Chess pieces outlined in the opposite colour in both themes | T120 | | | done |
 | [T122](./T122-solved-footer-tear.md) | Solved footer, a small, ordered, framed tear behind the stamp | T120 | | | done |

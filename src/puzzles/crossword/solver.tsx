@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +20,7 @@ import {
   type Direction,
 } from "../_shared/cell-grid";
 import { PuzzleKeyboard, usePadWanted } from "../_shared/puzzle-keyboard";
+import { SolveBarButton } from "../_shared/solve-bar-button";
 import { SolveSlot } from "../_shared/solve-slot";
 import type { SolverProps } from "../solver-types";
 import { deriveEntries, deriveWords, type Entry } from "./derive";
@@ -120,9 +120,6 @@ function ClueTabs({
     </Tabs>
   );
 }
-
-const barButton =
-  "flex size-12 shrink-0 items-center justify-center border-2 border-border bg-card text-card-foreground select-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring active:border-ludwig-red active:text-ludwig-red";
 
 const keepFocus = (event: { preventDefault: () => void }) =>
   event.preventDefault();
@@ -387,15 +384,11 @@ export function Solver({
             aria-label="Clue"
             className="flex items-stretch gap-1"
           >
-            <button
-              type="button"
-              aria-label="Previous clue"
-              className={barButton}
-              onPointerDown={keepFocus}
+            <SolveBarButton
+              direction="previous"
+              label="Previous clue"
               onClick={() => step(-1)}
-            >
-              <ChevronLeftIcon aria-hidden="true" />
-            </button>
+            />
             <button
               type="button"
               disabled={!crossing}
@@ -416,15 +409,11 @@ export function Solver({
                 ) : null}
               </span>
             </button>
-            <button
-              type="button"
-              aria-label="Next clue"
-              className={barButton}
-              onPointerDown={keepFocus}
+            <SolveBarButton
+              direction="next"
+              label="Next clue"
               onClick={() => step(1)}
-            >
-              <ChevronRightIcon aria-hidden="true" />
-            </button>
+            />
           </div>
           {!padWanted && (
             <div className="flex gap-1 [&>*]:flex-1" onPointerDown={keepFocus}>

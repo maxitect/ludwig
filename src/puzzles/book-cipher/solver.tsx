@@ -12,6 +12,14 @@ import {
 } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
+import {
+  PuzzleKeyboard,
+  showPad,
+  usePadWanted,
+  usePuzzleKeyboard,
+} from "../_shared/puzzle-keyboard";
+import { SolveBarButton } from "../_shared/solve-bar-button";
+import { SolveSlot } from "../_shared/solve-slot";
 import { LINE_WIDTH, wordsOfLine } from "./derive";
 import type * as schema from "./schema";
 import type { SolverProps } from "../solver-types";
@@ -34,8 +42,7 @@ const BOOK_PAGE_STYLES = `@container book-page (min-width: ${NOWRAP_FROM_PX}px) 
   .book-turn { display: none; }
 }`;
 
-const panelTitle =
-  "font-display text-lg font-bold tracking-[0.04em] uppercase";
+const panelTitle = "font-display text-lg font-bold tracking-[0.04em] uppercase";
 
 function useRowStarts(
   list: RefObject<HTMLOListElement | null>,
@@ -105,6 +112,8 @@ export function Solver({
   const pageCount = Math.max(...pages.keys());
   const current = refs[selected];
   const rowStarts = useRowStarts(bookLines, page);
+  const padActive = usePuzzleKeyboard();
+  const padWanted = usePadWanted();
 
   useEffect(() => {
     registerCheck(() =>
@@ -135,6 +144,22 @@ export function Solver({
     onStateChange({ answer: encode(next) });
   }
 
+  function step(delta: -1 | 1) {
+    const next = selected + delta;
+    select(next);
+    if (inputs.current.some((input) => input === document.activeElement)) {
+      inputs.current[next]?.focus({ preventScroll: true });
+    }
+  }
+
+  function onPadKey(char: string) {
+    write(selected, words[selected] + char);
+  }
+
+  function onPadErase() {
+    write(selected, words[selected].slice(0, -1));
+  }
+
   function onReaderKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     const step: Record<string, number | undefined> = {
@@ -153,7 +178,7 @@ export function Solver({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-lg">
+      <p className={cn("text-lg", padWanted && "sr-only")}>
         Each reference names a page, a line and a word in the book. Find the
         word, write it down, and read the message the words make together.
       </p>
@@ -163,13 +188,21 @@ export function Solver({
           aria-label={`${title}, page ${page} of ${pageCount}`}
           tabIndex={0}
           onKeyDown={onReaderKeyDown}
-          className="paper-sheet order-2 flex flex-col gap-4 p-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:order-1 lg:p-4"
+          className={cn(
+            "paper-sheet order-2 flex flex-col gap-4 p-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:order-1 lg:p-4",
+            padWanted && "order-1 max-h-(--solver-height)",
+          )}
         >
           <header className="flex flex-col gap-1">
             <h2 className={panelTitle}>{title}</h2>
             <p className="font-mono text-sm text-ink-soft">{author}</p>
           </header>
-          <div className="@container/book-page">
+          <div
+            className={cn(
+              "@container/book-page",
+              padWanted && "min-h-0 overflow-y-auto",
+            )}
+          >
             <ol
               ref={bookLines}
               style={{ fontSize: LINE_FONT_SIZE }}
@@ -225,7 +258,10 @@ export function Solver({
               ))}
             </ol>
           </div>
-          <nav aria-label="Pages" className="flex items-center justify-between gap-2">
+          <nav
+            aria-label="Pages"
+            className="flex items-center justify-between gap-2"
+          >
             <Button
               type="button"
               variant="secondary"
@@ -260,12 +296,18 @@ export function Solver({
         </section>
         <section
           aria-label="References"
-          className="paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 lg:order-2 lg:p-4"
+          className={cn(
+            "paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 lg:order-2 lg:p-4",
+            padWanted && "order-2",
+          )}
         >
           <h2 className={panelTitle}>References</h2>
           <ol className="grid grid-cols-1 gap-3 min-[30rem]:grid-cols-2 lg:grid-cols-1">
             {refs.map((ref, index) => (
-              <li key={ref.position} className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-2">
+              <li
+                key={ref.position}
+                className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-2"
+              >
                 <button
                   type="button"
                   aria-pressed={index === selected}
@@ -285,11 +327,13 @@ export function Solver({
                     inputs.current[index] = node;
                   }}
                   type="text"
+                  inputMode={padActive ? "none" : undefined}
                   autoComplete="off"
                   autoCapitalize="off"
                   spellCheck={false}
                   value={words[index]}
                   aria-label={`Word ${index + 1}: page ${ref.page}, line ${ref.line}, word ${ref.wordIndex}`}
+                  onPointerDown={showPad}
                   onFocus={() => select(index)}
                   onChange={(event) => write(index, event.currentTarget.value)}
                   className="min-w-0 flex-1 border-b-2 border-ink px-1 font-hand text-2xl text-crayon focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -299,6 +343,42 @@ export function Solver({
           </ol>
         </section>
       </div>
+      <SolveSlot>
+        <div className="flex flex-col gap-1 pt-2">
+          <div
+            data-testid="reference-bar"
+            role="group"
+            aria-label="Reference"
+            className="flex items-stretch gap-1"
+          >
+            <SolveBarButton
+              direction="previous"
+              label="Previous reference"
+              disabled={selected <= 0}
+              onClick={() => step(-1)}
+            />
+            <div className="flex h-12 min-w-0 flex-1 items-center justify-between gap-2 border-2 border-border bg-card px-2 text-card-foreground">
+              <span className="font-mono text-sm">
+                {`${selected + 1}/${refs.length} · ${current?.page}:${current?.line}:${current?.wordIndex}`}
+              </span>
+              <span className="min-w-0 truncate font-hand text-2xl text-crayon">
+                {words[selected]}
+              </span>
+            </div>
+            <SolveBarButton
+              direction="next"
+              label="Next reference"
+              disabled={selected >= refs.length - 1}
+              onClick={() => step(1)}
+            />
+          </div>
+          <PuzzleKeyboard
+            layout="alpha"
+            onKey={onPadKey}
+            onErase={onPadErase}
+          />
+        </div>
+      </SolveSlot>
     </div>
   );
 }

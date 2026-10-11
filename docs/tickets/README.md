@@ -147,7 +147,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T142](./T142-solve-page-lcp.md) | Solve-page LCP on crossword and reverse chess (post-launch) | T069 | | | todo |
 | [T143](./T143-email-verification-password-reset.md) | Email verification, password reset and password change through Resend | — | ✔ | ✔ | done |
 | [T144](./T144-about-page.md) | About page (who made this, why, and how to get in touch) | — | | ✔ | done |
-| [T145](./T145-spot-difference-engraved-scenes.md) | Spot the difference: authored engraving scenes replace the procedural SVG | — | ✔ | | review |
+| [T145](./T145-spot-difference-engraved-scenes.md) | Spot the difference: authored engraving scenes replace the procedural SVG | — | ✔ | | done |
 | [T146](./T146-spot-difference-launch-scenes.md) | Spot the difference: five launch scenes from public-domain engravings | T145 | | ✔ | todo |
 | [T147](./T147-repair-preview-e2e.md) | Repair the preview end-to-end suite that main broke | — | | | done |
 

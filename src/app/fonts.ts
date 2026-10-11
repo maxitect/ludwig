@@ -37,6 +37,7 @@ const hand = Caveat_Brush({
   subsets: ["latin"],
   weight: "400",
   preload: false,
+  display: "block",
   variable: "--font-caveat",
 });
 

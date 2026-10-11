@@ -1,3 +1,5 @@
-// TODO(T144): placeholders. The owner must replace both before launch.
-export const BLOG_URL = "https://example.com/blog";
-export const CONTACT_EMAIL = "hello@example.com";
+export const BLOG_URL = "https://maxitect.blog";
+export const CONTACT_EMAIL = "maxime.downe@gmail.com";
+export const GITHUB_URL = "https://github.com/maxitect";
+export const LINKEDIN_URL = "https://www.linkedin.com/in/maxime-downe-642ba74b";
+export const TANDEM_URL = "https://runintandem.com";

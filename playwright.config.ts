@@ -5,6 +5,13 @@ if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
+const phone = {
+  ...devices["Desktop Chrome"],
+  viewport: { width: 390, height: 844 },
+  isMobile: true,
+  hasTouch: true,
+};
+
 export default defineConfig({
   testDir: "./e2e",
   use: {
@@ -19,19 +26,12 @@ export default defineConfig({
       : undefined,
   },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    {
-      name: "mobile",
-      use: {
-        ...devices["Desktop Chrome"],
-        viewport: { width: 390, height: 844 },
-        isMobile: true,
-        hasTouch: true,
-      },
-    },
+    { name: "desktop", grepInvert: /@perf/, use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile", grepInvert: /@perf/, use: phone },
     {
       name: "landing-fallback",
       testMatch: /landing-walls\.spec\.ts$/,
+      grepInvert: /@perf/,
       use: {
         ...devices["Desktop Firefox"],
         launchOptions: {
@@ -45,6 +45,12 @@ export default defineConfig({
       name: "iphone",
       testMatch: /(-mobile|smoke)\.spec\.ts$/,
       use: { ...devices["iPhone 15"] },
+    },
+    {
+      name: "mobile-perf",
+      grep: /@perf/,
+      dependencies: ["desktop", "mobile", "landing-fallback", "iphone"],
+      use: phone,
     },
   ],
 });

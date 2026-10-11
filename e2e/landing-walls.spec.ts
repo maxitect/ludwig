@@ -326,12 +326,13 @@ test.describe("landing walls", () => {
     }
   });
 
-  test("AC9 scrubbing stays smooth on a throttled phone", async ({
+  /** Frame pacing is only meaningful with no other test competing for the CPU, so it runs alone in mobile-perf. */
+  test("AC9 scrubbing stays smooth on a throttled phone", { tag: "@perf" }, async ({
     page,
     browserName,
     isMobile,
   }) => {
-    test.skip(browserName !== "chromium" || !isMobile, "the mobile project measures this");
+    test.skip(browserName !== "chromium" || !isMobile, "the mobile-perf project measures this");
     await open(page, VIEWPORTS[0]);
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });

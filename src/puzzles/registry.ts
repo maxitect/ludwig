@@ -94,7 +94,7 @@ export type PuzzleTypeModule<
   verify?(
     content: z.infer<S["contentSchema"]>,
     authoring: { reviewNote?: string; workings?: string },
-  ): void;
+  ): void | Promise<void>;
 };
 
 export type PuzzleRegistry = Readonly<Record<string, PuzzleTypeModule>>;

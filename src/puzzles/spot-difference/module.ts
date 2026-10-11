@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
 import { check } from "./check";
@@ -8,6 +8,7 @@ import * as schema from "./schema";
 import {
   spotDifferenceAttemptFound,
   spotDifferenceAttempts,
+  spotDifferenceDifferences,
   spotDifferencePuzzles,
 } from "./tables";
 import { verifySpotDifference } from "./verify";
@@ -19,13 +20,43 @@ export const spotDifferenceModule = {
   loadSolution,
   check,
   verify: verifySpotDifference,
-  async upsertContent(tx, puzzleId, content) {
+  async upsertContent(tx, puzzleId, { sceneKey, differences }) {
     await tx
       .insert(spotDifferencePuzzles)
-      .values({ ...content, puzzleId })
+      .values({ puzzleId, sceneKey })
       .onConflictDoUpdate({
         target: spotDifferencePuzzles.puzzleId,
-        set: content,
+        set: { sceneKey },
+      });
+    await tx.delete(spotDifferenceDifferences).where(
+      and(
+        eq(spotDifferenceDifferences.puzzleId, puzzleId),
+        notInArray(
+          spotDifferenceDifferences.differenceIndex,
+          differences.map((_, differenceIndex) => differenceIndex),
+        ),
+      ),
+    );
+    await tx
+      .insert(spotDifferenceDifferences)
+      .values(
+        differences.map((region, differenceIndex) => ({
+          ...region,
+          puzzleId,
+          differenceIndex,
+        })),
+      )
+      .onConflictDoUpdate({
+        target: [
+          spotDifferenceDifferences.puzzleId,
+          spotDifferenceDifferences.differenceIndex,
+        ],
+        set: {
+          x: sql`excluded.x`,
+          y: sql`excluded.y`,
+          width: sql`excluded.width`,
+          height: sql`excluded.height`,
+        },
       });
   },
   async replaceAttemptState(tx, attemptId, { found }) {

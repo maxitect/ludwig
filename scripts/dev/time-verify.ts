@@ -13,7 +13,7 @@ async function main() {
     const samples: number[] = [];
     for (let i = 0; i < RUNS; i++) {
       const started = performance.now();
-      verify(content, { reviewNote, workings });
+      await verify(content, { reviewNote, workings });
       samples.push(performance.now() - started);
     }
     samples.sort((a, b) => a - b);

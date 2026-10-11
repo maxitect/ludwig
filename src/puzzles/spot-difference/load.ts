@@ -1,23 +1,27 @@
 import "server-only";
-import { generateScene } from "./engine";
-import { loadSolution } from "./load-solution";
+import { db } from "@/db";
+import { getScene } from "./scenes";
 import { payloadSchema } from "./schema";
 
-/**
- * The scenes are derived from the stored seed, count and version, which are read through
- * `loadSolution` and never leave this function. The difference regions are dropped here.
- */
+/** Only the difference indexes are read, to count them. The regions stay in `loadSolution`. */
 export async function load(puzzleId: string) {
-  const { sceneSeed, differenceCount, generatorVersion } =
-    await loadSolution(puzzleId);
-  const { original, altered } = generateScene(
-    sceneSeed,
-    differenceCount,
-    generatorVersion,
-  );
+  const puzzle = await db.query.spotDifferencePuzzles.findFirst({
+    where: { puzzleId },
+    columns: { puzzleId: true, sceneKey: true },
+    with: { differences: { columns: { differenceIndex: true } } },
+  });
+  if (!puzzle) {
+    throw new Error(`Spot the difference puzzle not found: ${puzzleId}`);
+  }
+  const scene = getScene(puzzle.sceneKey);
+  if (!scene) {
+    throw new Error(`Unknown spot the difference scene: ${puzzle.sceneKey}`);
+  }
   return payloadSchema.parse({
-    puzzleId,
-    differenceCount,
-    scenes: [original, altered],
+    puzzleId: puzzle.puzzleId,
+    sceneKey: puzzle.sceneKey,
+    width: scene.width,
+    height: scene.height,
+    differenceCount: puzzle.differences.length,
   });
 }

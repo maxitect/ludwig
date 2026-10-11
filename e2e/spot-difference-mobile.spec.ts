@@ -1,26 +1,23 @@
 import { expect, test, type Locator } from "@playwright/test";
-import {
-  generateScene,
-  regionCentre,
-  SCENE_HEIGHT,
-  SCENE_WIDTH,
-} from "../src/puzzles/spot-difference/engine";
-import { content, meta } from "../content/spot-difference/away-day";
+import { regionCentre } from "../src/puzzles/spot-difference/regions";
+import { scenes } from "../src/puzzles/spot-difference/scenes";
+import { content, meta } from "../content/spot-difference/fixture-clandon";
 import { openPuzzle } from "./helpers/solve";
 
 test.skip(({ isMobile }) => !isMobile, "touch phones only");
 
 const puzzle = { typeKey: "spot-difference", slug: meta.slug };
-const { sceneSeed, differenceCount, generatorVersion } = content;
-const { differences } = generateScene(sceneSeed, differenceCount, generatorVersion);
+const { differences } = content;
+const differenceCount = differences.length;
+const { width, height } = scenes[content.sceneKey];
 
 async function tapAt(scene: Locator, point: { x: number; y: number }) {
   const box = await scene.boundingBox();
   if (!box) throw new Error("scene not rendered");
   await scene.tap({
     position: {
-      x: (point.x / SCENE_WIDTH) * box.width,
-      y: (point.y / SCENE_HEIGHT) * box.height,
+      x: (point.x / width) * box.width,
+      y: (point.y / height) * box.height,
     },
   });
 }
@@ -33,13 +30,13 @@ test("shows one scene at a time and counts taps in either", async ({ page }) => 
   await expect(one).toBeVisible();
   await expect(two).toBeHidden();
 
-  await tapAt(one, regionCentre(differences[0].region));
+  await tapAt(one, regionCentre(differences[0]));
   await expect(page.getByText(`Found 1 of ${differenceCount} differences.`)).toBeVisible();
 
   await page.getByRole("radio", { name: "Right" }).tap();
   await expect(two).toBeVisible();
   await expect(one).toBeHidden();
 
-  await tapAt(two, regionCentre(differences[1].region));
+  await tapAt(two, regionCentre(differences[1]));
   await expect(page.getByText(`Found 2 of ${differenceCount} differences.`)).toBeVisible();
 });

@@ -2,24 +2,17 @@
 
 import { z } from "zod";
 import { getFoundRegions, hitTestScene } from "@/lib/data/spot-difference";
-import {
-  SCENE_HEIGHT,
-  SCENE_WIDTH,
-} from "@/puzzles/spot-difference/engine";
 import { attemptSchema } from "@/puzzles/spot-difference/schema";
 
 const puzzleIdSchema = z.uuid();
-const tapSchema = z.object({
-  x: z.number().min(0).max(SCENE_WIDTH),
-  y: z.number().min(0).max(SCENE_HEIGHT),
-});
+const tapSchema = z.object({ x: z.number().min(0), y: z.number().min(0) });
 
 type ActionError = { ok: false; error: "invalid" | "not_found" };
 const invalid: ActionError = { ok: false, error: "invalid" };
 const notFound: ActionError = { ok: false, error: "not_found" };
 
 /**
- * Hit-tests a tap, in scene units, against the derived regions on the server.
+ * Hit-tests a tap, in scene pixels, against the stored regions on the server.
  * Open to signed-out players like the other solve actions; the client records a find with `saveState`.
  */
 export async function tapScene(puzzleId: string, x: number, y: number) {

@@ -2,53 +2,58 @@ import { createInsertSchema, createSelectSchema } from "drizzle-orm/zod";
 import { z } from "zod";
 import {
   spotDifferenceAttemptFound,
+  spotDifferenceDifferences,
   spotDifferencePuzzles,
 } from "./tables";
 
-/** One SVG element, as plain data: the engine builds these and the solver renders them. */
-export const sceneNodeSchema = z.object({
-  tag: z.enum(["g", "rect", "circle", "ellipse", "line", "path", "polygon"]),
-  attrs: z.record(
-    z.string().regex(/^[a-z][a-z0-9-]*$/),
-    z.union([z.string(), z.number()]),
-  ),
-  get children() {
-    return z.array(sceneNodeSchema).optional();
-  },
-});
-
-export const regionSchema = z.object({
-  x: z.number(),
-  y: z.number(),
-  width: z.number().positive(),
-  height: z.number().positive(),
-});
-
 const puzzleSelect = createSelectSchema(spotDifferencePuzzles, {
-  differenceCount: (schema) => schema.min(1).max(15),
-  generatorVersion: (schema) => schema.min(1),
+  sceneKey: (schema) => schema.min(1),
 });
 const puzzleInsert = createInsertSchema(spotDifferencePuzzles, {
-  sceneSeed: (schema) => schema.min(0),
-  differenceCount: (schema) => schema.min(1).max(15),
-  generatorVersion: (schema) => schema.min(1),
+  sceneKey: (schema) => schema.min(1),
+});
+const differenceInsert = createInsertSchema(spotDifferenceDifferences, {
+  x: (schema) => schema.min(0),
+  y: (schema) => schema.min(0),
+  width: (schema) => schema.min(1),
+  height: (schema) => schema.min(1),
 });
 const foundSelect = createSelectSchema(spotDifferenceAttemptFound, {
   differenceIndex: (schema) => schema.min(0).max(14),
 });
 
-/** The stored values the scenes and differences are derived from. */
-export const solutionSchema = puzzleSelect.pick({
-  sceneSeed: true,
-  differenceCount: true,
-  generatorVersion: true,
+/** A rectangle in scene pixels, the intrinsic size of the prepared scene images. */
+export const regionSchema = differenceInsert.pick({
+  x: true,
+  y: true,
+  width: true,
+  height: true,
 });
 
-/** Strict, so neither the seed, the version nor any region can ride along. */
+/** The static facts of a scene's prepared images, kept in code beside the assets. */
+export const sceneSchema = z.object({
+  width: z.int().positive(),
+  height: z.int().positive(),
+  credit: z.object({
+    artist: z.string().min(1),
+    work: z.string().min(1),
+    year: z.int(),
+  }),
+  sourceUrl: z.url(),
+});
+
+/** Every region, with the index a find is saved under. Only `check` and the tap hit-test read it. */
+export const solutionSchema = z.array(
+  z.object({ index: foundSelect.shape.differenceIndex, region: regionSchema }),
+);
+
+/** Strict, so no region can ride along. The count is derived from the rows, never stored. */
 export const payloadSchema = z
   .object({
-    ...puzzleSelect.pick({ puzzleId: true, differenceCount: true }).shape,
-    scenes: z.tuple([sceneNodeSchema, sceneNodeSchema]),
+    ...puzzleSelect.pick({ puzzleId: true, sceneKey: true }).shape,
+    width: sceneSchema.shape.width,
+    height: sceneSchema.shape.height,
+    differenceCount: z.int().min(1).max(15),
   })
   .strict();
 
@@ -67,10 +72,10 @@ export const attemptSchema = z.object({
     }),
 });
 
-export const contentSchema = puzzleInsert.pick({
-  sceneSeed: true,
-  differenceCount: true,
-  generatorVersion: true,
+/** The regions are listed in difference order: the position is the stored `difference_index`. */
+export const contentSchema = z.object({
+  ...puzzleInsert.pick({ sceneKey: true }).shape,
+  differences: z.array(regionSchema).min(1).max(15),
 });
 
 export type Payload = z.infer<typeof payloadSchema>;
@@ -79,4 +84,4 @@ export type AttemptState = z.infer<typeof attemptSchema>;
 export type Content = z.infer<typeof contentSchema>;
 export type Solution = z.infer<typeof solutionSchema>;
 export type Region = z.infer<typeof regionSchema>;
-export type SceneNode = z.infer<typeof sceneNodeSchema>;
+export type Scene = z.infer<typeof sceneSchema>;

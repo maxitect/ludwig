@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/utils/cn";
@@ -14,11 +16,14 @@ const GUIDE_EVERY = 5;
 type Cursor = { column: number; row: number };
 type Point = { x: number; y: number };
 type Version = "original" | "altered";
+type Sector = { width: number; height: number };
 
 function SceneView({
   label,
   version,
   payload,
+  rows,
+  sector,
   hiddenOnTouch,
   found,
   cursor,
@@ -27,14 +32,14 @@ function SceneView({
   label: string;
   version: Version;
   payload: schema.Payload;
+  rows: number;
+  sector: Sector;
   hiddenOnTouch: boolean;
   found: ReadonlyMap<number, schema.Region>;
   cursor: Cursor | null;
   onTap(point: Point): void;
 }) {
   const { width, height } = payload;
-  const rows = Math.round((COLUMNS * height) / width);
-  const sector = { width: width / COLUMNS, height: height / rows };
   const circlePadding = width * 0.008;
   return (
     <div
@@ -137,7 +142,8 @@ export function Solver({
 }: SolverProps<typeof schema>) {
   const { puzzleId, sceneKey, width, height, differenceCount } = payload;
   const rows = Math.round((COLUMNS * height) / width);
-  const credit = getScene(sceneKey);
+  const sector: Sector = { width: width / COLUMNS, height: height / rows };
+  const scene = getScene(sceneKey);
   const [found, setFound] = useState<ReadonlyMap<number, schema.Region>>(
     new Map(),
   );
@@ -215,8 +221,8 @@ export function Solver({
     if (event.key === "Enter") {
       event.preventDefault();
       void tap({
-        x: (cursor.column + 0.5) * (width / COLUMNS),
-        y: (cursor.row + 0.5) * (height / rows),
+        x: (cursor.column + 0.5) * sector.width,
+        y: (cursor.row + 0.5) * sector.height,
       });
     } else if (Object.hasOwn(moves, event.key)) {
       event.preventDefault();
@@ -275,6 +281,8 @@ export function Solver({
           label="Scene one"
           version="original"
           payload={payload}
+          rows={rows}
+          sector={sector}
           hiddenOnTouch={side !== 0}
           found={found}
           cursor={activeCursor}
@@ -284,6 +292,8 @@ export function Solver({
           label="Scene two"
           version="altered"
           payload={payload}
+          rows={rows}
+          sector={sector}
           hiddenOnTouch={side !== 1}
           found={found}
           cursor={activeCursor}
@@ -293,10 +303,10 @@ export function Solver({
       <p role="status" aria-live="polite" className="min-h-6">
         {status}
       </p>
-      {credit && (
+      {scene && (
         <p className="text-sm text-muted-foreground">
-          {credit.credit.artist}, {credit.credit.work}, {credit.credit.year}.{" "}
-          <a href={credit.sourceUrl} className="underline">
+          {scene.credit.artist}, {scene.credit.work}, {scene.credit.year}.{" "}
+          <a href={scene.sourceUrl} className="underline">
             Source
           </a>
         </p>

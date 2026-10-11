@@ -17,6 +17,7 @@ const signature = Dancing_Script({
 const display = Josefin_Sans({
   subsets: ["latin"],
   weight: ["300", "600", "700"],
+  display: "optional",
   variable: "--font-josefin",
 });
 

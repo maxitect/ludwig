@@ -121,8 +121,7 @@ The show never gives exact rules, so section 5.2 defines our own. They stay fait
 - Native apps (the web app must still be responsive and touch-friendly). Phones are served by solve mode, the on-screen keyboard and an installable PWA (`docs/research/mobile.md`). The native options are recorded in `docs/research/native-app.md` (section 10, decision 7)
 - Monetisation
 - OAuth providers
-- Email verification (skipped entirely, with no plans for it)
-- Password reset by email (v1.1)
+- Changing the email address, deleting the account, magic links (email verification, password reset and password change are in v1; see section 7.3)
 
 ### 2.3 Puzzle catalogue (v1)
 
@@ -759,7 +758,7 @@ drizzle.config.ts
 
 **Config (`src/lib/auth.ts`):**
 
-- `emailAndPassword: { enabled: true, minPasswordLength: 10, autoSignIn: true, requireEmailVerification: false }`. Users are signed in straight after sign-up, and no verification email is sent or needed.
+- `emailAndPassword: { enabled: true, minPasswordLength: 10, autoSignIn: false, requireEmailVerification: true, revokeSessionsOnPasswordReset: true }`, plus `sendResetPassword` and `onExistingUserSignUp`. Sign-up creates an unverified user and no session.
 - Password hashing uses Better Auth's built-in default, scrypt. The hash lives in `account.password` with `providerId = "credential"`, not on the user row.
 - `advanced.database.generateId: "uuid"`, so ids are Postgres uuids.
 - `plugins: [nextCookies()]`, so Server Actions can set the session cookie.
@@ -771,6 +770,16 @@ drizzle.config.ts
 - Errors (`APIError`) map onto form field messages.
 - Sign-out uses `authClient.signOut()` from the user menu.
 
+**Email (Resend):**
+
+- `src/lib/email/send.ts` renders a React Email template to HTML and plain text and sends it through Resend (`RESEND_API_KEY`, `EMAIL_FROM`, default `Ludwig <auth@noreply.ludwigpuzzles.com>`). Outside production a missing key logs the email to the server console instead, and addresses on the reserved `.test` and `.local` domains are always logged, never sent. Sends run after the response (`advanced.backgroundTasks` with Next's `after`), so response time doesn't reveal whether an account exists. Shared layout components are in `src/lib/email/layout.tsx`, the token hex values in `src/lib/email/tokens.ts`, and one template per email in `src/lib/email/templates/` (verify email, reset password, "someone tried to sign up"). Every email is signed off "Ludwig".
+- `emailVerification: { sendOnSignUp: true, sendOnSignIn: true, autoSignInAfterVerification: true }`. The verify link's `callbackURL` is `/verified?next=<path>`: success signs the user in and lands on `next`, a bad or expired token lands on `/sign-in?error=verification` with a resend form.
+- Sign-up shows "Check your inbox" with a resend button. A new and an existing email give the same response (Better Auth's generic duplicate response); the existing address gets the "someone tried to sign up" email.
+- An unverified sign-in (after the correct password) is refused with 403 `EMAIL_NOT_VERIFIED` and a fresh link is sent.
+- `/forgot-password` always replies with the same message. `/reset-password?token=` sets a new password and redirects to `/sign-in?reset=1`; every session is revoked. Settings has a Password section that calls `auth.api.changePassword` with `revokeOtherSessions: true`.
+- A migration sets `email_verified = true` on every user that existed before verification was required.
+- On previews and in development, sign-ups at `@e2e.test` (`E2E_EMAIL_DOMAIN` in `src/config/email.ts`) are created verified by a `databaseHooks.user.create.before` hook, and the sign-up action signs a verified new user straight in, so Playwright needs no inbox and doesn't spend the sign-in rate limit. The hook is off in production, where sign-up never returns a verified user.
+
 **Sessions:**
 
 - Sessions are stored in the database (`session` table), so they can be revoked.
@@ -780,12 +789,10 @@ drizzle.config.ts
 **Route protection:**
 
 - `proxy.ts` checks `getSessionCookie(request)` and redirects `/casebook` and `/settings` to `/sign-in` when there is no cookie. This is optimistic only.
-- Authoritative checks happen in the data-access layer and in every Server Action, which call `getCurrentUser()` and throw if there is no session.
+- Authoritative checks happen in the data-access layer and in every Server Action, which call `requireUser()` and throw if there is no session. `requireUser()` reads the session row (`disableCookieCache`), so a session revoked by a password reset or change can't act even while its 5-minute cookie cache is still valid; rendering may show the stale user until the cache expires.
 - Puzzle pages are public. Saving progress to the account requires a session; without one, state goes to `localStorage` (section 4.3).
 
-**Rate limiting:** use Better Auth's built-in limiter with `rateLimit: { enabled: true, storage: "database" }` and a custom rule of 5 requests per 15 minutes on `/sign-in/email`. Database storage is used because in-memory limits don't survive serverless instances.
-
-**v1.1:** turn on password reset (`sendResetPassword`). It is config plus an email provider; the `verification` table already exists. Email verification is out of scope.
+**Rate limiting:** use Better Auth's built-in limiter with `rateLimit: { enabled: true, storage: "database" }` and custom rules of 5 requests per 15 minutes on `/sign-in/email` and 3 per 15 minutes on `/request-password-reset` and `/send-verification-email`. Database storage is used because in-memory limits don't survive serverless instances.
 
 **Cache Components:** **on** (T006 spike: session UI streams behind `<Suspense>` and `use cache` + `cacheTag` data caches and revalidates correctly, with a clean build and no runtime errors). User-dependent UI such as the nav user menu and the Casebook must sit behind `<Suspense>`. Puzzle payloads can be cached with `use cache` and `cacheTag("puzzle:"+id)`. See `node_modules/next/dist/docs/01-app/02-guides/authentication-with-cache-components.md`.
 
@@ -1085,6 +1092,6 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 2. **Chess pieces.** Use the cburnett set under its licence, with attribution in the footer/about page.
 3. **Content.** All cryptic clues and retro positions are original to this app.
 4. **Public fan site,** non-commercial, just for fun. Branding follows the show as closely as we like, with no further licensing review.
-5. **Password reset** waits for v1.1. Email verification is skipped entirely.
+5. **Email verification and password reset** are in v1, sent through Resend from the verified domain `noreply.ludwigpuzzles.com`. Sign-up does not reveal whether an email is registered.
 6. **Third-party puzzles are format references only.** We take rules and formats from the Radio Times special (section 1.2.1) and from puzzle sites such as KrazyDad, never the instances: no clue text, positions, grids, word lists or artwork. KrazyDad's terms allow reproduction only for "personal, church, school, hospital or institutional use", which a public website is not. Published puzzles may serve as engine test fixtures, because their answers are known, but never as `content/` files.
 7. **Native apps are deferred.** A store app under the show's name runs into Apple 5.2.1 / 4.1(c) and Google's impersonation policy. The options are a licence from the BBC / Big Talk, a generic store app with its own identity, or web and PWA only. They stay open, and are recorded with the prerequisites and the recommended stack in `docs/research/native-app.md`. The PWA comes first (M5 baseline, M7 offline).

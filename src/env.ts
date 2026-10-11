@@ -8,6 +8,15 @@ const envSchema = z
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url().optional(),
     CRON_SECRET: z.string().min(16).optional(),
+    RESEND_API_KEY: z
+      .string()
+      .optional()
+      .transform((value) => value || undefined),
+    EMAIL_FROM: z
+      .string()
+      .min(1)
+      .default("Ludwig <auth@noreply.ludwigpuzzles.com>"),
+    NODE_ENV: z.string().optional(),
     VERCEL_ENV: z.string().optional(),
     VERCEL_URL: z.string().optional(),
     VERCEL_BRANCH_URL: z.string().optional(),

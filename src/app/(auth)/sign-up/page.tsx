@@ -10,6 +10,7 @@ async function SignUpForm({ searchParams }: Pick<PageProps<"/sign-up">, "searchP
   return (
     <AuthForm
       action={signUp}
+      sentKind="verify"
       next={safeRedirectPath(Array.isArray(next) ? next[0] : next)}
       submitLabel="Create account"
       fields={[
@@ -22,7 +23,7 @@ async function SignUpForm({ searchParams }: Pick<PageProps<"/sign-up">, "searchP
           autoComplete: "new-password",
         },
       ]}
-      alternate={{ href: "/sign-in", label: "Already registered? Sign in" }}
+      links={[{ href: "/sign-in", label: "Already registered? Sign in" }]}
     />
   );
 }

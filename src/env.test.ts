@@ -62,6 +62,12 @@ describe("parseEnv", () => {
     ).toThrow(/BETTER_AUTH_URL/);
   });
 
+  it("treats an empty RESEND_API_KEY as unset and defaults EMAIL_FROM", () => {
+    const parsed = parseEnv({ ...validEnv, RESEND_API_KEY: "" });
+    expect(parsed.RESEND_API_KEY).toBeUndefined();
+    expect(parsed.EMAIL_FROM).toBe("Ludwig <auth@noreply.ludwigpuzzles.com>");
+  });
+
   it("lists every invalid key at once", () => {
     expect(() =>
       parseEnv({

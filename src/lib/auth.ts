@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { after } from "next/server";
+import { E2E_EMAIL_DOMAIN } from "@/config/email";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { env } from "@/env";
@@ -23,6 +25,9 @@ const configuredURL = env.BETTER_AUTH_URL ?? previewURL;
 
 export const authBaseURL = configuredURL?.replace(/\/+$/, "");
 
+const verifyE2EUsers =
+  env.VERCEL_ENV === "preview" || env.NODE_ENV === "development";
+
 export const auth = betterAuth({
   baseURL: authBaseURL,
   trustedOrigins: [env.BETTER_AUTH_URL, previewURL, previewBranchURL].filter(
@@ -33,6 +38,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 10,
+    maxPasswordLength: 128,
     autoSignIn: false,
     requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
@@ -60,6 +66,16 @@ export const auth = betterAuth({
       });
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) =>
+          verifyE2EUsers && user.email.endsWith(`@${E2E_EMAIL_DOMAIN}`)
+            ? { data: { ...user, emailVerified: true } }
+            : undefined,
+      },
+    },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 30,
     updateAge: 60 * 60 * 24,
@@ -74,6 +90,9 @@ export const auth = betterAuth({
       "/send-verification-email": { window: 60 * 15, max: 3 },
     },
   },
-  advanced: { database: { generateId: "uuid" } },
+  advanced: {
+    database: { generateId: "uuid" },
+    backgroundTasks: { handler: (promise) => after(promise) },
+  },
   plugins: [nextCookies()],
 });

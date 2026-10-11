@@ -42,8 +42,9 @@ export async function signUp(
     };
   }
 
+  let created;
   try {
-    await auth.api.signUpEmail({
+    created = await auth.api.signUpEmail({
       body: {
         ...parsed.data,
         callbackURL: verifiedCallback(formData.get("next")),
@@ -56,6 +57,13 @@ export async function signUp(
       formError: "Sign-up failed. Please try again.",
       values: echoValues(formData),
     };
+  }
+  // Only e2e accounts outside production are created verified (databaseHooks in lib/auth.ts)
+  if (created.user.emailVerified) {
+    await auth.api.signInEmail({
+      body: { email: parsed.data.email, password: parsed.data.password },
+    });
+    redirect(safeRedirectPath(formData.get("next")));
   }
   return { fieldErrors: {}, values: {}, sentTo: parsed.data.email };
 }

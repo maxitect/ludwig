@@ -772,12 +772,13 @@ drizzle.config.ts
 
 **Email (Resend):**
 
-- `src/lib/email/send.ts` renders a React Email template to HTML and plain text and sends it through Resend (`RESEND_API_KEY`, `EMAIL_FROM`, default `Ludwig <auth@noreply.ludwigpuzzles.com>`). Outside production a missing key logs the email to the server console instead. Shared layout components are in `src/lib/email/layout.tsx`, the token hex values in `src/lib/email/tokens.ts`, and one template per email in `src/lib/email/templates/` (verify email, reset password, "someone tried to sign up"). Every email is signed off "Ludwig".
+- `src/lib/email/send.ts` renders a React Email template to HTML and plain text and sends it through Resend (`RESEND_API_KEY`, `EMAIL_FROM`, default `Ludwig <auth@noreply.ludwigpuzzles.com>`). Outside production a missing key logs the email to the server console instead, and addresses on the reserved `.test` and `.local` domains are always logged, never sent. Sends run after the response (`advanced.backgroundTasks` with Next's `after`), so response time doesn't reveal whether an account exists. Shared layout components are in `src/lib/email/layout.tsx`, the token hex values in `src/lib/email/tokens.ts`, and one template per email in `src/lib/email/templates/` (verify email, reset password, "someone tried to sign up"). Every email is signed off "Ludwig".
 - `emailVerification: { sendOnSignUp: true, sendOnSignIn: true, autoSignInAfterVerification: true }`. The verify link's `callbackURL` is `/verified?next=<path>`: success signs the user in and lands on `next`, a bad or expired token lands on `/sign-in?error=verification` with a resend form.
 - Sign-up shows "Check your inbox" with a resend button. A new and an existing email give the same response (Better Auth's generic duplicate response); the existing address gets the "someone tried to sign up" email.
 - An unverified sign-in (after the correct password) is refused with 403 `EMAIL_NOT_VERIFIED` and a fresh link is sent.
 - `/forgot-password` always replies with the same message. `/reset-password?token=` sets a new password and redirects to `/sign-in?reset=1`; every session is revoked. Settings has a Password section that calls `auth.api.changePassword` with `revokeOtherSessions: true`.
 - A migration sets `email_verified = true` on every user that existed before verification was required.
+- On previews and in development, sign-ups at `@e2e.test` (`E2E_EMAIL_DOMAIN` in `src/config/email.ts`) are created verified by a `databaseHooks.user.create.before` hook, and the sign-up action signs a verified new user straight in, so Playwright needs no inbox and doesn't spend the sign-in rate limit. The hook is off in production, where sign-up never returns a verified user.
 
 **Sessions:**
 
@@ -788,7 +789,7 @@ drizzle.config.ts
 **Route protection:**
 
 - `proxy.ts` checks `getSessionCookie(request)` and redirects `/casebook` and `/settings` to `/sign-in` when there is no cookie. This is optimistic only.
-- Authoritative checks happen in the data-access layer and in every Server Action, which call `getCurrentUser()` and throw if there is no session.
+- Authoritative checks happen in the data-access layer and in every Server Action, which call `requireUser()` and throw if there is no session. `requireUser()` reads the session row (`disableCookieCache`), so a session revoked by a password reset or change can't act even while its 5-minute cookie cache is still valid; rendering may show the stale user until the cache expires.
 - Puzzle pages are public. Saving progress to the account requires a session; without one, state goes to `localStorage` (section 4.3).
 
 **Rate limiting:** use Better Auth's built-in limiter with `rateLimit: { enabled: true, storage: "database" }` and custom rules of 5 requests per 15 minutes on `/sign-in/email` and 3 per 15 minutes on `/request-password-reset` and `/send-verification-email`. Database storage is used because in-memory limits don't survive serverless instances.

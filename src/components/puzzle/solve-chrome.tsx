@@ -25,6 +25,7 @@ import {
 import {
   useDeviceKeyboard,
   useKeyboardInset,
+  useTouchPhone,
 } from "@/puzzles/_shared/puzzle-keyboard";
 import { SolveSlotProvider } from "@/puzzles/_shared/solve-slot";
 import type { WrongPart } from "@/puzzles/registry";
@@ -120,6 +121,7 @@ function SolveBoard({
   const [rungProblems, setRungProblems] = useState<RungProblem[]>();
   const [wrongParts, setWrongParts] = useState<WrongPart[]>();
   const [notice, setNotice] = useState<Notice | null>(null);
+  const touchPhone = useTouchPhone();
   const [attempt, setAttempt] = useState(0);
   const [slot, setSlot] = useState<HTMLDivElement | null>(null);
   const [localState, setLocalState] = useState<unknown>(undefined);
@@ -344,6 +346,9 @@ function SolveBoard({
 
         <div
           key={attempt}
+          role={touchPhone ? "region" : undefined}
+          aria-label={touchPhone ? title : undefined}
+          tabIndex={touchPhone ? 0 : undefined}
           className="touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:px-4 touch:[--solver-height:100cqh] touch:[container-type:size]"
           onKeyDown={(event) => {
             if (

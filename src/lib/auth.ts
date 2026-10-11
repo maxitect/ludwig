@@ -4,6 +4,10 @@ import { nextCookies } from "better-auth/next-js";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { env } from "@/env";
+import { sendEmail } from "@/lib/email/send";
+import { existingSignUp } from "@/lib/email/templates/existing-sign-up";
+import { resetPassword } from "@/lib/email/templates/reset-password";
+import { verifyEmail } from "@/lib/email/templates/verify-email";
 
 const previewURL =
   env.VERCEL_ENV === "preview" && env.VERCEL_URL
@@ -29,8 +33,32 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 10,
-    autoSignIn: true,
-    requireEmailVerification: false,
+    autoSignIn: false,
+    requireEmailVerification: true,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        ...resetPassword({ name: user.name, url }),
+      });
+    },
+    onExistingUserSignUp: async ({ user }) => {
+      await sendEmail({
+        to: user.email,
+        ...existingSignUp({ name: user.name }),
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendOnSignIn: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        ...verifyEmail({ name: user.name, url }),
+      });
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 30,
@@ -42,6 +70,8 @@ export const auth = betterAuth({
     storage: "database",
     customRules: {
       "/sign-in/email": { window: 60 * 15, max: 5 },
+      "/request-password-reset": { window: 60 * 15, max: 3 },
+      "/send-verification-email": { window: 60 * 15, max: 3 },
     },
   },
   advanced: { database: { generateId: "uuid" } },

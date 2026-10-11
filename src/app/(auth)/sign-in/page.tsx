@@ -2,15 +2,43 @@ import { Suspense } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
 import { Wordmark } from "@/components/brand";
 import { Card, CardContent } from "@/components/ui/card";
-import { signIn } from "@/lib/actions/auth";
+import { resendVerification, signIn } from "@/lib/actions/auth";
 import { safeRedirectPath } from "@/utils/safe-redirect-path";
 
 async function SignInForm({ searchParams }: Pick<PageProps<"/sign-in">, "searchParams">) {
-  const { next } = await searchParams;
+  const { next, error, reset } = await searchParams;
+  const safeNext = safeRedirectPath(Array.isArray(next) ? next[0] : next);
+  if (error === "verification") {
+    return (
+      <div className="flex flex-col gap-5">
+        <p role="alert" className="border-2 border-border bg-destructive p-3 text-destructive-foreground">
+          That verification link has expired or isn&apos;t valid. Enter your
+          email and we&apos;ll send a new one.
+        </p>
+        <AuthForm
+          action={resendVerification}
+          next={safeNext}
+          submitLabel="Send a new link"
+          sentKind="verify"
+          fields={[
+            { name: "email", label: "Email", type: "email", autoComplete: "email" },
+          ]}
+          links={[{ href: "/sign-in", label: "Back to sign in" }]}
+        />
+      </div>
+    );
+  }
   return (
+    <div className="flex flex-col gap-5">
+      {reset && (
+        <p role="status" className="border-2 border-border p-3">
+          Your password has been reset. Sign in with the new one.
+        </p>
+      )}
     <AuthForm
       action={signIn}
-      next={safeRedirectPath(Array.isArray(next) ? next[0] : next)}
+      sentKind="verify"
+      next={safeNext}
       submitLabel="Sign in"
       fields={[
         { name: "email", label: "Email", type: "email", autoComplete: "email" },
@@ -21,8 +49,12 @@ async function SignInForm({ searchParams }: Pick<PageProps<"/sign-in">, "searchP
           autoComplete: "current-password",
         },
       ]}
-      alternate={{ href: "/sign-up", label: "No account? Sign up" }}
+      links={[
+        { href: "/forgot-password", label: "Forgot your password?" },
+        { href: "/sign-up", label: "No account? Sign up" },
+      ]}
     />
+    </div>
   );
 }
 

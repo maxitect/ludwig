@@ -18,6 +18,10 @@ describe("db client", () => {
     });
     const row = await db.query.user.findFirst({ where: { id: created.id } });
     expect(createSelectSchema(user).parse(row).email).toBe(email);
+    await db.update(user).set({ emailVerified: true }).where(eq(user.id, created.id));
+    await auth.api.signInEmail({
+      body: { email, password: "correct-horse-battery" },
+    });
   });
 
   it("loads sessions through RQBv2 relations", async () => {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Credit, GridPaper, Walker } from "@/components/brand";
+import { PasswordForm } from "@/components/settings/password-form";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { getCurrentUser, getUserSettings } from "@/lib/data/user";
 
@@ -27,5 +28,10 @@ async function Settings() {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in?next=/settings");
   const settings = await getUserSettings(user.id);
-  return <SettingsForm initial={{ name: user.name, ...settings }} />;
+  return (
+    <>
+      <SettingsForm initial={{ name: user.name, ...settings }} />
+      <PasswordForm />
+    </>
+  );
 }

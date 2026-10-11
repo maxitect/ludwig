@@ -34,7 +34,7 @@ export default function AboutPage() {
             <a href={TANDEM_URL} className={link}>
               Tandem Creative Dev
             </a>
-            , where I build for charities, government, founders and learning
+            , where we build for charities, government, founders and learning
             institutions, and I am currently on an AI and machine learning
             course with Founders and Coders.
           </p>

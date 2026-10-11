@@ -1,12 +1,14 @@
 import type { Page } from "@playwright/test";
+import { E2E_EMAIL_DOMAIN } from "../../src/config/email";
 
 export const PASSWORD = "correct-horse-battery";
 
 const runId = Date.now().toString(36);
 let counter = 0;
 
+/** Accounts at the e2e domain are created verified and signed in on previews and in development. */
 export const uniqueEmail = (flow: string) =>
-  `e2e-${flow}-${runId}-${counter++}-${Math.random().toString(36).slice(2, 6)}@test.local`;
+  `e2e-${flow}-${runId}-${counter++}-${Math.random().toString(36).slice(2, 6)}@${E2E_EMAIL_DOMAIN}`;
 
 export async function signUp(page: Page, email: string) {
   await page.goto("/sign-up");

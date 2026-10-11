@@ -7,7 +7,12 @@ export const signUpSchema = createInsertSchema(user, {
   name: (schema) => schema.trim().min(1, "Enter your name."),
 })
   .pick({ email: true, name: true })
-  .extend({ password: z.string().min(10, "Use at least 10 characters.") });
+  .extend({
+    password: z
+      .string()
+      .min(10, "Use at least 10 characters.")
+      .max(128, "Use at most 128 characters."),
+  });
 
 export const signInSchema = signUpSchema
   .pick({ email: true })

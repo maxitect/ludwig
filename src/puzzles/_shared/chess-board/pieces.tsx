@@ -30,7 +30,7 @@ const CROSS_HALO: CSSProperties = {
   strokeWidth: 4.5,
 };
 
-/** cburnett geometry (Colin M.L. Burnett, CC BY-SA 3.0); fills and strokes come from brand tokens. */
+/** Geometry by Colin M.L. Burnett (CC BY-SA 3.0, credited on /about); fills and strokes come from brand tokens. */
 const SHAPES = {
   pawn: (
     <path

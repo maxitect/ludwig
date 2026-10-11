@@ -364,23 +364,25 @@ function SolveBoard({
             }
           }}
         >
-          <Solver
-            key={resumeLocal ? "local" : "initial"}
-            payload={payload}
-            initialState={
-              attempt === 0 ? (resumeLocal ? localState : initialState) : null
-            }
-            onStateChange={onStateChange}
-            registerCheck={registerCheck}
-            requestCheck={requestCheck}
-            requestReset={reset}
-            solved={solved}
-            chessNotation={chessNotation}
-            rungProblems={rungProblems}
-            wrongParts={wrongParts}
-            checkCell={solved ? undefined : checkCell}
-            revealCell={solved ? undefined : revealCellValue}
-          />
+          <div className="contents" inert={solved} data-testid="solver">
+            <Solver
+              key={resumeLocal ? "local" : "initial"}
+              payload={payload}
+              initialState={
+                attempt === 0 ? (resumeLocal ? localState : initialState) : null
+              }
+              onStateChange={onStateChange}
+              registerCheck={registerCheck}
+              requestCheck={requestCheck}
+              requestReset={reset}
+              solved={solved}
+              chessNotation={chessNotation}
+              rungProblems={rungProblems}
+              wrongParts={wrongParts}
+              checkCell={solved ? undefined : checkCell}
+              revealCell={solved ? undefined : revealCellValue}
+            />
+          </div>
           {!ownsTouchControls.has(typeKey) && (
             <div className="hidden gap-3 py-4 touch:flex touch:group-has-[[data-solve-slot]:not(:empty)]/solve:hidden">
               <Button onClick={check} disabled={pending || solved}>
@@ -465,6 +467,7 @@ function SolveBoard({
           ref={setSlot}
           data-testid="solve-slot"
           data-solve-slot
+          inert={solved}
           style={{ marginBottom: keyboardInset }}
           className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
         />

@@ -117,6 +117,25 @@ describe("SolveChrome Enter", () => {
     expect(actions.checkAnswer).toHaveBeenCalledTimes(1);
   });
 
+  it("drops a wrong result for an answer edited while it was checked", async () => {
+    let resolve: (value: unknown) => void = () => undefined;
+    actions.checkAnswer.mockReturnValue(new Promise((r) => (resolve = r)));
+    renderChrome(false);
+    const [check] = screen.getAllByRole("button", { name: "Check" });
+    await userEvent.click(check);
+    await waitFor(() => expect(actions.checkAnswer).toHaveBeenCalledTimes(1));
+    await userEvent.click(screen.getByRole("button", { name: "Place" }));
+    resolve({
+      ok: true,
+      result: { correct: false, wrongParts: [{ row: 0, col: 0 }] },
+    });
+    await waitFor(() =>
+      expect(check).toHaveProperty("disabled", false),
+    );
+    expect(screen.queryByText(/Not quite/)).toBeNull();
+    expect(screen.queryByText(/marked wrong/)).toBeNull();
+  });
+
   it("leaves Enter to a solver that handles it", async () => {
     renderChrome();
     screen.getByRole("application", { name: "Own Enter" }).focus();

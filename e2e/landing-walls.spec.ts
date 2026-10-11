@@ -311,7 +311,9 @@ test.describe("landing walls", () => {
         ),
       ).toBe(0);
       for (const word of [".seq-grid-ludwig", ".seq-grid-ink"]) {
-        expect(await computed(page, word, "clip-path")).toBe("none");
+        await expect
+          .poll(() => computed(page, word, "clip-path"))
+          .toBe("none");
       }
       expect(await page.locator(".seq-grid-ludwig").textContent()).toBe("LUDWIG");
       expect(await page.locator(".seq-grid-ink").textContent()).toBe("INK");

@@ -393,7 +393,7 @@ function SolveBoard({
           className={cn(
             "flex flex-wrap gap-3 touch:hidden",
             !ownsTouchControls.has(typeKey) &&
-              "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:shrink-0 touch:px-4 touch:py-2",
+              "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:shrink-0 touch:px-4 touch:py-1",
           )}
         >
           <Button onClick={check} disabled={pending || solved}>
@@ -411,7 +411,7 @@ function SolveBoard({
         <div
           role="status"
           aria-live="polite"
-          className="min-h-6 touch:-order-1 touch:shrink-0 touch:truncate touch:px-4 touch:py-1"
+          className="min-h-6 touch:-order-1 touch:shrink-0 touch:truncate touch:px-4 touch:py-1 touch:empty:min-h-0 touch:empty:py-0"
         >
           {notice === "cell-sign-in" ? (
             <p className="touch:truncate">

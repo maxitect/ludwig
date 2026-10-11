@@ -35,7 +35,6 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
   ],
   "src/puzzles/rota/board.tsx": ["bg-paper"],
   "src/puzzles/reverse-chess/side-to-move.tsx": ["bg-paper"],
-  "src/puzzles/spot-difference/solver.tsx": ["bg-paper"],
 };
 
 function sourceFiles(dir: string): string[] {

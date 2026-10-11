@@ -158,7 +158,7 @@ Mode D (the Rota) is deferred to M4 as its own `rota` type. It has its own engin
 | Cipher | caesar, keyword, book-cipher, pictogram-cipher | Cipher-key panel, substitution input |
 | Logic text | knights-knaves, odd-one-out, napkin-maths | Statement list with toggles |
 | Spatial | sightlines, cctv-maze | Shared grid-plus-cone visibility engine (`src/puzzles/_shared/visibility.ts`) |
-| Visual | spot-difference | Seeded SVG scene generator |
+| Visual | spot-difference | Engraved scenes with authored differences |
 | Case | `rota` (Reverse Chess Mode D) | `rota.ts` engine, clue-kind subtype tables, swap-stack UI |
 | Mechanism | `gear-train` (Gear Puzzle Mode B, "Classic Gear Train") | Shared `spinSigns` in `_shared/`, pegboard, placement tray |
 

@@ -155,6 +155,7 @@ function SolveBoard({
     Parameters<SolverProps["onStateChange"]>[0] | null
   >(null);
   const latestCheck = useRef<() => void>(undefined);
+  const edits = useRef(0);
   const solved = solvedMs !== null;
   const deviceKeyboard = useDeviceKeyboard();
   const keyboardInset = useKeyboardInset(deviceKeyboard);
@@ -197,6 +198,7 @@ function SolveBoard({
 
   const onStateChange = useCallback<SolverProps["onStateChange"]>(
     (state) => {
+      edits.current++;
       setWrongParts(undefined);
       if (solved) return;
       if (!signedIn) {
@@ -215,6 +217,7 @@ function SolveBoard({
     const answer = readAnswer.current?.();
     if (answer === null || answer === undefined) return setNotice("incomplete");
     const durationMs = timer.read();
+    const checkedEdit = edits.current;
     startTransition(async () => {
       await flushSave();
       try {
@@ -228,7 +231,7 @@ function SolveBoard({
           setNotice(null);
           setEpilogue(response.result.epilogue ?? null);
           setSolvedMs(durationMs);
-        } else {
+        } else if (edits.current === checkedEdit) {
           setRungProblems(response.result.rungProblems);
           setWrongParts(response.result.wrongParts);
           setNotice("wrong");

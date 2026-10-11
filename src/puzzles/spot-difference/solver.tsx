@@ -1,121 +1,140 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { cn } from "@/utils/cn";
 import { loadFoundRegions, tapScene } from "@/lib/actions/spot-difference";
-import { SCENE_HEIGHT, SCENE_WIDTH, regionCentre } from "./engine";
-import { renderSceneNode } from "./scene";
+import { regionCentre } from "./regions";
+import { SceneArt } from "./scene-art";
+import { getScene } from "./scenes";
 import type { SolverProps } from "../solver-types";
 import type * as schema from "./schema";
 
-const SECTOR = 10;
-const COLUMNS = SCENE_WIDTH / SECTOR;
-const ROWS = SCENE_HEIGHT / SECTOR;
+const COLUMNS = 40;
 const GUIDE_EVERY = 5;
 
 type Cursor = { column: number; row: number };
-
-const cursorCentre = ({ column, row }: Cursor) => ({
-  x: column * SECTOR + SECTOR / 2,
-  y: row * SECTOR + SECTOR / 2,
-});
+type Point = { x: number; y: number };
+type Version = "original" | "altered";
+type Sector = { width: number; height: number };
 
 function SceneView({
   label,
-  hiddenOnTouch,
-  scene,
+  version,
+  payload,
+  rows,
+  sector,
   found,
   cursor,
   onTap,
 }: {
   label: string;
-  hiddenOnTouch: boolean;
-  scene: schema.SceneNode;
+  version: Version;
+  payload: schema.Payload;
+  rows: number;
+  sector: Sector;
   found: ReadonlyMap<number, schema.Region>;
   cursor: Cursor | null;
-  onTap(point: { x: number; y: number }): void;
+  onTap(point: Point): void;
 }) {
+  const { width, height } = payload;
+  const circlePadding = width * 0.008;
   return (
-    <svg
-      role="img"
-      aria-label={label}
-      viewBox={`0 0 ${SCENE_WIDTH} ${SCENE_HEIGHT}`}
-      className={cn(
-        "h-auto w-full cursor-crosshair touch-manipulation border-2 border-border bg-paper shadow-[3px_3px_0_var(--cast)] select-none",
-        hiddenOnTouch && "touch:hidden",
-      )}
-      onClick={(event) => {
-        const box = event.currentTarget.getBoundingClientRect();
-        onTap({
-          x: ((event.clientX - box.left) / box.width) * SCENE_WIDTH,
-          y: ((event.clientY - box.top) / box.height) * SCENE_HEIGHT,
-        });
-      }}
-    >
-      {renderSceneNode(scene, 0)}
-      {[...found].map(([index, region]) => {
-        const { x, y } = regionCentre(region);
-        return (
-          <ellipse
-            key={index}
-            data-testid="found-circle"
-            cx={x}
-            cy={y}
-            rx={region.width / 2 + 3}
-            ry={region.height / 2 + 3}
-            transform={`rotate(-4 ${x} ${y})`}
-            fill="none"
-            stroke="var(--color-ludwig-red)"
-            strokeWidth={3}
-            strokeLinecap="round"
-          />
-        );
-      })}
-      {cursor && (
-        <g stroke="var(--color-grid-blue)" fill="none" pointerEvents="none">
-          {Array.from({ length: COLUMNS / GUIDE_EVERY - 1 }, (_, i) => (
-            <line
-              key={`v${i}`}
-              x1={(i + 1) * GUIDE_EVERY * SECTOR}
-              y1={0}
-              x2={(i + 1) * GUIDE_EVERY * SECTOR}
-              y2={SCENE_HEIGHT}
-              strokeWidth={0.5}
-              strokeDasharray="2 4"
-            />
-          ))}
-          {Array.from({ length: ROWS / GUIDE_EVERY - 1 }, (_, i) => (
-            <line
-              key={`h${i}`}
-              x1={0}
-              y1={(i + 1) * GUIDE_EVERY * SECTOR}
-              x2={SCENE_WIDTH}
-              y2={(i + 1) * GUIDE_EVERY * SECTOR}
-              strokeWidth={0.5}
-              strokeDasharray="2 4"
-            />
-          ))}
-          <rect
-            x={cursor.column * SECTOR}
-            y={cursor.row * SECTOR}
-            width={SECTOR}
-            height={SECTOR}
-            strokeWidth={2}
-          />
-        </g>
-      )}
-    </svg>
+    <div className="border-2 border-border bg-card text-card-foreground shadow-[3px_3px_0_var(--cast)]">
+      <SceneArt
+        sceneKey={payload.sceneKey}
+        width={width}
+        height={height}
+        version={version}
+        role="img"
+        aria-label={label}
+        className="cursor-crosshair touch-manipulation select-none"
+        onClick={(event) => {
+          const box = event.currentTarget.getBoundingClientRect();
+          onTap({
+            x: ((event.clientX - box.left) / box.width) * width,
+            y: ((event.clientY - box.top) / box.height) * height,
+          });
+        }}
+      >
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="pointer-events-none absolute inset-0 size-full"
+          aria-hidden="true"
+        >
+          {[...found].map(([index, region]) => {
+            const { x, y } = regionCentre(region);
+            return (
+              <ellipse
+                key={index}
+                data-testid="found-circle"
+                cx={x}
+                cy={y}
+                rx={region.width / 2 + circlePadding}
+                ry={region.height / 2 + circlePadding}
+                transform={`rotate(-4 ${x} ${y})`}
+                fill="none"
+                stroke="var(--color-ludwig-red)"
+                strokeWidth={3}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            );
+          })}
+          {cursor && (
+            <g stroke="var(--color-grid-blue)" fill="none">
+              {Array.from({ length: COLUMNS / GUIDE_EVERY - 1 }, (_, i) => (
+                <line
+                  key={`v${i}`}
+                  x1={(i + 1) * GUIDE_EVERY * sector.width}
+                  y1={0}
+                  x2={(i + 1) * GUIDE_EVERY * sector.width}
+                  y2={height}
+                  strokeWidth={1}
+                  strokeDasharray="2 4"
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
+              {Array.from(
+                { length: Math.floor((rows - 1) / GUIDE_EVERY) },
+                (_, i) => (
+                  <line
+                    key={`h${i}`}
+                    x1={0}
+                    y1={(i + 1) * GUIDE_EVERY * sector.height}
+                    x2={width}
+                    y2={(i + 1) * GUIDE_EVERY * sector.height}
+                    strokeWidth={1}
+                    strokeDasharray="2 4"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                ),
+              )}
+              <rect
+                x={cursor.column * sector.width}
+                y={cursor.row * sector.height}
+                width={sector.width}
+                height={sector.height}
+                strokeWidth={2}
+                vectorEffect="non-scaling-stroke"
+              />
+            </g>
+          )}
+        </svg>
+      </SceneArt>
+    </div>
   );
 }
 
 export function Solver({
-  payload: { puzzleId, differenceCount, scenes },
+  payload,
   initialState,
   onStateChange,
   registerCheck,
   requestCheck,
 }: SolverProps<typeof schema>) {
+  const { puzzleId, sceneKey, width, height, differenceCount } = payload;
+  const rows = Math.round((COLUMNS * height) / width);
+  const sector: Sector = { width: width / COLUMNS, height: height / rows };
+  const scene = getScene(sceneKey);
   const [found, setFound] = useState<ReadonlyMap<number, schema.Region>>(
     new Map(),
   );
@@ -123,9 +142,8 @@ export function Solver({
   const [status, setStatus] = useState("");
   const [cursor, setCursor] = useState<Cursor>({
     column: COLUMNS / 2,
-    row: ROWS / 2,
+    row: Math.floor(rows / 2),
   });
-  const [side, setSide] = useState<0 | 1>(0);
   const [focused, setFocused] = useState(false);
   const completedByTap = useRef(false);
   const complete = found.size === differenceCount;
@@ -162,7 +180,7 @@ export function Solver({
     }
   }, [complete, requestCheck]);
 
-  async function tap(point: { x: number; y: number }) {
+  async function tap(point: Point) {
     if (complete) return;
     try {
       const result = await tapScene(puzzleId, point.x, point.y);
@@ -192,16 +210,19 @@ export function Solver({
     };
     if (event.key === "Enter") {
       event.preventDefault();
-      void tap(cursorCentre(cursor));
+      void tap({
+        x: (cursor.column + 0.5) * sector.width,
+        y: (cursor.row + 0.5) * sector.height,
+      });
     } else if (Object.hasOwn(moves, event.key)) {
       event.preventDefault();
       const move = moves[event.key];
       const next = {
         column: Math.min(COLUMNS - 1, Math.max(0, cursor.column + move.column)),
-        row: Math.min(ROWS - 1, Math.max(0, cursor.row + move.row)),
+        row: Math.min(rows - 1, Math.max(0, cursor.row + move.row)),
       };
       setCursor(next);
-      setStatus(`Column ${next.column + 1} of ${COLUMNS}, row ${next.row + 1} of ${ROWS}.`);
+      setStatus(`Column ${next.column + 1} of ${COLUMNS}, row ${next.row + 1} of ${rows}.`);
     }
   }
 
@@ -221,22 +242,6 @@ export function Solver({
         Shift and an arrow key moves five sectors, and press Enter to try the
         sector&rsquo;s centre.
       </p>
-      <ToggleGroup
-        type="single"
-        value={side === 0 ? "left" : "right"}
-        onValueChange={(next) => {
-          if (next) setSide(next === "left" ? 0 : 1);
-        }}
-        aria-label="Scene shown"
-        className="hidden touch:flex"
-      >
-        <ToggleGroupItem value="left">
-          Left
-        </ToggleGroupItem>
-        <ToggleGroupItem value="right">
-          Right
-        </ToggleGroupItem>
-      </ToggleGroup>
       <div
         role="group"
         aria-label="The two scenes"
@@ -248,16 +253,20 @@ export function Solver({
       >
         <SceneView
           label="Scene one"
-          hiddenOnTouch={side !== 0}
-          scene={scenes[0]}
+          version="original"
+          payload={payload}
+          rows={rows}
+          sector={sector}
           found={found}
           cursor={activeCursor}
           onTap={tap}
         />
         <SceneView
           label="Scene two"
-          hiddenOnTouch={side !== 1}
-          scene={scenes[1]}
+          version="altered"
+          payload={payload}
+          rows={rows}
+          sector={sector}
           found={found}
           cursor={activeCursor}
           onTap={tap}
@@ -266,6 +275,14 @@ export function Solver({
       <p role="status" aria-live="polite" className="min-h-6">
         {status}
       </p>
+      {scene && (
+        <p className="text-sm text-muted-foreground">
+          {scene.credit.artist}, {scene.credit.work}, {scene.credit.year}.{" "}
+          <a href={scene.sourceUrl} className="underline">
+            Source
+          </a>
+        </p>
+      )}
     </div>
   );
 }

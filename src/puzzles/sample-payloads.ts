@@ -1,4 +1,3 @@
-import { generateScene } from "./spot-difference/engine";
 import type { PuzzleTypeKey } from "./registry";
 
 const ids = Array.from(
@@ -12,7 +11,6 @@ const grid = (rows: number, cols: number) =>
     col: i % cols,
   }));
 
-const { original, altered } = generateScene(7, 5, 1);
 
 /** Built-in payloads, one per type, drawn as a motif for types with nothing published. Parsed by each type's `payloadSchema` before use. */
 export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
@@ -225,8 +223,10 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
   },
   "spot-difference": {
     puzzleId: ids[0],
-    differenceCount: 5,
-    scenes: [original, altered],
+    sceneKey: "fixture-clandon",
+    width: 1600,
+    height: 1068,
+    differenceCount: 3,
   },
   sudoku: {
     givens: [

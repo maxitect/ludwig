@@ -17,6 +17,7 @@ import {
   puzzles,
   spotDifferenceAttemptFound,
   spotDifferenceAttempts,
+  spotDifferenceDifferences,
   spotDifferencePuzzles,
 } from "@/db/schema";
 import { check } from "./check";
@@ -25,7 +26,14 @@ import { loadSolution } from "./load-solution";
 import { spotDifferenceModule } from "./module";
 import { payloadSchema } from "./schema";
 
-const content = { sceneSeed: 1902, differenceCount: 6, generatorVersion: 1 };
+const differences = Array.from({ length: 5 }, (_, i) => ({
+  x: i * 100,
+  y: 50,
+  width: 80,
+  height: 60,
+}));
+const content = { sceneKey: "fixture-clandon", differences };
+const subtype = { sceneKey: content.sceneKey };
 
 async function ensureTypes(tx: Tx) {
   await tx.execute(
@@ -49,7 +57,7 @@ async function insertPuzzle(tx: Tx, typeKey: string, slug = "one") {
 }
 
 describe("spot_difference_puzzles integrity", () => {
-  it("stores only the seed, count and version", async () => {
+  it("stores only the scene key", async () => {
     const rows = await db.execute(sql`
       select column_name from information_schema.columns
       where table_name = 'spot_difference_puzzles' order by ordinal_position
@@ -57,9 +65,7 @@ describe("spot_difference_puzzles integrity", () => {
     expect(rows.rows.map((row) => row.column_name)).toEqual([
       "puzzle_id",
       "type_key",
-      "scene_seed",
-      "difference_count",
-      "generator_version",
+      "scene_key",
     ]);
   });
 
@@ -75,7 +81,7 @@ describe("spot_difference_puzzles integrity", () => {
     expect(
       await pgErrorCode(async (tx) => {
         const puzzleId = await insertPuzzle(tx, "other");
-        await tx.insert(spotDifferencePuzzles).values({ ...content, puzzleId });
+        await tx.insert(spotDifferencePuzzles).values({ ...subtype, puzzleId });
       }),
     ).toBe("23503");
   });
@@ -93,39 +99,68 @@ describe("spot_difference_puzzles integrity", () => {
     expect(
       await pgErrorCode(async (tx) => {
         const puzzleId = await insertPuzzle(tx, "spot-difference");
-        await tx.insert(spotDifferencePuzzles).values({ ...content, puzzleId });
+        await tx.insert(spotDifferencePuzzles).values({ ...subtype, puzzleId });
         await forceDeferred(tx);
       }),
     ).toBeUndefined();
   });
 
-  it.each([
-    ["difference_count 0", { differenceCount: 0 }],
-    ["difference_count 16", { differenceCount: 16 }],
-    ["generator_version 0", { generatorVersion: 0 }],
-    ["a negative scene_seed", { sceneSeed: -1 }],
-  ])("rejects %s", async (_label, override) => {
+  it("rejects an empty scene key", async () => {
     expect(
       await pgErrorCode(async (tx) => {
         const puzzleId = await insertPuzzle(tx, "spot-difference");
         await tx
           .insert(spotDifferencePuzzles)
-          .values({ ...content, ...override, puzzleId });
+          .values({ sceneKey: "", puzzleId });
       }),
     ).toBe("23514");
   });
+});
 
-  it("accepts the bounds 1 and 15, and version 1", async () => {
-    for (const differenceCount of [1, 15]) {
-      expect(
-        await pgErrorCode(async (tx) => {
-          const puzzleId = await insertPuzzle(tx, "spot-difference");
-          await tx
-            .insert(spotDifferencePuzzles)
-            .values({ ...content, differenceCount, puzzleId });
-        }),
-      ).toBeUndefined();
-    }
+describe("spot_difference_differences integrity", () => {
+  const region = { x: 0, y: 0, width: 10, height: 10 };
+
+  async function insertDifferences(
+    rows: { differenceIndex: number; x?: number; y?: number; width?: number; height?: number }[],
+  ) {
+    return pgErrorCode(async (tx) => {
+      const puzzleId = await insertPuzzle(tx, "spot-difference");
+      await tx.insert(spotDifferencePuzzles).values({ ...subtype, puzzleId });
+      await tx
+        .insert(spotDifferenceDifferences)
+        .values(rows.map((row) => ({ ...region, ...row, puzzleId })));
+    });
+  }
+
+  it.each([
+    ["difference_index 15", { differenceIndex: 15 }],
+    ["difference_index -1", { differenceIndex: -1 }],
+    ["a negative x", { differenceIndex: 0, x: -1 }],
+    ["a negative y", { differenceIndex: 0, y: -1 }],
+    ["a zero width", { differenceIndex: 0, width: 0 }],
+    ["a zero height", { differenceIndex: 0, height: 0 }],
+  ])("rejects %s", async (_label, row) => {
+    expect(await insertDifferences([row])).toBe("23514");
+  });
+
+  it("accepts the indexes 0 and 14, and rejects a duplicate index", async () => {
+    expect(
+      await insertDifferences([{ differenceIndex: 0 }, { differenceIndex: 14 }]),
+    ).toBeUndefined();
+    expect(
+      await insertDifferences([{ differenceIndex: 0 }, { differenceIndex: 0 }]),
+    ).toBe("23505");
+  });
+
+  it("rejects a difference for a puzzle that has no subtype row", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await insertPuzzle(tx, "spot-difference");
+        await tx
+          .insert(spotDifferenceDifferences)
+          .values({ puzzleId, differenceIndex: 0, ...region });
+      }),
+    ).toBe("23503");
   });
 });
 
@@ -157,60 +192,77 @@ describe("spot-difference module", () => {
         .insert(puzzles)
         .values({
           typeKey: "spot-difference",
-          slug: "t061-module",
-          title: "t061",
+          slug: "t145-module",
+          title: "t145",
           difficulty: 1,
         })
         .returning({ id: puzzles.id });
       await spotDifferenceModule.upsertContent(tx, row.id, content);
       return row.id;
     });
-    userId = await createTestUser("t061mod");
+    userId = await createTestUser("t145mod");
   });
 
   afterAll(async () => {
-    await db.delete(puzzles).where(sql`${puzzles.slug} like 't061-%'`);
+    await db.delete(puzzles).where(sql`${puzzles.slug} like 't145-%'`);
     for (const key of insertedTypes) {
       await db.delete(puzzleTypes).where(eq(puzzleTypes.key, key));
     }
     await deleteTestUsers();
   });
 
-  it("loads a payload that parses strictly and holds no seed, version or region", async () => {
+  it("loads a payload that parses strictly and holds no region", async () => {
     const payload = await load(puzzleId);
     expect(payloadSchema.strict().parse(payload)).toEqual(payload);
-    expect(payload.differenceCount).toBe(content.differenceCount);
-    const text = JSON.stringify(payload);
-    expect(text).not.toMatch(
-      /sceneSeed|generatorVersion|region|index|differences/i,
+    expect(payload).toEqual({
+      puzzleId,
+      sceneKey: content.sceneKey,
+      width: 1600,
+      height: 1068,
+      differenceCount: differences.length,
+    });
+    expect(JSON.stringify(payload)).not.toMatch(
+      /region|differences"|"x"|"y"|index/i,
     );
-    expect(Object.keys(payload).sort()).toEqual([
-      "differenceCount",
-      "puzzleId",
-      "scenes",
-    ]);
   });
 
-  it("rejects a payload that carries a seed or a region", async () => {
+  it("rejects a payload that carries a region", async () => {
     const payload = await load(puzzleId);
-    expect(
-      payloadSchema.safeParse({ ...payload, sceneSeed: content.sceneSeed })
-        .success,
-    ).toBe(false);
-    expect(
-      payloadSchema.safeParse({ ...payload, regions: [] }).success,
-    ).toBe(false);
+    expect(payloadSchema.safeParse({ ...payload, regions: [] }).success).toBe(
+      false,
+    );
+    expect(payloadSchema.safeParse({ ...payload, differences }).success).toBe(
+      false,
+    );
   });
 
-  it("loads the solution and checks taps against the derived regions", async () => {
+  it("loads the regions in index order and checks taps against them", async () => {
     const [payload, solution] = await Promise.all([
       load(puzzleId),
       loadSolution(puzzleId),
     ]);
-    expect(solution).toEqual(content);
+    expect(solution).toEqual(
+      differences.map((region, index) => ({ index, region })),
+    );
     expect(check(payload, solution, { taps: [{ x: 1, y: 1 }] }).correct).toBe(
       false,
     );
+  });
+
+  it("re-seeds in place, dropping only the differences past the new list", async () => {
+    await db.transaction((tx) =>
+      spotDifferenceModule.upsertContent(tx, puzzleId, {
+        sceneKey: content.sceneKey,
+        differences: differences.slice(0, 3),
+      }),
+    );
+    expect((await loadSolution(puzzleId)).map(({ index }) => index)).toEqual([
+      0, 1, 2,
+    ]);
+    await db.transaction((tx) =>
+      spotDifferenceModule.upsertContent(tx, puzzleId, content),
+    );
+    expect(await loadSolution(puzzleId)).toHaveLength(differences.length);
   });
 
   it("replaces, reads back and clears the attempt state", async () => {
@@ -245,7 +297,7 @@ describe("spot-difference module", () => {
     expect(await spotDifferenceModule.loadAttemptState(attempt.id)).toBeNull();
   });
 
-  it("rejects a saved found difference beyond the puzzle's count", async () => {
+  it("rejects a saved find for a difference the puzzle does not have", async () => {
     const error = await pgError(async (tx) => {
       await tx.delete(attempts).where(eq(attempts.userId, userId));
       const [attempt] = await tx
@@ -253,11 +305,13 @@ describe("spot-difference module", () => {
         .values({ userId, puzzleId })
         .returning({ id: attempts.id });
       await spotDifferenceModule.replaceAttemptState(tx, attempt.id, {
-        found: [content.differenceCount],
+        found: [differences.length],
       });
     });
-    expect(error?.code).toBe("23000");
-    expect(error?.message).toMatch(/beyond the puzzle's count/);
+    expect(error?.code).toBe("23503");
+    expect(error?.message).toMatch(
+      /spot_difference_attempt_found_difference_fk/,
+    );
   });
 
   describe("attempt tables", () => {
@@ -271,35 +325,34 @@ describe("spot-difference module", () => {
       return attempt.id;
     }
 
-    it("rejects a found index outside 0 to 14 and a duplicate", async () => {
-      expect(
-        await pgErrorCode(async (tx) => {
-          const attemptId = await startAttempt(tx);
-          await tx
-            .insert(spotDifferenceAttemptFound)
-            .values({ attemptId, differenceIndex: 15 });
-        }),
-      ).toBe("23514");
-      expect(
-        await pgErrorCode(async (tx) => {
-          const attemptId = await startAttempt(tx);
-          await tx
-            .insert(spotDifferenceAttemptFound)
-            .values([
-              { attemptId, differenceIndex: 2 },
-              { attemptId, differenceIndex: 2 },
-            ]);
-        }),
-      ).toBe("23505");
+    it("fills puzzle_id on the attempt and the found row from the attempt", async () => {
+      const rows = await rolledBack(async (tx) => {
+        const attemptId = await startAttempt(tx);
+        await tx
+          .insert(spotDifferenceAttemptFound)
+          .values({ attemptId, differenceIndex: 1 });
+        return {
+          attempt: await tx
+            .select({ puzzleId: spotDifferenceAttempts.puzzleId })
+            .from(spotDifferenceAttempts)
+            .where(eq(spotDifferenceAttempts.attemptId, attemptId)),
+          found: await tx
+            .select({ puzzleId: spotDifferenceAttemptFound.puzzleId })
+            .from(spotDifferenceAttemptFound)
+            .where(eq(spotDifferenceAttemptFound.attemptId, attemptId)),
+        };
+      });
+      expect(rows.attempt).toEqual([{ puzzleId }]);
+      expect(rows.found).toEqual([{ puzzleId }]);
     });
 
-    it("accepts the last index and rejects one at the puzzle's count", async () => {
+    it("accepts a find for an index the puzzle has and rejects one it has not", async () => {
       expect(
         await pgErrorCode(async (tx) => {
           const attemptId = await startAttempt(tx);
           await tx.insert(spotDifferenceAttemptFound).values({
             attemptId,
-            differenceIndex: content.differenceCount - 1,
+            differenceIndex: differences.length - 1,
           });
         }),
       ).toBeUndefined();
@@ -308,38 +361,49 @@ describe("spot-difference module", () => {
           const attemptId = await startAttempt(tx);
           await tx.insert(spotDifferenceAttemptFound).values({
             attemptId,
-            differenceIndex: content.differenceCount,
+            differenceIndex: differences.length,
           });
         }),
-      ).toBe("23000");
+      ).toBe("23503");
+    });
+
+    it("rejects a duplicate find", async () => {
+      expect(
+        await pgErrorCode(async (tx) => {
+          const attemptId = await startAttempt(tx);
+          await tx.insert(spotDifferenceAttemptFound).values([
+            { attemptId, differenceIndex: 2 },
+            { attemptId, differenceIndex: 2 },
+          ]);
+        }),
+      ).toBe("23505");
+    });
+
+    it("rejects an explicit puzzle_id that is not the attempt's", async () => {
+      expect(
+        await pgErrorCode(async (tx) => {
+          const attemptId = await startAttempt(tx);
+          await tx.insert(spotDifferenceAttemptFound).values({
+            attemptId,
+            puzzleId: crypto.randomUUID(),
+            differenceIndex: 0,
+          });
+        }),
+      ).toBe("23503");
+    });
+
+    it("rejects deleting a difference that an attempt has found", async () => {
       expect(
         await pgErrorCode(async (tx) => {
           const attemptId = await startAttempt(tx);
           await tx
             .insert(spotDifferenceAttemptFound)
-            .values({ attemptId, differenceIndex: 0 });
-          await tx
-            .update(spotDifferenceAttemptFound)
-            .set({ differenceIndex: content.differenceCount })
-            .where(eq(spotDifferenceAttemptFound.attemptId, attemptId));
-        }),
-      ).toBe("23000");
-    });
-
-    it("rejects lowering a puzzle's count below a found difference, and allows it above", async () => {
-      const lowerTo = async (differenceCount: number) =>
-        pgErrorCode(async (tx) => {
-          const attemptId = await startAttempt(tx);
-          await tx
-            .insert(spotDifferenceAttemptFound)
             .values({ attemptId, differenceIndex: 3 });
           await tx
-            .update(spotDifferencePuzzles)
-            .set({ differenceCount })
-            .where(eq(spotDifferencePuzzles.puzzleId, puzzleId));
-        });
-      expect(await lowerTo(3)).toBe("23000");
-      expect(await lowerTo(4)).toBeUndefined();
+            .delete(spotDifferenceDifferences)
+            .where(eq(spotDifferenceDifferences.puzzleId, puzzleId));
+        }),
+      ).toBe("23503");
     });
 
     it("rejects a found row with no attempt row", async () => {
@@ -349,13 +413,13 @@ describe("spot-difference module", () => {
             .insert(spotDifferenceAttemptFound)
             .values({ attemptId: crypto.randomUUID(), differenceIndex: 0 });
         }),
-      ).toBe("23503");
+      ).toBe("23502");
     });
 
     it("rejects a spot-difference attempt for a puzzle of another type", async () => {
       expect(
         await pgErrorCode(async (tx) => {
-          const other = await insertPuzzle(tx, "other", "t061-wrong");
+          const other = await insertPuzzle(tx, "other", "t145-wrong");
           const [attempt] = await tx
             .insert(attempts)
             .values({ userId, puzzleId: other })

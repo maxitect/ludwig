@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { check } from "./check";
-import { generateScene, regionCentre } from "./engine";
-import type { Payload } from "./schema";
+import { regionCentre } from "./regions";
+import type { Payload, Solution } from "./schema";
 
-const solution = { sceneSeed: 1902, differenceCount: 6, generatorVersion: 1 };
 const payload = {} as Payload;
-const { differences } = generateScene(1902, 6, 1);
-const centres = differences.map(({ region }) => regionCentre(region));
+const solution: Solution = [
+  { x: 10, y: 10, width: 40, height: 30 },
+  { x: 200, y: 120, width: 60, height: 60 },
+  { x: 500, y: 300, width: 20, height: 20 },
+].map((region, index) => ({ index, region }));
+const centres = solution.map(({ region }) => regionCentre(region));
 
 describe("spot-difference check", () => {
   it("accepts a tap in every region", () => {
@@ -16,8 +19,16 @@ describe("spot-difference check", () => {
   it("accepts the taps in any order, with extra misses", () => {
     expect(
       check(payload, solution, {
-        taps: [{ x: 0, y: 0 }, ...[...centres].reverse()],
+        taps: [{ x: 0, y: 900 }, ...[...centres].reverse()],
       }).correct,
+    ).toBe(true);
+  });
+
+  it("counts a tap on a region's edge", () => {
+    const { x, y } = solution[0].region;
+    expect(
+      check(payload, solution, { taps: [{ x, y }, ...centres.slice(1)] })
+        .correct,
     ).toBe(true);
   });
 
@@ -29,13 +40,13 @@ describe("spot-difference check", () => {
 
   it("rejects repeated taps in the same region", () => {
     expect(
-      check(payload, solution, { taps: Array(6).fill(centres[0]) }).correct,
+      check(payload, solution, { taps: Array(3).fill(centres[0]) }).correct,
     ).toBe(false);
   });
 
   it("rejects taps outside every region", () => {
     expect(
-      check(payload, solution, { taps: [{ x: 0, y: 0 }] }).correct,
+      check(payload, solution, { taps: [{ x: 0, y: 900 }] }).correct,
     ).toBe(false);
   });
 });

@@ -456,6 +456,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.futoshikiAttemptNotes.attemptId,
     }),
   },
+  spotDifferencePuzzles: {
+    differences: r.many.spotDifferenceDifferences({
+      from: r.spotDifferencePuzzles.puzzleId,
+      to: r.spotDifferenceDifferences.puzzleId,
+    }),
+  },
   spotDifferenceAttempts: {
     found: r.many.spotDifferenceAttemptFound({
       from: r.spotDifferenceAttempts.attemptId,

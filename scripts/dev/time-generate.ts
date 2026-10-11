@@ -3,7 +3,6 @@ import { hashSeed, mulberry32 } from "../../src/puzzles/_shared/prng";
 import { countSolutions as countFutoshiki } from "../../src/puzzles/futoshiki/engine";
 import { generateDiagram } from "../../src/puzzles/gears/generate";
 import { difficulties } from "../../src/puzzles/gears/presets";
-import { generateScene } from "../../src/puzzles/spot-difference/engine";
 import {
   countSolutions as countSudoku,
   enumerateSolutions,
@@ -43,9 +42,6 @@ for (const difficulty of difficulties) {
   );
   console.log(`gears ${difficulty}: ${stats(times)} (${times.length} seeds)`);
 }
-console.log(
-  `spot-difference (8 differences): ${stats(Array.from({ length: N }, (_, i) => timeOf(() => generateScene(i, 8, 1))))} (${N} seeds)`,
-);
 
 const peersOf = (i: number) => {
   const r = Math.floor(i / 9);

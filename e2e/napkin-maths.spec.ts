@@ -33,6 +33,7 @@ test("a keyboard solve of the numeric answer is saved and recorded", async ({
   await input.focus();
   await page.keyboard.type("55");
   await page.keyboard.press("Enter");
+  await expect(page.getByText("Not quite. Keep going.")).toBeVisible();
   await expect(page.getByText(/Solved in/)).toHaveCount(0);
 
   const saved = page.waitForResponse((res) => {

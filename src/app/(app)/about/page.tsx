@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Credit, GridPaper } from "@/components/brand";
+import { Button } from "@/components/ui/button";
 import {
   BLOG_URL,
   CONTACT_EMAIL,
   GITHUB_URL,
   LINKEDIN_URL,
+  REPO_URL,
   TANDEM_URL,
 } from "@/config/about";
 
@@ -23,7 +25,19 @@ export default function AboutPage() {
   return (
     <GridPaper className="flex-1">
       <main className="mx-auto flex max-w-xl flex-col gap-10 px-4 py-12 sm:px-8">
-        <Credit level={1} top="The person behind it" bottom="About" />
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <Credit level={1} top="The person behind it" bottom="About" />
+          <Button asChild variant="secondary">
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Ludwig on GitHub"
+            >
+              GitHub
+            </a>
+          </Button>
+        </div>
         <section className="flex flex-col gap-3">
           <h2 className={headingClass}>Who I am</h2>
           <p>
@@ -85,11 +99,12 @@ export default function AboutPage() {
             <a href={`mailto:${CONTACT_EMAIL}`} className={link}>
               {CONTACT_EMAIL}
             </a>
-            . On{" "}
+            . My blog,{" "}
             <a href={BLOG_URL} className={link}>
-              my blog
-            </a>{" "}
-            I write about what I learn when things break, and I am on{" "}
+              maxitect.blog
+            </a>
+            , covers AI systems, AI-assisted development and web practice. I am
+            also on{" "}
             <a href={GITHUB_URL} className={link}>
               GitHub
             </a>{" "}

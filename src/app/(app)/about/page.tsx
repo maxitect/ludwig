@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 };
 
 const link = "underline underline-offset-4";
+const headingClass =
+  "border-b-2 border-border pb-1 font-display text-2xl font-bold tracking-[0.04em] uppercase";
 
 export default function AboutPage() {
   return (
@@ -23,11 +25,12 @@ export default function AboutPage() {
       <main className="mx-auto flex max-w-xl flex-col gap-10 px-4 py-12 sm:px-8">
         <Credit level={1} top="The person behind it" bottom="About" />
         <section className="flex flex-col gap-3">
-          <h2 className="font-display font-bold uppercase">Who I am</h2>
+          <h2 className={headingClass}>Who I am</h2>
           <p>
-            I&apos;m Max (Maxime Downe, maxitect online). I trained as an
-            architect and a computational designer, then moved into software,
-            and I now work as a full-stack developer and AI engineer. I founded{" "}
+            I&apos;m Max (Maxime Downe, maxitect online). I started out as an
+            architect and computational designer, then moved into software,
+            and I now work as a full-stack developer and AI engineer. I
+            co-founded{" "}
             <a href={TANDEM_URL} className={link}>
               Tandem Creative Dev
             </a>
@@ -37,7 +40,7 @@ export default function AboutPage() {
           </p>
         </section>
         <section className="flex flex-col gap-3">
-          <h2 className="font-display font-bold uppercase">Why this site</h2>
+          <h2 className={headingClass}>Why this site</h2>
           <p>
             I watched <em>Ludwig</em> and two of its puzzles stuck with me:
             Reverse Chess (series one, episode four) and the Gear Puzzle (series
@@ -46,11 +49,11 @@ export default function AboutPage() {
           </p>
           <p>
             I like puzzles, and I like staying with a hard problem until it
-            gives. That is most of the job, and most of the fun.
+            gives.
           </p>
         </section>
         <section className="flex flex-col gap-3">
-          <h2 className="font-display font-bold uppercase">What&apos;s here</h2>
+          <h2 className={headingClass}>What&apos;s here</h2>
           <ul className="flex flex-col gap-2">
             <li>
               <Link href="/reverse-chess" className={link}>
@@ -63,7 +66,8 @@ export default function AboutPage() {
               <Link href="/gears" className={link}>
                 The Gear Puzzle
               </Link>
-              : turn the first gear and find which way the last one goes.
+              : find the turn at which every dancer but one looks away from
+              the victim, and name the one who doesn&apos;t.
             </li>
             <li>
               <Link href="/puzzles" className={link}>
@@ -75,17 +79,17 @@ export default function AboutPage() {
           </ul>
         </section>
         <section className="flex flex-col gap-3">
-          <h2 className="font-display font-bold uppercase">Get in touch</h2>
+          <h2 className={headingClass}>Get in touch</h2>
           <p>
             Email me at{" "}
             <a href={`mailto:${CONTACT_EMAIL}`} className={link}>
               {CONTACT_EMAIL}
             </a>
-            . I write about what I learn when things break on{" "}
+            . On{" "}
             <a href={BLOG_URL} className={link}>
               my blog
-            </a>
-            , and I am on{" "}
+            </a>{" "}
+            I write about what I learn when things break, and I am on{" "}
             <a href={GITHUB_URL} className={link}>
               GitHub
             </a>{" "}
@@ -97,10 +101,10 @@ export default function AboutPage() {
           </p>
         </section>
         <section className="flex flex-col gap-3 text-sm">
-          <h2 className="font-display font-bold uppercase">Credits</h2>
+          <h2 className={headingClass}>Credits</h2>
           <p>
             Unofficial fan site, not affiliated with the BBC. <em>Ludwig</em>{" "}
-            belongs to its makers.
+            belongs to the BBC and Big Talk.
           </p>
           <p>
             Chess pieces by Colin M.L. Burnett (cburnett), licensed{" "}

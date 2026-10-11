@@ -7,16 +7,20 @@ import { auth } from "@/lib/auth";
 import type { SettingsInput } from "@/lib/forms/settings";
 
 /** Reads the session from the current cookies, so a Server Action's re-render sees cookies it just set (e.g. the refreshed session cache after a name change). */
-export async function getCurrentUser() {
+export async function getCurrentUser({ disableCookieCache = false } = {}) {
   await connection();
   const requestHeaders = new Headers(await headers());
   requestHeaders.set("cookie", (await cookies()).toString());
-  const session = await auth.api.getSession({ headers: requestHeaders });
+  const session = await auth.api.getSession({
+    headers: requestHeaders,
+    query: { disableCookieCache },
+  });
   return session?.user ?? null;
 }
 
+/** Checks the session row, not the 5-minute cookie cache, so a session revoked by a password reset or change can't act. */
 export async function requireUser() {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser({ disableCookieCache: true });
   if (!user) throw new Error("Unauthorised");
   return user;
 }

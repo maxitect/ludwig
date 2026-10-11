@@ -2,9 +2,9 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../content/rota/the-building-site";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, rotaAttemptFor } from "./helpers/db";
-import { clickCheck } from "./helpers/solve";
+import { clickCheck, openPuzzle } from "./helpers/solve";
 
-const URL = "/puzzles/rota/the-building-site";
+const puzzle = { typeKey: "rota", slug: "the-building-site" };
 const unswaps = [...content.solution.swaps].reverse();
 const token = (page: Page, name: string) => page.getByTestId(`token-${name}`);
 const stack = (page: Page) => page.getByTestId("rota-stack").locator("li");
@@ -30,7 +30,7 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
 }) => {
   const email = uniqueEmail("rota");
   await signUp(page, email);
-  await page.goto(URL);
+  await openPuzzle(page, puzzle);
   await unswap(page, unswaps[0].a, unswaps[0].b);
   const autosave = page.waitForResponse(
     (response) =>
@@ -67,7 +67,7 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
 test("a wrong sequence is not accepted and reveals no gambit", async ({
   page,
 }) => {
-  await page.goto(URL);
+  await openPuzzle(page, puzzle);
   const [{ a, b }] = unswaps;
   await unswap(page, a, b);
   await unswap(page, a, b);
@@ -81,7 +81,7 @@ test("a wrong sequence is not accepted and reveals no gambit", async ({
 test("keyboard: select, select, Enter to unswap, U to undo, stack announced", async ({
   page,
 }) => {
-  await page.goto(URL);
+  await openPuzzle(page, puzzle);
   const [{ a, b }] = unswaps;
   await token(page, a).focus();
   await page.keyboard.press("Enter");
@@ -99,7 +99,7 @@ test("keyboard: select, select, Enter to unswap, U to undo, stack announced", as
 });
 
 test("drag one token onto another unswaps them", async ({ page }) => {
-  await page.goto(URL);
+  await openPuzzle(page, puzzle);
   const [{ a, b }] = unswaps;
   await token(page, a).dragTo(token(page, b));
   await expect(stack(page)).toHaveCount(1);

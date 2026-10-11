@@ -301,6 +301,9 @@ test.describe("landing walls", () => {
       });
       await open(page, VIEWPORTS[2]);
       if (mode === "attribute") {
+        await expect(
+          page.getByRole("button", { name: "Theme" }),
+        ).toHaveAttribute("aria-haspopup", "menu");
         await page.evaluate(() => {
           document.documentElement.dataset.reduceMotion = "";
         });
@@ -311,7 +314,9 @@ test.describe("landing walls", () => {
         ),
       ).toBe(0);
       for (const word of [".seq-grid-ludwig", ".seq-grid-ink"]) {
-        expect(await computed(page, word, "clip-path")).toBe("none");
+        await expect
+          .poll(() => computed(page, word, "clip-path"))
+          .toBe("none");
       }
       expect(await page.locator(".seq-grid-ludwig").textContent()).toBe("LUDWIG");
       expect(await page.locator(".seq-grid-ink").textContent()).toBe("INK");
@@ -321,12 +326,13 @@ test.describe("landing walls", () => {
     }
   });
 
-  test("AC9 scrubbing stays smooth on a throttled phone", async ({
+  /** Frame pacing is only meaningful with no other test competing for the CPU, so it runs alone in mobile-perf. */
+  test("AC9 scrubbing stays smooth on a throttled phone", { tag: "@perf" }, async ({
     page,
     browserName,
     isMobile,
   }) => {
-    test.skip(browserName !== "chromium" || !isMobile, "the mobile project measures this");
+    test.skip(browserName !== "chromium" || !isMobile, "the mobile-perf project measures this");
     await open(page, VIEWPORTS[0]);
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
@@ -386,10 +392,21 @@ test.describe("landing walls", () => {
     });
     page.on("pageerror", (error) => messages.push(error.message));
     await page.addInitScript(() => {
-      (window as unknown as { __shift: number }).__shift = 0;
+      const record = window as unknown as { __shift: number; __shifted: string[] };
+      record.__shift = 0;
+      record.__shifted = [];
       new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          (window as unknown as { __shift: number }).__shift += (entry as unknown as { value: number }).value;
+          const shift = entry as unknown as {
+            value: number;
+            sources: { node: Node | null }[];
+          };
+          record.__shift += shift.value;
+          for (const { node } of shift.sources) {
+            record.__shifted.push(
+              node instanceof Element ? node.outerHTML.slice(0, 120) : String(node?.nodeName),
+            );
+          }
         }
       }).observe({ type: "layout-shift", buffered: true });
     });
@@ -398,6 +415,10 @@ test.describe("landing walls", () => {
     await page.waitForTimeout(1500);
     expect(messages.filter((text) => /hydrat|did not match/i.test(text))).toEqual([]);
     expect(messages).toEqual([]);
-    expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift)).toBe(0);
+    const { shift, shifted } = await page.evaluate(() => {
+      const record = window as unknown as { __shift: number; __shifted: string[] };
+      return { shift: record.__shift, shifted: record.__shifted };
+    });
+    expect(shift, `shifted: ${shifted.join(" | ")}`).toBe(0);
   });
 });

@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { cn } from "@/utils/cn";
 import { loadFoundRegions, tapScene } from "@/lib/actions/spot-difference";
 import { regionCentre } from "./regions";
 import { SceneArt } from "./scene-art";
@@ -24,7 +22,6 @@ function SceneView({
   payload,
   rows,
   sector,
-  hiddenOnTouch,
   found,
   cursor,
   onTap,
@@ -34,7 +31,6 @@ function SceneView({
   payload: schema.Payload;
   rows: number;
   sector: Sector;
-  hiddenOnTouch: boolean;
   found: ReadonlyMap<number, schema.Region>;
   cursor: Cursor | null;
   onTap(point: Point): void;
@@ -42,12 +38,7 @@ function SceneView({
   const { width, height } = payload;
   const circlePadding = width * 0.008;
   return (
-    <div
-      className={cn(
-        "border-2 border-border bg-card text-card-foreground shadow-[3px_3px_0_var(--cast)]",
-        hiddenOnTouch && "touch:hidden",
-      )}
-    >
+    <div className="border-2 border-border bg-card text-card-foreground shadow-[3px_3px_0_var(--cast)]">
       <SceneArt
         sceneKey={payload.sceneKey}
         width={width}
@@ -153,7 +144,6 @@ export function Solver({
     column: COLUMNS / 2,
     row: Math.floor(rows / 2),
   });
-  const [side, setSide] = useState<0 | 1>(0);
   const [focused, setFocused] = useState(false);
   const completedByTap = useRef(false);
   const complete = found.size === differenceCount;
@@ -252,22 +242,6 @@ export function Solver({
         Shift and an arrow key moves five sectors, and press Enter to try the
         sector&rsquo;s centre.
       </p>
-      <ToggleGroup
-        type="single"
-        value={side === 0 ? "left" : "right"}
-        onValueChange={(next) => {
-          if (next) setSide(next === "left" ? 0 : 1);
-        }}
-        aria-label="Scene shown"
-        className="hidden touch:flex"
-      >
-        <ToggleGroupItem value="left">
-          Left
-        </ToggleGroupItem>
-        <ToggleGroupItem value="right">
-          Right
-        </ToggleGroupItem>
-      </ToggleGroup>
       <div
         role="group"
         aria-label="The two scenes"
@@ -283,7 +257,6 @@ export function Solver({
           payload={payload}
           rows={rows}
           sector={sector}
-          hiddenOnTouch={side !== 0}
           found={found}
           cursor={activeCursor}
           onTap={tap}
@@ -294,7 +267,6 @@ export function Solver({
           payload={payload}
           rows={rows}
           sector={sector}
-          hiddenOnTouch={side !== 1}
           found={found}
           cursor={activeCursor}
           onTap={tap}

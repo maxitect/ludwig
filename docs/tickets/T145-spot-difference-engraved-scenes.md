@@ -40,7 +40,7 @@ This ticket changes the engine, data model and solver, and ships one fixture sce
   - `check.ts` and the server-side tap hit-test use them, with the same semantics as today.
   - `verify.ts` checks the scene key exists, every region lies inside the scene, the regions don't overlap, and there are 1–15 differences. It also **pixel-diffs** the two prepared images: every changed pixel cluster above a noise floor must lie inside a region, and every region must contain changes. This is the exactly-N-differences proof.
 - **Solver.** Keep the interaction from T061 and T117:
-  - side by side on desktop, the Left/Right toggle on touch;
+  - side by side on desktop, stacked on touch (original above altered; the user replaced the T117 Left/Right toggle on 2026-10-11, as flicking between scenes made the differences too easy to find);
   - tap coordinates in scene pixels, posted to the server;
   - red-pencil circles on finds;
   - the keyboard sector overlay.
@@ -72,7 +72,7 @@ This ticket changes the engine, data model and solver, and ships one fixture sce
   - _Verify (cli + unit):_ two doctored test fixtures.
 - [ ] **AC4**: A tap inside a region in either scene records the find, a tap outside doesn't, and the last find completes the puzzle.
   - _Verify (browser + db)._
-- [ ] **AC5**: The scene draws in the ink token in both themes, with no white or paper box, at 1280px and 390px, and the touch toggle still works.
+- [ ] **AC5**: The scene draws in the ink token in both themes, with no white or paper box, at 1280px and 390px, and on touch both scenes are stacked and taps count in either.
   - _Verify (browser):_ screenshots. _Verify (code):_ there are no hex or colour literals in `src/puzzles/spot-difference/`.
 - [ ] **AC6**: The generator code is gone.
   - _Verify (code):_ `grep -rn "generateScene\|generatorVersion" src` finds nothing.

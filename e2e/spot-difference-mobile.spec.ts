@@ -22,21 +22,25 @@ async function tapAt(scene: Locator, point: { x: number; y: number }) {
   });
 }
 
-test("shows one scene at a time and counts taps in either", async ({ page }) => {
+test("stacks both scenes and counts taps in either", async ({ page }) => {
   await openPuzzle(page, puzzle);
   const one = page.getByRole("img", { name: "Scene one" });
   const two = page.getByRole("img", { name: "Scene two" });
 
   await expect(one).toBeVisible();
-  await expect(two).toBeHidden();
+  await expect(two).toBeVisible();
+  await expect(page.getByRole("radio")).toHaveCount(0);
+  const [top, bottom] = [(await one.boundingBox())!, (await two.boundingBox())!];
+  expect(bottom.y).toBeGreaterThanOrEqual(top.y + top.height);
+  expect(Math.abs(bottom.x - top.x)).toBeLessThan(1);
 
   await tapAt(one, regionCentre(differences[0]));
   await expect(page.getByText(`Found 1 of ${differenceCount} differences.`)).toBeVisible();
 
-  await page.getByRole("radio", { name: "Right" }).tap();
-  await expect(two).toBeVisible();
-  await expect(one).toBeHidden();
-
   await tapAt(two, regionCentre(differences[1]));
   await expect(page.getByText(`Found 2 of ${differenceCount} differences.`)).toBeVisible();
+
+  await tapAt(two, regionCentre(differences[0]));
+  await expect(page.getByText("Already circled.")).toBeVisible();
+  await expect(page.getByTestId("found-circle")).toHaveCount(4);
 });

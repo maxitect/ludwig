@@ -21,8 +21,8 @@ Email was deferred (SPEC §2.2, §7.3 "v1.1", §10 decision 5) because there was
 
 **In**
 
-- **Mailer.** Add the `resend` package and `src/lib/email.ts` (`server-only`), one `sendEmail({ to, subject, text, html })` wrapper. Add `RESEND_API_KEY` and `EMAIL_FROM` to `src/env.ts`. The user has put `RESEND_API_KEY` in the main checkout's `.env.local`. Never read or print it. Outside production, a missing key logs the email's subject and link to the server console instead of sending, so local verification works without real email.
-- **Templates.** `src/lib/email-templates.ts`: verify email, reset password, and "someone tried to sign up with your address". Each has plain text plus minimal inline-styled HTML (wordmark text, one link, the "not affiliated with the BBC" line). These are emails, so design tokens can't apply. Use the token hex values in one constant there, and add the file to the raw-token guard's allow list.
+- **Mailer.** Add the `resend` package and `src/lib/email/send.ts` (`server-only`), one `sendEmail({ to, subject, react })` wrapper. Add `RESEND_API_KEY` and `EMAIL_FROM` to `src/env.ts`. The user has put `RESEND_API_KEY` in the main checkout's `.env.local`. Never read or print it. Outside production, a missing key logs the email's subject and link to the server console instead of sending, so local verification works without real email.
+- **Templates.** React Email (`react-email`, the unified successor to the deprecated `@react-email/components`, pinned). `src/lib/email/layout.tsx` holds the shared on-brand layout (wordmark, one CTA button, "Ludwig" sign-off, "not affiliated with the BBC" footer), `src/lib/email/tokens.ts` the token hex values in one constant (emails can't use CSS variables), and `src/lib/email/templates/` one template each for verify email, reset password and "someone tried to sign up with your address". `sendEmail` renders HTML and plain text. All of it is `server-only`. The files sit outside the raw-token guard's scanned roots, so no allow-list entry is needed.
 - **Better Auth config (`src/lib/auth.ts`):**
   - `emailAndPassword`: `requireEmailVerification: true`, `autoSignIn: false`, `sendResetPassword`, `revokeSessionsOnPasswordReset: true`, `onExistingUserSignUp`, which sends the "someone tried to sign up" email.
   - `emailVerification`: `sendVerificationEmail`, `sendOnSignUp: true`, `sendOnSignIn: true`, `autoSignInAfterVerification: true`.
@@ -41,12 +41,11 @@ Email was deferred (SPEC §2.2, §7.3 "v1.1", §10 decision 5) because there was
 **Out**
 
 - Changing the email address, deleting the account, OAuth, magic links.
-- React Email or any templating dependency.
 
 ## Notes
 
 - Better Auth 1.7.6 is pinned. Read the installed types (`node_modules/better-auth/dist`) for the exact option and endpoint names rather than the web docs. `requestPasswordReset` already returns a generic success for unknown emails. Don't add a branch that undoes that.
-- Use `EMAIL_FROM="Ludwig <noreply@noreply.ludwigpuzzles.com>"` unless the user says otherwise. Confirm the exact sender address with them at the first human checkpoint.
+- The user chose `EMAIL_FROM="Ludwig <auth@noreply.ludwigpuzzles.com>"`, and every email is signed off "Ludwig".
 - `LocalProgressMerge` currently runs after sign-in or sign-up. Check it still runs when the session comes from the verification link instead of a form.
 - The verification link is built from `authBaseURL`, so on previews it points at the preview. Check that the link works behind Vercel deployment protection, or record that previews need the share link.
 - Messages that differ when an account exists are an enumeration leak. The only allowed difference is on sign-in after the correct password.

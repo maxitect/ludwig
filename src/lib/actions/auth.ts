@@ -6,12 +6,20 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth, authBaseURL } from "@/lib/auth";
-import { signInSchema, signUpSchema } from "@/lib/forms/auth";
+import {
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  signInSchema,
+  signUpSchema,
+} from "@/lib/forms/auth";
 import { safeRedirectPath } from "@/utils/safe-redirect-path";
 
 export type AuthFormState = {
-  fieldErrors: Partial<Record<"name" | "email" | "password", string[]>>;
+  fieldErrors: Partial<
+    Record<"name" | "email" | "password" | "confirmPassword", string[]>
+  >;
   formError?: string;
+  sentTo?: string;
   values: { name?: string; email?: string };
 };
 
@@ -35,20 +43,46 @@ export async function signUp(
   }
 
   try {
-    await auth.api.signUpEmail({ body: parsed.data });
+    await auth.api.signUpEmail({
+      body: {
+        ...parsed.data,
+        callbackURL: verifiedCallback(formData.get("next")),
+      },
+    });
   } catch (error) {
     if (!(error instanceof APIError)) throw error;
-    const duplicate =
-      error.body?.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL";
     return {
-      fieldErrors: duplicate
-        ? { email: ["This email is already registered."] }
-        : {},
-      formError: duplicate ? undefined : "Sign-up failed. Please try again.",
+      fieldErrors: {},
+      formError: "Sign-up failed. Please try again.",
       values: echoValues(formData),
     };
   }
-  redirect(safeRedirectPath(formData.get("next")));
+  return { fieldErrors: {}, values: {}, sentTo: parsed.data.email };
+}
+
+function verifiedCallback(next: FormDataEntryValue | null) {
+  return `/verified?next=${encodeURIComponent(safeRedirectPath(next))}`;
+}
+
+/** Posts through auth.handler, not auth.api, so the rate limit applies. */
+async function postToAuth(path: string, body: object) {
+  const requestHeaders = new Headers(await headers());
+  requestHeaders.set("content-type", "application/json");
+  requestHeaders.delete("content-length");
+  return auth.handler(
+    new Request(`${authBaseURL}/api/auth/${path}`, {
+      method: "POST",
+      headers: requestHeaders,
+      body: JSON.stringify(body),
+    }),
+  );
+}
+
+function tooManyRequests(response: Response, what: string) {
+  const minutes = Math.ceil(
+    Number(response.headers.get("x-retry-after") ?? 0) / 60,
+  );
+  return `Too many ${what}. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`;
 }
 
 export async function signIn(
@@ -63,30 +97,21 @@ export async function signIn(
     };
   }
 
-  const requestHeaders = new Headers(await headers());
-  requestHeaders.set("content-type", "application/json");
-  requestHeaders.delete("content-length");
-
-  // auth.handler, not auth.api, so the rate limit applies; nextCookies skips
-  // handler calls, so the session cookie is copied over below
-  const response = await auth.handler(
-    new Request(`${authBaseURL}/api/auth/sign-in/email`, {
-      method: "POST",
-      headers: requestHeaders,
-      body: JSON.stringify(parsed.data),
-    }),
-  );
+  // nextCookies skips handler calls, so the session cookie is copied over below
+  const response = await postToAuth("sign-in/email", {
+    ...parsed.data,
+    callbackURL: verifiedCallback(formData.get("next")),
+  });
 
   if (!response.ok) {
-    const minutes = Math.ceil(
-      Number(response.headers.get("x-retry-after") ?? 0) / 60,
-    );
     return {
       fieldErrors: {},
       formError:
         response.status === 429
-          ? `Too many sign-in attempts. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`
-          : "Invalid email or password.",
+          ? tooManyRequests(response, "sign-in attempts")
+          : response.status === 403
+            ? "Verify your email first. We've sent you a new link."
+            : "Invalid email or password.",
       values: echoValues(formData),
     };
   }
@@ -95,4 +120,77 @@ export async function signIn(
     (cookie, name) => cookieJar.set(name, cookie.value, toCookieOptions(cookie)),
   );
   redirect(safeRedirectPath(formData.get("next")));
+}
+
+export async function resendVerification(
+  _prev: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = forgotPasswordSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return {
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+      values: echoValues(formData),
+    };
+  }
+  const response = await postToAuth("send-verification-email", {
+    email: parsed.data.email,
+    callbackURL: verifiedCallback(formData.get("next")),
+  });
+  if (response.status === 429) {
+    return {
+      fieldErrors: {},
+      formError: tooManyRequests(response, "requests"),
+      values: echoValues(formData),
+    };
+  }
+  return { fieldErrors: {}, values: {}, sentTo: parsed.data.email };
+}
+
+export async function requestPasswordReset(
+  _prev: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = forgotPasswordSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return {
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+      values: echoValues(formData),
+    };
+  }
+  const response = await postToAuth("request-password-reset", {
+    email: parsed.data.email,
+    redirectTo: "/reset-password",
+  });
+  if (response.status === 429) {
+    return {
+      fieldErrors: {},
+      formError: tooManyRequests(response, "requests"),
+      values: echoValues(formData),
+    };
+  }
+  if (!response.ok) console.error("request-password-reset", response.status);
+  return { fieldErrors: {}, values: {}, sentTo: parsed.data.email };
+}
+
+export async function resetPassword(
+  _prev: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = resetPasswordSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return {
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+      values: {},
+    };
+  }
+  try {
+    await auth.api.resetPassword({
+      body: { newPassword: parsed.data.password, token: parsed.data.token },
+    });
+  } catch (error) {
+    if (!(error instanceof APIError)) throw error;
+    redirect("/reset-password?error=INVALID_TOKEN");
+  }
+  redirect("/sign-in?reset=1");
 }

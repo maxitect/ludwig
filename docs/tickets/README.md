@@ -149,6 +149,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T144](./T144-about-page.md) | About page (who made this, why, and how to get in touch) | — | | ✔ | todo |
 | [T145](./T145-spot-difference-engraved-scenes.md) | Spot the difference: authored engraving scenes replace the procedural SVG | — | ✔ | | todo |
 | [T146](./T146-spot-difference-launch-scenes.md) | Spot the difference: five launch scenes from public-domain engravings | T145 | | ✔ | todo |
+| [T147](./T147-repair-preview-e2e.md) | Repair the preview end-to-end suite that main broke | — | | | todo |
 
 ## M6: Radio Times set
 

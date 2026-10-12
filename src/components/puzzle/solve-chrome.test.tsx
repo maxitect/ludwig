@@ -177,6 +177,33 @@ describe("SolveChrome already solved", () => {
     cleanup();
     expect(actions.saveState).not.toHaveBeenCalled();
   });
+
+  it("freezes the solver and the bottom slot once solved", async () => {
+    renderChrome();
+    expect(screen.getByTestId("solver").hasAttribute("inert")).toBe(false);
+    expect(screen.getByTestId("solve-slot").hasAttribute("inert")).toBe(false);
+    screen.getByRole("group", { name: "Board" }).focus();
+    await userEvent.keyboard("{Enter}");
+    await screen.findByTestId("solved-stamp");
+    expect(screen.getByTestId("solver").hasAttribute("inert")).toBe(true);
+    expect(screen.getByTestId("solve-slot").hasAttribute("inert")).toBe(true);
+  });
+
+  it("moves focus out of the frozen solver to the solved footer", async () => {
+    renderChrome();
+    screen.getByRole("group", { name: "Board" }).focus();
+    await userEvent.keyboard("{Enter}");
+    await screen.findByTestId("solved-stamp");
+    expect(document.activeElement).toBe(screen.getByTestId("solved-footer"));
+  });
+
+  it("freezes the solver on opening an already solved puzzle", async () => {
+    renderChrome(true, { answer: "x" }, { durationMs: 83_000 });
+    await screen.findByTestId("solved-stamp");
+    expect(screen.getByTestId("solver").hasAttribute("inert")).toBe(true);
+    expect(screen.getByTestId("solve-slot").hasAttribute("inert")).toBe(true);
+    expect(document.activeElement).toBe(document.body);
+  });
 });
 
 describe("SolveChrome Reset", () => {

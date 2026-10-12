@@ -156,9 +156,17 @@ function SolveBoard({
   >(null);
   const latestCheck = useRef<() => void>(undefined);
   const edits = useRef(0);
+  const solvedFooter = useRef<HTMLElement>(null);
+  const focusSolvedFooter = useRef(false);
   const solved = solvedMs !== null;
   const deviceKeyboard = useDeviceKeyboard();
   const keyboardInset = useKeyboardInset(deviceKeyboard);
+
+  useEffect(() => {
+    if (!solved || !focusSolvedFooter.current) return;
+    focusSolvedFooter.current = false;
+    solvedFooter.current?.focus();
+  }, [solved]);
 
   const registerCheck = useCallback<SolverProps["registerCheck"]>((read) => {
     readAnswer.current = read;
@@ -230,6 +238,7 @@ function SolveBoard({
           if (!signedIn) completeProgress(puzzleId, durationMs);
           setNotice(null);
           setEpilogue(response.result.epilogue ?? null);
+          focusSolvedFooter.current = true;
           setSolvedMs(durationMs);
         } else if (edits.current === checkedEdit) {
           setRungProblems(response.result.rungProblems);
@@ -443,7 +452,12 @@ function SolveBoard({
         </div>
 
         {solved && (
-          <footer className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto">
+          <footer
+            ref={solvedFooter}
+            tabIndex={-1}
+            data-testid="solved-footer"
+            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
+          >
             <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] touch:[--hole-size:216px]">
               <BulletHole data-testid="solved-hole" />
               <SolvedStamp delay={0.3} data-testid="solved-stamp" />

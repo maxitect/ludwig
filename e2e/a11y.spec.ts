@@ -23,6 +23,7 @@ const PUZZLE_TYPES = [
   "rota",
   "sightlines",
   "spot-difference",
+  "star-battle",
   "sudoku",
   "word-ladder",
   "word-search",

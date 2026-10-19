@@ -17,6 +17,7 @@ import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
 import { attemptSchema as rotaAttempt } from "./rota/schema";
 import { attemptSchema as sightlinesAttempt } from "./sightlines/schema";
 import { attemptSchema as spotDifferenceAttempt } from "./spot-difference/schema";
+import { attemptSchema as starBattleAttempt } from "./star-battle/schema";
 import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
 import { attemptSchema as wordLadderAttempt } from "./word-ladder/schema";
 import { attemptSchema as wordSearchAttempt } from "./word-search/schema";
@@ -42,6 +43,7 @@ const attemptSchemas = {
   rota: rotaAttempt,
   sightlines: sightlinesAttempt,
   "spot-difference": spotDifferenceAttempt,
+  "star-battle": starBattleAttempt,
   sudoku: sudokuAttempt,
   "word-ladder": wordLadderAttempt,
   "word-search": wordSearchAttempt,

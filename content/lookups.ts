@@ -129,6 +129,14 @@ export const types = [
     sort: 5,
   },
   {
+    key: "star-battle",
+    categoryKey: "logic",
+    name: "Star Battle",
+    description: "Place stars so every row, column and region holds the same number, none touching.",
+    subtypeTable: "star_battle_puzzles",
+    sort: 6,
+  },
+  {
     key: "sightlines",
     categoryKey: "spatial",
     name: "Sightlines",

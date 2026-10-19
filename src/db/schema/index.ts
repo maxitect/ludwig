@@ -23,3 +23,4 @@ export * from "../../puzzles/word-ladder/tables";
 export * from "../../puzzles/sightlines/tables";
 export * from "../../puzzles/cctv-maze/tables";
 export * from "../../puzzles/word-search/tables";
+export * from "../../puzzles/star-battle/tables";

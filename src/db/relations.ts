@@ -269,6 +269,26 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.sudokuPuzzles.puzzleId,
       to: r.sudokuRegionSets.puzzleId,
     }),
+    cages: r.many.sudokuCages({
+      from: r.sudokuPuzzles.puzzleId,
+      to: r.sudokuCages.puzzleId,
+    }),
+    xvSet: r.one.sudokuXvSets({
+      from: r.sudokuPuzzles.puzzleId,
+      to: r.sudokuXvSets.puzzleId,
+    }),
+  },
+  sudokuCages: {
+    cells: r.many.sudokuCageCells({
+      from: [r.sudokuCages.puzzleId, r.sudokuCages.cage],
+      to: [r.sudokuCageCells.puzzleId, r.sudokuCageCells.cage],
+    }),
+  },
+  sudokuXvSets: {
+    marks: r.many.sudokuXvMarks({
+      from: r.sudokuXvSets.puzzleId,
+      to: r.sudokuXvMarks.puzzleId,
+    }),
   },
   sudokuRegionSets: {
     cells: r.many.sudokuRegionCells({

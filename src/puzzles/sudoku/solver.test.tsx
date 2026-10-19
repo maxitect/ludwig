@@ -2,8 +2,10 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { content as cageMatch } from "../../../content/sudoku/cage-match";
+import { content as romanNumerals } from "../../../content/sudoku/roman-numerals";
 import { givens, solution } from "./fixture";
-import type { AttemptState } from "./schema";
+import { payloadSchema, type AttemptState, type Payload } from "./schema";
 import { Solver } from "./solver";
 
 afterEach(cleanup);
@@ -133,5 +135,73 @@ describe("sudoku Solver", () => {
     expect(requestCheck).toHaveBeenCalledTimes(1);
     expect(read()?.cells).toHaveLength(81);
     expect(read()?.cells).toContainEqual(last);
+  });
+});
+
+describe("sudoku Solver killer and XV variants", () => {
+  const renderPayload = (payload: Payload) =>
+    render(
+      <Solver
+        payload={payload}
+        initialState={null}
+        onStateChange={vi.fn()}
+        registerCheck={vi.fn()}
+      />,
+    );
+
+  it("names the grid for its variant", () => {
+    renderPayload(payloadSchema.parse(cageMatch));
+    expect(screen.getByRole("grid", { name: "Killer sudoku" })).toBeTruthy();
+    cleanup();
+    renderPayload(payloadSchema.parse(romanNumerals));
+    expect(screen.getByRole("grid", { name: "XV sudoku" })).toBeTruthy();
+  });
+
+  it("announces each cage with its sum, and its other cells with the cage", () => {
+    renderPayload(payloadSchema.parse(cageMatch));
+    const { sum, cells } = cageMatch.cages.find(
+      ({ cells }) => cells.length > 1,
+    )!;
+    const [first, ...others] = [...cells].sort(
+      (a, b) => a.row * 9 + a.col - (b.row * 9 + b.col),
+    );
+    const anchor = cell(first.row + 1, first.col + 1);
+    expect(anchor.getAttribute("aria-label")).toContain(
+      `cage of ${cells.length} cells adding up to ${sum}`,
+    );
+    expect(anchor.textContent).toContain(String(sum));
+    for (const { row, col } of others) {
+      expect(cell(row + 1, col + 1).getAttribute("aria-label")).toContain(
+        `in the cage adding up to ${sum} from row ${first.row + 1}, column ${first.col + 1}`,
+      );
+    }
+  });
+
+  it("outlines every cage cell with a dashed border", () => {
+    const { container } = renderPayload(payloadSchema.parse(cageMatch));
+    expect(container.querySelectorAll(".border-dashed").length).toBe(81);
+  });
+
+  it("reads each X and V out with both cells it sits between", () => {
+    renderPayload(payloadSchema.parse(romanNumerals));
+    const { marks } = romanNumerals.xv;
+    const x = marks.find(
+      ({ direction, mark }) => direction === "right" && mark === "x",
+    )!;
+    const v = marks.find(
+      ({ direction, mark }) => direction === "down" && mark === "v",
+    )!;
+    const label = (row: number, col: number) =>
+      cell(row + 1, col + 1).getAttribute("aria-label");
+    expect(label(x.row, x.col)).toContain(
+      "adds up to 10 with the cell to the right",
+    );
+    expect(label(x.row, x.col + 1)).toContain(
+      "adds up to 10 with the cell to the left",
+    );
+    expect(label(v.row, v.col)).toContain("adds up to 5 with the cell below");
+    expect(label(v.row + 1, v.col)).toContain(
+      "adds up to 5 with the cell above",
+    );
   });
 });

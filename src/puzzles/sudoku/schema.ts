@@ -3,9 +3,12 @@ import { z } from "zod";
 import {
   sudokuAttemptCells,
   sudokuAttemptNotes,
+  sudokuCageCells,
+  sudokuCages,
   sudokuGivens,
   sudokuRegionCells,
   sudokuRegionSets,
+  sudokuXvMarks,
 } from "./tables";
 
 const coordinate = (schema: z.ZodNumber) => schema.min(0).max(8);
@@ -45,6 +48,26 @@ const regionCellInsert = createInsertSchema(sudokuRegionCells, {
 const regionSetSelect = createSelectSchema(sudokuRegionSets);
 const regionSetInsert = createInsertSchema(sudokuRegionSets);
 
+const cageSum = (schema: z.ZodNumber) => schema.min(1).max(45);
+const cageSelect = createSelectSchema(sudokuCages, { sum: cageSum });
+const cageInsert = createInsertSchema(sudokuCages, { sum: cageSum });
+const cageCellSelect = createSelectSchema(sudokuCageCells, {
+  row: coordinate,
+  col: coordinate,
+});
+const cageCellInsert = createInsertSchema(sudokuCageCells, {
+  row: coordinate,
+  col: coordinate,
+});
+const xvMarkSelect = createSelectSchema(sudokuXvMarks, {
+  row: coordinate,
+  col: coordinate,
+});
+const xvMarkInsert = createInsertSchema(sudokuXvMarks, {
+  row: coordinate,
+  col: coordinate,
+});
+
 const given = givenSelect.pick({ row: true, col: true, digit: true });
 const entered = cellSelect.pick({ row: true, col: true, digit: true });
 const noted = noteSelect.pick({ row: true, col: true, digit: true });
@@ -64,9 +87,28 @@ export const regionsSchema = z.object({
   cells: z.array(regionCell.strict()).length(81),
 });
 
+const cageCell = cageCellSelect.pick({ row: true, col: true });
+
+/** A killer cage: the digits in its cells add up to `sum` and never repeat. */
+export const cageSchema = cageSelect
+  .pick({ sum: true })
+  .extend({ cells: z.array(cageCell.strict()).min(1) });
+
+const xvMark = xvMarkSelect.pick({
+  row: true,
+  col: true,
+  direction: true,
+  mark: true,
+});
+
+/** An XV sudoku: the marks between adjacent cells. Its presence turns on the negative rule. */
+export const xvSchema = z.object({ marks: z.array(xvMark.strict()) });
+
 export const payloadSchema = z.object({
   givens: z.array(given.strict()),
   regions: regionsSchema.optional(),
+  cages: z.array(cageSchema).optional(),
+  xv: xvSchema.optional(),
 });
 
 export const answerSchema = z.object({ cells: z.array(entered).length(81) });
@@ -89,6 +131,27 @@ export const contentSchema = z.object({
         .length(81),
     })
     .optional(),
+  cages: z
+    .array(
+      cageInsert.pick({ sum: true }).extend({
+        cells: z
+          .array(cageCellInsert.pick({ row: true, col: true }))
+          .min(1),
+      }),
+    )
+    .optional(),
+  xv: z
+    .object({
+      marks: z.array(
+        xvMarkInsert.pick({
+          row: true,
+          col: true,
+          direction: true,
+          mark: true,
+        }),
+      ),
+    })
+    .optional(),
 });
 
 export type Payload = z.infer<typeof payloadSchema>;
@@ -97,4 +160,6 @@ export type AttemptState = z.infer<typeof attemptSchema>;
 export type Content = z.infer<typeof contentSchema>;
 export type Solution = z.infer<typeof solutionSchema>;
 export type Regions = z.infer<typeof regionsSchema>;
+export type Cage = z.infer<typeof cageSchema>;
+export type Xv = z.infer<typeof xvSchema>;
 export type Given = z.infer<typeof given>;

@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { puzzles } from "../../db/schema/core";
 import { attempts } from "../../db/schema/progress";
+import { ineqDirectionEnum } from "../futoshiki/tables";
 
 export const sudokuPuzzles = pgTable(
   "sudoku_puzzles",
@@ -96,6 +97,95 @@ export const sudokuRegionCells = pgTable(
     check(
       "sudoku_region_cells_region_check",
       sql`${table.region} between 0 and 8`,
+    ),
+  ],
+);
+
+export const sudokuCages = pgTable(
+  "sudoku_cages",
+  {
+    puzzleId: uuid("puzzle_id").notNull(),
+    cage: smallint("cage").notNull(),
+    sum: smallint("sum").notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "sudoku_cages_pkey",
+      columns: [table.puzzleId, table.cage],
+    }),
+    foreignKey({
+      name: "sudoku_cages_puzzle_id_fk",
+      columns: [table.puzzleId],
+      foreignColumns: [sudokuPuzzles.puzzleId],
+    }).onDelete("cascade"),
+    check("sudoku_cages_cage_check", sql`${table.cage} between 0 and 80`),
+    check("sudoku_cages_sum_check", sql`${table.sum} between 1 and 45`),
+  ],
+);
+
+export const sudokuCageCells = pgTable(
+  "sudoku_cage_cells",
+  {
+    puzzleId: uuid("puzzle_id").notNull(),
+    row: smallint("row").notNull(),
+    col: smallint("col").notNull(),
+    cage: smallint("cage").notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "sudoku_cage_cells_pkey",
+      columns: [table.puzzleId, table.row, table.col],
+    }),
+    foreignKey({
+      name: "sudoku_cage_cells_cage_fk",
+      columns: [table.puzzleId, table.cage],
+      foreignColumns: [sudokuCages.puzzleId, sudokuCages.cage],
+    }).onDelete("cascade"),
+    check("sudoku_cage_cells_row_check", sql`${table.row} between 0 and 8`),
+    check("sudoku_cage_cells_col_check", sql`${table.col} between 0 and 8`),
+  ],
+);
+
+export const xvMarkEnum = pgEnum("xv_mark", ["x", "v"]);
+
+export const sudokuXvSets = pgTable(
+  "sudoku_xv_sets",
+  {
+    puzzleId: uuid("puzzle_id").primaryKey(),
+  },
+  (table) => [
+    foreignKey({
+      name: "sudoku_xv_sets_puzzle_id_fk",
+      columns: [table.puzzleId],
+      foreignColumns: [sudokuPuzzles.puzzleId],
+    }).onDelete("cascade"),
+  ],
+);
+
+export const sudokuXvMarks = pgTable(
+  "sudoku_xv_marks",
+  {
+    puzzleId: uuid("puzzle_id").notNull(),
+    row: smallint("row").notNull(),
+    col: smallint("col").notNull(),
+    direction: ineqDirectionEnum("direction").notNull(),
+    mark: xvMarkEnum("mark").notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "sudoku_xv_marks_pkey",
+      columns: [table.puzzleId, table.row, table.col, table.direction],
+    }),
+    foreignKey({
+      name: "sudoku_xv_marks_puzzle_id_fk",
+      columns: [table.puzzleId],
+      foreignColumns: [sudokuXvSets.puzzleId],
+    }).onDelete("cascade"),
+    check("sudoku_xv_marks_row_check", sql`${table.row} between 0 and 8`),
+    check("sudoku_xv_marks_col_check", sql`${table.col} between 0 and 8`),
+    check(
+      "sudoku_xv_marks_inside_check",
+      sql`(${table.direction} = 'right' and ${table.col} <= 7) or (${table.direction} = 'down' and ${table.row} <= 7)`,
     ),
   ],
 );

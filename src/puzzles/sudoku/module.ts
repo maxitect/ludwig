@@ -9,10 +9,14 @@ import {
   sudokuAttemptCells,
   sudokuAttemptNotes,
   sudokuAttempts,
+  sudokuCageCells,
+  sudokuCages,
   sudokuGivens,
   sudokuPuzzles,
   sudokuRegionCells,
   sudokuRegionSets,
+  sudokuXvMarks,
+  sudokuXvSets,
 } from "./tables";
 import { verifySudoku } from "./verify";
 
@@ -23,48 +27,74 @@ export const sudokuModule = {
   loadSolution,
   check,
   verify: verifySudoku,
-  async upsertContent(tx, puzzleId, { givens, regions }) {
+  async upsertContent(tx, puzzleId, { givens, regions, cages, xv }) {
     await tx.insert(sudokuPuzzles).values({ puzzleId }).onConflictDoNothing();
     await tx.delete(sudokuGivens).where(
       and(
         eq(sudokuGivens.puzzleId, puzzleId),
-        sql`(${sudokuGivens.row}, ${sudokuGivens.col}) not in (${sql.join(
-          givens.map(({ row, col }) => sql`(${row}, ${col})`),
-          sql`, `,
-        )})`,
+        givens.length
+          ? sql`(${sudokuGivens.row}, ${sudokuGivens.col}) not in (${sql.join(
+              givens.map(({ row, col }) => sql`(${row}, ${col})`),
+              sql`, `,
+            )})`
+          : undefined,
       ),
     );
-    await tx
-      .insert(sudokuGivens)
-      .values(givens.map((given) => ({ ...given, puzzleId })))
-      .onConflictDoUpdate({
-        target: [sudokuGivens.puzzleId, sudokuGivens.row, sudokuGivens.col],
-        set: { digit: sql`excluded.digit` },
-      });
-    if (!regions) {
+    if (givens.length) {
+      await tx
+        .insert(sudokuGivens)
+        .values(givens.map((given) => ({ ...given, puzzleId })))
+        .onConflictDoUpdate({
+          target: [sudokuGivens.puzzleId, sudokuGivens.row, sudokuGivens.col],
+          set: { digit: sql`excluded.digit` },
+        });
+    }
+    if (regions) {
+      await tx
+        .insert(sudokuRegionSets)
+        .values({ puzzleId, kind: regions.kind })
+        .onConflictDoUpdate({
+          target: sudokuRegionSets.puzzleId,
+          set: { kind: regions.kind },
+        });
+      await tx
+        .insert(sudokuRegionCells)
+        .values(regions.cells.map((cell) => ({ ...cell, puzzleId })))
+        .onConflictDoUpdate({
+          target: [
+            sudokuRegionCells.puzzleId,
+            sudokuRegionCells.row,
+            sudokuRegionCells.col,
+          ],
+          set: { region: sql`excluded.region` },
+        });
+    } else {
       await tx
         .delete(sudokuRegionSets)
         .where(eq(sudokuRegionSets.puzzleId, puzzleId));
-      return;
     }
-    await tx
-      .insert(sudokuRegionSets)
-      .values({ puzzleId, kind: regions.kind })
-      .onConflictDoUpdate({
-        target: sudokuRegionSets.puzzleId,
-        set: { kind: regions.kind },
-      });
-    await tx
-      .insert(sudokuRegionCells)
-      .values(regions.cells.map((cell) => ({ ...cell, puzzleId })))
-      .onConflictDoUpdate({
-        target: [
-          sudokuRegionCells.puzzleId,
-          sudokuRegionCells.row,
-          sudokuRegionCells.col,
-        ],
-        set: { region: sql`excluded.region` },
-      });
+
+    await tx.delete(sudokuCages).where(eq(sudokuCages.puzzleId, puzzleId));
+    if (cages?.length) {
+      await tx
+        .insert(sudokuCages)
+        .values(cages.map(({ sum }, cage) => ({ puzzleId, cage, sum })));
+      await tx.insert(sudokuCageCells).values(
+        cages.flatMap(({ cells }, cage) =>
+          cells.map((cell) => ({ ...cell, puzzleId, cage })),
+        ),
+      );
+    }
+
+    await tx.delete(sudokuXvSets).where(eq(sudokuXvSets.puzzleId, puzzleId));
+    if (xv) {
+      await tx.insert(sudokuXvSets).values({ puzzleId });
+      if (xv.marks.length) {
+        await tx
+          .insert(sudokuXvMarks)
+          .values(xv.marks.map((mark) => ({ ...mark, puzzleId })));
+      }
+    }
   },
   async replaceAttemptState(tx, attemptId, { cells, notes }) {
     await tx

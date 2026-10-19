@@ -26,6 +26,7 @@ const PUZZLE_TYPES = [
   "spot-difference",
   "star-battle",
   "sudoku",
+  "troix",
   "word-ladder",
   "word-search",
 ];

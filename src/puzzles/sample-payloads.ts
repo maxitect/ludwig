@@ -228,6 +228,15 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     height: 1068,
     differenceCount: 3,
   },
+  norinori: {
+    rows: 5,
+    cols: 5,
+    regions: Array.from({ length: 25 }, (_, i) => ({
+      row: Math.floor(i / 5),
+      col: i % 5,
+      region: Math.floor(i / 5),
+    })),
+  },
   "star-battle": {
     size: 5,
     stars: 1,

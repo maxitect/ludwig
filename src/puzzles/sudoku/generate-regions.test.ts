@@ -73,11 +73,21 @@ describe("rainbow layouts", () => {
   });
 });
 
+const SEEDS = 100;
+const BATCH = 25;
+const batches = difficulties.flatMap((difficulty) =>
+  Array.from({ length: SEEDS / BATCH }, (_, batch) => ({
+    difficulty,
+    from: batch * BATCH,
+    to: (batch + 1) * BATCH,
+  })),
+);
+
 describe.each(variants)("$name property", ({ versions }) => {
-  it.each(difficulties)(
-    "difficulty %i: 100 seeds, each unique and solved by technique alone",
-    (difficulty) => {
-      for (let index = 0; index < 100; index++) {
+  it.each(batches)(
+    "difficulty $difficulty, seeds $from to $to: each unique and solved by technique alone",
+    ({ difficulty, from, to }) => {
+      for (let index = from; index < to; index++) {
         const { content } = versions[1](`property-${index}`, difficulty);
         verifySudoku(content);
         expect(

@@ -71,12 +71,15 @@ export function Solver({
     return (row: number, col: number) => {
       const letter = rainbow ? GROUP_LETTERS[lookup(row, col) ?? 0] : undefined;
       const cage = cages?.[cageLookup.cageAt(row, col) ?? -1];
+      const anchor = cageLookup.anchorOf(row, col);
       const anchored = cageLookup.anchoredAt(row, col);
       const labels = [
         letter && `colour group ${letter}`,
         anchored
           ? `cage of ${anchored.cells.length} ${plural(anchored.cells.length)} adding up to ${anchored.sum}`
-          : cage && `in the cage adding up to ${cage.sum}`,
+          : cage &&
+            anchor &&
+            `in the cage adding up to ${cage.sum} from row ${anchor.row + 1}, column ${anchor.col + 1}`,
       ].filter(Boolean);
       if (!labels.length) return undefined;
       return {

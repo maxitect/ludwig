@@ -1,4 +1,5 @@
 import { cn } from "@/utils/cn";
+import type { CellPosition } from "../_shared/cell-grid";
 import type { Cage } from "./schema";
 
 const SIZE = 9;
@@ -15,6 +16,8 @@ export type CageSides = {
 export type CageLookup = {
   /** The cage holding the cell, if any. */
   cageAt(row: number, col: number): number | undefined;
+  /** The first cell in reading order of the cage holding this one, if any. */
+  anchorOf(row: number, col: number): CellPosition | undefined;
   /** The cage whose first cell in reading order is this one, if any. */
   anchoredAt(row: number, col: number): Cage | undefined;
   sidesOf(row: number, col: number): CageSides | undefined;
@@ -23,12 +26,14 @@ export type CageLookup = {
 export function lookupCages(cages: ReadonlyArray<Cage> = []): CageLookup {
   const owner = new Map<number, number>();
   const anchors = new Map<number, Cage>();
+  const anchorIndex: number[] = [];
   cages.forEach((cage, id) => {
     const cells = cage.cells
       .map(({ row, col }) => row * SIZE + col)
       .sort((a, b) => a - b);
     for (const index of cells) owner.set(index, id);
     anchors.set(cells[0], cage);
+    anchorIndex[id] = cells[0];
   });
   const cageAt = (row: number, col: number) =>
     row < 0 || col < 0 || row >= SIZE || col >= SIZE
@@ -36,6 +41,12 @@ export function lookupCages(cages: ReadonlyArray<Cage> = []): CageLookup {
       : owner.get(row * SIZE + col);
   return {
     cageAt,
+    anchorOf(row, col) {
+      const here = cageAt(row, col);
+      if (here === undefined) return undefined;
+      const index = anchorIndex[here];
+      return { row: Math.floor(index / SIZE), col: index % SIZE };
+    },
     anchoredAt: (row, col) => anchors.get(row * SIZE + col),
     sidesOf(row, col) {
       const here = cageAt(row, col);

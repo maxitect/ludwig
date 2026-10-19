@@ -172,7 +172,7 @@ describe("sudoku Solver killer and XV variants", () => {
     expect(anchor.textContent).toContain(String(sum));
     for (const { row, col } of others) {
       expect(cell(row + 1, col + 1).getAttribute("aria-label")).toContain(
-        `in the cage adding up to ${sum}`,
+        `in the cage adding up to ${sum} from row ${first.row + 1}, column ${first.col + 1}`,
       );
     }
   });

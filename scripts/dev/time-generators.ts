@@ -3,8 +3,10 @@ import { generators } from "../../src/puzzles/generators";
 
 /** Median and worst generation time and the yield (accepted per candidate) per difficulty, over N seeds. */
 const N = Number(process.argv[2] ?? 50);
+const only = process.argv.slice(3);
 
 for (const name of Object.keys(generators)) {
+  if (only.length && !only.includes(name)) continue;
   const generate = generators[name][1];
   for (const difficulty of difficulties) {
     const times: number[] = [];

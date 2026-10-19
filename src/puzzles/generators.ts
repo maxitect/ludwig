@@ -8,6 +8,9 @@ import {
 import { futoshikiGenerators } from "./futoshiki/generate";
 import { gradeFutoshiki } from "./futoshiki/grade";
 import { contentSchema as futoshikiContent } from "./futoshiki/schema";
+import { starBattleGenerators } from "./star-battle/generate";
+import { gradeStarBattle } from "./star-battle/grade";
+import { contentSchema as starBattleContent } from "./star-battle/schema";
 import { gridFromGivens, unitsFor } from "./sudoku/engine";
 import { sudokuGenerators } from "./sudoku/generate";
 import {
@@ -27,6 +30,7 @@ export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
     "sudoku-jigsaw": sudokuJigsawGenerators,
     "sudoku-rainbow": sudokuRainbowGenerators,
     futoshiki: futoshikiGenerators,
+    "star-battle": starBattleGenerators,
   };
 
 /** Provenance a generated content file exports beside `meta` and `content`. Read by `puzzles:verify`, never seeded. */
@@ -59,6 +63,8 @@ const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
     return gradeSudoku(gridFromGivens(givens), 5, unitsFor(regions));
   },
   futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
+  "star-battle": (content) =>
+    gradeStarBattle(starBattleContent.parse(content)),
 };
 
 export const gradedTypes = Object.keys(graders);

@@ -261,20 +261,12 @@ function lawOfLeftovers(regions: Units): Technique {
 
 /** Easiest first, for the given houses (boxes, jigsaw regions or rainbow colour groups). A puzzle's difficulty is the level of the hardest technique it needs. */
 const ladderFor = (houses: Units): ReadonlyArray<Technique> => {
-  const boxes = houses.slice(0, SIZE);
-  const colours = houses.slice(SIZE);
   const isJigsaw = houses.length === SIZE && houses[0] !== boxUnits[0];
   return [
     nakedSingle,
     hiddenSingle,
     lockedCandidates("pointing", houses, lines),
     lockedCandidates("box/line", lines, houses),
-    ...(colours.length
-      ? [
-          lockedCandidates("box/colour", boxes, colours),
-          lockedCandidates("colour/box", colours, boxes),
-        ]
-      : []),
     nakedSubset("naked pair", 2, 3),
     hiddenSubset("hidden pair", 2, 3),
     fish("x-wing", 2, 4),
@@ -296,10 +288,14 @@ export function gradeSudoku(
   maxLevel: Difficulty = 5,
   units: Units = classicUnits,
 ): Grade | null {
-  let ladder = ladders.get(units);
-  if (!ladder) {
-    ladder = ladderFor(units.slice(lines.length));
-    ladders.set(units, ladder);
+  let techniques = ladders.get(units);
+  if (!techniques) {
+    techniques = ladderFor(units.slice(lines.length));
+    ladders.set(units, techniques);
   }
-  return gradeByTechnique(createState(givens, SIZE, units), ladder, maxLevel);
+  return gradeByTechnique(
+    createState(givens, SIZE, units),
+    techniques,
+    maxLevel,
+  );
 }

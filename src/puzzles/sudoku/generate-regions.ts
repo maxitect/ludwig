@@ -76,7 +76,7 @@ function shapeJigsaw(rng: () => number) {
     { length: CELLS },
     (_, cell) => Math.floor(cell / 27) * 3 + Math.floor((cell % SIZE) / 3),
   );
-  const pick = <T>(items: ReadonlyArray<T>) =>
+  const pick = <T>(items: ReadonlyArray<T>): T | undefined =>
     items[Math.floor(rng() * items.length)];
   for (let step = 0; step < EXCHANGES; step++) {
     const out = Math.floor(rng() * CELLS);
@@ -134,7 +134,7 @@ function isSymmetric(regionOf: ReadonlyArray<number>) {
 }
 
 /** Rejects a region thinner than two cells or longer than six, and a symmetric layout. */
-export function acceptableJigsaw(regionOf: ReadonlyArray<number>) {
+function acceptableJigsaw(regionOf: ReadonlyArray<number>) {
   return (
     unitsOfRegions(regionOf).every((cells) => {
       const [height, width] = spans(cells);
@@ -161,18 +161,8 @@ function colourGroups(grid: Grid, rng: () => number) {
   return canonical(groupOf);
 }
 
-/** Rejects a group that lies in one line, and a symmetric layout. */
-function acceptableRainbow(groupOf: ReadonlyArray<number>) {
-  return (
-    unitsOfRegions(groupOf).every((cells) => {
-      const [height, width] = spans(cells);
-      return Math.min(height, width) >= 2;
-    }) && !isSymmetric(groupOf)
-  );
-}
-
 /** A random completed grid for the units, or null when the backtracking budget runs out. */
-export function randomSolvedGrid(units: Units, rng: () => number) {
+function randomSolvedGrid(units: Units, rng: () => number) {
   const unitsOf: number[][] = Array.from({ length: CELLS }, () => []);
   units.forEach((unit, id) => {
     for (const cell of unit) unitsOf[cell].push(id);
@@ -215,7 +205,7 @@ function rainbowLayout(rng: () => number): Layout | null {
   const grid = randomSolvedGrid(classicUnits, rng);
   if (!grid) return null;
   const groupOf = colourGroups(grid, rng);
-  if (!acceptableRainbow(groupOf)) return null;
+  if (isSymmetric(groupOf)) return null;
   const units = [...classicUnits, ...unitsOfRegions(groupOf)];
   return { regions: toRegions("rainbow", groupOf), units, grid };
 }

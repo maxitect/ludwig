@@ -56,6 +56,34 @@ export function solutions(layout: Layout, limit = Infinity): number[][] {
     );
   };
 
+  const touchedBy = new Map(
+    [...members].map(([region, own]) => [
+      region,
+      [...new Set(own.flatMap((index) => [index, ...neighbours[index]]))],
+    ]),
+  );
+  const fits = (touched: readonly number[]) =>
+    touched.every((index) => !shaded[index] || viable(index));
+
+  /** Whether some pair of the region's cells can still be shaded. */
+  const open = (region: number) => {
+    const own = members.get(region)!;
+    const touched = touchedBy.get(region)!;
+    decided.add(region);
+    let any = false;
+    for (let i = 0; i < own.length && !any; i++) {
+      if (shaded[own[i]]) continue;
+      for (let j = i + 1; j < own.length && !any; j++) {
+        if (shaded[own[j]]) continue;
+        shaded[own[i]] = shaded[own[j]] = true;
+        any = fits(touched);
+        shaded[own[i]] = shaded[own[j]] = false;
+      }
+    }
+    decided.delete(region);
+    return any;
+  };
+
   const place = (at: number) => {
     if (found.length >= limit) return;
     if (at === order.length) {
@@ -64,14 +92,15 @@ export function solutions(layout: Layout, limit = Infinity): number[][] {
     }
     const region = order[at];
     const own = members.get(region)!;
-    const touched = new Set(own.flatMap((index) => [index, ...neighbours[index]]));
+    const touched = touchedBy.get(region)!;
+    const nearby = [
+      ...new Set(touched.map((index) => regionOf[index])),
+    ].filter((other) => !decided.has(other) && other !== region);
     decided.add(region);
     for (let i = 0; i < own.length; i++) {
       for (let j = i + 1; j < own.length; j++) {
         shaded[own[i]] = shaded[own[j]] = true;
-        if ([...touched].every((index) => !shaded[index] || viable(index))) {
-          place(at + 1);
-        }
+        if (fits(touched) && nearby.every(open)) place(at + 1);
         shaded[own[i]] = shaded[own[j]] = false;
       }
     }

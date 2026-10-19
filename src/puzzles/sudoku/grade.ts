@@ -21,7 +21,9 @@ import {
   rowUnits,
   type Grid,
   type Units,
+  type Variant,
 } from "./engine";
+import { afterPlaceFor, variantTechniques } from "./grade-variants";
 
 const SIZE = 9;
 
@@ -281,21 +283,41 @@ const ladderFor = (houses: Units): ReadonlyArray<Technique> => {
 
 export const ladder = ladderFor(boxUnits);
 const ladders = new WeakMap<Units, ReadonlyArray<Technique>>();
+const variantLadders = new WeakMap<
+  Variant,
+  WeakMap<Units, ReadonlyArray<Technique>>
+>();
+
+/** The ladder for the units, with a puzzle's cage and XV techniques merged in by level, theirs first within a level. */
+export function techniquesFor(units: Units, variant?: Variant) {
+  const base = ladders.get(units) ?? ladderFor(units.slice(lines.length));
+  ladders.set(units, base);
+  if (!variant) return base;
+  let byUnits = variantLadders.get(variant);
+  if (!byUnits) {
+    byUnits = new WeakMap();
+    variantLadders.set(variant, byUnits);
+  }
+  let merged = byUnits.get(units);
+  if (!merged) {
+    merged = [...variantTechniques(variant), ...base].sort(
+      (a, b) => a.level - b.level,
+    );
+    byUnits.set(units, merged);
+  }
+  return merged;
+}
 
 /** Grades a grid of givens by technique alone, or null when techniques up to `maxLevel` cannot finish it. */
 export function gradeSudoku(
   givens: Grid,
   maxLevel: Difficulty = 5,
   units: Units = classicUnits,
+  variant?: Variant,
 ): Grade | null {
-  let techniques = ladders.get(units);
-  if (!techniques) {
-    techniques = ladderFor(units.slice(lines.length));
-    ladders.set(units, techniques);
-  }
   return gradeByTechnique(
-    createState(givens, SIZE, units),
-    techniques,
+    createState(givens, SIZE, units, variant && afterPlaceFor(variant)),
+    techniquesFor(units, variant),
     maxLevel,
   );
 }

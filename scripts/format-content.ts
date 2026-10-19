@@ -30,20 +30,39 @@ function packed(items: ReadonlyArray<unknown>, indent: string) {
   return lines;
 }
 
+const isNested = (value: unknown): value is object =>
+  typeof value === "object" &&
+  value !== null &&
+  !Array.isArray(value) &&
+  Object.values(value).some((entry) => Array.isArray(entry));
+
+/** One `key: value,` entry: arrays packed, objects holding arrays expanded one level, the rest on one line. */
+function entry(key: string, value: unknown, indent: string): string[] {
+  if (Array.isArray(value) && value.length) {
+    return [`${indent}${key}: [`, ...packed(value, `${indent}  `), `${indent}],`];
+  }
+  if (Array.isArray(value)) return [`${indent}${key}: [],`];
+  if (isNested(value)) {
+    return [
+      `${indent}${key}: {`,
+      ...Object.entries(value).flatMap(([name, inner]) =>
+        entry(name, inner, `${indent}  `),
+      ),
+      `${indent}},`,
+    ];
+  }
+  return [`${indent}${key}: ${literal(value)},`];
+}
+
 /** `export const content = {...}` with flat objects on one line, never expanded JSON. */
 export function formatContent(content: object) {
-  const lines = ["export const content = {"];
-  for (const [key, value] of Object.entries(content)) {
-    if (Array.isArray(value) && value.length) {
-      lines.push(`  ${key}: [`, ...packed(value, "    "), "  ],");
-    } else if (Array.isArray(value)) {
-      lines.push(`  ${key}: [],`);
-    } else {
-      lines.push(`  ${key}: ${literal(value)},`);
-    }
-  }
-  lines.push("};");
-  return lines.join("\n");
+  return [
+    "export const content = {",
+    ...Object.entries(content).flatMap(([key, value]) =>
+      entry(key, value, "  "),
+    ),
+    "};",
+  ].join("\n");
 }
 
 export type GeneratedFile = {

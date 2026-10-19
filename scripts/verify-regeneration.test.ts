@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { registry } from "@/puzzles/registry";
 import { sudokuGenerators } from "@/puzzles/sudoku/generate";
+import { sudokuRainbowGenerators } from "@/puzzles/sudoku/generate-regions";
 import { formatContentFile } from "./format-content";
 import { verifyPuzzles } from "./verify-puzzles";
 
@@ -36,6 +37,25 @@ describe("verifyPuzzles regeneration", () => {
     write("fresh", sudokuGenerators[1](generated.seed, 2).content);
     const { failures } = await verifyPuzzles(registry, dir);
     expect(failures).toEqual([]);
+  });
+
+  it("passes a region variant file, whose nested regions are formatted too", async () => {
+    const provenance = { generator: "sudoku-rainbow", version: 1, seed: "bands" };
+    const { content } = sudokuRainbowGenerators[1](provenance.seed, 2);
+    writeFileSync(
+      path.join(dir, "sudoku", "bands.ts"),
+      formatContentFile({
+        typeKey: "sudoku",
+        slug: "bands",
+        title: "bands",
+        difficulty: 2,
+        publishedAt: "2026-10-07",
+        content,
+        generated: provenance,
+      }),
+    );
+    const { failures } = await verifyPuzzles(registry, dir);
+    expect(failures.filter(({ slug }) => slug === "bands")).toEqual([]);
   });
 
   it("fails a file whose content or seed no longer regenerates", async () => {

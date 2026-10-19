@@ -10,6 +10,10 @@ import { gradeFutoshiki } from "./futoshiki/grade";
 import { contentSchema as futoshikiContent } from "./futoshiki/schema";
 import { gridFromGivens, unitsFor } from "./sudoku/engine";
 import { sudokuGenerators } from "./sudoku/generate";
+import {
+  sudokuJigsawGenerators,
+  sudokuRainbowGenerators,
+} from "./sudoku/generate-regions";
 import { gradeSudoku } from "./sudoku/grade";
 import { contentSchema as sudokuContent } from "./sudoku/schema";
 
@@ -20,6 +24,8 @@ import { contentSchema as sudokuContent } from "./sudoku/schema";
 export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
   {
     sudoku: sudokuGenerators,
+    "sudoku-jigsaw": sudokuJigsawGenerators,
+    "sudoku-rainbow": sudokuRainbowGenerators,
     futoshiki: futoshikiGenerators,
   };
 

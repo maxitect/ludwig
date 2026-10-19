@@ -144,7 +144,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T137](./T137-reverse-chess-mode-letters.md) | Reverse Chess mode letters: Proof Game is Mode C, the Rota is Mode D | — | | | done |
 | [T138](./T138-v1-reveal-and-desk-scope.md) | Hide Reveal where it isn't built, and mark the Desk as post-launch | — | | | done |
 | [T140](./T140-landing-wall-motion.md) | Landing walls come alive, a game unwinding on The Board, letters on The Grid and digits in The Mirror (nice-to-have) | T067 | | | done |
-| [T142](./T142-solve-page-lcp.md) | Solve-page LCP on crossword and reverse chess (post-launch) | T069 | | | todo |
+| [T142](./T142-solve-page-lcp.md) | Solve-page LCP on crossword and reverse chess (post-launch) | T069 | | | done |
 | [T143](./T143-email-verification-password-reset.md) | Email verification, password reset and password change through Resend | — | ✔ | ✔ | done |
 | [T144](./T144-about-page.md) | About page (who made this, why, and how to get in touch) | — | | ✔ | done |
 | [T145](./T145-spot-difference-engraved-scenes.md) | Spot the difference: authored engraving scenes replace the procedural SVG | — | ✔ | | done |

@@ -93,13 +93,10 @@ export function Solver({
         : borders,
     [rainbow, borders, lookup],
   );
-  const underlay = useMemo(() => {
-    if (!cages?.length) return undefined;
-    return (row: number, col: number) => {
-      const sides = cageLookup.sidesOf(row, col);
-      return sides && <CageOutline sides={sides} />;
-    };
-  }, [cages, cageLookup]);
+  const outline = (row: number, col: number) => {
+    const sides = cageLookup.sidesOf(row, col);
+    return sides && <CageOutline sides={sides} />;
+  };
   const edges = useMemo(() => {
     if (!xv) return undefined;
     const byCell = new Map<CellKey, CellEdges>();
@@ -128,7 +125,7 @@ export function Solver({
       wrongCells={wrongParts}
       cellClassName={cellClassName}
       annotation={annotation}
-      underlay={underlay}
+      underlay={cages?.length ? outline : undefined}
       edges={edges}
       instructions={`${
         regions?.kind === "jigsaw"

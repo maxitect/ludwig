@@ -14,7 +14,6 @@ import { Preview as knightsKnavesPreview } from "./knights-knaves/preview";
 import { Preview as logicGridPreview } from "./logic-grid/preview";
 import { Preview as napkinMathsPreview } from "./napkin-maths/preview";
 import { Preview as norinoriPreview } from "./norinori/preview";
-import { Preview as troixPreview } from "./troix/preview";
 import { Preview as oddOneOutPreview } from "./odd-one-out/preview";
 import { Preview as pictogramCipherPreview } from "./pictogram-cipher/preview";
 import { Preview as reverseChessPreview } from "./reverse-chess/preview";
@@ -23,6 +22,7 @@ import { Preview as sightlinesPreview } from "./sightlines/preview";
 import { Preview as spotDifferencePreview } from "./spot-difference/preview";
 import { Preview as starBattlePreview } from "./star-battle/preview";
 import { Preview as sudokuPreview } from "./sudoku/preview";
+import { Preview as troixPreview } from "./troix/preview";
 import { Preview as wordLadderPreview } from "./word-ladder/preview";
 import { Preview as wordSearchPreview } from "./word-search/preview";
 
@@ -53,8 +53,8 @@ export const previews = {
   sightlines: sightlinesPreview,
   "spot-difference": spotDifferencePreview,
   "star-battle": starBattlePreview,
-  troix: troixPreview,
   sudoku: sudokuPreview,
+  troix: troixPreview,
   "word-ladder": wordLadderPreview,
   "word-search": wordSearchPreview,
 } satisfies { [K in PuzzleTypeKey]: PreviewComponent<K> };

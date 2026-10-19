@@ -12,7 +12,6 @@ import { attemptSchema as knightsKnavesAttempt } from "./knights-knaves/schema";
 import { attemptSchema as logicGridAttempt } from "./logic-grid/schema";
 import { attemptSchema as napkinMathsAttempt } from "./napkin-maths/schema";
 import { attemptSchema as norinoriAttempt } from "./norinori/schema";
-import { attemptSchema as troixAttempt } from "./troix/schema";
 import { attemptSchema as oddOneOutAttempt } from "./odd-one-out/schema";
 import { attemptSchema as pictogramCipherAttempt } from "./pictogram-cipher/schema";
 import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
@@ -21,6 +20,7 @@ import { attemptSchema as sightlinesAttempt } from "./sightlines/schema";
 import { attemptSchema as spotDifferenceAttempt } from "./spot-difference/schema";
 import { attemptSchema as starBattleAttempt } from "./star-battle/schema";
 import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
+import { attemptSchema as troixAttempt } from "./troix/schema";
 import { attemptSchema as wordLadderAttempt } from "./word-ladder/schema";
 import { attemptSchema as wordSearchAttempt } from "./word-search/schema";
 
@@ -47,8 +47,8 @@ const attemptSchemas = {
   sightlines: sightlinesAttempt,
   "spot-difference": spotDifferenceAttempt,
   "star-battle": starBattleAttempt,
-  troix: troixAttempt,
   sudoku: sudokuAttempt,
+  troix: troixAttempt,
   "word-ladder": wordLadderAttempt,
   "word-search": wordSearchAttempt,
 } as const;

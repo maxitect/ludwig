@@ -107,12 +107,13 @@ export function Solver({
   function set(row: number, col: number, value: string) {
     if (solved) return;
     const key = cellKey(row, col);
+    const symbol = SYMBOLS.find((mark) => mark.toUpperCase() === value);
     const next = new Map(entries);
-    if (value) next.set(key, value.toLowerCase() as Mark);
+    if (symbol) next.set(key, symbol);
     else next.delete(key);
     setEntries(next);
     checkOnEntry.current =
-      Boolean(value) && next.size + givens.size === size * size;
+      Boolean(symbol) && next.size + givens.size === size * size;
     onStateChange({
       cells: Array.from(next, ([at, symbol]) => ({
         ...position(at),

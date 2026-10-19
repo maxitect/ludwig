@@ -61,6 +61,22 @@ describe("troix Solver", () => {
     expect(onStateChange).toHaveBeenLastCalledWith({ cells: [] });
   });
 
+  it("cycles with Enter and Space, and leaves a given cell alone", async () => {
+    const user = userEvent.setup();
+    const { onStateChange } = renderSolver();
+    act(() => cell(1, 1).focus());
+    await user.keyboard("{Enter}");
+    expect(cell(1, 1).textContent).toBe("X");
+    await user.keyboard(" ");
+    expect(cell(1, 1).textContent).toBe("O");
+    onStateChange.mockClear();
+    act(() => cell(1, 3).focus());
+    await user.keyboard("{Enter} ");
+    await user.click(cell(1, 3));
+    expect(cell(1, 3).textContent).toBe("O");
+    expect(onStateChange).not.toHaveBeenCalled();
+  });
+
   it("fills with the keys x, o and i and clears with Backspace", async () => {
     const user = userEvent.setup();
     const { onStateChange } = renderSolver();

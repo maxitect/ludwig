@@ -15,7 +15,6 @@ import { knightsKnavesModule } from "./knights-knaves/module";
 import { logicGridModule } from "./logic-grid/module";
 import { napkinMathsModule } from "./napkin-maths/module";
 import { norinoriModule } from "./norinori/module";
-import { troixModule } from "./troix/module";
 import { oddOneOutModule } from "./odd-one-out/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
 import { reverseChessModule } from "./reverse-chess/module";
@@ -24,6 +23,7 @@ import { sightlinesModule } from "./sightlines/module";
 import { spotDifferenceModule } from "./spot-difference/module";
 import { starBattleModule } from "./star-battle/module";
 import { sudokuModule } from "./sudoku/module";
+import { troixModule } from "./troix/module";
 import { wordLadderModule } from "./word-ladder/module";
 import { wordSearchModule } from "./word-search/module";
 
@@ -124,8 +124,8 @@ const modules = {
   sightlines: sightlinesModule,
   "spot-difference": spotDifferenceModule,
   "star-battle": starBattleModule,
-  troix: troixModule,
   sudoku: sudokuModule,
+  troix: troixModule,
   "word-ladder": wordLadderModule,
   "word-search": wordSearchModule,
 } as const;

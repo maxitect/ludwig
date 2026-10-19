@@ -110,7 +110,7 @@ test("solve by keyboard, keep the symbols across a reload", async ({ page }) => 
   ).toBe(open.length);
 });
 
-test("taps cycle X, O, I and empty, marks a run of three, and looks right in both themes", async ({
+test("taps cycle X, O, I and empty, mark a line over its quota, and look right in both themes", async ({
   page,
 }, testInfo) => {
   await openPuzzle(page, { typeKey: "troix", slug: "three-of-a-kind" });
@@ -140,10 +140,13 @@ test("taps cycle X, O, I and empty, marks a run of three, and looks right in bot
   mkdirSync(SHOTS, { recursive: true });
   const width = testInfo.project.name === "mobile" ? 390 : 1280;
   for (const theme of ["paper", "ink"]) {
-    await page.evaluate(
-      (value) => document.documentElement.setAttribute("data-theme", value),
-      theme,
-    );
-    await page.screenshot({ path: `${SHOTS}/ac6-${theme}-${width}.png` });
+    await page.evaluate((value) => {
+      document.documentElement.setAttribute("data-theme", value);
+      window.scrollTo(0, 0);
+    }, theme);
+    await page.screenshot({
+      path: `${SHOTS}/ac6-${theme}-${width}.png`,
+      fullPage: true,
+    });
   }
 });

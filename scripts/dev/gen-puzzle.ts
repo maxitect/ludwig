@@ -6,7 +6,7 @@ import { generators, regenerate } from "../../src/puzzles/generators";
 import { formatContentFile } from "../format-content";
 
 const usage =
-  "usage: pnpm puzzles:gen <type> --seed <text> --difficulty <1-5> [--slug <slug>] [--title <title>] [--version <n>]";
+  "usage: pnpm puzzles:gen <type> --seed <text> --difficulty <1-5> [--slug <slug>] [--title <title>] [--version <n>] [--variant <name>]";
 
 const slugify = (text: string) =>
   text
@@ -29,6 +29,7 @@ function main() {
       slug: { type: "string" },
       title: { type: "string" },
       version: { type: "string" },
+      variant: { type: "string" },
     },
   });
   const [typeKey] = positionals;
@@ -36,10 +37,11 @@ function main() {
   if (!typeKey || !values.seed || !isDifficulty(difficulty)) {
     throw new Error(usage);
   }
-  const versions = Object.hasOwn(generators, typeKey)
-    ? Object.keys(generators[typeKey]).map(Number)
+  const generator = values.variant ? `${typeKey}-${values.variant}` : typeKey;
+  const versions = Object.hasOwn(generators, generator)
+    ? Object.keys(generators[generator]).map(Number)
     : [];
-  if (!versions.length) throw new Error(`Unknown generator: ${typeKey}`);
+  if (!versions.length) throw new Error(`Unknown generator: ${generator}`);
   const version = values.version
     ? Number(values.version)
     : Math.max(...versions);
@@ -47,7 +49,7 @@ function main() {
   const file = path.resolve("content", typeKey, `${slug}.ts`);
   if (existsSync(file)) throw new Error(`${file} already exists`);
 
-  const generated = { generator: typeKey, version, seed: values.seed };
+  const generated = { generator, version, seed: values.seed };
   const { content, attempts } = regenerate(generated, difficulty);
   writeFileSync(
     file,

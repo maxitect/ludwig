@@ -190,23 +190,105 @@ const xyzWing: Technique = {
   },
 };
 
+type LeftoverPair = {
+  innies: ReadonlyArray<number>;
+  outies: ReadonlyArray<number>;
+};
+
+const MAX_LEFTOVER_LINES = 3;
+const MAX_LEFTOVER_CELLS = 4;
+const leftoverCache = new WeakMap<Units, ReadonlyArray<LeftoverPair>>();
+
+/** Every set of n lines and n regions whose cells differ in only a few cells. */
+function leftoverPairs(regions: Units) {
+  const cached = leftoverCache.get(regions);
+  if (cached) return cached;
+  const pairs: LeftoverPair[] = [];
+  for (const bases of [rowUnits, colUnits]) {
+    for (let size = 1; size <= MAX_LEFTOVER_LINES; size++) {
+      combinations(bases, size, (picked) => {
+        const lineCells = new Set(picked.flat());
+        combinations(regions, size, (chosen) => {
+          const regionCells = new Set(chosen.flat());
+          const innies = [...lineCells].filter((cell) => !regionCells.has(cell));
+          const outies = [...regionCells].filter((cell) => !lineCells.has(cell));
+          if (innies.length >= 1 && innies.length <= MAX_LEFTOVER_CELLS) {
+            pairs.push({ innies, outies });
+          }
+          return false;
+        });
+        return false;
+      });
+    }
+  }
+  leftoverCache.set(regions, pairs);
+  return pairs;
+}
+
+const digitsAt = (state: CandidateState, cells: ReadonlyArray<number>) =>
+  cells.reduce(
+    (mask, index) =>
+      mask | (state.grid[index] ? bit(state.grid[index]) : state.cand[index]),
+    0,
+  );
+
+/**
+ * The law of leftovers. n lines and n regions each hold every digit n times, so the cells in the
+ * lines but not the regions hold the same digits as the cells in the regions but not the lines.
+ * A digit that cannot appear on one side leaves the other.
+ */
+function lawOfLeftovers(regions: Units): Technique {
+  return {
+    name: "law of leftovers",
+    level: 4,
+    apply(state) {
+      let progress = false;
+      for (const { innies, outies } of leftoverPairs(regions)) {
+        const inside = digitsAt(state, innies);
+        const outside = digitsAt(state, outies);
+        for (const index of innies) {
+          if (eliminate(state, index, inside & ~outside)) progress = true;
+        }
+        for (const index of outies) {
+          if (eliminate(state, index, outside & ~inside)) progress = true;
+        }
+        if (progress) return true;
+      }
+      return false;
+    },
+  };
+}
+
 /** Easiest first, for the given houses (boxes, jigsaw regions or rainbow colour groups). A puzzle's difficulty is the level of the hardest technique it needs. */
-const ladderFor = (houses: Units): ReadonlyArray<Technique> => [
-  nakedSingle,
-  hiddenSingle,
-  lockedCandidates("pointing", houses, lines),
-  lockedCandidates("box/line", lines, houses),
-  nakedSubset("naked pair", 2, 3),
-  hiddenSubset("hidden pair", 2, 3),
-  fish("x-wing", 2, 4),
-  xyWing,
-  fish("swordfish", 3, 5),
-  xyzWing,
-  nakedSubset("naked triple", 3, 5),
-  hiddenSubset("hidden triple", 3, 5),
-];
+const ladderFor = (houses: Units): ReadonlyArray<Technique> => {
+  const boxes = houses.slice(0, SIZE);
+  const colours = houses.slice(SIZE);
+  const isJigsaw = houses.length === SIZE && houses[0] !== boxUnits[0];
+  return [
+    nakedSingle,
+    hiddenSingle,
+    lockedCandidates("pointing", houses, lines),
+    lockedCandidates("box/line", lines, houses),
+    ...(colours.length
+      ? [
+          lockedCandidates("box/colour", boxes, colours),
+          lockedCandidates("colour/box", colours, boxes),
+        ]
+      : []),
+    nakedSubset("naked pair", 2, 3),
+    hiddenSubset("hidden pair", 2, 3),
+    fish("x-wing", 2, 4),
+    xyWing,
+    ...(isJigsaw ? [lawOfLeftovers(houses)] : []),
+    fish("swordfish", 3, 5),
+    xyzWing,
+    nakedSubset("naked triple", 3, 5),
+    hiddenSubset("hidden triple", 3, 5),
+  ];
+};
 
 export const ladder = ladderFor(boxUnits);
+const ladders = new WeakMap<Units, ReadonlyArray<Technique>>();
 
 /** Grades a grid of givens by technique alone, or null when techniques up to `maxLevel` cannot finish it. */
 export function gradeSudoku(
@@ -214,9 +296,10 @@ export function gradeSudoku(
   maxLevel: Difficulty = 5,
   units: Units = classicUnits,
 ): Grade | null {
-  return gradeByTechnique(
-    createState(givens, SIZE, units),
-    ladderFor(units.slice(lines.length)),
-    maxLevel,
-  );
+  let ladder = ladders.get(units);
+  if (!ladder) {
+    ladder = ladderFor(units.slice(lines.length));
+    ladders.set(units, ladder);
+  }
+  return gradeByTechnique(createState(givens, SIZE, units), ladder, maxLevel);
 }

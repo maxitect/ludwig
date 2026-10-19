@@ -82,7 +82,7 @@ describe("answerFromMarks", () => {
     expect(answerFromMarks(payload, noted)).toHaveLength(9);
   });
 
-  it("is null until every item sits in a household with one item of each category", () => {
+  it("is null until every item is linked to an item of each category", () => {
     expect(answerFromMarks(payload, [])).toBeNull();
     expect(answerFromMarks(payload, households.slice(0, 5))).toBeNull();
     expect(
@@ -93,7 +93,7 @@ describe("answerFromMarks", () => {
     ).toBeNull();
   });
 
-  it("is null when a household holds two items of one category", () => {
+  it("is null when an item is left out, even if another household holds two items of one category", () => {
     expect(
       answerFromMarks(payload, [
         yes([0, 0], [1, 0]),
@@ -104,5 +104,16 @@ describe("answerFromMarks", () => {
         yes([0, 2], [2, 2]),
       ]),
     ).toBeNull();
+  });
+
+  it("returns a full grid that contradicts itself, so check can reject it", () => {
+    const links = answerFromMarks(payload, [
+      ...households.slice(0, 4),
+      yes([0, 2], [1, 2]),
+      yes([1, 2], [2, 0]),
+      yes([0, 2], [2, 2]),
+    ]);
+    expect(links).not.toBeNull();
+    expect(linkedPairs(payload, links ?? []).has(pairKey(itemId(0, 0), itemId(1, 2)))).toBe(true);
   });
 });

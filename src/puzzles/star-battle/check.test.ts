@@ -43,6 +43,17 @@ describe("check", () => {
     expect(result.wrongParts).toEqual([]);
   });
 
+  it("rejects a star placed outside the grid", () => {
+    const one = payloadOf(firstLight);
+    const [first, ...rest] = starsOf(one);
+    for (const outside of [
+      { row: one.size, col: first.col },
+      { row: first.row, col: first.col + one.size },
+    ]) {
+      expect(check(one, [], { stars: [outside, ...rest] }).correct).toBe(false);
+    }
+  });
+
   it("rejects diagonally touching stars and names both cells", () => {
     const [first, ...rest] = solved;
     const touching = { row: first.row + 1, col: first.col + 1 };

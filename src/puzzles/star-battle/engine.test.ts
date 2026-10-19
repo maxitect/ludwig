@@ -84,7 +84,7 @@ describe("countSolutions at one star", () => {
     expect(solve(layout)?.map((i) => i % 4)).toEqual([1, 3, 0, 2]);
   });
 
-  it("finds two solutions, and stops at the limit", () => {
+  it("finds many solutions for plain row regions, and stops at the limit", () => {
     expect(countSolutions(fromRows(ROWS_5, 1), Infinity)).toBe(14);
     expect(countSolutions(fromRows(ROWS_5, 1))).toBe(2);
   });
@@ -112,6 +112,29 @@ describe("countSolutions at two stars", () => {
     const layout = fromRows(DOUBLE_BILL.grid, 2);
     expect(countSolutions(layout, Infinity)).toBe(1);
     expect(conflictingIndexes(layout, solve(layout) ?? []).size).toBe(0);
+  });
+
+  it("finds exactly two solutions when one region cell is moved", () => {
+    const layout = fromRows(
+      [
+        "111111113",
+        "550111133",
+        "550000333",
+        "555000377",
+        "555222777",
+        "444222777",
+        "444226668",
+        "444426668",
+        "444666688",
+      ],
+      2,
+    );
+    const found = solutions(layout);
+    expect(found).toHaveLength(2);
+    expect(found[0]).not.toEqual(found[1]);
+    for (const stars of found) {
+      expect(conflictingIndexes(layout, stars).size).toBe(0);
+    }
   });
 
   it("finds none when a region cannot hold two stars", () => {

@@ -7,6 +7,9 @@ import type { Answer, Payload, Solution } from "./schema";
  */
 export function check(payload: Payload, _solution: Solution, answer: Answer) {
   const layout = layoutOf(payload);
+  const inside = answer.stars.every(
+    ({ row, col }) => row < layout.size && col < layout.size,
+  );
   const placed = new Set(
     answer.stars.map(({ row, col }) => row * layout.size + col),
   );
@@ -19,7 +22,9 @@ export function check(payload: Payload, _solution: Solution, answer: Answer) {
     }));
   return {
     correct:
-      wrongParts.length === 0 && placed.size === layout.size * layout.stars,
+      inside &&
+      wrongParts.length === 0 &&
+      placed.size === layout.size * layout.stars,
     wrongParts,
   };
 }

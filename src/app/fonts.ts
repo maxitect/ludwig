@@ -33,7 +33,7 @@ const band = Barlow_Semi_Condensed({
 });
 
 const hand = localFont({
-  src: "./fonts/caveat-brush-basic-latin.woff2",
+  src: "./fonts/caveat-brush-subset.woff2",
   weight: "400",
   preload: false,
   display: "block",
@@ -41,7 +41,7 @@ const hand = localFont({
 });
 
 const mono = localFont({
-  src: "./fonts/jetbrains-mono-basic-latin.woff2",
+  src: "./fonts/jetbrains-mono-subset.woff2",
   weight: "100 800",
   preload: false,
   variable: "--font-jetbrains",

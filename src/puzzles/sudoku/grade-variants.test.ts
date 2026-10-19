@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { content as balanceSheet } from "../../../content/sudoku/balance-sheet";
+import { content as tallyMarks } from "../../../content/sudoku/tally-marks";
 import { createState } from "../_shared/generate/candidates";
 import {
   classicUnits,
@@ -84,20 +86,26 @@ describe("gradeSudoku on a killer", () => {
     expect(state.cand[2]).toBe(0b1111111110);
   });
 
-  it("grades a puzzle that needs cage sum arithmetic as at least 4", () => {
-    const { content } = sudokuKillerGenerators[1]("hard", 5);
-    const grade = gradeSudoku(
-      gridFromGivens(content.givens),
-      5,
-      classicUnits,
-      variantFor({ cages: content.cages }),
-    );
-    expect(grade?.difficulty).toBeGreaterThanOrEqual(4);
-    expect(grade?.uses["cage sum arithmetic (2 cells)"]).toBeGreaterThan(0);
-    expect(
-      gradeSudoku(gridFromGivens(content.givens), 3, classicUnits, variantFor({ cages: content.cages })),
-    ).toBeNull();
-  }, 60_000);
+  it("gives a row's one uncaged cell 45 less the cages inside the row", () => {
+    const uncaged = variantFor({
+      cages: dominoes.filter(({ cells }) => !(cells.length === 1 && cells[0].row === 0)),
+    })!;
+    const innie = variantTechniques(uncaged).find(
+      ({ name }) => name === "cage sum arithmetic (1 cell)",
+    )!;
+    const state = createState(Array(81).fill(0), 9, classicUnits);
+    expect(innie.apply(state)).toBe(true);
+    expect(state.cand[8]).toBe(1 << SOLVED[8]);
+  });
+
+  it("grades a puzzle that needs cage sum arithmetic over three cells as 5, and null below it", () => {
+    const grid = gridFromGivens(balanceSheet.givens);
+    const cages = variantFor({ cages: balanceSheet.cages });
+    const grade = gradeSudoku(grid, 5, classicUnits, cages);
+    expect(grade?.difficulty).toBe(5);
+    expect(grade?.uses["cage sum arithmetic (3 cells)"]).toBeGreaterThan(0);
+    expect(gradeSudoku(grid, 4, classicUnits, cages)).toBeNull();
+  });
 });
 
 describe("gradeSudoku on an XV", () => {
@@ -120,17 +128,15 @@ describe("gradeSudoku on an XV", () => {
     expect(state.cand[9] & (1 << 7)).toBe(0);
   });
 
-  it("grades a puzzle that needs an x-wing or more as at least 4", () => {
-    const { content } = sudokuXvGenerators[1]("hard", 5);
-    const grade = gradeSudoku(
-      gridFromGivens(content.givens),
-      5,
-      classicUnits,
-      variantFor({ xv: content.xv }),
-    );
-    expect(grade?.difficulty).toBeGreaterThanOrEqual(4);
+  it("grades a puzzle that needs an xy-wing as 4, and null below it", () => {
+    const grid = gridFromGivens(tallyMarks.givens);
+    const marked = variantFor({ xv: tallyMarks.xv });
+    const grade = gradeSudoku(grid, 5, classicUnits, marked);
+    expect(grade?.difficulty).toBe(4);
+    expect(grade?.uses["xy-wing"]).toBeGreaterThan(0);
     expect(grade?.uses["xv pair"]).toBeGreaterThan(0);
-  }, 60_000);
+    expect(gradeSudoku(grid, 3, classicUnits, marked)).toBeNull();
+  });
 });
 
 function keepsSolution({ givens, cages, xv: marked }: Content) {

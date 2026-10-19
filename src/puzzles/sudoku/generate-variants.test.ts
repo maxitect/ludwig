@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { difficulties } from "../_shared/generate/pipeline";
 import { regenerate } from "../generators";
-import { classicUnits, gridFromGivens, variantFor } from "./engine";
+import { classicUnits, gridFromGivens, solve, variantFor } from "./engine";
 import {
   sudokuKillerGenerators,
   sudokuXvGenerators,
@@ -36,10 +36,15 @@ describe("sudoku-killer layouts", () => {
   it("cover every cell with cages whose sums match the solved grid", () => {
     for (const difficulty of difficulties) {
       const { content } = sudokuKillerGenerators[1](`layout-${difficulty}`, difficulty);
-      const cells = content.cages!.flatMap(({ cells }) => cells);
+      const cages = content.cages!;
+      const cells = cages.flatMap(({ cells }) => cells);
       expect(new Set(cells.map(({ row, col }) => row * 9 + col)).size).toBe(81);
       expect(cells).toHaveLength(81);
       expect(content.xv).toBeUndefined();
+      const grid = gridFromGivens(solve(content.givens, classicUnits, variantFor({ cages }))!);
+      for (const { sum, cells } of cages) {
+        expect(cells.reduce((total, { row, col }) => total + grid[row * 9 + col], 0)).toBe(sum);
+      }
     }
   }, 60_000);
 
@@ -56,7 +61,14 @@ describe("sudoku-xv layouts", () => {
     for (const difficulty of difficulties) {
       const { content } = sudokuXvGenerators[1](`marks-${difficulty}`, difficulty);
       expect(content.cages).toBeUndefined();
-      expect(content.xv!.marks.length).toBeGreaterThan(0);
+      const { marks } = content.xv!;
+      expect(marks.length).toBeGreaterThan(0);
+      const grid = gridFromGivens(solve(content.givens, classicUnits, variantFor({ xv: content.xv }))!);
+      for (const { row, col, direction, mark } of marks) {
+        const index = row * 9 + col;
+        const next = direction === "right" ? index + 1 : index + 9;
+        expect(grid[index] + grid[next]).toBe(mark === "x" ? 10 : 5);
+      }
     }
   }, 60_000);
 });

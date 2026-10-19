@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type ReactNode,
 } from "react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -35,6 +36,8 @@ type DigitGridProps = Pick<
   requestCheck?(): void;
   /** Cells the last Check named as breaking a rule. */
   wrongCells?: ReadonlyArray<CellPosition>;
+  /** Decoration drawn in a cell behind its value and notes, such as a killer cage outline. */
+  underlay?: (row: number, col: number) => ReactNode;
   /** Read to screen readers before the grid. */
   instructions: string;
   className?: string;
@@ -62,6 +65,7 @@ export function DigitGrid({
   registerCheck,
   requestCheck,
   wrongCells,
+  underlay,
   instructions,
   className,
   ...gridProps
@@ -231,21 +235,25 @@ export function DigitGrid({
           marks={(row, col) => {
             const key = cellKey(row, col);
             const marked = notes.get(key);
-            if (!marked || digits.has(key)) return null;
             return (
-              <span
-                aria-hidden
-                className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-[6%] font-hand text-[0.55em] leading-none text-ink"
-              >
-                {NOTE_SLOTS.map((digit) => (
+              <>
+                {underlay?.(row, col)}
+                {marked && !digits.has(key) && (
                   <span
-                    key={digit}
-                    className="flex items-center justify-center"
+                    aria-hidden
+                    className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-[6%] font-hand text-[0.55em] leading-none text-ink"
                   >
-                    {marked.has(digit) ? digit : ""}
+                    {NOTE_SLOTS.map((digit) => (
+                      <span
+                        key={digit}
+                        className="flex items-center justify-center"
+                      >
+                        {marked.has(digit) ? digit : ""}
+                      </span>
+                    ))}
                   </span>
-                ))}
-              </span>
+                )}
+              </>
             );
           }}
         />

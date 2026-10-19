@@ -342,7 +342,7 @@ export function CellGrid({
                     />
                   )}
                   {marks?.(row, col)}
-                  {note && (
+                  {note?.content != null && (
                     <span
                       aria-hidden
                       className="absolute left-[6%] top-0 font-display text-[max(0.4em,8px)] leading-none text-ink"
@@ -369,7 +369,7 @@ export function CellGrid({
                   <span
                     className={cn(
                       "flex size-full items-center justify-center",
-                      note && "pl-[0.2em] pt-[0.3em]",
+                      note?.content != null && "pl-[0.2em] pt-[0.3em]",
                     )}
                     style={{
                       transform: `rotate(${cellRotation(row * cols + col)}deg)`,

@@ -12,12 +12,25 @@ export async function load(puzzleId: string) {
         columns: { kind: true },
         with: { cells: { columns: { row: true, col: true, region: true } } },
       },
+      cages: {
+        columns: { sum: true },
+        orderBy: { cage: "asc" },
+        with: { cells: { columns: { row: true, col: true } } },
+      },
+      xvSet: {
+        columns: {},
+        with: {
+          marks: { columns: { row: true, col: true, direction: true, mark: true } },
+        },
+      },
     },
   });
   if (!puzzle) throw new Error(`Sudoku puzzle not found: ${puzzleId}`);
-  const { givens, regionSet } = puzzle;
+  const { givens, regionSet, cages, xvSet } = puzzle;
   return payloadSchema.parse({
     givens,
     ...(regionSet && { regions: regionSet }),
+    ...(cages.length && { cages }),
+    ...(xvSet && { xv: xvSet }),
   });
 }

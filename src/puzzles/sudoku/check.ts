@@ -2,6 +2,7 @@ import {
   conflictingIndexes,
   gridFromGivens,
   unitsFor,
+  variantFor,
   type Grid,
 } from "./engine";
 import type { Answer, Payload, Solution } from "./schema";
@@ -9,7 +10,7 @@ import type { Answer, Payload, Solution } from "./schema";
 const SIZE = 9;
 
 /**
- * Any completion that respects the givens and repeats no digit in a unit (row, column, and box or region) is correct.
+ * Any completion that respects the givens, repeats no digit in a unit (row, column, and box or region) and obeys any cages and XV marks is correct.
  * Wrong cells are the ones that break a rule or overwrite a given, never a comparison with the solution.
  */
 export function check(payload: Payload, _solution: Solution, answer: Answer) {
@@ -17,7 +18,11 @@ export function check(payload: Payload, _solution: Solution, answer: Answer) {
   const grid: Grid = Array(SIZE * SIZE).fill(0);
   for (const { row, col, digit } of answer.cells)
     grid[row * SIZE + col] = digit;
-  const wrong = conflictingIndexes(grid, unitsFor(payload.regions));
+  const wrong = conflictingIndexes(
+    grid,
+    unitsFor(payload.regions),
+    variantFor(payload),
+  );
   grid.forEach((digit, index) => {
     if (!digit || (givens[index] && givens[index] !== digit)) wrong.add(index);
   });

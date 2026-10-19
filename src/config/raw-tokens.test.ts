@@ -35,6 +35,7 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
   ],
   "src/puzzles/rota/board.tsx": ["bg-paper"],
   "src/puzzles/star-battle/solver.tsx": ["bg-paper"],
+  "src/puzzles/sudoku/cages.tsx": ["border-ink"],
   "src/puzzles/reverse-chess/side-to-move.tsx": ["bg-paper"],
 };
 

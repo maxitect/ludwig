@@ -137,6 +137,14 @@ export const types = [
     sort: 6,
   },
   {
+    key: "norinori",
+    categoryKey: "logic",
+    name: "Norinori",
+    description: "Shade two cells in every region so the shaded cells form dominoes that never touch.",
+    subtypeTable: "norinori_puzzles",
+    sort: 7,
+  },
+  {
     key: "sightlines",
     categoryKey: "spatial",
     name: "Sightlines",

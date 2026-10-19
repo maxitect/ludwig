@@ -17,6 +17,7 @@ const PUZZLE_TYPES = [
   "knights-knaves",
   "logic-grid",
   "napkin-maths",
+  "norinori",
   "odd-one-out",
   "pictogram-cipher",
   "reverse-chess",

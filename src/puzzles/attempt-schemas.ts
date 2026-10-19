@@ -11,6 +11,7 @@ import { attemptSchema as keywordAttempt } from "./keyword/schema";
 import { attemptSchema as knightsKnavesAttempt } from "./knights-knaves/schema";
 import { attemptSchema as logicGridAttempt } from "./logic-grid/schema";
 import { attemptSchema as napkinMathsAttempt } from "./napkin-maths/schema";
+import { attemptSchema as norinoriAttempt } from "./norinori/schema";
 import { attemptSchema as oddOneOutAttempt } from "./odd-one-out/schema";
 import { attemptSchema as pictogramCipherAttempt } from "./pictogram-cipher/schema";
 import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
@@ -37,6 +38,7 @@ const attemptSchemas = {
   "knights-knaves": knightsKnavesAttempt,
   "logic-grid": logicGridAttempt,
   "napkin-maths": napkinMathsAttempt,
+  norinori: norinoriAttempt,
   "odd-one-out": oddOneOutAttempt,
   "pictogram-cipher": pictogramCipherAttempt,
   "reverse-chess": reverseChessAttempt,

@@ -9,17 +9,18 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
-  rows: 9,
-  cols: 9,
+  rows: 10,
+  cols: 10,
   grid: [
-    "000011122",
-    "333331425",
-    "637771445",
-    "666788495",
-    "6a77b8495",
-    "6a7bbbb55",
-    "6bbbccc55",
-    "dbebbbfff",
-    "dbebbbbbb",
+    "0001123334",
+    "5511123444",
+    "6555728444",
+    "66977784aa",
+    "6699977444",
+    "b6669444c4",
+    "bd9999e4cc",
+    "bddfffeggg",
+    "bbhhieeegg",
+    "bhhhiiejjg",
   ],
 } satisfies Content;

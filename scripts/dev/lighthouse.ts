@@ -5,12 +5,17 @@ import lighthouse from "lighthouse";
 
 /**
  * Lighthouse (mobile form factor, default throttling, 390x844 touch) over a fixed URL list against a
- * production server, writing one JSON report per page to .verification/T069/. A page below its target is
+ * production server, writing one JSON report per page to .verification/$TICKET/ (T069 unless TICKET is set). A page below its target is
  * re-run twice more and judged on the median run, since a single simulated run varies by a few points.
- * Run `pnpm build && pnpm start --port 3069`, then `pnpm perf:lighthouse`. Exits non-zero if a target is missed.
+ * Run `pnpm build && pnpm start --port 3069`, then `pnpm perf:lighthouse`. Set BASE to another origin, SHARE to a Vercel share token
+ * for a protected preview, and THREE_RUNS to always take the median of three. Exits non-zero if a target is missed.
  */
 const base = process.env.BASE ?? "http://localhost:3069";
-const out = path.join(process.cwd(), ".verification", "T069");
+const out = path.join(
+  process.cwd(),
+  ".verification",
+  process.env.TICKET ?? "T069",
+);
 const contentDir = path.join(process.cwd(), "content");
 
 const performanceTarget = 0.9;
@@ -83,10 +88,16 @@ async function main() {
   const failures: string[] = [];
 
   try {
+    if (process.env.SHARE) {
+      await measure(chrome.port, `${base}/?_vercel_share=${process.env.SHARE}`);
+    }
     for (const page of pages) {
       const url = `${base}${page.path}`;
       const runs = [await measure(chrome.port, url)];
-      while (!meets(runs[0]) && runs.length <= retries) {
+      while (
+        (process.env.THREE_RUNS || !meets(runs[0])) &&
+        runs.length <= retries
+      ) {
         runs.push(await measure(chrome.port, url));
       }
       const ranked = [...runs].sort((a, b) => a.performance - b.performance);

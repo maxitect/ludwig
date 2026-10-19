@@ -7,11 +7,8 @@ import {
   useMemo,
   useRef,
   useState,
-  type Ref,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/utils/cn";
 import {
   CellGrid,
   cellKey,
@@ -24,14 +21,21 @@ import { PuzzleKeyboard, usePadWanted } from "../_shared/puzzle-keyboard";
 import { SolveBarButton } from "../_shared/solve-bar-button";
 import { SolveSlot } from "../_shared/solve-slot";
 import type { SolverProps } from "../solver-types";
-import { deriveEntries, deriveWords, type Entry } from "./derive";
+import {
+  deriveEntries,
+  deriveWords,
+  DIRECTIONS,
+  type Entry,
+} from "./derive";
 import type * as schema from "./schema";
+
+const ClueTabs = lazy(() =>
+  import("./clue-tabs").then((module) => ({ default: module.ClueTabs })),
+);
 
 const ClueSheet = lazy(() =>
   import("./clue-sheet").then((module) => ({ default: module.ClueSheet })),
 );
-
-const DIRECTIONS = ["across", "down"] as const;
 
 const LETTER = /^[A-Z]$/;
 
@@ -47,84 +51,6 @@ const entered = (
     const letter = letters.get(cellKey(row, col));
     return letter ? [{ row, col, letter }] : [];
   });
-
-type ClueTabsProps = {
-  entries: ReadonlyArray<Entry>;
-  direction: Direction;
-  activeEntry: Entry | undefined;
-  onDirection: (next: Direction) => void;
-  onSelect: (entry: Entry) => void;
-  listRef?: Ref<HTMLOListElement>;
-  className?: string;
-  listClassName?: string;
-};
-
-function ClueTabs({
-  entries,
-  direction,
-  activeEntry,
-  onDirection,
-  onSelect,
-  listRef,
-  className,
-  listClassName,
-}: ClueTabsProps) {
-  return (
-    <Tabs
-      className={className}
-      value={direction}
-      onValueChange={(value) => {
-        const next = DIRECTIONS.find((along) => along === value);
-        if (next) onDirection(next);
-      }}
-    >
-      <TabsList aria-label="Clue direction">
-        {DIRECTIONS.map((along) => (
-          <TabsTrigger key={along} value={along}>
-            {along}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-      {DIRECTIONS.map((along) => (
-        <TabsContent key={along} value={along}>
-          <ol
-            ref={along === direction ? listRef : undefined}
-            className={cn("relative flex flex-col overflow-y-auto", listClassName)}
-          >
-            {entries
-              .filter((entry) => entry.direction === along)
-              .map((entry) => {
-                const current = entry === activeEntry;
-                return (
-                  <li key={entry.number}>
-                    <button
-                      type="button"
-                      aria-current={current}
-                      onClick={() => onSelect(entry)}
-                      className={cn(
-                        "flex w-full gap-2 touch:min-h-11 border-l-4 border-transparent px-2 py-1 text-left outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:-outline-offset-3 focus-visible:outline-ring",
-                        current && "border-foreground bg-muted",
-                      )}
-                    >
-                      <span className="w-6 shrink-0 font-display font-bold">
-                        {entry.number}
-                      </span>
-                      <span>
-                        {entry.clueText}{" "}
-                        <span className="whitespace-nowrap">
-                          {entry.enumeration}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-          </ol>
-        </TabsContent>
-      ))}
-    </Tabs>
-  );
-}
 
 const keepFocus = (event: { preventDefault: () => void }) =>
   event.preventDefault();
@@ -326,6 +252,46 @@ export function Solver({
     </Button>
   );
 
+  const clueBar = (
+    <div
+      data-testid="clue-bar"
+      role="group"
+      aria-label="Clue"
+      className="flex items-stretch gap-1"
+    >
+      <SolveBarButton
+        direction="previous"
+        label="Previous clue"
+        onClick={() => step(-1)}
+      />
+      <button
+        type="button"
+        disabled={!crossing}
+        onMouseDown={keepFocus}
+        onClick={toggleDirection}
+        className="flex h-12 min-w-0 flex-1 items-center border-2 border-border bg-card px-2 text-left text-sm leading-tight text-card-foreground focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-100"
+      >
+        <span className="line-clamp-2">
+          {cellNotice ? (
+            cellNotice
+          ) : activeEntry ? (
+            <>
+              <span className="font-display font-bold">
+                {label(activeEntry)}
+              </span>{" "}
+              {activeEntry.clueText} {activeEntry.enumeration}
+            </>
+          ) : null}
+        </span>
+      </button>
+      <SolveBarButton
+        direction="next"
+        label="Next clue"
+        onClick={() => step(1)}
+      />
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-6 touch:gap-0">
       <p className="sr-only">
@@ -366,16 +332,18 @@ export function Solver({
           }}
           words={words}
         />
-        <ClueTabs
-          className="touch:hidden"
-          entries={entries}
-          direction={direction}
-          activeEntry={activeEntry}
-          onDirection={selectDirection}
-          onSelect={selectEntry}
-          listRef={clueList}
-          listClassName="max-h-80"
-        />
+        <Suspense fallback={null}>
+          <ClueTabs
+            className="touch:hidden"
+            entries={entries}
+            direction={direction}
+            activeEntry={activeEntry}
+            onDirection={selectDirection}
+            onSelect={selectEntry}
+            listRef={clueList}
+            listClassName="max-h-80"
+          />
+        </Suspense>
       </div>
       <div className="flex flex-wrap items-center gap-3 touch:contents">
         <div className="contents touch:hidden">{actions}</div>
@@ -383,45 +351,13 @@ export function Solver({
           {cellNotice}
         </p>
       </div>
-      <SolveSlot>
+      <SolveSlot
+        fallback={
+          <div className="hidden flex-col pt-2 touch:flex">{clueBar}</div>
+        }
+      >
         <div className="flex flex-col gap-1 pt-2">
-          <div
-            data-testid="clue-bar"
-            role="group"
-            aria-label="Clue"
-            className="flex items-stretch gap-1"
-          >
-            <SolveBarButton
-              direction="previous"
-              label="Previous clue"
-              onClick={() => step(-1)}
-            />
-            <button
-              type="button"
-              disabled={!crossing}
-              onMouseDown={keepFocus}
-              onClick={toggleDirection}
-              className="flex h-12 min-w-0 flex-1 items-center border-2 border-border bg-card px-2 text-left text-sm leading-tight text-card-foreground focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-100"
-            >
-              <span className="line-clamp-2">
-                {cellNotice ? (
-                  cellNotice
-                ) : activeEntry ? (
-                  <>
-                    <span className="font-display font-bold">
-                      {label(activeEntry)}
-                    </span>{" "}
-                    {activeEntry.clueText} {activeEntry.enumeration}
-                  </>
-                ) : null}
-              </span>
-            </button>
-            <SolveBarButton
-              direction="next"
-              label="Next clue"
-              onClick={() => step(1)}
-            />
-          </div>
+          {clueBar}
           {!padWanted && (
             <div className="flex gap-1 [&>*]:flex-1" onMouseDown={keepFocus}>
               {actions}

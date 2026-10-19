@@ -1,11 +1,10 @@
 import {
   Barlow_Semi_Condensed,
-  Caveat_Brush,
   Dancing_Script,
   Jost,
-  JetBrains_Mono,
   Josefin_Sans,
 } from "next/font/google";
+import localFont from "next/font/local";
 
 const signature = Dancing_Script({
   subsets: ["latin"],
@@ -33,16 +32,17 @@ const band = Barlow_Semi_Condensed({
   variable: "--font-barlow",
 });
 
-const hand = Caveat_Brush({
-  subsets: ["latin"],
+const hand = localFont({
+  src: "./fonts/caveat-brush-subset.woff2",
   weight: "400",
   preload: false,
   display: "block",
   variable: "--font-caveat",
 });
 
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
+const mono = localFont({
+  src: "./fonts/jetbrains-mono-subset.woff2",
+  weight: "100 800",
   preload: false,
   variable: "--font-jetbrains",
 });

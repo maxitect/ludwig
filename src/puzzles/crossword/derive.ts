@@ -6,6 +6,8 @@ import {
 } from "../_shared/cell-grid/navigation";
 import type { Payload, Solution } from "./schema";
 
+export const DIRECTIONS = ["across", "down"] as const;
+
 type Clue = Payload["clues"][number];
 
 export type ClueStart = Pick<Clue, "direction" | "row" | "col">;
@@ -32,7 +34,7 @@ export function runCells({ direction, row, col, length }: Run) {
 export function deriveRuns(cells: ReadonlyArray<CellPosition>): Run[] {
   const white = new Set(cells.map(({ row, col }) => cellKey(row, col)));
   const runs: Run[] = [];
-  for (const direction of ["across", "down"] as const) {
+  for (const direction of DIRECTIONS) {
     const step = DIRECTION_STEP[direction];
     for (const { row, col } of cells) {
       if (white.has(cellKey(row - step.row, col - step.col))) continue;

@@ -58,9 +58,9 @@ export function linkedPairs(payload: Payload, links: ReadonlyArray<Link>) {
 }
 
 /**
- * Every household the yes marks describe, as links across all pairs of categories, or null until
- * every item is linked to an item of every category. A household that holds two items of one
- * category is a contradiction for `check` to reject, not an unfinished grid.
+ * The yes marks as links, or null until every item is linked, directly or through other items, to an
+ * item of every category. A household that holds two items of one category is a contradiction for
+ * `check` to reject, not an unfinished grid.
  */
 export function answerFromMarks(payload: Payload, marks: ReadonlyArray<Mark>) {
   const categories = categoryOf(payload);
@@ -73,10 +73,5 @@ export function answerFromMarks(payload: Payload, marks: ReadonlyArray<Mark>) {
       new Set(group.map((id) => categories.get(id))).size ===
       payload.categories.length,
   );
-  if (!complete) return null;
-  return households.flatMap((group) =>
-    group.flatMap((a, i) =>
-      group.slice(i + 1).map((b) => ({ itemAId: a, itemBId: b })),
-    ),
-  );
+  return complete ? yes : null;
 }

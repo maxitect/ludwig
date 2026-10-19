@@ -68,6 +68,26 @@ describe("check", () => {
     ]);
   });
 
+  it("names only the pair holding a contradiction, not the pairs it spreads to", () => {
+    const answer = {
+      links: [
+        link([0, 0], [1, 0]),
+        link([0, 1], [1, 1]),
+        link([0, 2], [1, 2]),
+        link([0, 0], [2, 0]),
+        link([0, 1], [2, 1]),
+        link([0, 2], [2, 2]),
+        link([1, 0], [2, 1]),
+        link([1, 1], [2, 0]),
+        link([1, 2], [2, 2]),
+      ],
+    };
+    expect(check(payloadOf(classic), classicSolution, answer)).toEqual({
+      correct: false,
+      wrongParts: [{ first: 1, second: 2 }],
+    });
+  });
+
   it("names only category pairs the answer links, never an unmarked pair", () => {
     const partial = { links: [link([0, 0], [1, 1]), link([0, 1], [1, 0])] };
     expect(check(payloadOf(classic), classicSolution, partial)).toEqual({

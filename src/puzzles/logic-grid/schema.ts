@@ -48,13 +48,13 @@ export const payloadSchema = z
   })
   .strict();
 
-/** Every linked pair across every pair of categories, with the clue the player flags as false in the variant. */
+/** The pairs the player linked, closed into households by `check`, with the clue the player flags as false in the variant. */
 export const answerSchema = z.object({
   links: z.array(link),
   falseCluePosition: attemptSelect.shape.falseCluePosition.optional(),
 });
 
-/** A pair of categories whose links differ from the solution, and in which the player has linked items. */
+/** A pair of categories in which the player linked two items the solution does not. */
 export const wrongPartSchema = z.object({
   first: categorySelect.shape.position,
   second: categorySelect.shape.position,

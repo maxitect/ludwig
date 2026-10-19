@@ -2,38 +2,34 @@ import { falseCluePosition, linkedPairs, pairKey } from "./derive";
 import type { Answer, Payload, Solution } from "./schema";
 
 /**
- * Every pair of categories (by position) whose links in `answer` differ from the solution's, with
- * whether the answer links any item across it. Only the linked ones may be named to the player.
+ * Every pair of categories (by position) in which `answer` links two items the solution does not.
+ * A wrong link is judged where the player made it, never through the links it implies elsewhere.
  */
-function differingPairs(payload: Payload, solution: Solution, answer: Answer) {
-  const expected = linkedPairs(payload, solution.links);
-  const given = linkedPairs(payload, answer.links);
+function wrongPairs(payload: Payload, expected: ReadonlySet<string>, answer: Answer) {
+  const given = new Set(
+    answer.links.map(({ itemAId, itemBId }) => pairKey(itemAId, itemBId)),
+  );
   return payload.categories.flatMap((first, i) =>
     payload.categories.slice(i + 1).flatMap((second) => {
-      const keys = first.items.flatMap((a) =>
-        second.items.map((b) => pairKey(a.id, b.id)),
+      const wrong = first.items.some((a) =>
+        second.items.some(
+          (b) => given.has(pairKey(a.id, b.id)) && !expected.has(pairKey(a.id, b.id)),
+        ),
       );
-      if (!keys.some((key) => expected.has(key) !== given.has(key))) return [];
-      return [
-        {
-          first: first.position,
-          second: second.position,
-          linked: keys.some((key) => given.has(key)),
-        },
-      ];
+      return wrong ? [{ first: first.position, second: second.position }] : [];
     }),
   );
 }
 
 export function check(payload: Payload, solution: Solution, answer: Answer) {
-  const differing = differingPairs(payload, solution, answer);
+  const expected = linkedPairs(payload, solution.links);
+  const wrongParts = wrongPairs(payload, expected, answer);
   const flagged = falseCluePosition(solution.clues);
   return {
     correct:
-      differing.length === 0 &&
+      wrongParts.length === 0 &&
+      linkedPairs(payload, answer.links).size === expected.size &&
       (flagged === null || answer.falseCluePosition === flagged),
-    wrongParts: differing
-      .filter(({ linked }) => linked)
-      .map(({ first, second }) => ({ first, second })),
+    wrongParts,
   };
 }

@@ -159,7 +159,7 @@ describe("logic grid Solver", () => {
     expect(read()).toBeNull();
     await user.click(cell("Cat × Green: blank"));
     await user.click(cell("Cat × Green: no"));
-    expect(read()?.links).toHaveLength(9);
+    expect(read()?.links).toHaveLength(6);
     expect(read()?.falseCluePosition).toBeNull();
   });
 

@@ -71,15 +71,15 @@ describe("linkedPairs", () => {
 });
 
 describe("answerFromMarks", () => {
-  it("returns every pair of every household once the yes marks complete them", () => {
+  it("returns the yes marks as links once they complete every household", () => {
     const links = answerFromMarks(payload, households);
-    expect(links).toHaveLength(9);
+    expect(links).toHaveLength(6);
     expect(linkedPairs(payload, links ?? []).size).toBe(9);
   });
 
   it("ignores no marks", () => {
     const noted = [...households, { ...households[0], itemBId: itemId(1, 1), mark: "no" as const }];
-    expect(answerFromMarks(payload, noted)).toHaveLength(9);
+    expect(answerFromMarks(payload, noted)).toHaveLength(6);
   });
 
   it("is null until every item is linked to an item of each category", () => {

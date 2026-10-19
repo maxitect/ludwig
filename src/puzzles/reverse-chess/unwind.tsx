@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChessBoard, type RetroDrop } from "../_shared/chess-board";
+import type { RetroDrop } from "../_shared/chess-board";
+import { DeferredChessBoard } from "../_shared/chess-board/deferred-chess-board";
 import type { SolverProps } from "../solver-types";
 import { fromFen, notateRetro, toFen } from "./derive";
 import { stepRetro, toRetro, type RetroRejection } from "./engine";
@@ -119,7 +120,7 @@ export function Unwind({
         </div>
       </div>
 
-      <ChessBoard
+      <DeferredChessBoard
         position={fromFen(board).pieces}
         onRetroDrop={drop}
         interactive={canAdd}

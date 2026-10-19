@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChessBoard, type RetroDrop } from "../_shared/chess-board";
+import type { RetroDrop } from "../_shared/chess-board";
+import { DeferredChessBoard } from "../_shared/chess-board/deferred-chess-board";
 import type { SolverProps } from "../solver-types";
 import { toFen } from "./derive";
 import { applyRetro, toRetro, type RetroRejection } from "./engine";
@@ -99,7 +100,7 @@ export function LastMove({
         </div>
       </div>
 
-      <ChessBoard
+      <DeferredChessBoard
         position={payload.pieces}
         onRetroDrop={drop}
         arrows={draft ? [{ from: draft.from, to: draft.to }] : []}

@@ -81,11 +81,7 @@ export function Solver({
       if (!labels.length) return undefined;
       return {
         content: (letter || anchored) && (
-          <span
-            className={cn(
-              anchored && "relative left-[0.15em] top-[0.25em] text-[1.5em]",
-            )}
-          >
+          <span className={cn(anchored && "bg-paper text-[1.2em]")}>
             {[letter, anchored?.sum].filter(Boolean).join(" ")}
           </span>
         ),

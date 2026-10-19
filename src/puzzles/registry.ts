@@ -20,6 +20,7 @@ import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
 import { sightlinesModule } from "./sightlines/module";
 import { spotDifferenceModule } from "./spot-difference/module";
+import { starBattleModule } from "./star-battle/module";
 import { sudokuModule } from "./sudoku/module";
 import { wordLadderModule } from "./word-ladder/module";
 import { wordSearchModule } from "./word-search/module";
@@ -119,6 +120,7 @@ const modules = {
   rota: rotaModule,
   sightlines: sightlinesModule,
   "spot-difference": spotDifferenceModule,
+  "star-battle": starBattleModule,
   sudoku: sudokuModule,
   "word-ladder": wordLadderModule,
   "word-search": wordSearchModule,

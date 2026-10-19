@@ -32,6 +32,7 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
   rota: lazy(() => import("./rota/solver")),
   sightlines: lazy(() => import("./sightlines/solver")),
   "spot-difference": lazy(() => import("./spot-difference/solver")),
+  "star-battle": lazy(() => import("./star-battle/solver")),
   sudoku: lazy(() => import("./sudoku/solver")),
   "word-ladder": lazy(() => import("./word-ladder/solver")),
   "word-search": lazy(() => import("./word-search/solver")),

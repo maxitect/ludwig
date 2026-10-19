@@ -19,6 +19,7 @@ import { Preview as reverseChessPreview } from "./reverse-chess/preview";
 import { Preview as rotaPreview } from "./rota/preview";
 import { Preview as sightlinesPreview } from "./sightlines/preview";
 import { Preview as spotDifferencePreview } from "./spot-difference/preview";
+import { Preview as starBattlePreview } from "./star-battle/preview";
 import { Preview as sudokuPreview } from "./sudoku/preview";
 import { Preview as wordLadderPreview } from "./word-ladder/preview";
 import { Preview as wordSearchPreview } from "./word-search/preview";
@@ -48,6 +49,7 @@ export const previews = {
   rota: rotaPreview,
   sightlines: sightlinesPreview,
   "spot-difference": spotDifferencePreview,
+  "star-battle": starBattlePreview,
   sudoku: sudokuPreview,
   "word-ladder": wordLadderPreview,
   "word-search": wordSearchPreview,

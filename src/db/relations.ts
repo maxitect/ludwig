@@ -286,6 +286,18 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.sudokuAttemptNotes.attemptId,
     }),
   },
+  starBattlePuzzles: {
+    regionCells: r.many.starBattleRegionCells({
+      from: r.starBattlePuzzles.puzzleId,
+      to: r.starBattleRegionCells.puzzleId,
+    }),
+  },
+  starBattleAttempts: {
+    marks: r.many.starBattleAttemptMarks({
+      from: r.starBattleAttempts.attemptId,
+      to: r.starBattleAttemptMarks.attemptId,
+    }),
+  },
   pictogramCipherPuzzles: {
     symbols: r.many.pictogramCipherSymbols({
       from: r.pictogramCipherPuzzles.puzzleId,

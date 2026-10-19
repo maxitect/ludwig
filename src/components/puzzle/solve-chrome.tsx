@@ -156,9 +156,17 @@ function SolveBoard({
   >(null);
   const latestCheck = useRef<() => void>(undefined);
   const edits = useRef(0);
+  const solvedFooter = useRef<HTMLElement>(null);
+  const focusSolvedFooter = useRef(false);
   const solved = solvedMs !== null;
   const deviceKeyboard = useDeviceKeyboard();
   const keyboardInset = useKeyboardInset(deviceKeyboard);
+
+  useEffect(() => {
+    if (!solved || !focusSolvedFooter.current) return;
+    focusSolvedFooter.current = false;
+    solvedFooter.current?.focus();
+  }, [solved]);
 
   const registerCheck = useCallback<SolverProps["registerCheck"]>((read) => {
     readAnswer.current = read;
@@ -230,6 +238,7 @@ function SolveBoard({
           if (!signedIn) completeProgress(puzzleId, durationMs);
           setNotice(null);
           setEpilogue(response.result.epilogue ?? null);
+          focusSolvedFooter.current = true;
           setSolvedMs(durationMs);
         } else if (edits.current === checkedEdit) {
           setRungProblems(response.result.rungProblems);
@@ -364,23 +373,25 @@ function SolveBoard({
             }
           }}
         >
-          <Solver
-            key={resumeLocal ? "local" : "initial"}
-            payload={payload}
-            initialState={
-              attempt === 0 ? (resumeLocal ? localState : initialState) : null
-            }
-            onStateChange={onStateChange}
-            registerCheck={registerCheck}
-            requestCheck={requestCheck}
-            requestReset={reset}
-            solved={solved}
-            chessNotation={chessNotation}
-            rungProblems={rungProblems}
-            wrongParts={wrongParts}
-            checkCell={solved ? undefined : checkCell}
-            revealCell={solved ? undefined : revealCellValue}
-          />
+          <div className="contents" inert={solved} data-testid="solver">
+            <Solver
+              key={resumeLocal ? "local" : "initial"}
+              payload={payload}
+              initialState={
+                attempt === 0 ? (resumeLocal ? localState : initialState) : null
+              }
+              onStateChange={onStateChange}
+              registerCheck={registerCheck}
+              requestCheck={requestCheck}
+              requestReset={reset}
+              solved={solved}
+              chessNotation={chessNotation}
+              rungProblems={rungProblems}
+              wrongParts={wrongParts}
+              checkCell={solved ? undefined : checkCell}
+              revealCell={solved ? undefined : revealCellValue}
+            />
+          </div>
           {!ownsTouchControls.has(typeKey) && (
             <div className="hidden gap-3 py-4 touch:flex touch:group-has-[[data-solve-slot]:not(:empty)]/solve:hidden">
               <Button onClick={check} disabled={pending || solved}>
@@ -441,7 +452,12 @@ function SolveBoard({
         </div>
 
         {solved && (
-          <footer className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto">
+          <footer
+            ref={solvedFooter}
+            tabIndex={-1}
+            data-testid="solved-footer"
+            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
+          >
             <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] touch:[--hole-size:216px]">
               <BulletHole data-testid="solved-hole" />
               <SolvedStamp delay={0.3} data-testid="solved-stamp" />
@@ -465,6 +481,7 @@ function SolveBoard({
           ref={setSlot}
           data-testid="solve-slot"
           data-solve-slot
+          inert={solved}
           style={{ marginBottom: keyboardInset }}
           className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
         />

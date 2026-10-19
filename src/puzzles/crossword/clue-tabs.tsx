@@ -4,9 +4,7 @@ import type { Ref } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/utils/cn";
 import type { Direction } from "../_shared/cell-grid";
-import type { Entry } from "./derive";
-
-const DIRECTIONS = ["across", "down"] as const;
+import { DIRECTIONS, type Entry } from "./derive";
 
 export type ClueTabsProps = {
   entries: ReadonlyArray<Entry>;

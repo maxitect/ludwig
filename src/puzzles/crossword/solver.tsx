@@ -21,7 +21,12 @@ import { PuzzleKeyboard, usePadWanted } from "../_shared/puzzle-keyboard";
 import { SolveBarButton } from "../_shared/solve-bar-button";
 import { SolveSlot } from "../_shared/solve-slot";
 import type { SolverProps } from "../solver-types";
-import { deriveEntries, deriveWords, type Entry } from "./derive";
+import {
+  deriveEntries,
+  deriveWords,
+  DIRECTIONS,
+  type Entry,
+} from "./derive";
 import type * as schema from "./schema";
 
 const ClueTabs = lazy(() =>
@@ -31,8 +36,6 @@ const ClueTabs = lazy(() =>
 const ClueSheet = lazy(() =>
   import("./clue-sheet").then((module) => ({ default: module.ClueSheet })),
 );
-
-const DIRECTIONS = ["across", "down"] as const;
 
 const LETTER = /^[A-Z]$/;
 

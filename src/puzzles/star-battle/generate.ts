@@ -14,7 +14,7 @@ const RIVALS = 2;
 
 type Shape = { size: number; stars: number };
 
-/** Easy puzzles are small with one star; the hardest are large, and two stars from size 8. */
+/** Easy puzzles are small with one star; difficulties 3 and 4 add two stars at size 8; the hardest are large with one star. */
 const shapesFor = (difficulty: Difficulty): ReadonlyArray<Shape> => {
   const one = (...sizes: number[]) => sizes.map((size) => ({ size, stars: 1 }));
   const two = (...sizes: number[]) => sizes.map((size) => ({ size, stars: 2 }));
@@ -90,18 +90,19 @@ function pathBetween(
   size: number,
   blocked: (index: number) => boolean,
 ) {
-  const parent = new Map<number, number>([[from, from]]);
+  const parent = Array<number>(size * size).fill(-1);
+  parent[from] = from;
   const queue = [from];
   for (let head = 0; head < queue.length; head++) {
     const at = queue[head];
     if (at === to) {
       const path = [to];
-      while (path[0] !== from) path.unshift(parent.get(path[0]) as number);
+      while (path[0] !== from) path.unshift(parent[path[0]]);
       return path;
     }
     for (const next of neighboursOf(at, size)) {
-      if (parent.has(next) || (next !== to && blocked(next))) continue;
-      parent.set(next, at);
+      if (parent[next] !== -1 || (next !== to && blocked(next))) continue;
+      parent[next] = at;
       queue.push(next);
     }
   }
@@ -235,7 +236,7 @@ function repair(
   return false;
 }
 
-/** Rejects a region of one or two cells, and a straight run longer than three cells. */
+/** Rejects a region of fewer than `stars + 2` cells, and a region that is one straight line longer than three cells. */
 function wellShaped(regionOf: readonly number[], size: number, stars: number) {
   for (let region = 0; region < size; region++) {
     const cells = regionOf.flatMap((of, index) => (of === region ? [index] : []));

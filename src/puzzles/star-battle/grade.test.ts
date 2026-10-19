@@ -39,19 +39,19 @@ describe("gradeStarBattle", () => {
     expect(gradeStarBattle(easy)).toMatchObject({ difficulty: 1 });
   });
 
-  it("grades a puzzle that needs a counting argument over three lines or regions as 4 or more, and null below it", () => {
+  it("grades a puzzle that needs a counting argument over three lines or regions as 5, and null below it", () => {
     expect(countSolutions(layout(hard), 2)).toBe(1);
     const grade = gradeStarBattle(hard);
-    expect(grade?.difficulty).toBeGreaterThanOrEqual(4);
+    expect(grade?.difficulty).toBe(5);
     expect(grade?.uses["3 lines or regions"]).toBeGreaterThan(0);
-    expect(gradeStarBattle(hard, 3)).toBeNull();
+    expect(gradeStarBattle(hard, 4)).toBeNull();
   });
 
   it("places exactly the stars of the unique solution", () => {
     for (const content of [easy, hard, doubleBill]) {
-      const solved = solveStarBattle(content);
-      if (!solved) continue;
-      expect(solved.stars).toEqual(solve(layout(content))?.toSorted((a, b) => a - b));
+      expect(solveStarBattle(content)?.stars).toEqual(
+        solve(layout(content))?.toSorted((a, b) => a - b),
+      );
     }
   });
 

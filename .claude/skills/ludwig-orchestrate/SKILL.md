@@ -1,5 +1,5 @@
 ---
-name: orchestrate
+name: ludwig-orchestrate
 description: Run one bounded orchestrator session for the Ludwig build. Merges 4 to 6 tickets through ticket-implementer and ticket-reviewer agents, then rewrites PROMPT.md for the next session. It runs `pnpm preflight` itself and refuses to start if that fails.
 disable-model-invocation: true
 ---

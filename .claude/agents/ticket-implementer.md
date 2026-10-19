@@ -1,6 +1,6 @@
 ---
 name: ticket-implementer
-description: Builds one Ludwig ticket end to end in its own worktree, verifies every acceptance criterion, writes the report and opens the PR. Spawned by the /orchestrate skill with a ticket path.
+description: Builds one Ludwig ticket end to end in its own worktree, verifies every acceptance criterion, writes the report and opens the PR. Spawned by the /ludwig-orchestrate skill with a ticket path.
 model: sonnet
 isolation: worktree
 color: blue

@@ -1,6 +1,6 @@
 ---
 name: ticket-reviewer
-description: Reviews and fixes one Ludwig ticket's PR in the implementer's worktree until a review comes back clean, then appends the verdict to the report. Spawned by the /orchestrate skill with a PR URL, ticket path and worktree path.
+description: Reviews and fixes one Ludwig ticket's PR in the implementer's worktree until a review comes back clean, then appends the verdict to the report. Spawned by the /ludwig-orchestrate skill with a PR URL, ticket path and worktree path.
 model: opus
 color: purple
 ---

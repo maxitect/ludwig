@@ -2,7 +2,7 @@
 
 The execution protocol is in [`INSTRUCTIONS.md`](./INSTRUCTIONS.md) and the ticket format is in [`_TEMPLATE.md`](./_TEMPLATE.md). Reports go in `reports/<id>.md`.
 
-The orchestrator updates the status column below: `todo` → `in-progress` → `review` → `done` (or `blocked`). A ticket can start once everything in its **Depends on** column is `done`. **Mig** marks tickets that create migrations; serialise those (`/orchestrate` skill). **Human** marks tickets that need the user to act.
+The orchestrator updates the status column below: `todo` → `in-progress` → `review` → `done` (or `blocked`). A ticket can start once everything in its **Depends on** column is `done`. **Mig** marks tickets that create migrations; serialise those (`/ludwig-orchestrate` skill). **Human** marks tickets that need the user to act.
 
 ## M0: Foundations and risk spikes
 

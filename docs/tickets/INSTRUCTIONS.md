@@ -2,7 +2,7 @@
 
 This file is the shared reference for the agentic build. The roles live elsewhere:
 
-- **Orchestrator:** the `/orchestrate` skill, `.claude/skills/orchestrate/SKILL.md`. It runs `pnpm preflight` itself and rewrites `PROMPT.md` (git-ignored) when the session ends.
+- **Orchestrator:** the `/ludwig-orchestrate` skill, `.claude/skills/ludwig-orchestrate/SKILL.md`. It runs `pnpm preflight` itself and rewrites `PROMPT.md` (git-ignored) when the session ends.
 - **Implementer:** `.claude/agents/ticket-implementer.md` (Sonnet, own worktree).
 - **Reviewer:** `.claude/agents/ticket-reviewer.md` (Opus, in the implementer's worktree).
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { cn } from "@/utils/cn";
 import {
   cellKey,
   type CellEdges,
@@ -79,8 +80,15 @@ export function Solver({
       ].filter(Boolean);
       if (!labels.length) return undefined;
       return {
-        content:
-          [letter, anchored?.sum].filter(Boolean).join(" ") || null,
+        content: (letter || anchored) && (
+          <span
+            className={cn(
+              anchored && "relative left-[0.15em] top-[0.25em] text-[1.5em]",
+            )}
+          >
+            {[letter, anchored?.sum].filter(Boolean).join(" ")}
+          </span>
+        ),
         label: labels.join(", "),
       };
     };

@@ -1,6 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { content as cageMatch } from "../content/sudoku/cage-match";
+import { content as deadSum } from "../content/sudoku/dead-sum";
 import { content as romanNumerals } from "../content/sudoku/roman-numerals";
 import { content as safeHouse } from "../content/sudoku/safe-house";
 import { content as xMarks } from "../content/sudoku/x-marks-the-spot";
@@ -18,6 +19,7 @@ const SHOTS = ".verification/T093";
 
 const variants = [
   { slug: "cage-match", name: "Killer sudoku", content: cageMatch },
+  { slug: "dead-sum", name: "Killer sudoku", content: deadSum },
   { slug: "safe-house", name: "Killer sudoku", content: safeHouse },
   { slug: "x-marks-the-spot", name: "XV sudoku", content: xMarks },
   { slug: "roman-numerals", name: "XV sudoku", content: romanNumerals },

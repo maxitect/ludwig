@@ -27,7 +27,8 @@ function neighboursOf({ rows, cols }: Layout, index: number) {
 
 /**
  * Up to `limit` solutions, found region by region. Each region takes two cells, and a branch is dropped as soon as
- * a shaded cell has two shaded neighbours, or has none and no undecided neighbour left to shade.
+ * a shaded cell has two shaded neighbours, or has none and no undecided neighbour left to shade, or a neighbouring
+ * undecided region has no pair of cells left that it could shade.
  * In a solution every shaded cell has exactly one shaded neighbour, so no domino touches another along an edge.
  */
 export function solutions(layout: Layout, limit = Infinity): number[][] {

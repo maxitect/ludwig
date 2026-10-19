@@ -52,7 +52,9 @@ export type CellGridProps = {
   cellClassName?: (row: number, col: number) => string | undefined;
   /** Decoration drawn behind the value of a cell, such as pencil marks. */
   marks?: (row: number, col: number) => ReactNode;
-  inputMode?: "text" | "numeric";
+  inputMode?: "text" | "numeric" | "none";
+  /** A tap, Enter or Space on a cell calls this instead of moving the typing direction, for grids that cycle a cell through its values. */
+  onCycle?: (row: number, col: number) => void;
   highlight?: ReadonlySet<CellKey>;
   /** Cells a failed check named as breaking a rule: a dashed frame and "breaks a rule" in the accessible name. */
   wrong?: ReadonlySet<CellKey>;
@@ -112,6 +114,7 @@ export function CellGrid({
   cellClassName,
   marks,
   inputMode,
+  onCycle,
   highlight,
   wrong,
   annotation,
@@ -202,6 +205,9 @@ export function CellGrid({
       }
       event.preventDefault();
       setActive(next);
+    } else if (onCycle && (event.key === " " || event.key === "Enter")) {
+      event.preventDefault();
+      if (!locked()) onCycle(active.row, active.col);
     } else if (event.key === " ") {
       event.preventDefault();
       toggleDirection();
@@ -245,6 +251,14 @@ export function CellGrid({
 
   const select = (position: CellPosition) => {
     showPad();
+    if (onCycle) {
+      setActive(position);
+      inputRef.current?.focus();
+      if (!readOnly?.has(cellKey(position.row, position.col))) {
+        onCycle(position.row, position.col);
+      }
+      return;
+    }
     const engaged = rootRef.current?.contains(document.activeElement);
     if (engaged && position.row === active.row && position.col === active.col) {
       toggleDirection();

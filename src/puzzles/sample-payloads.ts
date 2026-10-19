@@ -246,6 +246,14 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
       region: Math.floor(i / 5),
     })),
   },
+  troix: {
+    size: 6,
+    givens: [
+      { row: 0, col: 0, symbol: "x" },
+      { row: 2, col: 3, symbol: "o" },
+      { row: 5, col: 5, symbol: "i" },
+    ],
+  },
   sudoku: {
     givens: [
       { row: 0, col: 0, digit: 5 },

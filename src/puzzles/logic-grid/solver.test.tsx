@@ -45,7 +45,7 @@ const households = [
 ];
 
 describe("logic grid Solver", () => {
-  it("names the cells of a wrong category pair", () => {
+  it("names the cells of a wrong category pair, and the pair in words", () => {
     render(
       <Solver
         payload={payloadOf(classic)}
@@ -60,6 +60,12 @@ describe("logic grid Solver", () => {
         name: /in a pair of categories that is wrong/,
       }).length,
     ).toBeGreaterThan(0);
+    expect(
+      screen.getByText(
+        (_, node) => node?.textContent === "At least one dot between Person and Pet is wrong.",
+        { selector: "li" },
+      ),
+    ).toBeTruthy();
   });
 
   it("draws the staircase: 3 categories of 3 make 27 cells, each named by its pair and mark", () => {

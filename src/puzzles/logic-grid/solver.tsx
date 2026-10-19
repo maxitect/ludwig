@@ -34,6 +34,8 @@ export function Solver({
   const [struck, setStruck] = useState<ReadonlySet<number>>(
     () => new Set(initialState?.struckClues.map(({ cluePosition }) => cluePosition)),
   );
+  const categoryName = (position: number) =>
+    payload.categories.find((category) => category.position === position)?.name;
   const [falseClue, setFalseClue] = useState<number | null>(
     initialState?.falseCluePosition ?? null,
   );
@@ -88,6 +90,17 @@ export function Solver({
           report(nextMarks, struck, falseClue);
         }}
       />
+      {wrongParts && wrongParts.length > 0 && (
+        <ul className="flex flex-col gap-1">
+          {wrongParts.map(({ first, second }) => (
+            <li key={`${first}-${second}`}>
+              At least one dot between{" "}
+              <strong>{categoryName(first)}</strong> and{" "}
+              <strong>{categoryName(second)}</strong> is wrong.
+            </li>
+          ))}
+        </ul>
+      )}
       <section aria-labelledby="logic-grid-clues" className="flex flex-col gap-3">
         <h2
           id="logic-grid-clues"

@@ -160,13 +160,13 @@ Not on the launch path (PLAN §3 M6).
 | [T084](./T084-sudoku-region-variants.md) | Sudoku: jigsaw and rainbow region variants | T046 | ✔ | | done |
 | [T085](./T085-type-chess-problem.md) | Puzzle type: chess problem (forward mate in N) | T025, T028, T018, T071 | ✔ | | todo |
 | [T086](./T086-type-railroad.md) | Puzzle type: railroad | T021 | ✔ | | todo |
-| [T087](./T087-type-star-battle.md) | Puzzle type: star battle | T084 | ✔ | | todo |
+| [T087](./T087-type-star-battle.md) | Puzzle type: star battle | T084 | ✔ | | done |
 | [T088](./T088-type-troix.md) | Puzzle type: Troix | T021 | ✔ | | todo |
 | [T089](./T089-type-circle9.md) | Puzzle type: Circle9 | T046 | ✔ | | todo |
 | [T090](./T090-type-word-wheel.md) | Puzzle type: word wheel | T049 | ✔ | | todo |
 | [T091](./T091-type-detective-scene.md) | Puzzle type: detective scene (engine, hit-test and solver) | T061 | ✔ | | todo |
 | [T092](./T092-detective-scene-content.md) | Detective scene: artwork and launch content | T091 | | ✔ | todo |
-| [T093](./T093-sudoku-killer-xv.md) | Sudoku: killer and XV constraint variants | T084 | ✔ | | todo |
+| [T093](./T093-sudoku-killer-xv.md) | Sudoku: killer and XV constraint variants | T084 | ✔ | | done |
 | [T094](./T094-type-nonogram.md) | Puzzle type: nonogram (Ludwig picture reveals) | T021 | ✔ | | todo |
 | [T095](./T095-type-kakuro.md) | Puzzle type: kakuro | T021 | ✔ | | todo |
 | [T096](./T096-type-fillomino.md) | Puzzle type: fillomino | T021 | ✔ | | todo |
@@ -181,7 +181,7 @@ Not on the launch path (PLAN §3 M6).
 | [T105](./T105-norinori-generator.md) | Norinori generator | T100, T097 | | | todo |
 | [T106](./T106-railroad-generator.md) | Railroad generator | T100, T086 | | | todo |
 | [T107](./T107-reflections-generator.md) | Reflections generator | T100, T098 | | | todo |
-| [T108](./T108-jigsaw-rainbow-generators.md) | Jigsaw and rainbow sudoku generators | T100, T084 | | | todo |
+| [T108](./T108-jigsaw-rainbow-generators.md) | Jigsaw and rainbow sudoku generators | T100, T084 | | | done |
 | [T109](./T109-killer-xv-generators.md) | Killer and XV sudoku generators | T100, T093 | | | todo |
 | [T110](./T110-circle9-generator.md) | Circle9 generator | T100, T089 | | | todo |
 | [T111](./T111-daily-grid-puzzles.md) | Daily seeded grid puzzles | T100 | ✔ | | todo |

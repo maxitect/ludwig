@@ -89,8 +89,8 @@ test("solve by keyboard, keep the marks across a reload", async ({ page }) => {
   await expect
     .poll(async () => norinoriMarks(email))
     .toEqual([
-      { mark: "dot", count: 1 },
       { mark: "shade", count: 3 },
+      { mark: "dot", count: 1 },
     ]);
 
   await page.reload();

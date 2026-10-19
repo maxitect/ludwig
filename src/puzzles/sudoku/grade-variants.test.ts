@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { createState } from "../_shared/generate/candidates";
-import { regenerate } from "../generators";
 import {
   classicUnits,
   enumerateSolutions,
@@ -8,6 +7,10 @@ import {
   gridFromGivens,
   variantFor,
 } from "./engine";
+import {
+  sudokuKillerGenerators,
+  sudokuXvGenerators,
+} from "./generate-variants";
 import { afterPlaceFor, variantTechniques } from "./grade-variants";
 import { gradeSudoku, techniquesFor } from "./grade";
 import type { Cage, Content, Xv } from "./schema";
@@ -82,7 +85,7 @@ describe("gradeSudoku on a killer", () => {
   });
 
   it("grades a puzzle that needs cage sum arithmetic as at least 4", () => {
-    const { content } = regenerate({ generator: "sudoku-killer", version: 1, seed: "hard" }, 5);
+    const { content } = sudokuKillerGenerators[1]("hard", 5);
     const grade = gradeSudoku(
       gridFromGivens(content.givens),
       5,
@@ -118,7 +121,7 @@ describe("gradeSudoku on an XV", () => {
   });
 
   it("grades a puzzle that needs an x-wing or more as at least 4", () => {
-    const { content } = regenerate({ generator: "sudoku-xv", version: 1, seed: "hard" }, 5);
+    const { content } = sudokuXvGenerators[1]("hard", 5);
     const grade = gradeSudoku(
       gridFromGivens(content.givens),
       5,
@@ -149,13 +152,13 @@ function keepsSolution({ givens, cages, xv: marked }: Content) {
 
 describe("soundness", () => {
   it.each([
-    ["sudoku-killer", 3],
-    ["sudoku-killer", 5],
-    ["sudoku-xv", 4],
-    ["sudoku-xv", 5],
-  ] as const)("%s at %i never removes the solution's digit", (generator, difficulty) => {
+    { name: "sudoku-killer", versions: sudokuKillerGenerators, difficulty: 3 },
+    { name: "sudoku-killer", versions: sudokuKillerGenerators, difficulty: 5 },
+    { name: "sudoku-xv", versions: sudokuXvGenerators, difficulty: 4 },
+    { name: "sudoku-xv", versions: sudokuXvGenerators, difficulty: 5 },
+  ] as const)("$name at $difficulty never removes the solution's digit", ({ versions, difficulty }) => {
     for (const seed of ["a", "b", "c"]) {
-      keepsSolution(regenerate({ generator, version: 1, seed }, difficulty).content);
+      keepsSolution(versions[1](seed, difficulty).content);
     }
   }, 120_000);
 });

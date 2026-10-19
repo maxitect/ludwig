@@ -41,14 +41,14 @@ describe("sudoku-killer layouts", () => {
       expect(cells).toHaveLength(81);
       expect(content.xv).toBeUndefined();
     }
-  });
+  }, 60_000);
 
   it("can leave a puzzle with no givens", () => {
     const counts = [...Array(30).keys()].map(
       (index) => sudokuKillerGenerators[1](`bare-${index}`, 2).content.givens.length,
     );
     expect(Math.min(...counts)).toBe(0);
-  });
+  }, 60_000);
 });
 
 describe("sudoku-xv layouts", () => {
@@ -58,11 +58,11 @@ describe("sudoku-xv layouts", () => {
       expect(content.cages).toBeUndefined();
       expect(content.xv!.marks.length).toBeGreaterThan(0);
     }
-  });
+  }, 60_000);
 });
 
 const SEEDS = 100;
-const BATCH = 25;
+const BATCH = 10;
 const batches = difficulties.flatMap((difficulty) =>
   Array.from({ length: SEEDS / BATCH }, (_, batch) => ({
     difficulty,

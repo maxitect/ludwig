@@ -95,12 +95,13 @@ function generateKillerV1(seed: string, difficulty: Difficulty) {
     let groups = drawCages(solution, rng, maxCageSize(difficulty));
     const variantOf = (shape: ReadonlyArray<ReadonlyArray<number>>) =>
       variantFor({ cages: toCages(solution, shape) });
-    let grade = gradeSudoku(grid, difficulty, classicUnits, variantOf(groups));
+    let variant = variantOf(groups);
+    let grade = gradeSudoku(grid, difficulty, classicUnits, variant);
     if (!grade) return null;
 
     for (const index of shuffle(rng, allCells)) {
       grid[index] = 0;
-      const next = gradeSudoku(grid, difficulty, classicUnits, variantOf(groups));
+      const next = gradeSudoku(grid, difficulty, classicUnits, variant);
       if (next) {
         grade = next;
       } else {
@@ -127,13 +128,16 @@ function generateKillerV1(seed: string, difficulty: Difficulty) {
         ...groups.filter((group) => group !== first && group !== second),
         [...first, ...second],
       ];
-      const next = gradeSudoku(grid, difficulty, classicUnits, variantOf(merged));
+      const mergedVariant = variantOf(merged);
+      const next = gradeSudoku(grid, difficulty, classicUnits, mergedVariant);
       if (next) {
         groups = merged;
+        variant = mergedVariant;
         grade = next;
       }
     }
 
+    if (grade.difficulty !== difficulty) return null;
     const content: Content = {
       givens: toSolution(grid).filter(({ digit }) => digit !== 0),
       cages: toCages(solution, groups),
@@ -196,6 +200,7 @@ function generateXvV1(seed: string, difficulty: Difficulty) {
         grid[index] = solution[index];
       }
     }
+    if (grade.difficulty !== difficulty) return null;
     const content: Content = {
       givens: toSolution(grid).filter(({ digit }) => digit !== 0),
       xv,

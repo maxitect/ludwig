@@ -135,6 +135,8 @@ jobs:
       contains(fromJSON('["success","skipped"]'), needs.db.result)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Frame pacing under 4x CPU throttling depends on the runner's CPU, so perf reports without gating.
+    continue-on-error: ${{ matrix.target == 'perf' }}
     strategy:
       fail-fast: false
       matrix:

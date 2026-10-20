@@ -48,6 +48,9 @@ export default defineConfig({
           name: "unit",
           include: ["src/**/*.test.{ts,tsx}"],
           exclude: [...configDefaults.exclude, ...dbTests],
+          // Files share the CPU here, so the serial-run defaults (5s, 10s) are too tight.
+          testTimeout: 20_000,
+          hookTimeout: 60_000,
         },
       },
       {

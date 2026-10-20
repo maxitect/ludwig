@@ -304,18 +304,12 @@ export function enumerateSolutions(
   const masks = Array<number>(CELLS).fill(0);
   const fullUnits = units.filter((unit) => unit.length === SIZE);
 
-  const cageOpen = cages.map(() => [] as number[]);
-  const cageKeep = cages.map(() => [] as number[]);
   /** Narrows each cage's empty cells to digits that some distinct completion of its sum uses. False when a cage cannot be completed. */
   const narrowCages = () => {
     for (let id = 0; id < cages.length; id++) {
       if (!cageLeft[id]) continue;
-      const open = cageOpen[id];
-      open.length = 0;
-      for (const index of cages[id].cells) if (!grid[index]) open.push(index);
-      const keep = cageKeep[id];
-      keep.length = open.length;
-      keep.fill(0);
+      const open = cages[id].cells.filter((index) => !grid[index]);
+      const keep = open.map(() => 0);
       const walk = (cell: number, rest: number, taken: number): boolean => {
         if (cell === open.length) return rest === 0;
         let any = false;

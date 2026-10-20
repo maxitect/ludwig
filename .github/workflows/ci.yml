@@ -64,10 +64,15 @@ jobs:
       - run: pnpm lint
 
   unit:
+    name: unit (${{ matrix.shard }}/3)
     needs: [changes, validate]
     if: needs.changes.outputs.vitest == 'true' && needs.validate.result == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -82,9 +87,9 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: node_modules/.vite/vitest
-          key: vitest-unit-${{ github.sha }}
-          restore-keys: vitest-unit-
-      - run: pnpm test --project unit --passWithNoTests ${{ needs.changes.outputs.vitest_full != 'true' && '--changed HEAD^1' || '' }}
+          key: vitest-unit-${{ matrix.shard }}-${{ github.sha }}
+          restore-keys: vitest-unit-${{ matrix.shard }}-
+      - run: pnpm test --project unit --shard ${{ matrix.shard }}/3 --passWithNoTests ${{ needs.changes.outputs.vitest_full != 'true' && '--changed HEAD^1' || '' }}
 
   db:
     needs: [changes, validate]

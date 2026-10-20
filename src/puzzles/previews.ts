@@ -14,6 +14,7 @@ import { Preview as keywordPreview } from "./keyword/preview";
 import { Preview as knightsKnavesPreview } from "./knights-knaves/preview";
 import { Preview as logicGridPreview } from "./logic-grid/preview";
 import { Preview as napkinMathsPreview } from "./napkin-maths/preview";
+import { Preview as nonogramPreview } from "./nonogram/preview";
 import { Preview as norinoriPreview } from "./norinori/preview";
 import { Preview as oddOneOutPreview } from "./odd-one-out/preview";
 import { Preview as pictogramCipherPreview } from "./pictogram-cipher/preview";
@@ -47,6 +48,7 @@ export const previews = {
   "knights-knaves": knightsKnavesPreview,
   "logic-grid": logicGridPreview,
   "napkin-maths": napkinMathsPreview,
+  nonogram: nonogramPreview,
   norinori: norinoriPreview,
   "odd-one-out": oddOneOutPreview,
   "pictogram-cipher": pictogramCipherPreview,

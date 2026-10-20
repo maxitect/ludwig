@@ -15,6 +15,7 @@ import { keywordModule } from "./keyword/module";
 import { knightsKnavesModule } from "./knights-knaves/module";
 import { logicGridModule } from "./logic-grid/module";
 import { napkinMathsModule } from "./napkin-maths/module";
+import { nonogramModule } from "./nonogram/module";
 import { norinoriModule } from "./norinori/module";
 import { oddOneOutModule } from "./odd-one-out/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
@@ -118,6 +119,7 @@ const modules = {
   "knights-knaves": knightsKnavesModule,
   "logic-grid": logicGridModule,
   "napkin-maths": napkinMathsModule,
+  nonogram: nonogramModule,
   norinori: norinoriModule,
   "odd-one-out": oddOneOutModule,
   "pictogram-cipher": pictogramCipherModule,

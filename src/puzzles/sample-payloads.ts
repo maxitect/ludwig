@@ -234,6 +234,12 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     height: 1068,
     differenceCount: 3,
   },
+  nonogram: {
+    rows: 5,
+    cols: 5,
+    rowClues: [[1], [3], [5], [3], [1]],
+    colClues: [[1], [3], [5], [3], [1]],
+  },
   norinori: {
     rows: 5,
     cols: 5,

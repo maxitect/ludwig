@@ -342,6 +342,18 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.norinoriAttemptMarks.attemptId,
     }),
   },
+  nonogramPuzzles: {
+    cells: r.many.nonogramCells({
+      from: r.nonogramPuzzles.puzzleId,
+      to: r.nonogramCells.puzzleId,
+    }),
+  },
+  nonogramAttempts: {
+    marks: r.many.nonogramAttemptMarks({
+      from: r.nonogramAttempts.attemptId,
+      to: r.nonogramAttemptMarks.attemptId,
+    }),
+  },
   pictogramCipherPuzzles: {
     symbols: r.many.pictogramCipherSymbols({
       from: r.pictogramCipherPuzzles.puzzleId,

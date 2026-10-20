@@ -34,6 +34,7 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
     "text-ink",
     "border-ink",
   ],
+  "src/puzzles/nonogram/solver.tsx": ["bg-paper"],
   "src/puzzles/rota/board.tsx": ["bg-paper"],
   "src/puzzles/sudoku/cages.tsx": ["border-ink"],
   "src/puzzles/sudoku/solver.tsx": ["bg-paper"],

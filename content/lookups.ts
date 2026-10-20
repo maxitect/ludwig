@@ -161,6 +161,14 @@ export const types = [
     sort: 9,
   },
   {
+    key: "nonogram",
+    categoryKey: "logic",
+    name: "Nonogram",
+    description: "Shade the cells the run clues describe, and a Ludwig picture appears.",
+    subtypeTable: "nonogram_puzzles",
+    sort: 10,
+  },
+  {
     key: "sightlines",
     categoryKey: "spatial",
     name: "Sightlines",

@@ -27,3 +27,4 @@ export * from "../../puzzles/star-battle/tables";
 export * from "../../puzzles/norinori/tables";
 export * from "../../puzzles/troix/tables";
 export * from "../../puzzles/circle9/tables";
+export * from "../../puzzles/nonogram/tables";

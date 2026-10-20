@@ -128,7 +128,11 @@ test("a drag lays the track in both themes", async ({ page }, testInfo) => {
     const box = await cell(page, at).boundingBox();
     return { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 };
   };
-  const half = Math.ceil(path.length / 2);
+  // Split at a corner: the second drag must turn it to join the track the first one laid.
+  const half =
+    path.findIndex(
+      ({ piece }, i) => i >= path.length / 2 && piece !== "ns" && piece !== "ew",
+    ) + 1;
   const start = await centre(path[0]);
   await page.mouse.move(start.x, start.y);
   await page.mouse.down();

@@ -71,6 +71,26 @@ export async function norinoriMarks(email: string) {
   }
 }
 
+export async function troixCells(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ symbol: string; count: number }>(
+      `select c.symbol::text as symbol, count(*)::int as count
+         from troix_attempt_cells c
+         join attempts a on a.id = c.attempt_id
+         join "user" u on u.id = a.user_id
+        where u.email = $1
+        group by c.symbol order by c.symbol`,
+      [email],
+    );
+    return rows;
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function futoshikiAttemptCounts(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

@@ -22,6 +22,7 @@ import { Preview as sightlinesPreview } from "./sightlines/preview";
 import { Preview as spotDifferencePreview } from "./spot-difference/preview";
 import { Preview as starBattlePreview } from "./star-battle/preview";
 import { Preview as sudokuPreview } from "./sudoku/preview";
+import { Preview as troixPreview } from "./troix/preview";
 import { Preview as wordLadderPreview } from "./word-ladder/preview";
 import { Preview as wordSearchPreview } from "./word-search/preview";
 
@@ -53,6 +54,7 @@ export const previews = {
   "spot-difference": spotDifferencePreview,
   "star-battle": starBattlePreview,
   sudoku: sudokuPreview,
+  troix: troixPreview,
   "word-ladder": wordLadderPreview,
   "word-search": wordSearchPreview,
 } satisfies { [K in PuzzleTypeKey]: PreviewComponent<K> };

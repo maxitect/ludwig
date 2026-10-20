@@ -500,6 +500,18 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.futoshikiAttemptNotes.attemptId,
     }),
   },
+  troixPuzzles: {
+    givens: r.many.troixGivens({
+      from: r.troixPuzzles.puzzleId,
+      to: r.troixGivens.puzzleId,
+    }),
+  },
+  troixAttempts: {
+    cells: r.many.troixAttemptCells({
+      from: r.troixAttempts.attemptId,
+      to: r.troixAttemptCells.attemptId,
+    }),
+  },
   spotDifferencePuzzles: {
     differences: r.many.spotDifferenceDifferences({
       from: r.spotDifferencePuzzles.puzzleId,

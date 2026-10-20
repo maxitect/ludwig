@@ -20,6 +20,7 @@ import { attemptSchema as sightlinesAttempt } from "./sightlines/schema";
 import { attemptSchema as spotDifferenceAttempt } from "./spot-difference/schema";
 import { attemptSchema as starBattleAttempt } from "./star-battle/schema";
 import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
+import { attemptSchema as troixAttempt } from "./troix/schema";
 import { attemptSchema as wordLadderAttempt } from "./word-ladder/schema";
 import { attemptSchema as wordSearchAttempt } from "./word-search/schema";
 
@@ -47,6 +48,7 @@ const attemptSchemas = {
   "spot-difference": spotDifferenceAttempt,
   "star-battle": starBattleAttempt,
   sudoku: sudokuAttempt,
+  troix: troixAttempt,
   "word-ladder": wordLadderAttempt,
   "word-search": wordSearchAttempt,
 } as const;

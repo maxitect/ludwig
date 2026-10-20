@@ -145,6 +145,14 @@ export const types = [
     sort: 7,
   },
   {
+    key: "troix",
+    categoryKey: "logic",
+    name: "Troix",
+    description: "Fill the grid with X, O and I: equal counts in every line, never three alike in a row.",
+    subtypeTable: "troix_puzzles",
+    sort: 8,
+  },
+  {
     key: "sightlines",
     categoryKey: "spatial",
     name: "Sightlines",

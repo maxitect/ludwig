@@ -253,6 +253,14 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
       { row: 8, col: 8, digit: 9 },
     ],
   },
+  troix: {
+    size: 6,
+    givens: [
+      { row: 0, col: 0, symbol: "x" },
+      { row: 2, col: 3, symbol: "o" },
+      { row: 5, col: 5, symbol: "i" },
+    ],
+  },
   "word-ladder": { startWord: "cold", endWord: "warm", rungCount: 5 },
   "word-search": {
     rows: 4,

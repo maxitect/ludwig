@@ -23,6 +23,7 @@ import { sightlinesModule } from "./sightlines/module";
 import { spotDifferenceModule } from "./spot-difference/module";
 import { starBattleModule } from "./star-battle/module";
 import { sudokuModule } from "./sudoku/module";
+import { troixModule } from "./troix/module";
 import { wordLadderModule } from "./word-ladder/module";
 import { wordSearchModule } from "./word-search/module";
 
@@ -124,6 +125,7 @@ const modules = {
   "spot-difference": spotDifferenceModule,
   "star-battle": starBattleModule,
   sudoku: sudokuModule,
+  troix: troixModule,
   "word-ladder": wordLadderModule,
   "word-search": wordSearchModule,
 } as const;

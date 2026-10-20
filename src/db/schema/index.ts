@@ -25,3 +25,4 @@ export * from "../../puzzles/cctv-maze/tables";
 export * from "../../puzzles/word-search/tables";
 export * from "../../puzzles/star-battle/tables";
 export * from "../../puzzles/norinori/tables";
+export * from "../../puzzles/troix/tables";

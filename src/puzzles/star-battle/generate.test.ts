@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { difficulties } from "../_shared/generate/pipeline";
+import { sliceFileCount } from "../_shared/generate/property";
 import { regenerate } from "../generators";
 import { starBattleGenerators } from "./generate";
-import { solveStarBattle } from "./grade";
+import { STAR_BATTLE_SLICES } from "./generate.property";
 import { contentSchema } from "./schema";
-import { verifyStarBattle } from "./verify";
 
 describe("star battle generator", () => {
   it("is deterministic for a seed, version and difficulty", () => {
@@ -39,29 +39,8 @@ describe("star battle generator", () => {
   });
 });
 
-const SEEDS = 100;
-const BATCH = 25;
-const batches = difficulties.flatMap((difficulty) =>
-  Array.from({ length: SEEDS / BATCH }, (_, batch) => ({
-    difficulty,
-    from: batch * BATCH,
-    to: (batch + 1) * BATCH,
-  })),
-);
-
 describe("star battle property", () => {
-  it.each(batches)(
-    "difficulty $difficulty, seeds $from to $to: each unique and solved by technique alone",
-    ({ difficulty, from, to }) => {
-      for (let index = from; index < to; index++) {
-        const { content } = starBattleGenerators[1](
-          `property-${index}`,
-          difficulty,
-        );
-        verifyStarBattle(content);
-        expect(solveStarBattle(content)?.grade.difficulty).toBe(difficulty);
-      }
-    },
-    300_000,
-  );
+  it("has a test file for every slice", () => {
+    expect(sliceFileCount(import.meta.dirname, "generate")).toBe(STAR_BATTLE_SLICES);
+  });
 });

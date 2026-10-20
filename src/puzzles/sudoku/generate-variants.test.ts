@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { difficulties } from "../_shared/generate/pipeline";
+import { sliceFileCount } from "../_shared/generate/property";
 import { regenerate } from "../generators";
 import { classicUnits, gridFromGivens, solve, variantFor } from "./engine";
 import {
   sudokuKillerGenerators,
   sudokuXvGenerators,
 } from "./generate-variants";
-import { gradeSudoku } from "./grade";
-import { verifySudoku } from "./verify";
+import { VARIANT_SLICES } from "./generate-variants.property";
 
 const variants = [
   { name: "sudoku-killer", versions: sudokuKillerGenerators },
@@ -73,33 +73,8 @@ describe("sudoku-xv layouts", () => {
   }, 60_000);
 });
 
-const SEEDS = 100;
-const BATCH = 10;
-const batches = difficulties.flatMap((difficulty) =>
-  Array.from({ length: SEEDS / BATCH }, (_, batch) => ({
-    difficulty,
-    from: batch * BATCH,
-    to: (batch + 1) * BATCH,
-  })),
-);
-
-describe.each(variants)("$name property", ({ versions }) => {
-  it.each(batches)(
-    "difficulty $difficulty, seeds $from to $to: each unique and solved by technique alone",
-    ({ difficulty, from, to }) => {
-      for (let index = from; index < to; index++) {
-        const { content } = versions[1](`property-${index}`, difficulty);
-        verifySudoku(content);
-        expect(
-          gradeSudoku(
-            gridFromGivens(content.givens),
-            5,
-            classicUnits,
-            variantFor({ cages: content.cages, xv: content.xv }),
-          )?.difficulty,
-        ).toBe(difficulty);
-      }
-    },
-    300_000,
-  );
+describe("sudoku-killer and sudoku-xv property", () => {
+  it("has a test file for every slice", () => {
+    expect(sliceFileCount(import.meta.dirname, "generate-variants")).toBe(VARIANT_SLICES);
+  });
 });

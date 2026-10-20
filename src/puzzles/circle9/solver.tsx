@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RegionMarkGrid } from "../_shared/region-mark-grid";
 import type { SolverProps } from "../solver-types";
-import { SIZE, boxOf, clashingIndexes, layoutOf } from "./engine";
+import { SIZE, boxOf, cellOf, clashingIndexes, layoutOf } from "./engine";
 import type * as schema from "./schema";
 
 const CIRCLED = "circled";
@@ -22,8 +22,8 @@ export function Solver({
   solved,
   wrongParts,
 }: SolverProps<typeof schema>) {
-  const { digits } = useMemo(() => layoutOf(payload), [payload]);
-  const layout = useMemo(() => ({ digits }), [digits]);
+  const layout = useMemo(() => layoutOf(payload), [payload]);
+  const { digits } = layout;
   const [circles, setCircles] = useState<ReadonlyMap<number, Circled>>(
     () =>
       new Map(
@@ -35,10 +35,6 @@ export function Solver({
   );
   const checkOnEntry = useRef(false);
 
-  const at = (index: number) => ({
-    row: Math.floor(index / SIZE),
-    col: index % SIZE,
-  });
   const wrong = useMemo(() => {
     const flagged = clashingIndexes(layout, circles.keys());
     for (const { row, col } of wrongParts ?? []) flagged.add(row * SIZE + col);
@@ -48,7 +44,7 @@ export function Solver({
   useEffect(() => {
     registerCheck(() =>
       circles.size === SIZE
-        ? { circles: [...circles.keys()].sort((a, b) => a - b).map(at) }
+        ? { circles: [...circles.keys()].sort((a, b) => a - b).map(cellOf) }
         : null,
     );
   }, [registerCheck, circles]);
@@ -69,7 +65,7 @@ export function Solver({
     setCircles(next);
     checkOnEntry.current = mark === CIRCLED && next.size === SIZE;
     onStateChange({
-      circles: [...next.keys()].sort((a, b) => a - b).map(at),
+      circles: [...next.keys()].sort((a, b) => a - b).map(cellOf),
     });
   }
 

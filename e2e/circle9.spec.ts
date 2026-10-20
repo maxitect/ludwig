@@ -1,7 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { content as looseEnds } from "../content/circle9/loose-ends";
-import { layoutOf, solve } from "../src/puzzles/circle9/engine";
+import { cellOf, layoutOf, solve } from "../src/puzzles/circle9/engine";
 import { numbers } from "../src/puzzles/circle9/verify";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { attemptsFor, circle9Circles, databaseAvailable } from "./helpers/db";
@@ -17,7 +17,7 @@ const cell = (page: Page, row: number, col: number) =>
 
 const solutionOf = () =>
   (solve(layoutOf({ numbers: numbers(looseEnds) })) ?? [])
-    .map((index) => ({ row: Math.floor(index / 9), col: index % 9 }))
+    .map(cellOf)
     .sort((a, b) => a.row - b.row || a.col - b.col);
 
 const status = (page: Page) =>

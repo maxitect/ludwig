@@ -11,6 +11,11 @@ export function layoutOf({ numbers }: Payload): Layout {
   return { digits };
 }
 
+export const cellOf = (index: number) => ({
+  row: Math.floor(index / SIZE),
+  col: index % SIZE,
+});
+
 export const boxOf = (index: number) =>
   Math.floor(index / 27) * 3 + Math.floor((index % 9) / 3);
 

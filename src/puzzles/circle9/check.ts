@@ -1,4 +1,4 @@
-import { SIZE, clashingIndexes, layoutOf } from "./engine";
+import { SIZE, cellOf, clashingIndexes, layoutOf } from "./engine";
 import type { Answer, Payload, Solution } from "./schema";
 
 /**
@@ -15,9 +15,7 @@ export function check(payload: Payload, _solution: Solution, answer: Answer) {
     ...[...placed].filter((index) => !layout.digits[index]),
     ...clashingIndexes(layout, placed),
   ]);
-  const wrongParts = [...wrong]
-    .sort((a, b) => a - b)
-    .map((index) => ({ row: Math.floor(index / SIZE), col: index % SIZE }));
+  const wrongParts = [...wrong].sort((a, b) => a - b).map(cellOf);
   return {
     correct: wrongParts.length === 0 && placed.size === SIZE,
     wrongParts,

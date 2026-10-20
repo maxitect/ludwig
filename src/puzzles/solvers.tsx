@@ -29,6 +29,7 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
   "logic-grid": lazy(() => import("./logic-grid/solver")),
   "napkin-maths": lazy(() => import("./napkin-maths/solver")),
   nonogram: lazy(() => import("./nonogram/solver")),
+  railroad: lazy(() => import("./railroad/solver")),
   norinori: lazy(() => import("./norinori/solver")),
   "odd-one-out": lazy(() => import("./odd-one-out/solver")),
   "pictogram-cipher": lazy(() => import("./pictogram-cipher/solver")),

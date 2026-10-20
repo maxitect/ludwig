@@ -256,6 +256,15 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     rowClues: [[1], [3], [5], [3], [1]],
     colClues: [[1], [3], [5], [3], [1]],
   },
+  railroad: {
+    rows: 4,
+    cols: 4,
+    entry: { row: 0, col: 0, side: "w" },
+    exit: { row: 3, col: 3, side: "e" },
+    rowCounts: [2, 1, 1, 2],
+    colCounts: [1, 2, 2, 1],
+    given: [{ row: 0, col: 0, piece: "ew" }],
+  },
   norinori: {
     rows: 5,
     cols: 5,

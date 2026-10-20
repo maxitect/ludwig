@@ -17,6 +17,7 @@ import { knightsKnavesModule } from "./knights-knaves/module";
 import { logicGridModule } from "./logic-grid/module";
 import { napkinMathsModule } from "./napkin-maths/module";
 import { nonogramModule } from "./nonogram/module";
+import { railroadModule } from "./railroad/module";
 import { norinoriModule } from "./norinori/module";
 import { oddOneOutModule } from "./odd-one-out/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
@@ -122,6 +123,7 @@ const modules = {
   "logic-grid": logicGridModule,
   "napkin-maths": napkinMathsModule,
   nonogram: nonogramModule,
+  railroad: railroadModule,
   norinori: norinoriModule,
   "odd-one-out": oddOneOutModule,
   "pictogram-cipher": pictogramCipherModule,

@@ -29,3 +29,4 @@ export * from "../../puzzles/troix/tables";
 export * from "../../puzzles/circle9/tables";
 export * from "../../puzzles/nonogram/tables";
 export * from "../../puzzles/chess-problem/tables";
+export * from "../../puzzles/railroad/tables";

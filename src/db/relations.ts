@@ -366,6 +366,30 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.nonogramAttemptMarks.attemptId,
     }),
   },
+  railroadPuzzles: {
+    rowCounts: r.many.railroadRowCounts({
+      from: r.railroadPuzzles.puzzleId,
+      to: r.railroadRowCounts.puzzleId,
+    }),
+    colCounts: r.many.railroadColCounts({
+      from: r.railroadPuzzles.puzzleId,
+      to: r.railroadColCounts.puzzleId,
+    }),
+    givenPieces: r.many.railroadGivenPieces({
+      from: r.railroadPuzzles.puzzleId,
+      to: r.railroadGivenPieces.puzzleId,
+    }),
+  },
+  railroadAttempts: {
+    pieces: r.many.railroadAttemptPieces({
+      from: r.railroadAttempts.attemptId,
+      to: r.railroadAttemptPieces.attemptId,
+    }),
+    crosses: r.many.railroadAttemptCrosses({
+      from: r.railroadAttempts.attemptId,
+      to: r.railroadAttemptCrosses.attemptId,
+    }),
+  },
   pictogramCipherPuzzles: {
     symbols: r.many.pictogramCipherSymbols({
       from: r.pictogramCipherPuzzles.puzzleId,

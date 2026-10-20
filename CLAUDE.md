@@ -20,7 +20,7 @@ Ludwig is a non-commercial fan site: a puzzle-solving web app styled after the B
 - **Validation:** Zod 4, plus `drizzle-orm/zod` for generated table schemas
 - **Styling:** Tailwind CSS 4 (CSS-first `@theme`) and shadcn/ui, heavily restyled
 - **Puzzles:** chess.js, react-chessboard v5, motion
-- **Testing:** Vitest (engines, checkers, DB integrity) and Playwright (end-to-end against previews)
+- **Testing:** Vitest (engines, checkers, DB integrity) and Playwright (end-to-end, in CI against a local production build and on opted-in previews)
 - **Hosting:** Vercel with the Neon Marketplace integration. Each preview gets its own Neon branch.
 - **Package manager:** pnpm
 
@@ -31,7 +31,8 @@ pnpm dev              # Dev server (localhost:3000)
 pnpm build            # Production build
 pnpm lint             # ESLint
 pnpm typecheck        # tsc --noEmit
-pnpm test             # Vitest
+pnpm test             # Vitest: `unit` project in parallel, `db` project serially
+pnpm test --project unit --changed origin/main  # Only tests importing a changed file
 pnpm test:e2e         # Playwright
 
 docker compose up -d  # Local Postgres 17
@@ -57,6 +58,13 @@ The Vercel and Neon MCP plugins and CLIs (`vercel`, `neonctl`) are installed and
 - **Approval needed:** writes or schema changes on production `main`, destructive Neon operations, and Vercel setting changes all need the user's approval first. Never print or decrypt secrets.
 
 IDs, the full rules and which method to verify with are in `docs/tickets/INSTRUCTIONS.md` §3.1.
+
+## CI
+
+`.github/workflows/ci.yml` runs `changes`, then `validate` (typecheck, lint), then `unit` and `db` (migrate, Vitest `db` project, `puzzles:verify`) in parallel, then the `e2e` shards and a `perf` runner, each against its own seeded Postgres and `next start`. `scripts/ci-changes.mts` gates each job on the paths a change touches. On pull requests Vitest runs with `--changed` (import graph) and Playwright runs only the specs for the puzzle types touched, plus specs tied to no type. Shared code, CI or dependency changes run everything, and a push to `main` runs everything. `all-checks` is the single result to read.
+
+- A Vitest file that touches the database belongs in the `db` project (see `dbTests` in `vitest.config.ts`). The `unit` project runs files in parallel and must not need Postgres.
+- A new E2E spec for a puzzle type should start with the type key (`<type>-*.spec.ts`) or name the type in its source, so selection can find it.
 
 ## Next.js 16
 

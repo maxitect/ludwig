@@ -56,6 +56,12 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     cameras: [{ row: 2, col: 2, facing: "e", fovDeg: 90, rangeCells: 2 }],
   },
   caesar: { ciphertext: "wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj" },
+  circle9: {
+    numbers: [
+      { row: 0, col: 0, digit: 1 },
+      { row: 1, col: 3, digit: 2 },
+    ],
+  },
   crossword: {
     style: "quick",
     rows: 5,

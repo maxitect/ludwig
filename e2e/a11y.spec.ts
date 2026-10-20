@@ -9,6 +9,7 @@ const PUZZLE_TYPES = [
   "book-cipher",
   "caesar",
   "cctv-maze",
+  "circle9",
   "crossword",
   "futoshiki",
   "gear-train",

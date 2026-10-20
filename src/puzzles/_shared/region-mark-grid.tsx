@@ -38,6 +38,10 @@ export type RegionMarkGridProps<M extends string> = {
   solved?: boolean;
   onMark: (row: number, col: number, mark: M | undefined) => void;
   renderMark: (mark: M, wrong: boolean) => ReactNode;
+  /** Printed in a cell under its mark, such as a given number. */
+  cellContent?: (index: number) => ReactNode;
+  /** Read after the cell's position and region, such as a given number. */
+  cellLabel?: (index: number) => string | undefined;
 };
 
 /** A region-bordered grid of tappable cells with a roving cursor: arrows move, mapped keys toggle a mark, Backspace clears. */
@@ -56,6 +60,8 @@ export function RegionMarkGrid<M extends string>({
   solved,
   onMark,
   renderMark,
+  cellContent,
+  cellLabel,
 }: RegionMarkGridProps<M>) {
   const borders = useMemo(
     () =>
@@ -137,6 +143,7 @@ export function RegionMarkGrid<M extends string>({
                   aria-label={[
                     `Row ${row + 1}, column ${col + 1}`,
                     `region ${regionName(regionOf[index])}`,
+                    cellLabel?.(index),
                     mark ?? "empty",
                     isWrong && "breaks a rule",
                   ]
@@ -165,6 +172,7 @@ export function RegionMarkGrid<M extends string>({
                       className="pointer-events-none absolute inset-0 z-10 border-4 border-dashed border-ludwig-red"
                     />
                   )}
+                  {cellContent?.(index)}
                   {mark && (
                     <svg
                       aria-hidden

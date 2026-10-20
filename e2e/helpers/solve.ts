@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 type CrosswordCell = { row: number; col: number; letter: string };
 
@@ -9,6 +9,17 @@ export async function openPuzzle(
 ) {
   await page.goto(`/puzzles/${puzzle.typeKey}/${puzzle.slug}`);
   await page.waitForLoadState("networkidle");
+}
+
+/** Resolves once React has hydrated the element, so input reaches its handlers. Use after a reload, where `networkidle` never settles in production builds. */
+export async function hydrated(locator: Locator) {
+  await expect
+    .poll(() =>
+      locator.evaluate((element) =>
+        Object.keys(element).some((key) => key.startsWith("__reactFiber")),
+      ),
+    )
+    .toBe(true);
 }
 
 export async function typeAnagram(page: Page, letters: string) {

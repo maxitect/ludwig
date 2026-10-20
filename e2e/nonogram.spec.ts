@@ -7,7 +7,7 @@ import { solve } from "../src/puzzles/nonogram/engine";
 import { shadedCells } from "../src/puzzles/nonogram/verify";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { attemptsFor, databaseAvailable, nonogramMarks } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { hydrated, openPuzzle } from "./helpers/solve";
 
 const SHOTS = ".verification/T094";
 const MAX_TABS = 120;
@@ -97,7 +97,7 @@ test("solve by keyboard, hear each clue, keep the marks across a reload", async 
     ]);
 
   await page.reload();
-  await page.waitForLoadState("networkidle");
+  await hydrated(page.getByRole("grid", { name: "Nonogram grid" }));
   await expect(cell(page, { row: 0, col: 0 })).toHaveAttribute("aria-label", /cross$/);
   await expect(cell(page, cells[0])).toHaveAttribute("aria-label", /fill$/);
 

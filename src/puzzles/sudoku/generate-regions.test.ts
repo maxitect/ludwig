@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { difficulties } from "../_shared/generate/pipeline";
+import { sliceFileCount } from "../_shared/generate/property";
 import { regenerate } from "../generators";
-import { gridFromGivens, unitsFor } from "./engine";
 import {
   sudokuJigsawGenerators,
   sudokuRainbowGenerators,
 } from "./generate-regions";
-import { gradeSudoku } from "./grade";
+import { REGION_SLICES } from "./generate-regions.property";
 import { contentSchema } from "./schema";
 import { verifySudoku } from "./verify";
 
@@ -73,32 +73,8 @@ describe("rainbow layouts", () => {
   });
 });
 
-const SEEDS = 100;
-const BATCH = 25;
-const batches = difficulties.flatMap((difficulty) =>
-  Array.from({ length: SEEDS / BATCH }, (_, batch) => ({
-    difficulty,
-    from: batch * BATCH,
-    to: (batch + 1) * BATCH,
-  })),
-);
-
-describe.each(variants)("$name property", ({ versions }) => {
-  it.each(batches)(
-    "difficulty $difficulty, seeds $from to $to: each unique and solved by technique alone",
-    ({ difficulty, from, to }) => {
-      for (let index = from; index < to; index++) {
-        const { content } = versions[1](`property-${index}`, difficulty);
-        verifySudoku(content);
-        expect(
-          gradeSudoku(
-            gridFromGivens(content.givens),
-            5,
-            unitsFor(content.regions),
-          )?.difficulty,
-        ).toBe(difficulty);
-      }
-    },
-    300_000,
-  );
+describe("sudoku-jigsaw and sudoku-rainbow property", () => {
+  it("has a test file for every slice", () => {
+    expect(sliceFileCount(import.meta.dirname, "generate-regions")).toBe(REGION_SLICES);
+  });
 });

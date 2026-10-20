@@ -11,7 +11,7 @@ import {
   databaseAvailable,
   starBattleMarks,
 } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { hydrated, openPuzzle } from "./helpers/solve";
 
 const SHOTS = ".verification/T087";
 const MAX_TABS = 80;
@@ -93,7 +93,7 @@ test("solve a one-star puzzle by keyboard, keep the marks across a reload", asyn
     ]);
 
   await page.reload();
-  await page.waitForLoadState("networkidle");
+  await hydrated(page.getByRole("grid", { name: "Star battle grid" }));
   await expect(page.getByRole("status").filter({ hasText: "stars placed" })).toHaveText(
     "3 of 6 stars placed",
   );

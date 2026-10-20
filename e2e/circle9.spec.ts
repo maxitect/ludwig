@@ -5,7 +5,7 @@ import { cellOf, layoutOf, solve } from "../src/puzzles/circle9/engine";
 import { numbers } from "../src/puzzles/circle9/verify";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { attemptsFor, circle9Circles, databaseAvailable } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { hydrated, openPuzzle } from "./helpers/solve";
 
 const SHOTS = ".verification/T089";
 const MAX_TABS = 120;
@@ -80,7 +80,7 @@ test("solve by keyboard, keep the circles across a reload", async ({ page }) => 
   );
 
   await page.reload();
-  await page.waitForLoadState("networkidle");
+  await hydrated(page.getByRole("grid", { name: "Circle9 grid" }));
   await expect(status(page)).toHaveText("4 of 9 numbers circled");
   await expect(cell(page, cells[0].row, cells[0].col)).toHaveAttribute(
     "aria-label",

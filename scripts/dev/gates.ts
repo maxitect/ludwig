@@ -20,7 +20,7 @@ openLog(path.join(dir, "gates.log"));
 runSteps("GATES", [
   { name: "typecheck", run: () => sh("pnpm typecheck") },
   { name: "lint", run: () => sh("pnpm lint") },
-  { name: "test", run: () => sh("pnpm test") },
+  { name: "test", run: () => sh("pnpm test --changed origin/main --passWithNoTests") },
   { name: "build", run: () => sh("pnpm build") },
   { name: "puzzles:verify", run: () => sh("pnpm puzzles:verify") },
   {

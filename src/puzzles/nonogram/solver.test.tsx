@@ -100,23 +100,41 @@ describe("nonogram solver", () => {
     expect(cell(1, 1).getAttribute("aria-label")).toMatch(/cross$/);
   });
 
-  it("paints a run when dragged along a row, and stays on that row", () => {
-    const { onStateChange } = renderSolver();
-    const at = (row: number, col: number) => cell(row, col);
+  function dragThrough(...targets: HTMLElement[]) {
     document.elementFromPoint = vi.fn();
-    const sweep = [at(2, 0), at(2, 1), at(3, 2), at(2, 3)];
-    fireEvent.pointerDown(sweep[0], { pointerId: 1, button: 0 });
-    for (const target of sweep.slice(1)) {
+    fireEvent.pointerDown(targets[0], { pointerId: 1, button: 0 });
+    for (const target of targets.slice(1)) {
       vi.mocked(document.elementFromPoint).mockReturnValueOnce(target);
       fireEvent.pointerMove(screen.getByRole("grid"), { pointerId: 1 });
     }
     fireEvent.pointerUp(screen.getByRole("grid"), { pointerId: 1 });
+  }
+
+  const filledRow = (row: number, cols: number[]) =>
+    cols.map((col) => ({ row, col, mark: "fill" }));
+
+  it("paints a run when dragged along a row, and keeps a stray cell on that row", () => {
+    const { onStateChange } = renderSolver();
+    dragThrough(cell(2, 0), cell(2, 1), cell(3, 2), cell(2, 3));
     expect(onStateChange).toHaveBeenLastCalledWith({
-      marks: [
-        { row: 2, col: 0, mark: "fill" },
-        { row: 2, col: 1, mark: "fill" },
-        { row: 2, col: 3, mark: "fill" },
-      ],
+      marks: filledRow(2, [0, 1, 2, 3]),
+    });
+  });
+
+  it("fills the cells a fast drag skips over", () => {
+    const { onStateChange } = renderSolver();
+    dragThrough(cell(2, 4), cell(2, 0));
+    expect(onStateChange).toHaveBeenLastCalledWith({
+      marks: filledRow(2, [0, 1, 2, 3, 4]),
+    });
+    expect(onStateChange).toHaveBeenCalledTimes(2);
+  });
+
+  it("follows a column when the drag leaves mostly downwards", () => {
+    const { onStateChange } = renderSolver();
+    dragThrough(cell(0, 2), cell(3, 3));
+    expect(onStateChange).toHaveBeenLastCalledWith({
+      marks: [0, 1, 2, 3].map((row) => ({ row, col: 2, mark: "fill" })),
     });
   });
 

@@ -9,7 +9,7 @@ export function shadedCells({ grid }: Pick<Content, "grid">) {
   );
 }
 
-/** The grid has `rows × cols` cells and the clues it gives have exactly one picture. */
+/** The grid has `rows × cols` cells, at least one shaded, and the clues it gives have exactly one picture. */
 export function verifyNonogram({ rows, cols, grid }: Content) {
   if (grid.length !== rows) {
     throw new Error(`the grid has ${grid.length} rows, not ${rows}`);
@@ -20,7 +20,9 @@ export function verifyNonogram({ rows, cols, grid }: Content) {
       `row ${ragged + 1} has ${grid[ragged].length} cells, not ${cols}`,
     );
   }
-  const count = countSolutions(cluesOf(rows, cols, shadedCells({ grid })));
+  const cells = shadedCells({ grid });
+  if (!cells.length) throw new Error("the picture has no shaded cell");
+  const count = countSolutions(cluesOf(rows, cols, cells));
   if (count !== 1) {
     throw new Error(
       count === 0

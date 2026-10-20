@@ -33,6 +33,16 @@ describe("verifyNonogram", () => {
     expect(() => verifyNonogram(checker)).toThrow(/more than one solution/);
   });
 
+  it("rejects a blank picture", () => {
+    const blank: Content = {
+      rows: 5,
+      cols: 5,
+      caption: "x",
+      grid: Array(5).fill("....."),
+    };
+    expect(() => verifyNonogram(blank)).toThrow(/no shaded cell/);
+  });
+
   it("lists the shaded cells of a written picture", () => {
     expect(shadedCells({ grid: ["#.", ".#"] })).toEqual([
       { row: 0, col: 0 },

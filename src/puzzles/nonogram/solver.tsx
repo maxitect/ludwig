@@ -169,11 +169,15 @@ export function Solver({
     cellRefs.current.get(cursor.row * cols + cursor.col)?.focus();
   }, [cursor, cols]);
 
-  function set(index: number, mark: Mark | undefined) {
-    if (solved || marksRef.current.get(index) === mark) return;
+  function paint(indices: readonly number[], mark: Mark | undefined) {
+    if (solved) return;
+    const changed = indices.filter((index) => marksRef.current.get(index) !== mark);
+    if (!changed.length) return;
     const next = new Map(marksRef.current);
-    if (mark) next.set(index, mark);
-    else next.delete(index);
+    for (const index of changed) {
+      if (mark) next.set(index, mark);
+      else next.delete(index);
+    }
     marksRef.current = next;
     setMarks(next);
     checkOnEntry.current = mark === "fill";
@@ -187,6 +191,8 @@ export function Solver({
         })),
     });
   }
+
+  const set = (index: number, mark: Mark | undefined) => paint([index], mark);
 
   const cellOf = (target: EventTarget | Element | null) => {
     const node = (target as Element | null)?.closest<HTMLElement>("[data-index]");
@@ -215,13 +221,21 @@ export function Solver({
     if (index === null || index === current.last) return;
     const row = Math.floor(index / cols);
     const col = index % cols;
-    const axis = current.axis ?? (row !== current.row ? "col" : "row");
-    if ((axis === "row" && row !== current.row) || (axis === "col" && col !== current.col)) {
-      return;
-    }
+    const axis =
+      current.axis ??
+      (Math.abs(row - current.row) > Math.abs(col - current.col) ? "col" : "row");
     current.axis = axis;
-    current.last = index;
-    set(index, current.value);
+    const step = axis === "row" ? 1 : cols;
+    const end = axis === "row" ? current.row * cols + col : row * cols + current.col;
+    if (end === current.last) return;
+    const direction = end > current.last ? step : -step;
+    const run: number[] = [];
+    for (let at = current.last + direction; ; at += direction) {
+      run.push(at);
+      if (at === end) break;
+    }
+    current.last = end;
+    paint(run, current.value);
   }
 
   const endDrag = () => {

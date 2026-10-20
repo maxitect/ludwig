@@ -5,7 +5,7 @@ import { layoutOf, solve } from "../src/puzzles/norinori/engine";
 import { regionCells } from "../src/puzzles/norinori/verify";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { attemptsFor, databaseAvailable, norinoriMarks } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { hydrated, openPuzzle } from "./helpers/solve";
 
 const SHOTS = ".verification/T097";
 const MAX_TABS = 80;
@@ -94,7 +94,7 @@ test("solve by keyboard, keep the marks across a reload", async ({ page }) => {
     ]);
 
   await page.reload();
-  await page.waitForLoadState("networkidle");
+  await hydrated(page.getByRole("grid", { name: "Norinori grid" }));
   await expect(status(page)).toHaveText(`3 of ${total} cells shaded`);
   await expect(cell(page, cells[0].row, cells[0].col)).toHaveAttribute(
     "aria-label",

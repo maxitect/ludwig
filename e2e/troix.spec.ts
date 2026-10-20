@@ -4,7 +4,7 @@ import { content as threeOfAKind } from "../content/troix/three-of-a-kind";
 import { solve } from "../src/puzzles/troix/engine";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { attemptsFor, databaseAvailable, troixCells } from "./helpers/db";
-import { openPuzzle } from "./helpers/solve";
+import { hydrated, openPuzzle } from "./helpers/solve";
 
 const SHOTS = ".verification/T088";
 const MAX_TABS = 80;
@@ -89,7 +89,7 @@ test("solve by keyboard, keep the symbols across a reload", async ({ page }) => 
     .toBe(4);
 
   await page.reload();
-  await page.waitForLoadState("networkidle");
+  await hydrated(page.getByRole("grid", { name: "Troix" }));
   await expect(status(page)).toHaveText(
     `${given.size + 4} of ${total} cells filled`,
   );

@@ -148,6 +148,20 @@ describe("railroad solver", () => {
     });
   });
 
+  it("joins a drag that starts on the end of laid track to that track", () => {
+    const { onStateChange } = renderSolver();
+    dragThrough(cell(0, 0), cell(0, 1));
+    dragThrough(cell(0, 1), cell(1, 1));
+    expect(onStateChange).toHaveBeenLastCalledWith({
+      pieces: [
+        { row: 0, col: 0, piece: "ew" },
+        { row: 0, col: 1, piece: "sw" },
+        { row: 1, col: 1, piece: "ns" },
+      ],
+      crosses: [],
+    });
+  });
+
   it("drops the last cell of a drag that backs up", () => {
     const { onStateChange } = renderSolver();
     dragThrough(cell(0, 0), cell(0, 1), cell(0, 2), cell(0, 1));

@@ -144,6 +144,18 @@ describe("laidAlong", () => {
     ]);
     expect(toExit[1].piece).toBe("ne");
   });
+
+  it("joins the first cell to the side it is told the track comes from", () => {
+    const laid = laidAlong(
+      ends,
+      [
+        { row: 1, col: 1 },
+        { row: 2, col: 1 },
+      ],
+      "w",
+    );
+    expect(laid.map(({ piece }) => piece)).toEqual(["sw", "ns"]);
+  });
 });
 
 describe("endOnEdge", () => {

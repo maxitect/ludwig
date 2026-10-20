@@ -11,7 +11,7 @@ import {
 } from "react";
 import { cn } from "@/utils/cn";
 import type { SolverProps } from "../solver-types";
-import { OPEN, STEP, laidAlong } from "./engine";
+import { OPEN, OPPOSITE, SIDES, STEP, laidAlong } from "./engine";
 import type * as schema from "./schema";
 
 type Piece = schema.Piece;
@@ -232,6 +232,22 @@ export function Solver({
       Math.abs((a % cols) - (b % cols)) ===
     1;
 
+  /** The side of `start` that already joins laid track, preferring one its own piece opens onto. */
+  function joinedSide(base: ReadonlyMap<number, Mark>, start: number, out: Side) {
+    const row = Math.floor(start / cols);
+    const col = start % cols;
+    const joined = SIDES.filter((side) => {
+      const [dr, dc] = STEP[side];
+      const r = row + dr;
+      const c = col + dc;
+      if (side === out || r < 0 || r >= rows || c < 0 || c >= cols) return false;
+      const piece = pieceIn(givens, base, r * cols + c);
+      return !!piece && OPEN[piece].includes(OPPOSITE[side]);
+    });
+    const own = pieceIn(givens, base, start);
+    return joined.find((side) => own && OPEN[own].includes(side)) ?? joined[0];
+  }
+
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     if (solved || (event.pointerType === "mouse" && event.button !== 0)) return;
     const index = cellOf(event.target);
@@ -266,12 +282,16 @@ export function Solver({
     }
     const next = new Map(current.base);
     if (path.length > 1) {
+      const [start, second] = path;
+      const out: Side =
+        second === start + 1 ? "e" : second === start - 1 ? "w" : second > start ? "s" : "n";
       const laid = laidAlong(
         { entry, exit },
         path.map((index) => ({
           row: Math.floor(index / cols),
           col: index % cols,
         })),
+        joinedSide(current.base, start, out),
       );
       for (const { row, col, piece } of laid) {
         if (!givens.has(row * cols + col)) next.set(row * cols + col, piece);

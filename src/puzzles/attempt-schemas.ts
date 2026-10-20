@@ -14,10 +14,10 @@ import { attemptSchema as knightsKnavesAttempt } from "./knights-knaves/schema";
 import { attemptSchema as logicGridAttempt } from "./logic-grid/schema";
 import { attemptSchema as napkinMathsAttempt } from "./napkin-maths/schema";
 import { attemptSchema as nonogramAttempt } from "./nonogram/schema";
-import { attemptSchema as railroadAttempt } from "./railroad/schema";
 import { attemptSchema as norinoriAttempt } from "./norinori/schema";
 import { attemptSchema as oddOneOutAttempt } from "./odd-one-out/schema";
 import { attemptSchema as pictogramCipherAttempt } from "./pictogram-cipher/schema";
+import { attemptSchema as railroadAttempt } from "./railroad/schema";
 import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
 import { attemptSchema as rotaAttempt } from "./rota/schema";
 import { attemptSchema as sightlinesAttempt } from "./sightlines/schema";
@@ -46,10 +46,10 @@ const attemptSchemas = {
   "logic-grid": logicGridAttempt,
   "napkin-maths": napkinMathsAttempt,
   nonogram: nonogramAttempt,
-  railroad: railroadAttempt,
   norinori: norinoriAttempt,
   "odd-one-out": oddOneOutAttempt,
   "pictogram-cipher": pictogramCipherAttempt,
+  railroad: railroadAttempt,
   "reverse-chess": reverseChessAttempt,
   rota: rotaAttempt,
   sightlines: sightlinesAttempt,

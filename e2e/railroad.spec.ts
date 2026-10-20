@@ -98,6 +98,7 @@ test("solve by keyboard alone, keep the pieces across a reload", async ({ page }
 
 test("a drag lays the track in both themes", async ({ page }, testInfo) => {
   test.skip(!databaseAvailable, "needs the local database");
+  test.slow();
   if (testInfo.project.name !== "mobile") {
     await page.setViewportSize({ width: 1280, height: 900 });
   }
@@ -127,11 +128,7 @@ test("a drag lays the track in both themes", async ({ page }, testInfo) => {
     const box = await cell(page, at).boundingBox();
     return { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 };
   };
-  // Split at a straight piece, where a drag's guess for an open end is right.
-  const half =
-    path.findIndex(
-      ({ piece }, i) => i >= path.length / 2 && (piece === "ns" || piece === "ew"),
-    ) + 1;
+  const half = Math.ceil(path.length / 2);
   const start = await centre(path[0]);
   await page.mouse.move(start.x, start.y);
   await page.mouse.down();

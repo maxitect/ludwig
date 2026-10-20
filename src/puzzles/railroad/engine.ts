@@ -259,11 +259,13 @@ const sideBetween = (a: Cell, b: Cell): Side =>
 /**
  * The pieces a drag along `path` (adjacent cells, in order) lays. Each cell joins the side it was
  * entered from to the side it was left by. A track end that ends on the entry or exit turns to
- * that end's light; any other end carries straight on.
+ * that end's light. The first cell joins `startFrom` when given (the track the drag resumes); any
+ * other end carries straight on.
  */
 export function laidAlong(
   { entry, exit }: Pick<Layout, "entry" | "exit">,
   path: readonly Cell[],
+  startFrom?: Side,
 ): Placed[] {
   const at = (cell: Cell, end: Layout["entry"]) =>
     cell.row === end.row && cell.col === end.col;
@@ -273,9 +275,7 @@ export function laidAlong(
     const lit = [entry, exit].find((end) => at(cell, end));
     let from: Side = i
       ? OPPOSITE[sideBetween(path[i - 1], cell)]
-      : lit
-        ? lit.side
-        : OPPOSITE[sideBetween(cell, next)];
+      : (lit?.side ?? startFrom ?? OPPOSITE[sideBetween(cell, next)]);
     let out: Side = last ? OPPOSITE[from] : sideBetween(cell, next);
     if (last && lit && lit.side !== from) out = lit.side;
     if (from === out) from = OPPOSITE[out];

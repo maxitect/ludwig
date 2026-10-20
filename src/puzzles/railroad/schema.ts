@@ -1,4 +1,4 @@
-import { createInsertSchema, createSelectSchema } from "drizzle-orm/zod";
+import { createSelectSchema } from "drizzle-orm/zod";
 import { z } from "zod";
 import { endOnEdge } from "./engine";
 import {
@@ -14,14 +14,6 @@ const extent = (schema: z.ZodNumber) => schema.min(4).max(10);
 const count = (schema: z.ZodNumber) => schema.min(0).max(10);
 
 const puzzleSelect = createSelectSchema(railroadPuzzles, {
-  rows: extent,
-  cols: extent,
-  entryRow: coordinate,
-  entryCol: coordinate,
-  exitRow: coordinate,
-  exitCol: coordinate,
-});
-const puzzleInsert = createInsertSchema(railroadPuzzles, {
   rows: extent,
   cols: extent,
   entryRow: coordinate,
@@ -90,14 +82,7 @@ export const attemptSchema = z.object({
  * side names and inside the grid, and every count and given piece must lie in the grid.
  */
 export const contentSchema = z
-  .object({
-    ...puzzleInsert.pick({ rows: true, cols: true }).shape,
-    entry: end,
-    exit: end,
-    rowCounts: counts,
-    colCounts: counts,
-    given: z.array(placed),
-  })
+  .object(shape)
   .superRefine((puzzle, ctx) => {
     const problem = (message: string) =>
       ctx.addIssue({ code: "custom", message });

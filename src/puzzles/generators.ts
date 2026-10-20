@@ -11,12 +11,16 @@ import { contentSchema as futoshikiContent } from "./futoshiki/schema";
 import { starBattleGenerators } from "./star-battle/generate";
 import { gradeStarBattle } from "./star-battle/grade";
 import { contentSchema as starBattleContent } from "./star-battle/schema";
-import { gridFromGivens, unitsFor } from "./sudoku/engine";
+import { gridFromGivens, unitsFor, variantFor } from "./sudoku/engine";
 import { sudokuGenerators } from "./sudoku/generate";
 import {
   sudokuJigsawGenerators,
   sudokuRainbowGenerators,
 } from "./sudoku/generate-regions";
+import {
+  sudokuKillerGenerators,
+  sudokuXvGenerators,
+} from "./sudoku/generate-variants";
 import { gradeSudoku } from "./sudoku/grade";
 import { contentSchema as sudokuContent } from "./sudoku/schema";
 
@@ -29,6 +33,8 @@ export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
     sudoku: sudokuGenerators,
     "sudoku-jigsaw": sudokuJigsawGenerators,
     "sudoku-rainbow": sudokuRainbowGenerators,
+    "sudoku-killer": sudokuKillerGenerators,
+    "sudoku-xv": sudokuXvGenerators,
     futoshiki: futoshikiGenerators,
     "star-battle": starBattleGenerators,
   };
@@ -59,8 +65,13 @@ export function regenerate(
 /** Grades a type's content by technique alone, or null when it needs trial and error. */
 const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
   sudoku: (content) => {
-    const { givens, regions } = sudokuContent.parse(content);
-    return gradeSudoku(gridFromGivens(givens), 5, unitsFor(regions));
+    const { givens, regions, cages, xv } = sudokuContent.parse(content);
+    return gradeSudoku(
+      gridFromGivens(givens),
+      5,
+      unitsFor(regions),
+      variantFor({ cages, xv }),
+    );
   },
   futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
   "star-battle": (content) =>

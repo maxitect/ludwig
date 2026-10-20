@@ -223,8 +223,8 @@ export function conflictingIndexes(
 }
 
 /**
- * Finds up to `limit` completions of the grid by backtracking on the empty cell with the fewest
- * candidates. Contradictory givens yield none.
+ * Finds up to `limit` completions of the grid by backtracking on a hidden single, or else on the
+ * empty cell with the fewest candidates. Contradictory givens yield none.
  */
 export function enumerateSolutions(
   start: Grid,
@@ -301,19 +301,78 @@ export function enumerateSolutions(
     return mask;
   };
 
+  const masks = Array<number>(CELLS).fill(0);
+  const fullUnits = units.filter((unit) => unit.length === SIZE);
+
+  /** Narrows each cage's empty cells to digits that some distinct completion of its sum uses. False when a cage cannot be completed. */
+  const narrowCages = () => {
+    for (let id = 0; id < cages.length; id++) {
+      if (!cageLeft[id]) continue;
+      const open = cages[id].cells.filter((index) => !grid[index]);
+      const keep = open.map(() => 0);
+      const walk = (cell: number, rest: number, taken: number): boolean => {
+        if (cell === open.length) return rest === 0;
+        let any = false;
+        for (let left = masks[open[cell]] & ~taken; left; left &= left - 1) {
+          const bit = left & -left;
+          const digit = 31 - Math.clz32(bit);
+          if (digit > rest) break;
+          if (walk(cell + 1, rest - digit, taken | bit)) {
+            keep[cell] |= bit;
+            any = true;
+          }
+        }
+        return any;
+      };
+      if (!walk(0, cageSum[id], cageUsed[id])) return false;
+      open.forEach((index, cell) => (masks[index] = keep[cell]));
+    }
+    return true;
+  };
+
   function search() {
+    for (let index = 0; index < CELLS; index++) {
+      if (grid[index]) continue;
+      masks[index] = candidates(index);
+      if (!masks[index]) return;
+    }
+    if (!narrowCages()) return;
     let best = -1;
     let bestMask = 0;
     let bestCount = SIZE + 1;
     for (let index = 0; index < CELLS; index++) {
       if (grid[index]) continue;
-      const mask = candidates(index);
-      const count = bitCount(mask);
+      const count = bitCount(masks[index]);
       if (count < bestCount) {
         best = index;
-        bestMask = mask;
+        bestMask = masks[index];
         bestCount = count;
-        if (count <= 1) break;
+      }
+    }
+    if (best !== -1 && bestCount > 1) {
+      for (const unit of fullUnits) {
+        let once = 0;
+        let more = 0;
+        let placed = 0;
+        for (const index of unit) {
+          if (grid[index]) {
+            placed |= 1 << grid[index];
+          } else {
+            more |= once & masks[index];
+            once |= masks[index];
+          }
+        }
+        if ((once | placed) !== ALL_DIGITS) return;
+        const single = once & ~more & ~placed;
+        if (single) {
+          const bit = single & -single;
+          const index = unit.find((cell) => !grid[cell] && masks[cell] & bit);
+          if (index !== undefined) {
+            best = index;
+            bestMask = bit;
+            break;
+          }
+        }
       }
     }
     if (best === -1) {

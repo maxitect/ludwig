@@ -5,7 +5,8 @@ const WIDTH = 120;
 
 function literal(value: unknown): string {
   if (typeof value === "string") return JSON.stringify(value);
-  if (value && typeof value === "object" && !Array.isArray(value)) {
+  if (Array.isArray(value)) return `[${value.map(literal).join(", ")}]`;
+  if (value && typeof value === "object") {
     const entries = Object.entries(value).map(
       ([key, entry]) => `${key}: ${literal(entry)}`,
     );

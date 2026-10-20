@@ -16,7 +16,7 @@ const boxOf = (index: number) =>
   Math.floor(index / 27) * 3 + Math.floor((index % SIZE) / 3);
 
 /** A random completed grid, filled cell by cell from shuffled digits with backtracking. */
-function randomSolvedGrid(rng: () => number) {
+export function randomSolvedGrid(rng: () => number) {
   const grid: Grid = Array(CELLS).fill(0);
   const rows = Array<number>(SIZE).fill(0);
   const cols = Array<number>(SIZE).fill(0);

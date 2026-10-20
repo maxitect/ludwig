@@ -52,20 +52,26 @@ function Clue({
   active,
   vertical,
   label,
+  width,
 }: {
   clue: readonly number[];
   satisfied: boolean;
   active: boolean;
   vertical?: boolean;
   label: string;
+  width?: string;
 }) {
   return (
     <div
+      role={vertical ? "columnheader" : "rowheader"}
       aria-label={`${label}, clue ${clueText(clue)}${satisfied ? ", complete" : ""}`}
       data-satisfied={satisfied}
+      style={{ width }}
       className={cn(
-        "flex items-center justify-end gap-[0.3em] px-[0.3em] font-display text-[0.7rem] leading-tight font-bold tabular-nums sm:text-sm",
-        vertical ? "flex-col justify-end py-[0.3em]" : "flex-row",
+        "flex gap-[0.3em] font-display text-[0.7rem] leading-tight font-bold tabular-nums sm:text-sm",
+        vertical
+          ? "min-w-0 flex-1 flex-col items-center justify-end py-[0.3em]"
+          : "shrink-0 flex-row items-center justify-end px-[0.3em]",
         satisfied && "opacity-35",
         active && "bg-paper-shade",
       )}
@@ -282,37 +288,31 @@ export function Solver({
           onPointerCancel={endDrag}
         >
           <div role="row" className="flex" style={{ minHeight: "1.5rem" }}>
-            <div style={{ width: clueWidth }} className="shrink-0" />
+            <div
+              aria-hidden
+              style={{ width: clueWidth }}
+              className="shrink-0"
+            />
             {colClues.map((clue, col) => (
-              <div
+              <Clue
                 key={col}
-                role="columnheader"
-                className="flex min-w-0 flex-1 flex-col justify-end"
-              >
-                <Clue
-                  clue={clue}
-                  vertical
-                  label={`Column ${col + 1}`}
-                  satisfied={colSatisfied[col]}
-                  active={cursor.col === col && !solved}
-                />
-              </div>
+                clue={clue}
+                vertical
+                label={`Column ${col + 1}`}
+                satisfied={colSatisfied[col]}
+                active={cursor.col === col && !solved}
+              />
             ))}
           </div>
           {rowClues.map((clue, row) => (
             <div key={row} role="row" className="flex">
-              <div
-                role="rowheader"
-                style={{ width: clueWidth }}
-                className="flex shrink-0"
-              >
-                <Clue
-                  clue={clue}
-                  label={`Row ${row + 1}`}
-                  satisfied={rowSatisfied[row]}
-                  active={cursor.row === row && !solved}
-                />
-              </div>
+              <Clue
+                clue={clue}
+                width={clueWidth}
+                label={`Row ${row + 1}`}
+                satisfied={rowSatisfied[row]}
+                active={cursor.row === row && !solved}
+              />
               {Array.from({ length: cols }, (_, col) => {
                 const index = row * cols + col;
                 const mark = marks.get(index);

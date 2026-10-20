@@ -16,11 +16,11 @@ Ludwig is a non-commercial fan site: a puzzle-solving web app styled after the B
 
 - **Framework:** Next.js 16 (App Router, React Server Components, Turbopack), React 19, TypeScript 5 (strict)
 - **Database:** PostgreSQL. Docker locally, Neon in production, Drizzle ORM 1.0 RC with drizzle-kit (exact versions pinned)
-- **Auth:** Better Auth with email and password and database sessions. There is no email verification.
+- **Auth:** Better Auth with email and password and database sessions. Email verification and password reset go through Resend; `@e2e.test` sign-ups are verified on creation on previews and in development. See `.claude/rules/auth.md`.
 - **Validation:** Zod 4, plus `drizzle-orm/zod` for generated table schemas
 - **Styling:** Tailwind CSS 4 (CSS-first `@theme`) and shadcn/ui, heavily restyled
 - **Puzzles:** chess.js, react-chessboard v5, motion
-- **Testing:** Vitest (engines, checkers, DB integrity) and Playwright (end-to-end, in CI against a local production build and on opted-in previews)
+- **Testing:** Vitest (engines, checkers, DB integrity) and Playwright (end-to-end, in CI against a local production build)
 - **Hosting:** Vercel with the Neon Marketplace integration. Each preview gets its own Neon branch.
 - **Package manager:** pnpm
 

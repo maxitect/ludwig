@@ -1,26 +1,98 @@
 name: CI
 
+# One workflow so `needs:` can gate the slow suites behind the cheap ones: lint and typecheck,
+# then the unit and database Vitest projects in parallel, then the E2E shards against a local
+# production build. `changes` gates every job on the files the change touches (job-level `if:`s
+# rather than a workflow `paths:` filter, so a skipped suite still reports), and on pull requests
+# narrows Vitest to the tests importing a changed file and Playwright to the affected puzzle
+# types. A push to main runs everything in full. `all-checks` is the one check to require.
+
 on:
   pull_request:
-    paths-ignore: ["docs/**", "**/*.md", ".claude/**", "scripts/dev/**"]
   push:
     branches: [main]
-    paths-ignore: ["docs/**", "**/*.md", ".claude/**", "scripts/dev/**"]
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  DATABASE_URL: postgres://ludwig:ludwig@localhost:5432/ludwig
+  DATABASE_URL_UNPOOLED: postgres://ludwig:ludwig@localhost:5432/ludwig
+  BETTER_AUTH_SECRET: ci-dummy-secret-0123456789abcdef0123456789
+  BETTER_AUTH_URL: http://localhost:3000
+  NEXT_TELEMETRY_DISABLED: 1
+
 jobs:
-  gates:
+  changes:
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: postgres://ludwig:ludwig@localhost:5432/ludwig
-      DATABASE_URL_UNPOOLED: postgres://ludwig:ludwig@localhost:5432/ludwig
-      BETTER_AUTH_SECRET: ci-dummy-secret-0123456789abcdef0123456789
-      BETTER_AUTH_URL: http://localhost:3000
+    timeout-minutes: 5
+    outputs:
+      validate: ${{ steps.paths.outputs.validate }}
+      vitest: ${{ steps.paths.outputs.vitest }}
+      vitest_full: ${{ steps.paths.outputs.vitest_full }}
+      db_full: ${{ steps.paths.outputs.db_full }}
+      verify: ${{ steps.paths.outputs.verify }}
+      e2e: ${{ steps.paths.outputs.e2e }}
+      e2e_specs: ${{ steps.paths.outputs.e2e_specs }}
+      e2e_matrix: ${{ steps.paths.outputs.e2e_matrix }}
+    steps:
+      # Depth 2: a pull request checks out its merge commit, whose first parent is the base branch.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: paths
+        run: node scripts/ci-changes.mts HEAD^1 ${{ github.event_name == 'push' && 'full' || '' }}
+
+  validate:
+    needs: changes
+    if: needs.changes.outputs.validate == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+
+  unit:
+    needs: [changes, validate]
+    if: needs.changes.outputs.vitest == 'true' && needs.validate.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Past durations let Vitest start the slowest files first.
+      - uses: actions/cache@v4
+        with:
+          path: node_modules/.vite/vitest
+          key: vitest-unit-${{ github.sha }}
+          restore-keys: vitest-unit-
+      - run: pnpm test --project unit --passWithNoTests ${{ needs.changes.outputs.vitest_full != 'true' && '--changed HEAD^1' || '' }}
+
+  db:
+    needs: [changes, validate]
+    if: (needs.changes.outputs.vitest == 'true' || needs.changes.outputs.verify == 'true') && needs.validate.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
-      postgres:
+      postgres: &postgres
         image: postgres:17
         env:
           POSTGRES_USER: ludwig
@@ -35,16 +107,102 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm lint
       - run: pnpm db:migrate
-      - run: pnpm test
-      - run: pnpm puzzles:verify
+      - if: needs.changes.outputs.vitest == 'true'
+        run: pnpm test --project db --passWithNoTests ${{ needs.changes.outputs.db_full != 'true' && '--changed HEAD^1' || '' }}
+      - if: needs.changes.outputs.verify == 'true'
+        run: pnpm puzzles:verify
+
+  e2e:
+    name: e2e (${{ matrix.target }})
+    needs: [changes, validate, unit, db]
+    if: >-
+      !cancelled() && needs.changes.outputs.e2e == 'true' && needs.validate.result == 'success' &&
+      contains(fromJSON('["success","skipped"]'), needs.unit.result) &&
+      contains(fromJSON('["success","skipped"]'), needs.db.result)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.changes.outputs.e2e_matrix) }}
+    # Runs the app as a preview, so sign-ups on the E2E email domain skip verification.
+    env:
+      VERCEL_ENV: preview
+    services:
+      postgres: *postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - id: playwright
+        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - id: browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ steps.playwright.outputs.version }}
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium webkit firefox
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium webkit firefox
+      - run: pnpm db:migrate
       - run: pnpm db:seed
+      - uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: next-${{ hashFiles('pnpm-lock.yaml') }}-
       - run: pnpm build
+      - name: Start the app
+        run: |
+          pnpm start > "$RUNNER_TEMP/next.log" 2>&1 &
+          curl -sf --retry 60 --retry-delay 1 --retry-all-errors -o /dev/null http://localhost:3000
+      - name: Playwright
+        env:
+          SPECS: ${{ needs.changes.outputs.e2e_specs }}
+        run: |
+          if [ "${{ matrix.target }}" = perf ]; then
+            pnpm exec playwright test --project=mobile-perf --no-deps --pass-with-no-tests
+          else
+            read -ra specs <<<"$SPECS"
+            pnpm exec playwright test "${specs[@]}" --project=desktop --project=mobile --project=landing-fallback --project=iphone --shard=${{ matrix.target }} --pass-with-no-tests
+          fi
+      - if: failure()
+        run: tail -200 "$RUNNER_TEMP/next.log"
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ strategy.job-index }}
+          path: test-results/
+          if-no-files-found: ignore
+
+  # Passes only when every suite succeeded or was skipped by its path gate.
+  all-checks:
+    if: always()
+    needs: [changes, validate, unit, db, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "needs results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in
+              success|skipped) ;;
+              *) echo "::error::A required suite finished as '$r'."; exit 1 ;;
+            esac
+          done

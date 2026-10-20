@@ -40,9 +40,10 @@ describe("defence", () => {
   });
 
   it("prefers the reply that leaves White fewest mates, then UCI order", () => {
-    const after = "5rk1/5Qpp/8/8/2B2b2/5PqP/6P1/4R2K b - - 0 1";
+    // After Kc7, Ka7 and the other knight moves leave Ra1# and Ra5#; b5, b6 and Nf5 leave only Ra1#.
+    const after = "k7/1pK5/7n/6Rp/4p3/8/8/6R1 b - - 1 1";
     const reply = defence(after, 1);
-    expect(reply && `${reply.from}${reply.to}`).toBe("f8f7");
+    expect(reply && `${reply.from}${reply.to}`).toBe("b7b5");
   });
 });
 
@@ -99,6 +100,24 @@ describe("verify", () => {
     expect(() =>
       verifyChessProblem(content("R6k/6pp/8/8/8/8/8/4K3 w - - 0 1", 1)),
     ).toThrow(/Black is in check/);
+  });
+
+  it("checks an en passant position instead of failing to load it", () => {
+    expect(() =>
+      verifyChessProblem(content("7k/8/8/3pP3/8/8/8/R3K3 w - d6 0 1", 1)),
+    ).toThrow(/found 0/);
+  });
+
+  it("rejects an en passant file with no pawn that just moved two squares", () => {
+    expect(() =>
+      verifyChessProblem(content("7k/8/8/4P3/8/8/8/R3K3 w - d6 0 1", 1)),
+    ).toThrow(/en passant/);
+  });
+
+  it("rejects a castling right whose king or rook has left its square", () => {
+    expect(() =>
+      verifyChessProblem(content("7k/6pp/8/8/8/8/8/4K3 w K - 0 1", 1)),
+    ).toThrow(/castling/);
   });
 });
 

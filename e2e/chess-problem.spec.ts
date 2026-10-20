@@ -71,9 +71,9 @@ test("a first move that does not force mate is refused, and undo takes it back",
   await openPuzzle(page, { typeKey: "chess-problem", slug: SLUG });
   await board(page).focus();
 
-  let cursor = await move(page, "e4", "c2", "c7");
+  const cursor = await move(page, "e4", "c2", "c7");
   await expect(message(page)).toHaveText(/Black replies Kxc7/);
-  cursor = await move(page, cursor, "c1", "d1");
+  await move(page, cursor, "c1", "d1");
   await expect(message(page)).toHaveText("That doesn't force mate.");
   await expect(page.getByText(/Solved in/)).toHaveCount(0);
   expect((await attemptsFor(email))[0]?.completed).toBe(false);

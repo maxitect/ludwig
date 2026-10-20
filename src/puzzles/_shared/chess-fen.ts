@@ -84,7 +84,7 @@ export function toFen(position: Position) {
   ].join(" ");
 }
 
-/** Inverse of `toFen`, for authoring and tests only. */
+/** Inverse of `toFen`: parses content FEN and positions the solvers display. */
 export function fromFen(fen: string): Position {
   const [placement, side, castling, enPassant, halfmove, fullmove] =
     fen.split(" ");
@@ -121,7 +121,6 @@ export function fromFen(fen: string): Position {
     pieces,
   };
 }
-
 
 const PLACEMENT_ROW = /^(?:[pnbrqkPNBRQK1-8])+$/;
 

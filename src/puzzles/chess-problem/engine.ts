@@ -5,7 +5,7 @@ export type MoveInput = { from: string; to: string; promotion?: string };
 const uci = ({ from, to, promotion }: MoveInput) =>
   `${from}${to}${promotion ?? ""}`;
 
-const sameMove = (a: MoveInput, b: MoveInput) => uci(a) === uci(b);
+export const sameMove = (a: MoveInput, b: MoveInput) => uci(a) === uci(b);
 
 const delivers = (move: Move) => move.san.endsWith("#");
 

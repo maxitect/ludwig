@@ -18,6 +18,7 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
   "book-cipher": lazy(() => import("./book-cipher/solver")),
   caesar: lazy(() => import("./caesar/solver")),
   "cctv-maze": lazy(() => import("./cctv-maze/solver")),
+  "chess-problem": lazy(() => import("./chess-problem/solver")),
   circle9: lazy(() => import("./circle9/solver")),
   crossword: lazy(() => import("./crossword/solver")),
   futoshiki: lazy(() => import("./futoshiki/solver")),
@@ -47,4 +48,4 @@ export function getSolver(typeKey: string) {
 }
 
 /** Types whose solver draws its own touch Check and Reset buttons through `requestCheck` and `requestReset`. */
-export const ownsTouchControls = new Set(["reverse-chess"]);
+export const ownsTouchControls = new Set(["reverse-chess", "chess-problem"]);

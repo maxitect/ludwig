@@ -1,5 +1,5 @@
 import type { ContentMeta } from "../../../../scripts/content-files";
-import type { Content } from "../schema";
+import type { ContentFile } from "../schema";
 
 export const meta = {
   slug: "dev-pawn-push",
@@ -9,21 +9,7 @@ export const meta = {
 
 export const content = {
   mode: "last_move",
-  sideToMove: "black",
-  whiteKingside: false,
-  whiteQueenside: false,
-  blackKingside: false,
-  blackQueenside: false,
-  halfmove: 0,
-  fullmove: 1,
-  pieces: [
-    { file: "b", rank: 7, colour: "black", piece: "king" },
-    { file: "a", rank: 6, colour: "white", piece: "pawn" },
-    { file: "b", rank: 5, colour: "black", piece: "pawn" },
-    { file: "b", rank: 4, colour: "white", piece: "bishop" },
-    { file: "h", rank: 3, colour: "white", piece: "king" },
-    { file: "b", rank: 2, colour: "white", piece: "pawn" },
-  ],
+  fen: "8/1k6/P7/1p6/1B6/7K/1P6/8 b - - 0 1",
   solutionPlies: [
     {
       fromFile: "a",
@@ -34,4 +20,4 @@ export const content = {
       special: "none",
     },
   ],
-} satisfies Content;
+} satisfies ContentFile;

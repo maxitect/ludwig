@@ -55,6 +55,22 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     ],
     cameras: [{ row: 2, col: 2, facing: "e", fovDeg: 90, rangeCells: 2 }],
   },
+  "chess-problem": {
+    mateIn: 1,
+    whiteKingside: false,
+    whiteQueenside: false,
+    blackKingside: false,
+    blackQueenside: false,
+    enPassantFile: null,
+    pieces: [
+      { file: "h", rank: 8, colour: "black", piece: "king" },
+      { file: "g", rank: 7, colour: "black", piece: "pawn" },
+      { file: "h", rank: 7, colour: "black", piece: "pawn" },
+      { file: "a", rank: 1, colour: "white", piece: "rook" },
+      { file: "b", rank: 1, colour: "white", piece: "rook" },
+      { file: "e", rank: 1, colour: "white", piece: "king" },
+    ],
+  },
   caesar: { ciphertext: "wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj" },
   circle9: {
     numbers: [

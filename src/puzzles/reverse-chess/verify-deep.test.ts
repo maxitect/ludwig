@@ -18,6 +18,7 @@ const sixPly = (chain: string[], goal: Content["goal"]): Content => {
     whiteQueenside: false,
     blackKingside: false,
     blackQueenside: false,
+    enPassantFile: null,
     halfmove: 0,
     fullmove: 1,
     goal,

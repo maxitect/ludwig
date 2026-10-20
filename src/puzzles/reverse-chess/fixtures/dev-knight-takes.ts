@@ -1,5 +1,5 @@
 import type { ContentMeta } from "../../../../scripts/content-files";
-import type { Content } from "../schema";
+import type { ContentFile } from "../schema";
 
 export const meta = {
   slug: "dev-knight-takes",
@@ -13,46 +13,7 @@ export const meta = {
  */
 export const content = {
   mode: "last_move",
-  sideToMove: "black",
-  whiteKingside: false,
-  whiteQueenside: false,
-  blackKingside: false,
-  blackQueenside: false,
-  halfmove: 0,
-  fullmove: 10,
-  pieces: [
-    { file: "a", rank: 8, colour: "black", piece: "rook" },
-    { file: "b", rank: 8, colour: "black", piece: "knight" },
-    { file: "c", rank: 8, colour: "black", piece: "bishop" },
-    { file: "d", rank: 8, colour: "black", piece: "queen" },
-    { file: "e", rank: 8, colour: "black", piece: "king" },
-    { file: "f", rank: 8, colour: "black", piece: "bishop" },
-    { file: "h", rank: 8, colour: "black", piece: "rook" },
-    { file: "a", rank: 7, colour: "black", piece: "pawn" },
-    { file: "b", rank: 7, colour: "black", piece: "pawn" },
-    { file: "c", rank: 7, colour: "black", piece: "pawn" },
-    { file: "d", rank: 7, colour: "black", piece: "pawn" },
-    { file: "e", rank: 7, colour: "black", piece: "pawn" },
-    { file: "f", rank: 7, colour: "white", piece: "pawn" },
-    { file: "g", rank: 7, colour: "black", piece: "pawn" },
-    { file: "h", rank: 7, colour: "black", piece: "pawn" },
-    { file: "f", rank: 6, colour: "black", piece: "pawn" },
-    { file: "g", rank: 6, colour: "white", piece: "knight" },
-    { file: "a", rank: 2, colour: "white", piece: "pawn" },
-    { file: "b", rank: 2, colour: "white", piece: "pawn" },
-    { file: "c", rank: 2, colour: "white", piece: "pawn" },
-    { file: "d", rank: 2, colour: "white", piece: "pawn" },
-    { file: "f", rank: 2, colour: "white", piece: "pawn" },
-    { file: "g", rank: 2, colour: "white", piece: "pawn" },
-    { file: "h", rank: 2, colour: "white", piece: "pawn" },
-    { file: "a", rank: 1, colour: "white", piece: "rook" },
-    { file: "b", rank: 1, colour: "white", piece: "knight" },
-    { file: "c", rank: 1, colour: "white", piece: "bishop" },
-    { file: "d", rank: 1, colour: "white", piece: "queen" },
-    { file: "e", rank: 1, colour: "white", piece: "king" },
-    { file: "f", rank: 1, colour: "white", piece: "bishop" },
-    { file: "h", rank: 1, colour: "white", piece: "rook" },
-  ],
+  fen: "rnbqkb1r/pppppPpp/5pN1/8/8/8/PPPP1PPP/RNBQKB1R b - - 0 10",
   solutionPlies: [
     {
       fromFile: "e",
@@ -64,4 +25,4 @@ export const content = {
       special: "none",
     },
   ],
-} satisfies Content;
+} satisfies ContentFile;

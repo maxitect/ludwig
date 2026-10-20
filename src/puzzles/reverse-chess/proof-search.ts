@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
-import type { ForwardMove } from "./derive";
+import type { ForwardMove } from "../_shared/chess-notation";
 import {
   BISHOP,
   KING,

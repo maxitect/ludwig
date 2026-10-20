@@ -1,6 +1,7 @@
 import { Chess } from "chess.js";
 import type { Color, PieceSymbol, Square } from "chess.js";
-import { LETTER_BY_PIECE, toForward, type ForwardMove } from "./derive";
+import type { ForwardMove } from "../_shared/chess-notation";
+import { LETTER_BY_PIECE, toForward } from "./derive";
 import type { Content, SolutionPly } from "./schema";
 
 export type Retro = {

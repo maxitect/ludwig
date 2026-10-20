@@ -322,6 +322,7 @@ describe("in-place content updates", () => {
     whiteQueenside: false,
     blackKingside: false,
     blackQueenside: false,
+    enPassantFile: null,
     halfmove: 0,
     fullmove: 1,
     pieces: [

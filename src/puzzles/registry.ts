@@ -6,6 +6,7 @@ import { anagramModule } from "./anagram/module";
 import { bookCipherModule } from "./book-cipher/module";
 import { caesarModule } from "./caesar/module";
 import { cctvMazeModule } from "./cctv-maze/module";
+import { chessProblemModule } from "./chess-problem/module";
 import { circle9Module } from "./circle9/module";
 import { crosswordModule } from "./crossword/module";
 import { futoshikiModule } from "./futoshiki/module";
@@ -110,6 +111,7 @@ const modules = {
   "book-cipher": bookCipherModule,
   caesar: caesarModule,
   "cctv-maze": cctvMazeModule,
+  "chess-problem": chessProblemModule,
   circle9: circle9Module,
   crossword: crosswordModule,
   futoshiki: futoshikiModule,

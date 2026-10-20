@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { content as lastMove } from "./fixtures/dev-pawn-push";
-import { content as unwind } from "./fixtures/dev-unwind";
-import { type Payload, payloadSchema } from "./schema";
+import { content as lastMoveFile } from "./fixtures/dev-pawn-push";
+import { content as unwindFile } from "./fixtures/dev-unwind";
+import { contentSchema, type Payload, payloadSchema } from "./schema";
 import { Solver } from "./solver";
+
+const lastMove = contentSchema.parse(lastMoveFile);
+const unwind = contentSchema.parse(unwindFile);
 
 afterEach(cleanup);
 
@@ -19,7 +22,7 @@ const payloads: Record<string, Payload> = {
     ...unwind,
     enPassantFile: null,
     plyCount: 2,
-    goalText: unwind.goal.displayText,
+    goalText: unwind.goal?.displayText,
   }),
 };
 

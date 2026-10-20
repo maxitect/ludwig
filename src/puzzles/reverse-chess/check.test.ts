@@ -1,15 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { content as unwind } from "./fixtures/dev-unwind";
-import { content as uncaptureFixture } from "./fixtures/dev-knight-takes";
-import { content as uniqueFixture } from "./fixtures/dev-pawn-push";
+import { content as unwindFile } from "./fixtures/dev-unwind";
+import { content as uncaptureFixtureFile } from "./fixtures/dev-knight-takes";
+import { content as uniqueFixtureFile } from "./fixtures/dev-pawn-push";
 import { check } from "./check";
 import {
+  contentSchema,
   solutionSchema,
   type Answer,
   type Content,
   type Payload,
   type Solution,
 } from "./schema";
+
+const unwind = contentSchema.parse(unwindFile);
+const uncaptureFixture = contentSchema.parse(uncaptureFixtureFile);
+const uniqueFixture = contentSchema.parse(uniqueFixtureFile);
 
 const payload = (content: Content): Payload => ({
   mode: content.mode,

@@ -1,5 +1,6 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-orm/zod";
 import { z } from "zod";
+import { fenSchema } from "../_shared/chess-fen";
 import {
   reverseChessAttemptPlies,
   reverseChessGoalCastlingRight,
@@ -55,9 +56,6 @@ const puzzleInsert = createInsertSchema(reverseChessPuzzles).omit({
 const pieceSelect = createSelectSchema(reverseChessPieces, { rank }).omit({
   puzzleId: true,
 });
-const pieceInsert = createInsertSchema(reverseChessPieces, { rank }).omit({
-  puzzleId: true,
-});
 const solutionPlyInsert = createInsertSchema(
   reverseChessSolutionPlies,
   plyRanks,
@@ -85,12 +83,29 @@ export const payloadSchema = z.object({
 
 export const answerSchema = z.object({ plies: z.array(attemptPlyInsert) });
 
+const positionColumns = {
+  sideToMove: true,
+  whiteKingside: true,
+  whiteQueenside: true,
+  blackKingside: true,
+  blackQueenside: true,
+  enPassantFile: true,
+  halfmove: true,
+  fullmove: true,
+} as const;
+
+/** A content file gives the position as `fen`, which is parsed into the piece rows and scalar columns. */
 export const contentSchema = z
   .object({
-    ...puzzleInsert.shape,
-    pieces: z.array(pieceInsert).min(2),
+    ...puzzleInsert.omit(positionColumns).shape,
+    fen: fenSchema,
     solutionPlies: z.array(solutionPlyInsert).min(1),
     goal: z.intersection(goalInsert, goalSchema).optional(),
+  })
+  .transform(({ fen, ...rest }) => ({ ...rest, ...fen }))
+  .refine(({ pieces }) => pieces.length >= 2, {
+    message: "a position needs at least two pieces",
+    path: ["fen"],
   })
   .refine(({ mode, goal }) => (mode === "unwind") === (goal !== undefined), {
     message: "unwind puzzles need a goal and last_move puzzles must not have one",
@@ -102,6 +117,8 @@ export const attemptSchema = z.object({ plies: z.array(attemptPlyInsert) });
 export type Payload = z.infer<typeof payloadSchema>;
 export type Answer = z.infer<typeof answerSchema>;
 export type Content = z.infer<typeof contentSchema>;
+/** A content file as authored, before its FEN is parsed. */
+export type ContentFile = z.input<typeof contentSchema>;
 export type SolutionPly = z.infer<typeof solutionPlySchema>;
 export type Solution = z.infer<typeof solutionSchema>;
 export type Goal = z.infer<typeof goalSchema>;

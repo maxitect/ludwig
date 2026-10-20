@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { content as pawnPush } from "./fixtures/dev-pawn-push";
-import { content as unwind } from "./fixtures/dev-unwind";
-import { content as rookCheck } from "./fixtures/content/reverse-chess/dev-rook-check";
+import { content as pawnPushFile } from "./fixtures/dev-pawn-push";
+import { content as unwindFile } from "./fixtures/dev-unwind";
+import { content as rookCheckFile } from "./fixtures/content/reverse-chess/dev-rook-check";
 import path from "node:path";
 import { verifyPuzzles } from "../../../scripts/verify-puzzles";
 import { registry } from "../registry";
 import { enumerateRetro, retroKey } from "./engine";
-import type { Content } from "./schema";
+import { contentSchema, type Content } from "./schema";
 import { verifyReverseChess } from "./verify";
+
+const pawnPush = contentSchema.parse(pawnPushFile);
+const unwind = contentSchema.parse(unwindFile);
+const rookCheck = contentSchema.parse(rookCheckFile);
 
 const ROOK_FEN = "k7/8/1K6/8/8/8/8/R7 b - - 1 1";
 
@@ -130,7 +134,7 @@ describe("verifyReverseChess Mode B", () => {
   it("fails when no chain reaches the goal", () => {
     const unreachable: Content = {
       ...unwind,
-      goal: { ...unwind.goal, rank: 5 },
+      goal: { ...unwind.goal, rank: 5 } as Content["goal"],
     };
     expect(() => verifyReverseChess(unreachable)).toThrow(
       "expected exactly 1 chain of 2 retro moves reaching the goal, found 0",

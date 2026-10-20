@@ -169,6 +169,14 @@ export const types = [
     sort: 10,
   },
   {
+    key: "chess-problem",
+    categoryKey: "logic",
+    name: "Chess Problem",
+    description: "White to play: find the first move that forces mate, whatever Black does.",
+    subtypeTable: "chess_problem_puzzles",
+    sort: 11,
+  },
+  {
     key: "sightlines",
     categoryKey: "spatial",
     name: "Sightlines",

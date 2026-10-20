@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { saveChessNotation } from "@/lib/actions/chess-notation";
-import type { Notation } from "./derive";
-import type { SolverProps } from "../solver-types";
+import type { SolverProps } from "../../solver-types";
+import type { Notation } from "../chess-notation";
 
 const STORAGE_KEY = "chess-notation";
 

@@ -1,12 +1,16 @@
 import { Chess } from "chess.js";
 import { describe, expect, it } from "vitest";
-import { content as fourSteps } from "../../../content/reverse-chess/four-steps";
-import { content as longWalk } from "../../../content/reverse-chess/the-long-walk";
-import { content as twoPromotions } from "../../../content/reverse-chess/two-promotions";
+import { content as fourStepsFile } from "../../../content/reverse-chess/four-steps";
+import { content as longWalkFile } from "../../../content/reverse-chess/the-long-walk";
+import { content as twoPromotionsFile } from "../../../content/reverse-chess/two-promotions";
 import { check } from "./check";
 import { fromFen } from "./derive";
-import { solutionSchema, type Answer, type Content, type Payload, type Solution } from "./schema";
+import { contentSchema, solutionSchema, type Answer, type Content, type Payload, type Solution } from "./schema";
 import { verifyReverseChess } from "./verify";
+
+const fourSteps = contentSchema.parse(fourStepsFile);
+const longWalk = contentSchema.parse(longWalkFile);
+const twoPromotions = contentSchema.parse(twoPromotionsFile);
 
 const PROOF_GAMES = { fourSteps, twoPromotions, longWalk };
 
@@ -103,7 +107,7 @@ describe("verifyReverseChess for an initial_position goal", () => {
     const ambiguous: Content = {
       ...fourSteps,
       ...position,
-      enPassantFile: undefined,
+      enPassantFile: null,
       fullmove: 3,
       sideToMove: "white",
       pieces: position.pieces,

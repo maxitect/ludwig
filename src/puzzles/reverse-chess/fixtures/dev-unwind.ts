@@ -1,5 +1,5 @@
 import type { ContentMeta } from "../../../../scripts/content-files";
-import type { Content } from "../schema";
+import type { ContentFile } from "../schema";
 
 export const meta = {
   slug: "dev-unwind",
@@ -9,13 +9,6 @@ export const meta = {
 
 export const content = {
   mode: "unwind",
-  sideToMove: "black",
-  whiteKingside: false,
-  whiteQueenside: false,
-  blackKingside: false,
-  blackQueenside: false,
-  halfmove: 0,
-  fullmove: 1,
   goal: {
     kind: "piece_on_square",
     displayText: "Before the black pawn left the a7 square",
@@ -24,28 +17,7 @@ export const content = {
     file: "a",
     rank: 7,
   },
-  pieces: [
-    { file: "a", rank: 1, colour: "white", piece: "king" },
-    { file: "b", rank: 1, colour: "white", piece: "knight" },
-    { file: "a", rank: 2, colour: "white", piece: "pawn" },
-    { file: "b", rank: 2, colour: "white", piece: "pawn" },
-    { file: "c", rank: 2, colour: "white", piece: "pawn" },
-    { file: "d", rank: 2, colour: "white", piece: "pawn" },
-    { file: "g", rank: 2, colour: "white", piece: "pawn" },
-    { file: "a", rank: 3, colour: "white", piece: "pawn" },
-    { file: "c", rank: 3, colour: "white", piece: "pawn" },
-    { file: "h", rank: 3, colour: "white", piece: "pawn" },
-    { file: "g", rank: 8, colour: "white", piece: "knight" },
-    { file: "h", rank: 8, colour: "black", piece: "king" },
-    { file: "b", rank: 7, colour: "black", piece: "pawn" },
-    { file: "e", rank: 7, colour: "black", piece: "pawn" },
-    { file: "f", rank: 7, colour: "black", piece: "pawn" },
-    { file: "g", rank: 7, colour: "black", piece: "pawn" },
-    { file: "h", rank: 7, colour: "black", piece: "pawn" },
-    { file: "a", rank: 6, colour: "black", piece: "pawn" },
-    { file: "f", rank: 6, colour: "black", piece: "pawn" },
-    { file: "h", rank: 6, colour: "black", piece: "pawn" },
-  ],
+  fen: "6Nk/1p2pppp/p4p1p/8/8/P1P4P/PPPP2P1/KN6 b - - 0 1",
   solutionPlies: [
     {
       fromFile: "h",
@@ -64,4 +36,4 @@ export const content = {
       special: "none",
     },
   ],
-} satisfies Content;
+} satisfies ContentFile;

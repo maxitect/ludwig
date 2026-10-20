@@ -3,6 +3,7 @@ import { attemptSchema as anagramAttempt } from "./anagram/schema";
 import { attemptSchema as bookCipherAttempt } from "./book-cipher/schema";
 import { attemptSchema as caesarAttempt } from "./caesar/schema";
 import { attemptSchema as cctvMazeAttempt } from "./cctv-maze/schema";
+import { attemptSchema as chessProblemAttempt } from "./chess-problem/schema";
 import { attemptSchema as circle9Attempt } from "./circle9/schema";
 import { attemptSchema as crosswordAttempt } from "./crossword/schema";
 import { attemptSchema as futoshikiAttempt } from "./futoshiki/schema";
@@ -33,6 +34,7 @@ const attemptSchemas = {
   "book-cipher": bookCipherAttempt,
   caesar: caesarAttempt,
   "cctv-maze": cctvMazeAttempt,
+  "chess-problem": chessProblemAttempt,
   circle9: circle9Attempt,
   crossword: crosswordAttempt,
   futoshiki: futoshikiAttempt,

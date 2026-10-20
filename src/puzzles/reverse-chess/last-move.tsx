@@ -8,7 +8,7 @@ import type { SolverProps } from "../solver-types";
 import { toFen } from "./derive";
 import { applyRetro, toRetro, type RetroRejection } from "./engine";
 import { PlyChoices } from "./ply-choices";
-import { SideToMove } from "./side-to-move";
+import { SideToMove } from "../_shared/chess-board/side-to-move";
 import {
   DROP_VARIANTS,
   REJECTION_TEXT,

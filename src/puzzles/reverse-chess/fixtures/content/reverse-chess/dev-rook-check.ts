@@ -1,5 +1,5 @@
 import type { ContentMeta } from "../../../../../../scripts/content-files";
-import type { Content } from "../../../schema";
+import type { ContentFile } from "../../../schema";
 
 export const meta = {
   slug: "dev-rook-check",
@@ -9,18 +9,7 @@ export const meta = {
 
 export const content = {
   mode: "last_move",
-  sideToMove: "black",
-  whiteKingside: false,
-  whiteQueenside: false,
-  blackKingside: false,
-  blackQueenside: false,
-  halfmove: 1,
-  fullmove: 1,
-  pieces: [
-    { file: "a", rank: 8, colour: "black", piece: "king" },
-    { file: "b", rank: 6, colour: "white", piece: "king" },
-    { file: "a", rank: 1, colour: "white", piece: "rook" },
-  ],
+  fen: "k7/8/1K6/8/8/8/8/R7 b - - 1 1",
   solutionPlies: [
     {
       fromFile: "h",
@@ -31,4 +20,4 @@ export const content = {
       special: "none",
     },
   ],
-} satisfies Content;
+} satisfies ContentFile;

@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content as nightTrain } from "../content/railroad/night-train";
 import { content as terminus } from "../content/railroad/terminus";
 import { OPEN, solve } from "../src/puzzles/railroad/engine";
+import type { Content } from "../src/puzzles/railroad/schema";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { attemptsFor, databaseAvailable, railroadAttemptCounts } from "./helpers/db";
 import { hydrated, openPuzzle } from "./helpers/solve";
@@ -49,8 +50,8 @@ async function walk(page: Page, from: Cell, to: Cell) {
   return to;
 }
 
-const track = (content: typeof nightTrain) => solve(content) ?? [];
-const isGiven = (content: typeof nightTrain, { row, col }: Cell) =>
+const track = (content: Content) => solve(content) ?? [];
+const isGiven = (content: Content, { row, col }: Cell) =>
   content.given.some((piece) => piece.row === row && piece.col === col);
 
 /** Walks the cursor with the arrow keys and presses each piece's number key. */

@@ -4,16 +4,16 @@ import { content as lastStop } from "../../../content/railroad/last-stop";
 import { content as nightTrain } from "../../../content/railroad/night-train";
 import { content as signalBox } from "../../../content/railroad/signal-box";
 import { content as terminus } from "../../../content/railroad/terminus";
-import { contentSchema } from "./schema";
+import { contentSchema, type Content } from "./schema";
 import { verifyRailroad } from "./verify";
 
-const grid = {
+const grid: Omit<Content, "rowCounts" | "colCounts"> = {
   rows: 4,
   cols: 4,
   entry: { row: 0, col: 0, side: "w" },
   exit: { row: 3, col: 3, side: "e" },
   given: [],
-} as const;
+};
 
 describe("verifyRailroad", () => {
   it("accepts the five puzzles, each with exactly one track", () => {

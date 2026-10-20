@@ -6,7 +6,8 @@ import type { Content as AnagramContent } from "../../src/puzzles/anagram/schema
 import type { Content as CrosswordContent } from "../../src/puzzles/crossword/schema";
 import type { Content as GearContent } from "../../src/puzzles/gears/schema";
 import type { Content as LogicGridContent } from "../../src/puzzles/logic-grid/schema";
-import type { Content as ReverseChessContent } from "../../src/puzzles/reverse-chess/schema";
+import { fromFen } from "../../src/puzzles/_shared/chess-fen";
+import type { ContentFile as ReverseChessContent } from "../../src/puzzles/reverse-chess/schema";
 import { solve as solveFutoshiki } from "../../src/puzzles/futoshiki/engine";
 import type { Content as FutoshikiContent } from "../../src/puzzles/futoshiki/schema";
 import { solve } from "../../src/puzzles/sudoku/engine";
@@ -134,7 +135,7 @@ export async function uncapturePuzzle() {
     typeKey: "reverse-chess",
     slug: found.meta.slug,
     title: found.meta.title,
-    sideToMove: found.content.sideToMove,
+    sideToMove: fromFen(found.content.fen).sideToMove,
     from: `${ply.fromFile}${ply.fromRank}`,
     to: `${ply.toFile}${ply.toRank}`,
     uncapture: ply.uncapture,

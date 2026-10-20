@@ -5,6 +5,7 @@ import { Preview as anagramPreview } from "./anagram/preview";
 import { Preview as bookCipherPreview } from "./book-cipher/preview";
 import { Preview as caesarPreview } from "./caesar/preview";
 import { Preview as cctvMazePreview } from "./cctv-maze/preview";
+import { Preview as chessProblemPreview } from "./chess-problem/preview";
 import { Preview as circle9Preview } from "./circle9/preview";
 import { Preview as crosswordPreview } from "./crossword/preview";
 import { Preview as futoshikiPreview } from "./futoshiki/preview";
@@ -39,6 +40,7 @@ export const previews = {
   "book-cipher": bookCipherPreview,
   caesar: caesarPreview,
   "cctv-maze": cctvMazePreview,
+  "chess-problem": chessProblemPreview,
   circle9: circle9Preview,
   crossword: crosswordPreview,
   futoshiki: futoshikiPreview,

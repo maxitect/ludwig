@@ -64,16 +64,19 @@ function squareLabel(square: string, piece: SquareHandlerArgs["piece"]) {
 export type ChessBoardProps = {
   position: readonly PieceRow[];
   onRetroDrop?: (drop: RetroDrop) => void;
+  /** Forward play: a piece moved from A to B reports the move A to B. Takes the place of `onRetroDrop`. */
+  onMove?: (move: RetroDrop) => void;
   arrows?: readonly BackwardsArrow[];
   highlights?: readonly Square[];
   orientation?: Colour;
   interactive?: boolean;
 };
 
-/** Board for retro puzzles. A piece moved from A to B reports the forward move B to A. */
+/** Board for retro puzzles. A piece moved from A to B reports the forward move B to A, unless `onMove` asks for forward play. */
 export function ChessBoard({
   position,
   onRetroDrop,
+  onMove,
   arrows = [],
   highlights = [],
   orientation = "white",
@@ -99,7 +102,8 @@ export function ChessBoard({
 
   function drop(source: Square, target: Square) {
     if (source === target) return;
-    onRetroDrop?.(retroDrop(source, target));
+    if (onMove) onMove({ from: source, to: target });
+    else onRetroDrop?.(retroDrop(source, target));
   }
 
   function handleDrop({
@@ -247,7 +251,7 @@ export function ChessBoard({
         </svg>
       )}
       <p id={`${boardId}-help`} className="sr-only">
-        Drag a piece backwards, tap a piece and then a square, or use the arrow keys to move between squares
+        {onMove ? "Drag a piece" : "Drag a piece backwards"}, tap a piece and then a square, or use the arrow keys to move between squares
         and Enter to pick up and drop a piece.
       </p>
       <p aria-live="polite" className="sr-only">

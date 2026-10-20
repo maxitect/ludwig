@@ -23,6 +23,7 @@ const PUZZLE_TYPES = [
   "norinori",
   "odd-one-out",
   "pictogram-cipher",
+  "railroad",
   "reverse-chess",
   "rota",
   "sightlines",

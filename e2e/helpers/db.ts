@@ -71,6 +71,25 @@ export async function nonogramMarks(email: string) {
   }
 }
 
+export async function railroadAttemptCounts(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ pieces: number; crosses: number }>(
+      `select (select count(*) from railroad_attempt_pieces p where p.attempt_id = a.id)::int as pieces,
+              (select count(*) from railroad_attempt_crosses c where c.attempt_id = a.id)::int as crosses
+         from attempts a
+         join "user" u on u.id = a.user_id
+        where u.email = $1 and a.type_key = 'railroad'`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function norinoriMarks(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

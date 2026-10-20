@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  fromFen,
-  satisfiesGoal,
-  toAlgebraic,
-  toDescriptive,
-  toFen,
-} from "./derive";
+import { toAlgebraic, toDescriptive } from "../_shared/chess-notation";
+import { fromFen, satisfiesGoal, toFen } from "./derive";
 
 describe("toFen and fromFen", () => {
   it.each([

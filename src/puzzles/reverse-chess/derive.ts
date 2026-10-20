@@ -2,6 +2,7 @@ import { Chess, DEFAULT_POSITION } from "chess.js";
 import type { Move } from "chess.js";
 import type { PositionGoal } from "./schema";
 import { fromFen } from "../_shared/chess-fen";
+import { notate, type ForwardMove, type Notation } from "../_shared/chess-notation";
 
 export { LETTER_BY_PIECE, fromFen, toFen, type Position } from "../_shared/chess-fen";
 
@@ -37,8 +38,6 @@ export function satisfiesGoal(fen: string, goal: PositionGoal) {
   );
 }
 
-export type ForwardMove = Pick<Move, "from" | "to" | "promotion">;
-
 /** The forward move that a retro move takes back: `position` is the one shown, with the promoted piece still on `to`. */
 export function toForward(
   retro: Pick<Move, "from" | "to"> & { unpromote?: boolean },
@@ -69,71 +68,6 @@ export const isStartingPlacement = (fen: string) =>
   fen.split(" ").slice(0, 2).join(" ") ===
   DEFAULT_POSITION.split(" ").slice(0, 2).join(" ");
 
-function forwardMove(prior: string, { from, to, promotion }: ForwardMove) {
-  const moves = new Chess(prior).moves({ verbose: true });
-  const found = moves.find(
-    (move) =>
-      move.from === from && move.to === to && move.promotion === promotion,
-  );
-  if (!found) throw new Error(`${from}${to} is not a legal move in ${prior}`);
-  return { found, moves };
-}
-
-/** Standard algebraic notation of the forward move played from `prior`, without check or mate marks. */
-export function toAlgebraic(move: ForwardMove, prior: string) {
-  return forwardMove(prior, move).found.san.replace(/[+#]$/, "");
-}
-
-const DESCRIPTIVE_FILES = {
-  a: "QR",
-  b: "QN",
-  c: "QB",
-  d: "Q",
-  e: "K",
-  f: "KB",
-  g: "KN",
-  h: "KR",
-} as const;
-
-const descriptiveSquare = (square: string, colour: Move["color"]) =>
-  `${DESCRIPTIVE_FILES[square[0] as keyof typeof DESCRIPTIVE_FILES]}${colour === "w" ? square[1] : 9 - Number(square[1])}`;
-
-function descriptiveRest(move: Move) {
-  const target = move.captured
-    ? `x${move.captured.toUpperCase()}`
-    : `-${descriptiveSquare(move.to, move.color)}`;
-  const promotion = move.promotion ? `=${move.promotion.toUpperCase()}` : "";
-  return `${target}${promotion}`;
-}
-
-/**
- * Descriptive notation of the forward move played from `prior`. Each side names squares from its own view:
- * files take the name of the piece that starts on them (QR, QN, QB, Q, K, KB, KN, KR) and ranks count from the mover's back rank.
- * Quiet moves read `N-KB3`, captures name the captured piece (`PxP`), promotions end `=Q`, castling is `O-O` or `O-O-O`.
- * When another legal move by the same kind of piece would read identically, the origin square follows the piece, as in `R(KR1)-Q1`.
- */
-export function toDescriptive(move: ForwardMove, prior: string) {
-  const { found, moves } = forwardMove(prior, move);
-  if (found.isKingsideCastle()) return "O-O";
-  if (found.isQueensideCastle()) return "O-O-O";
-
-  const piece = found.piece.toUpperCase();
-  const rest = descriptiveRest(found);
-  const ambiguous = moves.some(
-    (other) =>
-      other !== found &&
-      other.piece === found.piece &&
-      descriptiveRest(other) === rest,
-  );
-  return ambiguous
-    ? `${piece}(${descriptiveSquare(found.from, found.color)})${rest}`
-    : `${piece}${rest}`;
-}
-
-const NOTATORS = { algebraic: toAlgebraic, descriptive: toDescriptive };
-
-export type Notation = keyof typeof NOTATORS;
-
 /** Notation of the forward move that a retro move takes back: `position` is the one shown, `prior` the one before the move. */
 export function notateRetro(
   notation: Notation,
@@ -141,5 +75,5 @@ export function notateRetro(
   position: string,
   prior: string,
 ) {
-  return NOTATORS[notation](toForward(retro, position), prior);
+  return notate(notation, toForward(retro, position), prior);
 }

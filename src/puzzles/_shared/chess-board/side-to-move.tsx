@@ -1,4 +1,4 @@
-import { PieceGlyph, type Colour } from "../_shared/chess-board";
+import { PieceGlyph, type Colour } from ".";
 
 export function SideToMove({ colour }: { colour: Colour }) {
   return (

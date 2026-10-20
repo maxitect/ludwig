@@ -7,9 +7,9 @@ import { DeferredChessBoard } from "../_shared/chess-board/deferred-chess-board"
 import type { SolverProps } from "../solver-types";
 import { fromFen, notateRetro, toFen } from "./derive";
 import { stepRetro, toRetro, type RetroRejection } from "./engine";
-import { NotationToggle, useChessNotation } from "./notation-toggle";
+import { NotationToggle, useChessNotation } from "../_shared/chess-board/notation-toggle";
 import { PlyChoices } from "./ply-choices";
-import { SideToMove } from "./side-to-move";
+import { SideToMove } from "../_shared/chess-board/side-to-move";
 import {
   REJECTION_TEXT,
   isKingAt,

@@ -318,6 +318,18 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.starBattleAttemptMarks.attemptId,
     }),
   },
+  circle9Puzzles: {
+    numbers: r.many.circle9Numbers({
+      from: r.circle9Puzzles.puzzleId,
+      to: r.circle9Numbers.puzzleId,
+    }),
+  },
+  circle9Attempts: {
+    circles: r.many.circle9AttemptCircles({
+      from: r.circle9Attempts.attemptId,
+      to: r.circle9AttemptCircles.attemptId,
+    }),
+  },
   norinoriPuzzles: {
     regionCells: r.many.norinoriRegionCells({
       from: r.norinoriPuzzles.puzzleId,

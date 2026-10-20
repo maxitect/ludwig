@@ -91,6 +91,26 @@ export async function troixCells(email: string) {
   }
 }
 
+export async function circle9Circles(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ row: number; col: number }>(
+      `select c.row::int as row, c.col::int as col
+         from circle9_attempt_circles c
+         join attempts a on a.id = c.attempt_id
+         join "user" u on u.id = a.user_id
+        where u.email = $1
+        order by c.row, c.col`,
+      [email],
+    );
+    return rows;
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function futoshikiAttemptCounts(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

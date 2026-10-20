@@ -18,6 +18,7 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
   "book-cipher": lazy(() => import("./book-cipher/solver")),
   caesar: lazy(() => import("./caesar/solver")),
   "cctv-maze": lazy(() => import("./cctv-maze/solver")),
+  circle9: lazy(() => import("./circle9/solver")),
   crossword: lazy(() => import("./crossword/solver")),
   futoshiki: lazy(() => import("./futoshiki/solver")),
   "gear-train": lazy(() => import("./gear-train/solver")),

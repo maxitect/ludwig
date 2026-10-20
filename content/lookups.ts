@@ -153,6 +153,14 @@ export const types = [
     sort: 8,
   },
   {
+    key: "circle9",
+    categoryKey: "logic",
+    name: "Circle9",
+    description: "Circle one of each digit, one in every row, column and box. The format is James Dewar's (circle9puzzle.com).",
+    subtypeTable: "circle9_puzzles",
+    sort: 9,
+  },
+  {
     key: "sightlines",
     categoryKey: "spatial",
     name: "Sightlines",

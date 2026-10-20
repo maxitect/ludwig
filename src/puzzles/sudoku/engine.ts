@@ -223,8 +223,8 @@ export function conflictingIndexes(
 }
 
 /**
- * Finds up to `limit` completions of the grid by backtracking on the empty cell with the fewest
- * candidates. Contradictory givens yield none.
+ * Finds up to `limit` completions of the grid by backtracking on a hidden single, or else on the
+ * empty cell with the fewest candidates. Contradictory givens yield none.
  */
 export function enumerateSolutions(
   start: Grid,

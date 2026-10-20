@@ -1,5 +1,5 @@
 import type { ContentMeta } from "../../scripts/content-files";
-import type { Content } from "../../src/puzzles/reverse-chess/schema";
+import type { ContentFile } from "../../src/puzzles/reverse-chess/schema";
 
 export const meta = {
   slug: "four-steps",
@@ -10,57 +10,14 @@ export const meta = {
   publishedAt: new Date("2026-10-06T00:00:00Z"),
 } satisfies ContentMeta;
 
-/**
- * rnbqkbnr/ppp1pppp/4P3/8/8/3p4/PPPP1PPP/RNBQKBNR w KQkq - 0 5
- * Proof game: e3 d6 e4 d5 e5 d4 e6 d3
- */
+// Proof game: e3 d6 e4 d5 e5 d4 e6 d3
 export const content = {
   mode: "unwind",
-  sideToMove: "white",
-  whiteKingside: true,
-  whiteQueenside: true,
-  blackKingside: true,
-  blackQueenside: true,
-  halfmove: 0,
-  fullmove: 5,
   goal: {
     kind: "initial_position",
     displayText: "Back to the starting position",
   },
-  pieces: [
-    { file: "a", rank: 8, colour: "black", piece: "rook" },
-    { file: "b", rank: 8, colour: "black", piece: "knight" },
-    { file: "c", rank: 8, colour: "black", piece: "bishop" },
-    { file: "d", rank: 8, colour: "black", piece: "queen" },
-    { file: "e", rank: 8, colour: "black", piece: "king" },
-    { file: "f", rank: 8, colour: "black", piece: "bishop" },
-    { file: "g", rank: 8, colour: "black", piece: "knight" },
-    { file: "h", rank: 8, colour: "black", piece: "rook" },
-    { file: "a", rank: 7, colour: "black", piece: "pawn" },
-    { file: "b", rank: 7, colour: "black", piece: "pawn" },
-    { file: "c", rank: 7, colour: "black", piece: "pawn" },
-    { file: "e", rank: 7, colour: "black", piece: "pawn" },
-    { file: "f", rank: 7, colour: "black", piece: "pawn" },
-    { file: "g", rank: 7, colour: "black", piece: "pawn" },
-    { file: "h", rank: 7, colour: "black", piece: "pawn" },
-    { file: "e", rank: 6, colour: "white", piece: "pawn" },
-    { file: "d", rank: 3, colour: "black", piece: "pawn" },
-    { file: "a", rank: 2, colour: "white", piece: "pawn" },
-    { file: "b", rank: 2, colour: "white", piece: "pawn" },
-    { file: "c", rank: 2, colour: "white", piece: "pawn" },
-    { file: "d", rank: 2, colour: "white", piece: "pawn" },
-    { file: "f", rank: 2, colour: "white", piece: "pawn" },
-    { file: "g", rank: 2, colour: "white", piece: "pawn" },
-    { file: "h", rank: 2, colour: "white", piece: "pawn" },
-    { file: "a", rank: 1, colour: "white", piece: "rook" },
-    { file: "b", rank: 1, colour: "white", piece: "knight" },
-    { file: "c", rank: 1, colour: "white", piece: "bishop" },
-    { file: "d", rank: 1, colour: "white", piece: "queen" },
-    { file: "e", rank: 1, colour: "white", piece: "king" },
-    { file: "f", rank: 1, colour: "white", piece: "bishop" },
-    { file: "g", rank: 1, colour: "white", piece: "knight" },
-    { file: "h", rank: 1, colour: "white", piece: "rook" },
-  ],
+  fen: "rnbqkbnr/ppp1pppp/4P3/8/8/3p4/PPPP1PPP/RNBQKBNR w KQkq - 0 5",
   solutionPlies: [
     {
       fromFile: "d",
@@ -127,4 +84,4 @@ export const content = {
       special: "none",
     },
   ],
-} satisfies Content;
+} satisfies ContentFile;

@@ -1,5 +1,5 @@
 import type { ContentMeta } from "../../scripts/content-files";
-import type { Content } from "../../src/puzzles/reverse-chess/schema";
+import type { ContentFile } from "../../src/puzzles/reverse-chess/schema";
 
 export const meta = {
   slug: "two-promotions",
@@ -10,53 +10,14 @@ export const meta = {
   publishedAt: new Date("2026-10-06T00:00:00Z"),
 } satisfies ContentMeta;
 
-/**
- * rnbNkbnr/pp1p1ppp/8/8/8/8/P1P1PPPP/RNbQKBNR w KQkq - 0 6
- * Proof game: d4 c5 d5 c4 d6 c3 dxe7 cxb2 exd8=N bxc1=B
- */
+// Proof game: d4 c5 d5 c4 d6 c3 dxe7 cxb2 exd8=N bxc1=B
 export const content = {
   mode: "unwind",
-  sideToMove: "white",
-  whiteKingside: true,
-  whiteQueenside: true,
-  blackKingside: true,
-  blackQueenside: true,
-  halfmove: 0,
-  fullmove: 6,
   goal: {
     kind: "initial_position",
     displayText: "Back to the starting position",
   },
-  pieces: [
-    { file: "a", rank: 8, colour: "black", piece: "rook" },
-    { file: "b", rank: 8, colour: "black", piece: "knight" },
-    { file: "c", rank: 8, colour: "black", piece: "bishop" },
-    { file: "d", rank: 8, colour: "white", piece: "knight" },
-    { file: "e", rank: 8, colour: "black", piece: "king" },
-    { file: "f", rank: 8, colour: "black", piece: "bishop" },
-    { file: "g", rank: 8, colour: "black", piece: "knight" },
-    { file: "h", rank: 8, colour: "black", piece: "rook" },
-    { file: "a", rank: 7, colour: "black", piece: "pawn" },
-    { file: "b", rank: 7, colour: "black", piece: "pawn" },
-    { file: "d", rank: 7, colour: "black", piece: "pawn" },
-    { file: "f", rank: 7, colour: "black", piece: "pawn" },
-    { file: "g", rank: 7, colour: "black", piece: "pawn" },
-    { file: "h", rank: 7, colour: "black", piece: "pawn" },
-    { file: "a", rank: 2, colour: "white", piece: "pawn" },
-    { file: "c", rank: 2, colour: "white", piece: "pawn" },
-    { file: "e", rank: 2, colour: "white", piece: "pawn" },
-    { file: "f", rank: 2, colour: "white", piece: "pawn" },
-    { file: "g", rank: 2, colour: "white", piece: "pawn" },
-    { file: "h", rank: 2, colour: "white", piece: "pawn" },
-    { file: "a", rank: 1, colour: "white", piece: "rook" },
-    { file: "b", rank: 1, colour: "white", piece: "knight" },
-    { file: "c", rank: 1, colour: "black", piece: "bishop" },
-    { file: "d", rank: 1, colour: "white", piece: "queen" },
-    { file: "e", rank: 1, colour: "white", piece: "king" },
-    { file: "f", rank: 1, colour: "white", piece: "bishop" },
-    { file: "g", rank: 1, colour: "white", piece: "knight" },
-    { file: "h", rank: 1, colour: "white", piece: "rook" },
-  ],
+  fen: "rnbNkbnr/pp1p1ppp/8/8/8/8/P1P1PPPP/RNbQKBNR w KQkq - 0 6",
   solutionPlies: [
     {
       fromFile: "b",
@@ -143,4 +104,4 @@ export const content = {
       special: "none",
     },
   ],
-} satisfies Content;
+} satisfies ContentFile;

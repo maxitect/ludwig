@@ -1,8 +1,8 @@
 import { and, eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
-import { content as proofContent } from "../../../content/reverse-chess/two-promotions";
-import { content as unwind } from "./fixtures/dev-unwind";
-import { content, meta } from "./fixtures/content/reverse-chess/dev-rook-check";
+import { content as proofContentFile } from "../../../content/reverse-chess/two-promotions";
+import { content as unwindFile } from "./fixtures/dev-unwind";
+import { content as contentFile, meta } from "./fixtures/content/reverse-chess/dev-rook-check";
 import { db } from "@/db";
 import { attempts, puzzles } from "@/db/schema";
 import {
@@ -29,6 +29,10 @@ import {
   reverseChessPuzzles,
   reverseChessSolutionPlies,
 } from "./tables";
+
+const unwind = contentSchema.parse(unwindFile);
+const content = contentSchema.parse(contentFile);
+const proofContent = contentSchema.parse(proofContentFile);
 
 const TYPES = sql`
   insert into puzzle_types (key, category_key, name, description, subtype_table, sort)
@@ -650,7 +654,7 @@ describe("play payload", () => {
   });
 
   it("contains no solution data", async () => {
-    const parsedContent = contentSchema.parse(content);
+    const parsedContent = content;
     await db.transaction(async (tx) => {
       await ensureTypes(tx);
       const [row] = await tx
@@ -689,7 +693,7 @@ describe("play payload", () => {
   });
 
   it("shows the goal text but never its predicate", async () => {
-    const parsedContent = contentSchema.parse(unwind);
+    const parsedContent = unwind;
     let unwindId = "";
     await db.transaction(async (tx) => {
       await ensureTypes(tx);
@@ -709,7 +713,7 @@ describe("play payload", () => {
     const payload = await load(unwindId);
 
     expect(payloadSchema.strict().safeParse(payload).success).toBe(true);
-    expect(payload.goalText).toBe(unwind.goal.displayText);
+    expect(payload.goalText).toBe(unwind.goal?.displayText);
     expect(JSON.stringify(payload)).not.toContain("piece_on_square");
     expect(JSON.stringify(payload)).not.toContain('"goal"');
 

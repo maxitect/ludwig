@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
-import { content } from "./fixtures/content/reverse-chess/dev-rook-check";
+import { content as contentFile } from "./fixtures/content/reverse-chess/dev-rook-check";
 import {
   createTestUser,
   deleteTestUsers,
@@ -9,6 +9,9 @@ import {
 import { attempts, puzzles } from "@/db/schema";
 import { reverseChessModule } from "./module";
 import { reverseChessAttemptPlies, reverseChessPuzzles } from "./tables";
+import { contentSchema } from "./schema";
+
+const content = contentSchema.parse(contentFile);
 
 afterAll(deleteTestUsers);
 

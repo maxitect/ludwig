@@ -133,7 +133,9 @@ test("pan and zoom by touch, and tap a pin on a phone", async ({
   await shoot(page, "start", 390);
 
   const client = await page.context().newCDPSession(page);
-  const touch = (type: string, points: { x: number; y: number }[]) =>
+  const touch = (
+    type: "touchStart" | "touchMove" | "touchEnd",
+    points: { x: number; y: number }[]) =>
     client.send("Input.dispatchTouchEvent", {
       type,
       touchPoints: points.map((point, id) => ({ ...point, id })),

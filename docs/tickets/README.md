@@ -158,13 +158,13 @@ Not on the launch path (PLAN §3 M6).
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
 | [T084](./T084-sudoku-region-variants.md) | Sudoku: jigsaw and rainbow region variants | T046 | ✔ | | done |
-| [T085](./T085-type-chess-problem.md) | Puzzle type: chess problem (forward mate in N) | T025, T028, T018, T071 | ✔ | | todo |
-| [T086](./T086-type-railroad.md) | Puzzle type: railroad | T021 | ✔ | | todo |
+| [T085](./T085-type-chess-problem.md) | Puzzle type: chess problem (forward mate in N) | T025, T028, T018, T071 | ✔ | | done |
+| [T086](./T086-type-railroad.md) | Puzzle type: railroad | T021 | ✔ | | done |
 | [T087](./T087-type-star-battle.md) | Puzzle type: star battle | T084 | ✔ | | done |
 | [T088](./T088-type-troix.md) | Puzzle type: Troix | T021 | ✔ | | done |
 | [T089](./T089-type-circle9.md) | Puzzle type: Circle9 | T046 | ✔ | | done |
-| [T090](./T090-type-word-wheel.md) | Puzzle type: word wheel | T049 | ✔ | | todo |
-| [T091](./T091-type-detective-scene.md) | Puzzle type: detective scene (engine, hit-test and solver) | T061 | ✔ | | todo |
+| [T090](./T090-type-word-wheel.md) | Puzzle type: word wheel | T049 | ✔ | | done |
+| [T091](./T091-type-detective-scene.md) | Puzzle type: detective scene (engine, hit-test and solver) | T061 | ✔ | | done |
 | [T092](./T092-detective-scene-content.md) | Detective scene: artwork and launch content | T091 | | ✔ | todo |
 | [T093](./T093-sudoku-killer-xv.md) | Sudoku: killer and XV constraint variants | T084 | ✔ | | done |
 | [T094](./T094-type-nonogram.md) | Puzzle type: nonogram (Ludwig picture reveals) | T021 | ✔ | | done |

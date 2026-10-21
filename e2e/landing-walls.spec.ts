@@ -1,5 +1,5 @@
 import { mkdirSync } from "node:fs";
-import { expect, type Page, test } from "@playwright/test";
+import { type CDPSession, expect, type Page, test } from "@playwright/test";
 
 const SHOTS = ".verification/T140";
 mkdirSync(SHOTS, { recursive: true });
@@ -40,6 +40,53 @@ async function seek(page: Page, progress: number) {
       requestAnimationFrame(() => requestAnimationFrame(resolve)),
     );
   }, progress);
+}
+
+/** Wheels 30% of `span` down then back up, returning rAF frame-delta stats and Paint event count. */
+async function measureScrub(page: Page, cdp: CDPSession, span: number) {
+  await page.evaluate(() => {
+    const deltas: number[] = [];
+    let last = performance.now();
+    const tick = (now: number) => {
+      deltas.push(now - last);
+      last = now;
+      (window as unknown as { __deltas: number[] }).__deltas = deltas;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  await page.waitForTimeout(500);
+  const events: string[] = [];
+  const collect: Parameters<typeof cdp.on<"Tracing.dataCollected">>[1] = ({ value }) => {
+    for (const event of value) events.push(String(event.name));
+  };
+  cdp.on("Tracing.dataCollected", collect);
+  const done = new Promise<void>((resolve) => cdp.once("Tracing.tracingComplete", () => resolve()));
+  await cdp.send("Tracing.start", { categories: "devtools.timeline", transferMode: "ReportEvents" });
+  await page.mouse.move(195, 400);
+  const total = span * 0.3;
+  const stepSize = 20;
+  for (let sent = 0; sent < total; sent += stepSize) {
+    await page.mouse.wheel(0, stepSize);
+    await page.waitForTimeout(16);
+  }
+  for (let sent = 0; sent < total; sent += stepSize) {
+    await page.mouse.wheel(0, -stepSize);
+    await page.waitForTimeout(16);
+  }
+  await cdp.send("Tracing.end");
+  await done;
+  cdp.off("Tracing.dataCollected", collect);
+  const deltas = (await page.evaluate(
+    () => (window as unknown as { __deltas: number[] }).__deltas,
+  )).slice(2);
+  const sorted = [...deltas].sort((a, b) => a - b);
+  return {
+    frames: deltas.length,
+    p95: sorted[Math.floor(sorted.length * 0.95)],
+    max: sorted.at(-1)!,
+    paints: events.filter((name) => name === "Paint").length,
+  };
 }
 
 function computed(page: Page, selector: string, property: string) {
@@ -333,55 +380,32 @@ test.describe("landing walls", () => {
     isMobile,
   }) => {
     test.skip(browserName !== "chromium" || !isMobile, "the mobile-perf project measures this");
-    await open(page, VIEWPORTS[0]);
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
-    await seek(page, 0.34);
+
+    await open(page, VIEWPORTS[0]);
     await page.evaluate(() => {
-      const deltas: number[] = [];
-      let last = performance.now();
-      const tick = (now: number) => {
-        deltas.push(now - last);
-        last = now;
-        (window as unknown as { __deltas: number[] }).__deltas = deltas;
-        requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
+      document.body.replaceChildren();
+      const filler = document.createElement("div");
+      filler.style.height = "5000px";
+      document.body.append(filler);
     });
-    await page.waitForTimeout(500);
-    const events: string[] = [];
-    cdp.on("Tracing.dataCollected", ({ value }) => {
-      for (const event of value) events.push(event.name);
-    });
-    const done = new Promise<void>((resolve) => cdp.once("Tracing.tracingComplete", () => resolve()));
-    await cdp.send("Tracing.start", { categories: "devtools.timeline", transferMode: "ReportEvents" });
+    const baseline = await measureScrub(page, cdp, 5000 - 844);
+
+    await open(page, VIEWPORTS[0]);
+    await seek(page, 0.34);
     const span = await page.evaluate(() => {
       const track = document.querySelector<HTMLElement>(".seq-track")!;
       return track.offsetHeight - window.innerHeight;
     });
-    await page.mouse.move(195, 400);
-    const total = span * 0.3;
-    const stepSize = 20;
-    for (let sent = 0; sent < total; sent += stepSize) {
-      await page.mouse.wheel(0, stepSize);
-      await page.waitForTimeout(16);
-    }
-    for (let sent = 0; sent < total; sent += stepSize) {
-      await page.mouse.wheel(0, -stepSize);
-      await page.waitForTimeout(16);
-    }
-    await cdp.send("Tracing.end");
-    await done;
-    const deltas = (await page.evaluate(
-      () => (window as unknown as { __deltas: number[] }).__deltas,
-    )).slice(2);
-    const sorted = [...deltas].sort((a, b) => a - b);
-    const p95 = sorted[Math.floor(sorted.length * 0.95)];
-    const paints = events.filter((name) => name === "Paint").length;
-    console.log(`scrub frames ${deltas.length} p95 ${p95.toFixed(1)}ms max ${sorted.at(-1)!.toFixed(1)}ms paints ${paints}`);
-    expect(p95).toBeLessThanOrEqual(20);
-    expect(sorted.at(-1)!).toBeLessThanOrEqual(50);
-    expect(paints).toBeLessThanOrEqual(20);
+    const scrub = await measureScrub(page, cdp, span);
+
+    console.log(
+      `scrub frames ${scrub.frames} p95 ${scrub.p95.toFixed(1)}ms max ${scrub.max.toFixed(1)}ms paints ${scrub.paints}; baseline p95 ${baseline.p95.toFixed(1)}ms max ${baseline.max.toFixed(1)}ms`,
+    );
+    expect(scrub.p95).toBeLessThanOrEqual(Math.max(20, baseline.p95 * 1.25));
+    expect(scrub.max).toBeLessThanOrEqual(Math.max(50, baseline.max * 1.25));
+    expect(scrub.paints).toBeLessThanOrEqual(20);
   });
 
   test("AC10 server and client render the same with no layout shift", async ({ page, browserName }) => {

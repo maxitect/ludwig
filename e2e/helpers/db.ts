@@ -481,3 +481,28 @@ export async function chessProblemPlies(email: string) {
     await pool.end();
   }
 }
+
+export async function detectiveSceneAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{
+      found: number[];
+      completed: boolean;
+    }>(
+      `select coalesce(array_agg(f.position order by f.position) filter (where f.position is not null), '{}') as found,
+              a.completed_at is not null as completed
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join detective_scene_attempts x on x.attempt_id = a.id
+         left join detective_scene_attempt_found f on f.attempt_id = a.id
+        where u.email = $1
+        group by a.id`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}

@@ -9,6 +9,7 @@ import { cctvMazeModule } from "./cctv-maze/module";
 import { chessProblemModule } from "./chess-problem/module";
 import { circle9Module } from "./circle9/module";
 import { crosswordModule } from "./crossword/module";
+import { detectiveSceneModule } from "./detective-scene/module";
 import { futoshikiModule } from "./futoshiki/module";
 import { gearTrainModule } from "./gear-train/module";
 import { gearsModule } from "./gears/module";
@@ -116,6 +117,7 @@ const modules = {
   "chess-problem": chessProblemModule,
   circle9: circle9Module,
   crossword: crosswordModule,
+  "detective-scene": detectiveSceneModule,
   futoshiki: futoshikiModule,
   "gear-train": gearTrainModule,
   gears: gearsModule,

@@ -95,6 +95,13 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
       },
     ],
   },
+  "detective-scene": {
+    puzzleId: ids[0],
+    sceneKey: "fixture-street",
+    width: 1200,
+    height: 800,
+    itemCount: 3,
+  },
   futoshiki: {
     size: 4,
     givens: [

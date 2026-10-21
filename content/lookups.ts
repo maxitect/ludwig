@@ -217,6 +217,14 @@ export const types = [
     sort: 3,
   },
   {
+    key: "detective-scene",
+    categoryKey: "spatial",
+    name: "Detective Scene",
+    description: "Find the TV detective dramas hidden in one illustrated street.",
+    subtypeTable: "detective_scene_puzzles",
+    sort: 5,
+  },
+  {
     key: "book-cipher",
     categoryKey: "cipher",
     name: "Book Cipher",

@@ -518,6 +518,22 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.cctvMazeAttemptSteps.attemptId,
     }),
   },
+  detectiveScenePuzzles: {
+    items: r.many.detectiveSceneItems({
+      from: r.detectiveScenePuzzles.puzzleId,
+      to: r.detectiveSceneItems.puzzleId,
+    }),
+    aliases: r.many.detectiveSceneItemAliases({
+      from: r.detectiveScenePuzzles.puzzleId,
+      to: r.detectiveSceneItemAliases.puzzleId,
+    }),
+  },
+  detectiveSceneAttempts: {
+    found: r.many.detectiveSceneAttemptFound({
+      from: r.detectiveSceneAttempts.attemptId,
+      to: r.detectiveSceneAttemptFound.attemptId,
+    }),
+  },
   wordSearchPuzzles: {
     cells: r.many.wordSearchCells({
       from: r.wordSearchPuzzles.puzzleId,

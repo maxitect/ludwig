@@ -1,6 +1,6 @@
 import path from "node:path";
 import { changedBlocks, clusterBlocks } from "./pixel-diff";
-import { regionInScene, regionsOverlap } from "./regions";
+import { regionInScene, regionsOverlap } from "../_shared/regions";
 import { getScene } from "./scenes";
 import type { Content, Region } from "./schema";
 

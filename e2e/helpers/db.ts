@@ -328,6 +328,28 @@ export async function wordLadderAttemptFor(email: string) {
   }
 }
 
+export async function wordWheelAttemptFor(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ words: string[]; completed: boolean }>(
+      `select coalesce(array_agg(w.word order by w.word) filter (where w.word is not null), '{}') as words,
+              a.completed_at is not null as completed
+         from attempts a
+         join "user" u on u.id = a.user_id
+         join word_wheel_attempts x on x.attempt_id = a.id
+         left join word_wheel_attempt_words w on w.attempt_id = a.id
+        where u.email = $1
+        group by a.id`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function wordSearchAttemptFor(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

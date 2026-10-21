@@ -11,11 +11,11 @@ import {
 import { puzzles } from "../../db/schema/core";
 import { attempts } from "../../db/schema/progress";
 
-/** The dictionary: lowercase a to z, 3 to 6 letters, no proper nouns. Seeded from `content/words.txt`. */
+/** The dictionary: lowercase a to z, 3 to 9 letters, no proper nouns. Seeded from `content/words.txt`. */
 export const words = pgTable(
   "words",
   { word: text("word").primaryKey() },
-  (table) => [check("words_word_check", sql`${table.word} ~ '^[a-z]{3,6}$'`)],
+  (table) => [check("words_word_check", sql`${table.word} ~ '^[a-z]{3,9}$'`)],
 );
 
 export const wordLadderPuzzles = pgTable(

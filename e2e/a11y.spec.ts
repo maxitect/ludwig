@@ -33,6 +33,7 @@ const PUZZLE_TYPES = [
   "troix",
   "word-ladder",
   "word-search",
+  "word-wheel",
 ];
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];

@@ -3,7 +3,7 @@
  *
  * Source: SCOWL (Spell Checker Oriented Word Lists) by Kevin Atkinson, as packaged in the npm
  * package `wordlist-english` 1.2.1. The `english` and `british` lists at levels 10, 20, 35, 40, 50
- * and 55, keeping only all-lowercase a to z words of 3 to 6 letters, which drops every proper
+ * and 55, keeping only all-lowercase a to z words of 3 to 9 letters, which drops every proper
  * noun, abbreviation with punctuation and hyphenated or accented form.
  *
  * Licence: the word lists are under SCOWL's own notices (the package's MIT licence covers only its
@@ -32,7 +32,7 @@ export async function seedWords(db: Db, lines: string[]) {
       inserted: 0,
       total: 0,
       failures: [
-        `words: ${invalid.length} invalid lines, first "${invalid[0]}" (3 to 6 lowercase letters only)`,
+        `words: ${invalid.length} invalid lines, first "${invalid[0]}" (3 to 9 lowercase letters only)`,
       ],
     };
   }

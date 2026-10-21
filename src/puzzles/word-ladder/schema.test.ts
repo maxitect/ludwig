@@ -56,4 +56,14 @@ describe("contentSchema", () => {
       contentSchema.safeParse({ ...content, rungs: ["mote"] }).success,
     ).toBe(true);
   });
+
+  it("refuses words longer than six letters, which the dictionary holds for the word wheel", () => {
+    expect(
+      contentSchema.safeParse({
+        startWord: "abandon",
+        endWord: "abolish",
+        rungs: ["abandor"],
+      }).success,
+    ).toBe(false);
+  });
 });

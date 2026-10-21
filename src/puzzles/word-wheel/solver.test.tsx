@@ -14,6 +14,7 @@ afterEach(() => {
 });
 
 const payload = {
+  puzzleId: "00000000-0000-4000-8000-000000000001",
   centre: "v",
   rim: ["a", "d", "e", "n", "r", "t", "u", "e"],
   minLength: 4,
@@ -26,7 +27,6 @@ function renderSolver(initialState: { words: string[] } | null = null) {
   const requestCheck = vi.fn();
   render(
     <Solver
-      puzzleId="p"
       payload={payload}
       initialState={initialState}
       onStateChange={onStateChange}
@@ -77,7 +77,7 @@ describe("word wheel solver", () => {
     await waitFor(() =>
       expect(onStateChange).toHaveBeenCalledWith({ words: ["vent"] }),
     );
-    expect(submitWheelWord).toHaveBeenCalledWith("p", "vent");
+    expect(submitWheelWord).toHaveBeenCalledWith(payload.puzzleId, "vent");
     expect(
       screen.getByRole("list", { name: "Found words" }).textContent,
     ).toBe("vent");
@@ -117,6 +117,12 @@ describe("word wheel solver", () => {
       "adventure{Enter}",
     );
     await waitFor(() => expect(requestCheck).toHaveBeenCalled());
+    const read = registerCheck.mock.calls.at(-1)?.[0] as () => unknown;
+    expect(read()).toEqual({ word: "adventure" });
+  });
+
+  it("registers a restored target, so a check that never ran can still complete the puzzle", () => {
+    const { registerCheck } = renderSolver({ words: ["vent", "adventure"] });
     const read = registerCheck.mock.calls.at(-1)?.[0] as () => unknown;
     expect(read()).toEqual({ word: "adventure" });
   });

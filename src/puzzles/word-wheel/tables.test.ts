@@ -201,6 +201,7 @@ describe("word wheel module", () => {
     expect(Object.keys(payload).sort()).toEqual([
       "centre",
       "minLength",
+      "puzzleId",
       "rim",
       "thresholds",
     ]);

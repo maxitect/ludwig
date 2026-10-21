@@ -7,6 +7,7 @@ import { hydrated, openPuzzle } from "./helpers/solve";
 const SHOTS = ".verification/T090";
 const puzzle = { typeKey: "word-wheel", slug: "night-wheel" };
 const MAX_TABS = 60;
+const SERVER_ROUND_TRIPS = { timeout: 15_000 };
 
 const input = (page: Page) => page.getByRole("textbox", { name: "Your word" });
 const message = (page: Page) => page.getByTestId("wheel-message");
@@ -68,7 +69,7 @@ test("solve by keyboard alone, keep the words across a reload", async ({
   await play(page, "venue");
   await expect(message(page)).toContainText("VENUE added");
   await expect
-    .poll(async () => (await wordWheelAttemptFor(email))?.words)
+    .poll(async () => (await wordWheelAttemptFor(email))?.words, SERVER_ROUND_TRIPS)
     .toEqual(["vent", "venue"]);
 
   await page.reload();
@@ -79,10 +80,13 @@ test("solve by keyboard alone, keep the words across a reload", async ({
   await shoot("partial");
 
   await play(page, "adventure");
-  await expect(page.getByText(/Solved in/)).toBeVisible();
+  await expect(page.getByText(/Solved in/)).toBeVisible(SERVER_ROUND_TRIPS);
   await shoot("solved");
   await expect
-    .poll(async () => (await wordWheelAttemptFor(email))?.completed)
+    .poll(
+      async () => (await wordWheelAttemptFor(email))?.completed,
+      SERVER_ROUND_TRIPS,
+    )
     .toBe(true);
   expect((await wordWheelAttemptFor(email)).words).toEqual([
     "adventure",

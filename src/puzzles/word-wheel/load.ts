@@ -9,6 +9,7 @@ export async function load(puzzleId: string) {
   const puzzle = await db.query.wordWheelPuzzles.findFirst({
     where: { puzzleId },
     columns: {
+      puzzleId: true,
       targetWord: true,
       centrePosition: true,
       scrambleSeed: true,
@@ -38,6 +39,7 @@ export async function load(puzzleId: string) {
     candidates.map(({ word }) => word),
   ).length;
   return payloadSchema.parse({
+    puzzleId: puzzle.puzzleId,
     ...wheel,
     minLength: puzzle.minLength,
     thresholds: ratingThresholds(total),

@@ -23,9 +23,9 @@ export const solutionSchema = puzzleSelect.shape.targetWord;
 
 /** The wheel and the rating thresholds, which are derived from the dictionary on load. */
 export const payloadSchema = z.object({
+  ...puzzleSelect.pick({ puzzleId: true, minLength: true }).shape,
   centre: letter,
   rim: z.array(letter).length(8),
-  ...puzzleSelect.pick({ minLength: true }).shape,
   thresholds: z.object({
     average: z.number().int().nonnegative(),
     good: z.number().int().nonnegative(),

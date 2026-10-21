@@ -309,6 +309,7 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     words: ["ABC"],
   },
   "word-wheel": {
+    puzzleId: ids[0],
     centre: "e",
     rim: ["l", "t", "r", "a", "w", "s", "o", "n"],
     minLength: 4,

@@ -23,8 +23,7 @@ const byLengthThenAlpha = (a: string, b: string) =>
   a.length - b.length || a.localeCompare(b);
 
 export function Solver({
-  puzzleId = "",
-  payload: { centre, rim, minLength, thresholds },
+  payload: { puzzleId, centre, rim, minLength, thresholds },
   initialState,
   onStateChange,
   registerCheck,
@@ -38,8 +37,9 @@ export function Solver({
   const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    registerCheck(() => null);
-  }, [registerCheck]);
+    const target = found.find((value) => value.length === 9);
+    registerCheck(() => (target ? { word: target } : null));
+  }, [found, registerCheck]);
 
   function type(letters: string) {
     setMessage("");

@@ -11,7 +11,8 @@ const MAX_RUNGS = 10;
 /** A dictionary word: lowercase a to z, 3 to 9 letters, as the `words` CHECK requires. */
 export const wordPattern = /^[a-z]{3,9}$/;
 
-const dictionaryWord = (schema: z.ZodString) => schema.regex(wordPattern);
+/** Ladders use the 3 to 6 letter words only, the lengths the rung inputs take. */
+const dictionaryWord = (schema: z.ZodString) => schema.regex(/^[a-z]{3,6}$/);
 const typedWord = (schema: z.ZodString) => schema.regex(/^[a-z]{1,6}$/);
 const rungCount = (schema: z.ZodNumber) => schema.min(1).max(MAX_RUNGS);
 

@@ -32,6 +32,7 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
   norinori: lazy(() => import("./norinori/solver")),
   "odd-one-out": lazy(() => import("./odd-one-out/solver")),
   "pictogram-cipher": lazy(() => import("./pictogram-cipher/solver")),
+  railroad: lazy(() => import("./railroad/solver")),
   "reverse-chess": lazy(() => import("./reverse-chess/solver")),
   rota: lazy(() => import("./rota/solver")),
   sightlines: lazy(() => import("./sightlines/solver")),

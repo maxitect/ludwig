@@ -185,6 +185,14 @@ export const types = [
     sort: 1,
   },
   {
+    key: "railroad",
+    categoryKey: "spatial",
+    name: "Railroad",
+    description: "Lay one track from the entry light to the exit, matching the row and column counts.",
+    subtypeTable: "railroad_puzzles",
+    sort: 4,
+  },
+  {
     key: "cctv-maze",
     categoryKey: "spatial",
     name: "CCTV Maze",

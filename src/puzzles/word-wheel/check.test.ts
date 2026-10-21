@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { check } from "./check";
 
 const payload = {
+  puzzleId: "00000000-0000-4000-8000-000000000001",
   centre: "v",
   rim: ["a", "d", "e", "n", "r", "t", "u", "e"],
   minLength: 4,

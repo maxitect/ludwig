@@ -1,5 +1,5 @@
 import { expect, test, type Locator } from "@playwright/test";
-import { regionCentre } from "../src/puzzles/spot-difference/regions";
+import { regionCentre } from "../src/puzzles/_shared/regions";
 import { scenes } from "../src/puzzles/spot-difference/scenes";
 import { content, meta } from "../content/spot-difference/fixture-clandon";
 import { openPuzzle } from "./helpers/solve";

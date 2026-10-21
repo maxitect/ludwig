@@ -42,13 +42,21 @@ export async function tryFind(
   return result ? { ok: true as const, ...result } : notFound;
 }
 
-/** The titles and regions of already found items, for ringing and listing them again after a reload. */
+/**
+ * The titles and regions of already found items, for ringing and listing them again after a reload.
+ * Signed in, only the finds saved on the attempt are returned.
+ */
 export async function loadFoundItems(puzzleId: string, found: number[]) {
   const parsed = attemptSchema.safeParse({ found });
   if (!puzzleIdSchema.safeParse(puzzleId).success || !parsed.success) {
     return invalid;
   }
-  const items = await getFoundItems(puzzleId, parsed.data.found);
+  const user = await getCurrentUser();
+  const items = await getFoundItems(
+    user?.id ?? null,
+    puzzleId,
+    parsed.data.found,
+  );
   return items ? { ok: true as const, items } : notFound;
 }
 

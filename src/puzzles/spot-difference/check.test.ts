@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { check } from "./check";
-import { regionCentre } from "./regions";
+import { regionCentre } from "../_shared/regions";
 import type { Payload, Solution } from "./schema";
 
 const payload = {} as Payload;

@@ -1,5 +1,7 @@
 import "server-only";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
+import { attempts, detectiveSceneAttemptFound } from "@/db/schema";
 import { getOrCreateAttempt, recordHint } from "@/lib/data/attempts";
 import { getPublishedTypeKey } from "@/lib/data/puzzles";
 import { matchFind } from "@/puzzles/detective-scene/engine";
@@ -32,12 +34,33 @@ export async function findItem(
   return { found: item ? asFound(item) : null };
 }
 
-/** The given items only, so saved finds can be ringed and listed again after a reload. */
-export async function getFoundItems(puzzleId: string, positions: number[]) {
+/** The positions a signed-in player has saved as found. */
+async function savedFinds(userId: string, puzzleId: string) {
+  const rows = await db
+    .select({ position: detectiveSceneAttemptFound.position })
+    .from(detectiveSceneAttemptFound)
+    .innerJoin(attempts, eq(attempts.id, detectiveSceneAttemptFound.attemptId))
+    .where(and(eq(attempts.userId, userId), eq(attempts.puzzleId, puzzleId)));
+  return rows.map(({ position }) => position);
+}
+
+/**
+ * The given items only, so saved finds can be ringed and listed again after a reload. A signed-in
+ * player only gets items their saved attempt holds, so this can't stand in for a recorded reveal.
+ */
+export async function getFoundItems(
+  userId: string | null,
+  puzzleId: string,
+  positions: number[],
+) {
   const scene = await loadScene(puzzleId);
   if (!scene) return null;
+  const allowed = userId ? await savedFinds(userId, puzzleId) : positions;
   return scene.items
-    .filter(({ position }) => positions.includes(position))
+    .filter(
+      ({ position }) =>
+        positions.includes(position) && allowed.includes(position),
+    )
     .map(asFound);
 }
 

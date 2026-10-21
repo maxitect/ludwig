@@ -26,6 +26,7 @@ import {
   panToShow,
   toScene,
   zoomAt,
+  type Point,
   type View,
 } from "./view";
 import type { SolverProps } from "../solver-types";
@@ -38,9 +39,11 @@ const ZOOM_STEP = 1.5;
 const MARKER_PX = 11;
 const PIN_PX = 9;
 
-type Point = { x: number; y: number };
 type Cursor = { column: number; row: number };
-type Item = { position: number; title: string; region: schema.Region };
+type Item = Extract<
+  Awaited<ReturnType<typeof loadFoundItems>>,
+  { ok: true }
+>["items"][number];
 
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 const midpoint = (a: Point, b: Point) => ({
@@ -183,7 +186,10 @@ export function Solver({
     let cancelled = false;
     loadFoundItems(puzzleId, saved)
       .then((result) => {
-        if (cancelled || !result.ok) return;
+        if (cancelled) return;
+        if (!result.ok) {
+          return setStatus("Your saved finds could not be loaded.");
+        }
         foundRef.current = new Map([
           ...result.items.map((item) => [item.position, item] as const),
           ...foundRef.current,

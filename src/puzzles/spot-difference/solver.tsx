@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { loadFoundRegions, tapScene } from "@/lib/actions/spot-difference";
-import { regionCentre } from "./regions";
+import { regionCentre } from "../_shared/regions";
 import { SceneArt } from "./scene-art";
 import { getScene } from "./scenes";
 import type { SolverProps } from "../solver-types";

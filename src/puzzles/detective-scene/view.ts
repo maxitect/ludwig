@@ -1,5 +1,5 @@
 export type View = { scale: number; x: number; y: number };
-type Point = { x: number; y: number };
+export type Point = { x: number; y: number };
 type Size = { width: number; height: number };
 
 export const MIN_SCALE = 1;

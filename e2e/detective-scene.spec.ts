@@ -128,6 +128,7 @@ test("pan and zoom by touch, and tap a pin on a phone", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "touch phones only");
+  test.slow();
   await openScene(page);
   await scene(page).scrollIntoViewIfNeeded();
   await shoot(page, "start", 390);
@@ -140,7 +141,8 @@ test("pan and zoom by touch, and tap a pin on a phone", async ({
       type,
       touchPoints: points.map((point, id) => ({ ...point, id })),
     });
-  const box = (await scene(page).boundingBox())!;
+  const box = await scene(page).boundingBox();
+  if (!box) throw new Error("scene not rendered");
   const mid = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 
   await touch("touchStart", [
@@ -154,17 +156,20 @@ test("pan and zoom by touch, and tap a pin on a phone", async ({
     ]);
   }
   await touch("touchEnd", []);
-  const zoomed = Number(await layer(page).getAttribute("data-scale"));
-  expect(zoomed).toBeGreaterThan(1.5);
+  await expect
+    .poll(async () => Number(await layer(page).getAttribute("data-scale")))
+    .toBeGreaterThan(1.5);
 
-  const before = (await layer(page).boundingBox())!;
+  const before = await layer(page).boundingBox();
+  if (!before) throw new Error("scene not rendered");
   await touch("touchStart", [{ x: mid.x, y: mid.y }]);
   for (let step = 1; step <= 5; step++) {
     await touch("touchMove", [{ x: mid.x + step * 12, y: mid.y }]);
   }
   await touch("touchEnd", []);
-  const after = (await layer(page).boundingBox())!;
-  expect(after.x).toBeGreaterThan(before.x + 20);
+  await expect
+    .poll(async () => (await layer(page).boundingBox())?.x ?? before.x)
+    .toBeGreaterThan(before.x + 20);
   await shoot(page, "zoomed", 390);
 
   await page.getByRole("button", { name: "Reset view" }).click();

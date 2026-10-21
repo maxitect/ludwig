@@ -12,6 +12,7 @@ const PUZZLE_TYPES = [
   "chess-problem",
   "circle9",
   "crossword",
+  "detective-scene",
   "futoshiki",
   "gear-train",
   "gears",

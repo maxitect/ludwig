@@ -37,6 +37,7 @@ const ALLOWED: Record<string, readonly RawToken[]> = {
   "src/puzzles/nonogram/solver.tsx": ["bg-paper"],
   "src/puzzles/railroad/solver.tsx": ["bg-paper"],
   "src/puzzles/rota/board.tsx": ["bg-paper"],
+  "src/puzzles/word-wheel/solver.tsx": ["bg-paper"],
   "src/puzzles/sudoku/cages.tsx": ["border-ink"],
   "src/puzzles/sudoku/solver.tsx": ["bg-paper"],
   "src/puzzles/_shared/chess-board/side-to-move.tsx": ["bg-paper"],

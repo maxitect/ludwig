@@ -42,6 +42,7 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
   troix: lazy(() => import("./troix/solver")),
   "word-ladder": lazy(() => import("./word-ladder/solver")),
   "word-search": lazy(() => import("./word-search/solver")),
+  "word-wheel": lazy(() => import("./word-wheel/solver")),
 };
 
 export function getSolver(typeKey: string) {

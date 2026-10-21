@@ -376,6 +376,7 @@ function SolveBoard({
           <div className="contents" inert={solved} data-testid="solver">
             <Solver
               key={resumeLocal ? "local" : "initial"}
+              puzzleId={puzzleId}
               payload={payload}
               initialState={
                 attempt === 0 ? (resumeLocal ? localState : initialState) : null

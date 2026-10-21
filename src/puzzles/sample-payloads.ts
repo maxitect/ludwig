@@ -308,4 +308,10 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     })),
     words: ["ABC"],
   },
+  "word-wheel": {
+    centre: "e",
+    rim: ["l", "t", "r", "a", "w", "s", "o", "n"],
+    minLength: 4,
+    thresholds: { average: 8, good: 12, genius: 16 },
+  },
 };

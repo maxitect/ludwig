@@ -27,6 +27,7 @@ import { attemptSchema as sudokuAttempt } from "./sudoku/schema";
 import { attemptSchema as troixAttempt } from "./troix/schema";
 import { attemptSchema as wordLadderAttempt } from "./word-ladder/schema";
 import { attemptSchema as wordSearchAttempt } from "./word-search/schema";
+import { attemptSchema as wordWheelAttempt } from "./word-wheel/schema";
 
 /** Attempt schemas for the types that have a solver, importable from client code (the registry is not). */
 const attemptSchemas = {
@@ -59,6 +60,7 @@ const attemptSchemas = {
   troix: troixAttempt,
   "word-ladder": wordLadderAttempt,
   "word-search": wordSearchAttempt,
+  "word-wheel": wordWheelAttempt,
 } as const;
 
 export function getAttemptSchema(typeKey: string) {

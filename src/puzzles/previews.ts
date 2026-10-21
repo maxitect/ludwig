@@ -29,6 +29,7 @@ import { Preview as sudokuPreview } from "./sudoku/preview";
 import { Preview as troixPreview } from "./troix/preview";
 import { Preview as wordLadderPreview } from "./word-ladder/preview";
 import { Preview as wordSearchPreview } from "./word-search/preview";
+import { Preview as wordWheelPreview } from "./word-wheel/preview";
 
 type PreviewComponent<K extends PuzzleTypeKey> = (props: {
   payload: PayloadOf<K>;
@@ -65,4 +66,5 @@ export const previews = {
   troix: troixPreview,
   "word-ladder": wordLadderPreview,
   "word-search": wordSearchPreview,
+  "word-wheel": wordWheelPreview,
 } satisfies { [K in PuzzleTypeKey]: PreviewComponent<K> };

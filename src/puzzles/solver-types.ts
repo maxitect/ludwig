@@ -5,6 +5,8 @@ import type { PuzzleSchemas, WrongPart } from "./registry";
 import type { RungProblem } from "./word-ladder/schema";
 
 export type SolverProps<S extends PuzzleSchemas = PuzzleSchemas> = {
+  /** The puzzle being solved, for solvers that call their own server action. */
+  puzzleId?: string;
   payload: z.infer<S["payloadSchema"]>;
   initialState: z.infer<S["attemptSchema"]> | null;
   onStateChange(state: z.infer<S["attemptSchema"]>): void;

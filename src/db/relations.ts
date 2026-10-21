@@ -540,6 +540,12 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.wordLadderAttemptRungs.attemptId,
     }),
   },
+  wordWheelAttempts: {
+    words: r.many.wordWheelAttemptWords({
+      from: r.wordWheelAttempts.attemptId,
+      to: r.wordWheelAttemptWords.attemptId,
+    }),
+  },
   futoshikiPuzzles: {
     givens: r.many.futoshikiGivens({
       from: r.futoshikiPuzzles.puzzleId,

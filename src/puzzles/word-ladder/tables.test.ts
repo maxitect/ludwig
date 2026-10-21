@@ -142,7 +142,7 @@ describe("word ladder tables", () => {
     ).toBe("23503");
   });
 
-  it.each(["Head", "he", "headers", "he-ad", "hé"])(
+  it.each(["Head", "he", "headersxxx", "he-ad", "hé"])(
     "rejects the dictionary word %s",
     async (word) => {
       expect(

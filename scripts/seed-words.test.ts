@@ -8,10 +8,10 @@ import { seedWords } from "./seed-words";
 describe("content/words.txt", () => {
   const lines = readDictionaryFile();
 
-  it("holds only 3 to 6 letter lowercase words, each once", () => {
-    expect(lines.every((line) => /^[a-z]{3,6}$/.test(line))).toBe(true);
+  it("holds only 3 to 9 letter lowercase words, each once", () => {
+    expect(lines.every((line) => /^[a-z]{3,9}$/.test(line))).toBe(true);
     expect(new Set(lines).size).toBe(lines.length);
-    expect(lines.length).toBeGreaterThan(5000);
+    expect(lines.length).toBeGreaterThan(40000);
   });
 });
 

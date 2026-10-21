@@ -8,8 +8,8 @@ import {
 
 const MAX_RUNGS = 10;
 
-/** A dictionary word: lowercase a to z, 3 to 6 letters, as the `words` CHECK requires. */
-export const wordPattern = /^[a-z]{3,6}$/;
+/** A dictionary word: lowercase a to z, 3 to 9 letters, as the `words` CHECK requires. */
+export const wordPattern = /^[a-z]{3,9}$/;
 
 const dictionaryWord = (schema: z.ZodString) => schema.regex(wordPattern);
 const typedWord = (schema: z.ZodString) => schema.regex(/^[a-z]{1,6}$/);

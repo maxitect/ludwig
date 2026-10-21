@@ -89,6 +89,14 @@ export const types = [
     sort: 5,
   },
   {
+    key: "word-wheel",
+    categoryKey: "word",
+    name: "Word Wheel",
+    description: "Find the nine-letter word, and as many shorter ones as you can.",
+    subtypeTable: "word_wheel_puzzles",
+    sort: 6,
+  },
+  {
     key: "logic-grid",
     categoryKey: "logic",
     name: "Logic Grid",

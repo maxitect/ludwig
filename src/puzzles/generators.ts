@@ -23,6 +23,9 @@ import {
 } from "./sudoku/generate-variants";
 import { gradeSudoku } from "./sudoku/grade";
 import { contentSchema as sudokuContent } from "./sudoku/schema";
+import { troixGenerators } from "./troix/generate";
+import { gradeTroix } from "./troix/grade";
+import { contentSchema as troixContent } from "./troix/schema";
 
 /**
  * Generators by name, then by frozen version. A name is not always a type key: a variant of a type
@@ -37,6 +40,7 @@ export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
     "sudoku-xv": sudokuXvGenerators,
     futoshiki: futoshikiGenerators,
     "star-battle": starBattleGenerators,
+    troix: troixGenerators,
   };
 
 /** Provenance a generated content file exports beside `meta` and `content`. Read by `puzzles:verify`, never seeded. */
@@ -76,6 +80,7 @@ const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
   futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
   "star-battle": (content) =>
     gradeStarBattle(starBattleContent.parse(content)),
+  troix: (content) => gradeTroix(troixContent.parse(content)),
 };
 
 export const gradedTypes = Object.keys(graders);

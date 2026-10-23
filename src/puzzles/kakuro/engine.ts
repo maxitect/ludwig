@@ -32,7 +32,7 @@ export function combinations(length: number, sum: number): number[][] {
     .sort((a, b) => a.join("").localeCompare(b.join("")));
 }
 
-type Run = { cells: number[]; sum: number; length: number };
+type Run = { cells: number[]; sum: number; length: number; used: number };
 
 /**
  * Counts the fillings of the white cells in which every run holds distinct digits adding up to its
@@ -50,23 +50,23 @@ export function countSolutions(
     ),
     sum: clue.sum,
     length: clue.length,
+    used: 0,
   }));
   if (runs.some((run) => run.cells.includes(-1))) return 0;
   const runsOf: Run[][] = cells.map(() => []);
   for (const run of runs) for (const cell of run.cells) runsOf[cell].push(run);
   if (runsOf.some((own) => own.length === 0)) return 0;
 
-  const used = new Map<Run, number>(runs.map((run) => [run, 0]));
   const allowedCache = new Map<number, number>();
-  const allowed = (run: Run) => {
-    const key = (run.length * 46 + run.sum) * 1024 + used.get(run)!;
+  const allowed = ({ length, sum, used }: Run) => {
+    const key = (length * 46 + sum) * 1024 + used;
     let mask = allowedCache.get(key);
     if (mask === undefined) {
       mask = 0;
-      for (const combo of COMBINATIONS[run.length]?.[run.sum] ?? []) {
-        if ((combo & used.get(run)!) === used.get(run)) mask |= combo;
+      for (const combo of COMBINATIONS[length]?.[sum] ?? []) {
+        if ((combo & used) === used) mask |= combo;
       }
-      mask &= ~used.get(run)!;
+      mask &= ~used;
       allowedCache.set(key, mask);
     }
     return mask;
@@ -97,9 +97,9 @@ export function countSolutions(
     for (let digit = 1; digit <= 9 && found < limit; digit++) {
       if (!(bestMask & (1 << digit))) continue;
       digits[best] = digit;
-      for (const run of runsOf[best]) used.set(run, used.get(run)! | (1 << digit));
+      for (const run of runsOf[best]) run.used |= 1 << digit;
       search(filled + 1);
-      for (const run of runsOf[best]) used.set(run, used.get(run)! & ~(1 << digit));
+      for (const run of runsOf[best]) run.used &= ~(1 << digit);
       digits[best] = 0;
     }
   };

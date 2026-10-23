@@ -1,7 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
-import { check, checkCell, revealCell } from "./check";
+import { check } from "./check";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
 import * as schema from "./schema";
@@ -19,8 +19,6 @@ export const kakuroModule = {
   load,
   loadSolution,
   check,
-  checkCell,
-  revealCell,
   verify: verifyKakuro,
   async upsertContent(tx, puzzleId, { rows, cols, cells }) {
     await tx

@@ -271,6 +271,8 @@ export function CellGrid({
     inputRef.current?.focus();
   };
 
+  const fontSize = `min(${70 / cols}cqw, calc(var(--solver-height, 100000px) * 0.7 / ${rows}))`;
+
   return (
     <div
       ref={rootRef}
@@ -308,9 +310,7 @@ export function CellGrid({
                       .filter(Boolean)
                       .join(", ")}
                     className="relative aspect-square bg-ink forced-colors:bg-[CanvasText]"
-                    style={{
-                      fontSize: `min(${70 / cols}cqw, calc(var(--solver-height, 100000px) * 0.7 / ${rows}))`,
-                    }}
+                    style={{ fontSize }}
                   >
                     {clue?.content}
                   </div>
@@ -353,9 +353,7 @@ export function CellGrid({
                     cellClassName?.(row, col),
                     "group-focus-within:data-[active=true]:z-10 group-focus-within:data-[active=true]:outline-2 group-focus-within:data-[active=true]:-outline-offset-2 group-focus-within:data-[active=true]:outline-ring group-focus-within:data-[active=true]:shadow-[inset_0_0_0_4px_var(--color-paper)]",
                   )}
-                  style={{
-                    fontSize: `min(${70 / cols}cqw, calc(var(--solver-height, 100000px) * 0.7 / ${rows}))`,
-                  }}
+                  style={{ fontSize }}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => select({ row, col })}
                   onFocus={() => setActive({ row, col })}

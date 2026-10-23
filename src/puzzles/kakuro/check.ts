@@ -14,19 +14,3 @@ export function check(_payload: Payload, solution: Solution, answer: Answer) {
       ),
   };
 }
-
-export function checkCell(
-  _payload: Payload,
-  solution: Solution,
-  row: number,
-  col: number,
-  value: string,
-) {
-  const cell = solution.find((c) => c.row === row && c.col === col);
-  return { correct: cell !== undefined && String(cell.digit) === value };
-}
-
-export function revealCell(solution: Solution, row: number, col: number) {
-  const cell = solution.find((c) => c.row === row && c.col === col);
-  return cell ? String(cell.digit) : null;
-}

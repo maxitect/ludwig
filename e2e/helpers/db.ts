@@ -130,6 +130,25 @@ export async function troixCells(email: string) {
   }
 }
 
+export async function fillominoAttemptCellCount(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ count: number }>(
+      `select count(*)::int as count
+         from fillomino_attempt_cells c
+         join attempts a on a.id = c.attempt_id
+         join "user" u on u.id = a.user_id
+        where u.email = $1`,
+      [email],
+    );
+    return rows[0].count;
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function circle9Circles(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),
@@ -485,7 +504,11 @@ export async function chessProblemPlies(email: string) {
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),
   });
   try {
-    const { rows } = await pool.query<{ ply: number; from: string; to: string }>(
+    const { rows } = await pool.query<{
+      ply: number;
+      from: string;
+      to: string;
+    }>(
       `select p.ply::int as ply, p.from_file::text || p.from_rank::text as "from", p.to_file::text || p.to_rank::text as "to"
          from chess_problem_attempt_plies p
          join attempts a on a.id = p.attempt_id

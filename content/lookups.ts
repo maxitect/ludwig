@@ -185,6 +185,14 @@ export const types = [
     sort: 11,
   },
   {
+    key: "fillomino",
+    categoryKey: "logic",
+    name: "Fillomino",
+    description: "Fill the grid so every area of n equal digits has n cells, and areas of one size never touch.",
+    subtypeTable: "fillomino_puzzles",
+    sort: 12,
+  },
+  {
     key: "sightlines",
     categoryKey: "spatial",
     name: "Sightlines",

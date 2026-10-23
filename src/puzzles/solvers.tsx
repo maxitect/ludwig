@@ -22,6 +22,7 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
   circle9: lazy(() => import("./circle9/solver")),
   crossword: lazy(() => import("./crossword/solver")),
   "detective-scene": lazy(() => import("./detective-scene/solver")),
+  fillomino: lazy(() => import("./fillomino/solver")),
   futoshiki: lazy(() => import("./futoshiki/solver")),
   "gear-train": lazy(() => import("./gear-train/solver")),
   gears: lazy(() => import("./gears/solver")),

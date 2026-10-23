@@ -102,6 +102,17 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     height: 800,
     itemCount: 3,
   },
+  fillomino: {
+    rows: 5,
+    cols: 5,
+    givens: [
+      { row: 0, col: 0, digit: 3 },
+      { row: 0, col: 4, digit: 1 },
+      { row: 2, col: 2, digit: 5 },
+      { row: 4, col: 0, digit: 2 },
+      { row: 4, col: 4, digit: 4 },
+    ],
+  },
   futoshiki: {
     size: 4,
     givens: [

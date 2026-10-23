@@ -10,6 +10,7 @@ import { chessProblemModule } from "./chess-problem/module";
 import { circle9Module } from "./circle9/module";
 import { crosswordModule } from "./crossword/module";
 import { detectiveSceneModule } from "./detective-scene/module";
+import { fillominoModule } from "./fillomino/module";
 import { futoshikiModule } from "./futoshiki/module";
 import { gearTrainModule } from "./gear-train/module";
 import { gearsModule } from "./gears/module";
@@ -119,6 +120,7 @@ const modules = {
   circle9: circle9Module,
   crossword: crosswordModule,
   "detective-scene": detectiveSceneModule,
+  fillomino: fillominoModule,
   futoshiki: futoshikiModule,
   "gear-train": gearTrainModule,
   gears: gearsModule,

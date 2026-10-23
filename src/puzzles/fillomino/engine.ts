@@ -17,7 +17,7 @@ export function gridFromGivens(
   return grid;
 }
 
-export function toSolution({ rows, cols }: Layout, grid: Grid): Solution {
+export function toSolution({ cols }: Layout, grid: Grid): Solution {
   return grid.map((digit, index) => ({
     row: Math.floor(index / cols),
     col: index % cols,

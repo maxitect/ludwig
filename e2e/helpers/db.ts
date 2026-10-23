@@ -504,11 +504,7 @@ export async function chessProblemPlies(email: string) {
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),
   });
   try {
-    const { rows } = await pool.query<{
-      ply: number;
-      from: string;
-      to: string;
-    }>(
+    const { rows } = await pool.query<{ ply: number; from: string; to: string }>(
       `select p.ply::int as ply, p.from_file::text || p.from_rank::text as "from", p.to_file::text || p.to_rank::text as "to"
          from chess_problem_attempt_plies p
          join attempts a on a.id = p.attempt_id

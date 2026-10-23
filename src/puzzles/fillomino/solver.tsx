@@ -93,14 +93,14 @@ export function Solver({
     registerCheck(() =>
       complete
         ? {
-            cells: Array.from(allCells, (key) => ({
+            cells: Array.from(placed, ([key, digit]) => ({
               ...position(key),
-              digit: placed.get(key) ?? 1,
+              digit,
             })),
           }
         : null,
     );
-  }, [registerCheck, complete, allCells, placed]);
+  }, [registerCheck, complete, placed]);
 
   useEffect(() => {
     if (checkOnEntry.current) {

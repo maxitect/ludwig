@@ -1,3 +1,17 @@
+import { OPEN, OPPOSITE, STEP, otherSide, pieceJoining } from "./geometry";
+import {
+  type State,
+  UNKNOWN,
+  YES,
+  NO,
+  copy,
+  edgesOf,
+  fragments,
+  markEdge,
+  piecesOf,
+  propagate,
+  stateFor,
+} from "./propagate";
 import type { Cell, Payload, Piece, Placed, Side } from "./schema";
 
 /** The clues and ends a track must satisfy. */
@@ -6,49 +20,14 @@ export type Layout = Pick<
   "rows" | "cols" | "entry" | "exit" | "rowCounts" | "colCounts" | "given"
 >;
 
-export const SIDES: readonly Side[] = ["n", "e", "s", "w"];
-
-export const OPEN: Readonly<Record<Piece, readonly [Side, Side]>> = {
-  ns: ["n", "s"],
-  ew: ["e", "w"],
-  ne: ["n", "e"],
-  nw: ["n", "w"],
-  se: ["s", "e"],
-  sw: ["s", "w"],
-};
-
-export const STEP: Readonly<Record<Side, readonly [number, number]>> = {
-  n: [-1, 0],
-  e: [0, 1],
-  s: [1, 0],
-  w: [0, -1],
-};
-
-export const OPPOSITE: Readonly<Record<Side, Side>> = {
-  n: "s",
-  e: "w",
-  s: "n",
-  w: "e",
-};
-
-const PIECE_OF: Readonly<Record<string, Piece>> = Object.fromEntries(
-  (Object.entries(OPEN) as [Piece, readonly [Side, Side]][]).flatMap(
-    ([piece, [a, b]]) => [
-      [a + b, piece],
-      [b + a, piece],
-    ],
-  ),
-);
-
-/** The piece that joins two different sides. */
-export const pieceJoining = (a: Side, b: Side) => PIECE_OF[a + b];
-
-/** The side of a piece that is not `side`, or undefined when the piece does not open onto `side`. */
-export function otherSide(piece: Piece, side: Side) {
-  const [a, b] = OPEN[piece];
-  if (side === a) return b;
-  return side === b ? a : undefined;
-}
+export {
+  OPEN,
+  OPPOSITE,
+  SIDES,
+  STEP,
+  otherSide,
+  pieceJoining,
+} from "./geometry";
 
 /** True when the end sits inside the grid, on the edge its side names. */
 export function endOnEdge(
@@ -157,84 +136,54 @@ export function trace(layout: Layout, pieces: readonly Placed[]) {
   };
 }
 
-/** Walks every simple track from the entry that obeys the counts and the given pieces, calling `found` with each. */
+/**
+ * Walks every track from the entry that obeys the counts and the given pieces, calling `found`
+ * with each. It decides one piece of track at a time, in both ways, after the techniques of
+ * `propagate.ts` have drawn every conclusion they can.
+ */
 function search(layout: Layout, found: (track: Placed[]) => boolean) {
-  const { rows, cols, entry, exit, rowCounts, colCounts, given } = layout;
-  const total = rowCounts.reduce((sum, n) => sum + n, 0);
-  if (total !== colCounts.reduce((sum, n) => sum + n, 0)) return;
-
-  const givens = new Map<number, Piece>(
-    given.map(({ row, col, piece }) => [row * cols + col, piece]),
-  );
-  const visited = new Uint8Array(rows * cols);
-  const rowUsed = new Array<number>(rows).fill(0);
-  const colUsed = new Array<number>(cols).fill(0);
-  const track: Placed[] = [];
-  const exitIndex = indexOf(cols, exit);
-  let givensMet = 0;
+  const { cols, entry, exit, rowCounts, colCounts } = layout;
+  if (sum(rowCounts) !== sum(colCounts)) return;
   let stopped = false;
 
-  const lineFull = () =>
-    rowCounts.every((n, row) => rowUsed[row] === n) &&
-    colCounts.every((n, col) => colUsed[col] === n);
-
-  function lineCanFinish() {
-    for (let r = 0; r < rows; r++) {
-      let free = 0;
-      for (let c = 0; c < cols; c++) if (!visited[r * cols + c]) free++;
-      if (rowCounts[r] - rowUsed[r] > free) return false;
-    }
-    for (let c = 0; c < cols; c++) {
-      let free = 0;
-      for (let r = 0; r < rows; r++) if (!visited[r * cols + c]) free++;
-      if (colCounts[c] - colUsed[c] > free) return false;
-    }
-    return true;
-  }
-
-  function enter(at: number, from: Side) {
-    if (stopped) return;
-    const row = Math.floor(at / cols);
-    const col = at % cols;
-    if (rowUsed[row] >= rowCounts[row] || colUsed[col] >= colCounts[col]) return;
-    const fixed = givens.get(at);
-    const outs = fixed
-      ? [otherSide(fixed, from)].filter((side): side is Side => !!side)
-      : SIDES.filter((side) => side !== from);
-    visited[at] = 1;
-    rowUsed[row]++;
-    colUsed[col]++;
-    if (fixed) givensMet++;
-    for (const out of outs) {
-      if (stopped) break;
-      track.push({ row, col, piece: pieceJoining(from, out) });
-      if (at === exitIndex && out === exit.side) {
-        if (givensMet === givens.size && lineFull()) stopped = found(track);
-      } else {
-        const [dr, dc] = STEP[out];
-        const nr = row + dr;
-        const nc = col + dc;
-        if (
-          nr >= 0 &&
-          nr < rows &&
-          nc >= 0 &&
-          nc < cols &&
-          !visited[nr * cols + nc] &&
-          lineCanFinish()
-        ) {
-          enter(nr * cols + nc, OPPOSITE[out]);
-        }
+  function walk(state: State) {
+    if (!propagate(state, 4)) return;
+    const undecided = (at: number) => edgesOf(state, at, UNKNOWN).length > 0;
+    const onTrack = state.cells.findIndex(
+      (mark, at) => mark === YES && undecided(at),
+    );
+    const cell =
+      onTrack >= 0 ? onTrack : state.cells.findIndex((_, at) => undecided(at));
+    if (cell < 0) {
+      const { find } = fragments(state);
+      const root = find(indexOf(cols, entry));
+      const joined = state.cells.every(
+        (mark, at) => mark !== YES || find(at) === root,
+      );
+      if (joined && find(indexOf(cols, exit)) === root) {
+        const ordered = trace(layout, piecesOf(state)).path;
+        const pieces = new Map(
+          piecesOf(state).map((placed) => [indexOf(cols, placed), placed]),
+        );
+        stopped = found(
+          ordered.flatMap((at) => pieces.get(indexOf(cols, at)) ?? []),
+        );
       }
-      track.pop();
+      return;
     }
-    if (fixed) givensMet--;
-    colUsed[col]--;
-    rowUsed[row]--;
-    visited[at] = 0;
+    const [side] = edgesOf(state, cell, UNKNOWN);
+    for (const mark of [YES, NO] as const) {
+      if (stopped) return;
+      const trial = copy(state);
+      markEdge(trial, cell, side, mark);
+      if (!trial.bad) walk(trial);
+    }
   }
 
-  enter(indexOf(cols, entry), entry.side);
+  walk(stateFor(layout));
 }
+
+const sum = (counts: readonly number[]) => counts.reduce((a, b) => a + b, 0);
 
 /** How many tracks satisfy the layout, stopping once `limit` are found. */
 export function countSolutions(layout: Layout, limit = 2) {

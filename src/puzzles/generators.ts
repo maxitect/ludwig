@@ -5,11 +5,11 @@ import {
   resolveVersion,
   type GeneratorVersions,
 } from "./_shared/generate/pipeline";
+import { layoutOf } from "./circle9/engine";
 import { circle9Generators } from "./circle9/generate";
 import { gradeCircle9 } from "./circle9/grade";
-import { layoutOf } from "./circle9/engine";
-import { numbers } from "./circle9/verify";
 import { contentSchema as circle9Content } from "./circle9/schema";
+import { numbers } from "./circle9/verify";
 import { futoshikiGenerators } from "./futoshiki/generate";
 import { gradeFutoshiki } from "./futoshiki/grade";
 import { contentSchema as futoshikiContent } from "./futoshiki/schema";
@@ -39,13 +39,13 @@ import { contentSchema as troixContent } from "./troix/schema";
 export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
   {
     circle9: circle9Generators,
-    sudoku: sudokuGenerators,
-    "sudoku-jigsaw": sudokuJigsawGenerators,
-    "sudoku-rainbow": sudokuRainbowGenerators,
-    "sudoku-killer": sudokuKillerGenerators,
-    "sudoku-xv": sudokuXvGenerators,
     futoshiki: futoshikiGenerators,
     "star-battle": starBattleGenerators,
+    sudoku: sudokuGenerators,
+    "sudoku-jigsaw": sudokuJigsawGenerators,
+    "sudoku-killer": sudokuKillerGenerators,
+    "sudoku-rainbow": sudokuRainbowGenerators,
+    "sudoku-xv": sudokuXvGenerators,
     troix: troixGenerators,
   };
 
@@ -74,6 +74,13 @@ export function regenerate(
 
 /** Grades a type's content by technique alone, or null when it needs trial and error. */
 const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
+  circle9: (content) =>
+    gradeCircle9(
+      layoutOf({ numbers: numbers(circle9Content.parse(content)) }),
+    ),
+  futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
+  "star-battle": (content) =>
+    gradeStarBattle(starBattleContent.parse(content)),
   sudoku: (content) => {
     const { givens, regions, cages, xv } = sudokuContent.parse(content);
     return gradeSudoku(
@@ -83,13 +90,6 @@ const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
       variantFor({ cages, xv }),
     );
   },
-  circle9: (content) =>
-    gradeCircle9(
-      layoutOf({ numbers: numbers(circle9Content.parse(content)) }),
-    ),
-  futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
-  "star-battle": (content) =>
-    gradeStarBattle(starBattleContent.parse(content)),
   troix: (content) => gradeTroix(troixContent.parse(content)),
 };
 

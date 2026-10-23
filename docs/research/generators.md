@@ -172,7 +172,8 @@ A singles-only solver finishes the "difficulty 5" puzzle and not the "difficulty
 
 | Family | Method | Types |
 |---|---|---|
-| Remove givens or marks from a full solution while unique | Shuffle removal order, drop a clue (or a symmetric pair), keep the drop if `countSolutions(…, 2) === 1` | sudoku, futoshiki (signs and givens), Troix, Circle9 (decoys instead), fillomino, jigsaw, rainbow |
+| Remove givens or marks from a full solution while unique | Shuffle removal order, drop a clue (or a symmetric pair), keep the drop if `countSolutions(…, 2) === 1` | sudoku, futoshiki (signs and givens), Troix, fillomino, jigsaw, rainbow |
+| Plant the solution, then add decoys while unique | Plant the circles from a solved sudoku, try a random digit on each empty cell in shuffled order, keep it if `countSolutions === 1` and the grader still solves at the target | Circle9 (T110: removing decoys from a full grid collapsed to the nine circles) |
 | Draw structure, fill, derive clues, repair | Draw regions or the black-cell layout, fill with a solution, derive the clues from it, then repair non-unique results by changing a region boundary, a black cell or a digit | star battle, norinori, kakuro, killer, XV |
 | Plant a path or a mirror set, derive the clues, reveal pieces | Plant, derive, reveal while unique | railroad, reflections |
 

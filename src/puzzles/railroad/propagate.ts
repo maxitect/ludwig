@@ -216,7 +216,10 @@ const connectivity: Technique = {
   },
 };
 
-/** The pieces of track that cross each line between two rows or two columns, with whether the two ends lie on opposite sides of it. */
+/**
+ * The pieces of track that cross each line between two rows or two columns, with whether the two
+ * ends lie on opposite sides of it.
+ */
 function cuts({ layout: { rows, cols, entry, exit } }: State) {
   const across = (line: number, at: (end: Cell) => number) =>
     at(entry) < line !== at(exit) < line;
@@ -258,7 +261,10 @@ const parity: Technique = {
   },
 };
 
-/** The cells the entry can still reach through cells and pieces of track not ruled out, without `blocked` (a cell, or one piece of track). */
+/**
+ * The cells the entry can still reach through cells and pieces of track not ruled out, without
+ * passing `blocked` (a cell, or one piece of track).
+ */
 function reachable(state: State, blocked?: { cell: number; side?: Side }) {
   const { entry, cols } = state.layout;
   const start = entry.row * cols + entry.col;
@@ -269,8 +275,8 @@ function reachable(state: State, blocked?: { cell: number; side?: Side }) {
     blocked?.side !== undefined &&
     ((cell === blocked.cell && side === blocked.side) ||
       (next === blocked.cell && OPPOSITE[side] === blocked.side));
-  while (queue.length) {
-    const cell = queue.pop()!;
+  for (let i = 0; i < queue.length; i++) {
+    const cell = queue[i];
     for (const side of SIDES) {
       const next = neighbour(state, cell, side);
       if (
@@ -309,7 +315,10 @@ const isolated: Technique = {
   },
 };
 
-/** A cell or piece of track that every way from the entry to some known track passes through is on the track. */
+/**
+ * A cell or piece of track that every way from the entry to some known track passes through is on
+ * the track.
+ */
 const bottleneck: Technique = {
   name: "bottleneck",
   level: 5,

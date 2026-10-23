@@ -165,7 +165,9 @@ function search(layout: Layout, found: (track: Placed[]) => boolean) {
         const pieces = new Map(
           piecesOf(state).map((placed) => [indexOf(cols, placed), placed]),
         );
-        stopped = found(ordered.map((at) => pieces.get(indexOf(cols, at))!));
+        stopped = found(
+          ordered.flatMap((at) => pieces.get(indexOf(cols, at)) ?? []),
+        );
       }
       return;
     }

@@ -4,16 +4,17 @@ import { boxOf, SIZE, type Layout } from "./engine";
 
 /** Slots 0-8 are digits, 9-17 rows, 18-26 columns, 27-35 boxes: each is covered by exactly one circle. */
 const TYPES = [0, 1, 2, 3];
+const SLOTS = TYPES.length * SIZE;
 
 const slotsOf = (index: number, digit: number) => [
   digit - 1,
-  9 + Math.floor(index / SIZE),
-  18 + (index % SIZE),
-  27 + boxOf(index),
+  SIZE + Math.floor(index / SIZE),
+  2 * SIZE + (index % SIZE),
+  3 * SIZE + boxOf(index),
 ];
 
 type State = {
-  slotsByCell: Map<number, number[]>;
+  slotsByCell: ReadonlyArray<ReadonlyArray<number>>;
   alive: Set<number>;
   covered: boolean[];
   chosen: number[];
@@ -26,17 +27,17 @@ type Technique = {
 };
 
 const inSlot = (state: State, index: number, slot: number) =>
-  state.slotsByCell.get(index)!.includes(slot);
+  state.slotsByCell[index].includes(slot);
 
 const openCells = (state: State, slot: number) =>
   [...state.alive].filter((index) => inSlot(state, index, slot));
 
 function choose(state: State, index: number) {
-  const own = state.slotsByCell.get(index)!;
+  const own = state.slotsByCell[index];
   state.chosen.push(index);
   for (const slot of own) state.covered[slot] = true;
   for (const other of [...state.alive]) {
-    if (state.slotsByCell.get(other)!.some((slot) => own.includes(slot))) {
+    if (state.slotsByCell[other].some((slot) => own.includes(slot))) {
       state.alive.delete(other);
     }
   }
@@ -52,7 +53,7 @@ const onlyCell: Technique = {
   name: "only cell",
   level: 1,
   apply(state) {
-    for (let slot = 0; slot < 36; slot++) {
+    for (let slot = 0; slot < SLOTS; slot++) {
       if (state.covered[slot]) continue;
       const open = openCells(state, slot);
       if (open.length === 1) {
@@ -112,16 +113,16 @@ const starved: Technique = {
   level: 3,
   apply(state) {
     for (const index of state.alive) {
-      const own = state.slotsByCell.get(index)!;
+      const own = state.slotsByCell[index];
       const others = [...state.alive].filter(
         (other) =>
           other !== index &&
-          !state.slotsByCell.get(other)!.some((slot) => own.includes(slot)),
+          !state.slotsByCell[other].some((slot) => own.includes(slot)),
       );
       const reachable = new Set(
-        others.flatMap((other) => state.slotsByCell.get(other)!),
+        others.flatMap((other) => state.slotsByCell[other]),
       );
-      const stuck = Array.from({ length: 36 }, (_, slot) => slot).some(
+      const stuck = Array.from({ length: SLOTS }, (_, slot) => slot).some(
         (slot) =>
           !state.covered[slot] && !own.includes(slot) && !reachable.has(slot),
       );
@@ -149,14 +150,12 @@ const ladder: ReadonlyArray<Technique> = [
  * looks like. Also returns the circled cells.
  */
 export function solveCircle9({ digits }: Layout, maxLevel: Difficulty = 5) {
-  const slotsByCell = new Map<number, number[]>();
-  digits.forEach((digit, index) => {
-    if (digit) slotsByCell.set(index, slotsOf(index, digit));
-  });
   const state: State = {
-    slotsByCell,
-    alive: new Set(slotsByCell.keys()),
-    covered: Array<boolean>(36).fill(false),
+    slotsByCell: digits.map((digit, index) =>
+      digit ? slotsOf(index, digit) : [],
+    ),
+    alive: new Set(digits.flatMap((digit, index) => (digit ? [index] : []))),
+    covered: Array<boolean>(SLOTS).fill(false),
     chosen: [],
   };
   const uses: Record<string, number> = {};

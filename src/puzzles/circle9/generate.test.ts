@@ -23,8 +23,11 @@ describe("circle9 generator", () => {
   });
 
   it("writes a grid the content schema accepts, with more numbers at higher difficulty", () => {
-    const counts = [1, 2, 3, 4, 5].map((difficulty) => {
-      const { content } = circle9Generators[1](`shape-${difficulty}`, difficulty as 1);
+    const counts = ([1, 2, 3, 4, 5] as const).map((difficulty) => {
+      const { content } = circle9Generators[1](
+        `shape-${difficulty}`,
+        difficulty,
+      );
       expect(contentSchema.safeParse(content).success).toBe(true);
       return content.grid.join("").replace(/\./g, "").length;
     });

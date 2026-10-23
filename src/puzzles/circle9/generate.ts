@@ -80,10 +80,7 @@ function generateV1(seed: string, difficulty: Difficulty) {
     )) {
       if (count === target) break;
       digits[index] = 1 + Math.floor(rng() * SIZE);
-      if (
-        countSolutions(layout) === 1 &&
-        gradeCircle9(layout, difficulty)
-      ) {
+      if (countSolutions(layout) === 1 && gradeCircle9(layout, difficulty)) {
         count++;
       } else {
         digits[index] = 0;
@@ -91,7 +88,9 @@ function generateV1(seed: string, difficulty: Difficulty) {
     }
     if (count !== target) return null;
     const grade = gradeCircle9(layout, difficulty);
-    return grade ? { content: toContent(digits), difficulty: grade.difficulty } : null;
+    return grade
+      ? { content: toContent(digits), difficulty: grade.difficulty }
+      : null;
   });
 }
 

@@ -59,6 +59,8 @@ export type CellGridProps = {
   /** Cells a failed check named as breaking a rule: a dashed frame and "breaks a rule" in the accessible name. */
   wrong?: ReadonlySet<CellKey>;
   annotation?: (row: number, col: number) => CellAnnotation | undefined;
+  /** Drawn inside a block, with `label` read after "block", such as a kakuro clue cell. */
+  block?: (row: number, col: number) => CellAnnotation | undefined;
   /** Signs between this cell and its right and lower neighbours. Their labels join both cells' accessible names. */
   edges?: (row: number, col: number) => CellEdges | undefined;
   /** Largest width of a cell in rem, which caps the grid. Defaults to 3.5. */
@@ -118,6 +120,7 @@ export function CellGrid({
   highlight,
   wrong,
   annotation,
+  block,
   edges,
   cellRem = 3.5,
   words,
@@ -268,6 +271,8 @@ export function CellGrid({
     inputRef.current?.focus();
   };
 
+  const fontSize = `min(${70 / cols}cqw, calc(var(--solver-height, 100000px) * 0.7 / ${rows}))`;
+
   return (
     <div
       ref={rootRef}
@@ -296,13 +301,19 @@ export function CellGrid({
               const key = cellKey(row, col);
               const where = `Row ${row + 1}, column ${col + 1}`;
               if (!cells.has(key)) {
+                const clue = block?.(row, col);
                 return (
                   <div
                     key={key}
                     role="gridcell"
-                    aria-label={`${where}, block`}
-                    className="aspect-square bg-ink forced-colors:bg-[CanvasText]"
-                  />
+                    aria-label={[`${where}, block`, clue?.label]
+                      .filter(Boolean)
+                      .join(", ")}
+                    className="relative aspect-square bg-ink forced-colors:bg-[CanvasText]"
+                    style={{ fontSize }}
+                  >
+                    {clue?.content}
+                  </div>
                 );
               }
               const entered = value(row, col);
@@ -342,9 +353,7 @@ export function CellGrid({
                     cellClassName?.(row, col),
                     "group-focus-within:data-[active=true]:z-10 group-focus-within:data-[active=true]:outline-2 group-focus-within:data-[active=true]:-outline-offset-2 group-focus-within:data-[active=true]:outline-ring group-focus-within:data-[active=true]:shadow-[inset_0_0_0_4px_var(--color-paper)]",
                   )}
-                  style={{
-                    fontSize: `min(${70 / cols}cqw, calc(var(--solver-height, 100000px) * 0.7 / ${rows}))`,
-                  }}
+                  style={{ fontSize }}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => select({ row, col })}
                   onFocus={() => setActive({ row, col })}

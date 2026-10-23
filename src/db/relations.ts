@@ -582,6 +582,18 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.futoshikiAttemptNotes.attemptId,
     }),
   },
+  kakuroPuzzles: {
+    cells: r.many.kakuroCells({
+      from: r.kakuroPuzzles.puzzleId,
+      to: r.kakuroCells.puzzleId,
+    }),
+  },
+  kakuroAttempts: {
+    cells: r.many.kakuroAttemptCells({
+      from: r.kakuroAttempts.attemptId,
+      to: r.kakuroAttemptCells.attemptId,
+    }),
+  },
   troixPuzzles: {
     givens: r.many.troixGivens({
       from: r.troixPuzzles.puzzleId,

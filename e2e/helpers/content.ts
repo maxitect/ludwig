@@ -10,6 +10,7 @@ import { fromFen } from "../../src/puzzles/_shared/chess-fen";
 import type { ContentFile as ReverseChessContent } from "../../src/puzzles/reverse-chess/schema";
 import { solve as solveFutoshiki } from "../../src/puzzles/futoshiki/engine";
 import type { Content as FutoshikiContent } from "../../src/puzzles/futoshiki/schema";
+import type { Content as KakuroContent } from "../../src/puzzles/kakuro/schema";
 import { solve } from "../../src/puzzles/sudoku/engine";
 import type { Content as SudokuContent } from "../../src/puzzles/sudoku/schema";
 
@@ -82,6 +83,18 @@ export async function futoshikiPuzzle() {
     title: first.meta.title,
     ...first.content,
     solution,
+  };
+}
+
+/** Any published kakuro, with the digit of every white cell from its content file. */
+export async function kakuroPuzzle() {
+  const [first] = await loadPublished<KakuroContent>("kakuro");
+  if (!first) throw new Error("No published kakuro in content/kakuro");
+  return {
+    typeKey: "kakuro",
+    slug: first.meta.slug,
+    title: first.meta.title,
+    ...first.content,
   };
 }
 

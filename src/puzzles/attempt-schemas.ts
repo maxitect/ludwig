@@ -10,6 +10,7 @@ import { attemptSchema as detectiveSceneAttempt } from "./detective-scene/schema
 import { attemptSchema as futoshikiAttempt } from "./futoshiki/schema";
 import { attemptSchema as gearTrainAttempt } from "./gear-train/schema";
 import { attemptSchema as gearsAttempt } from "./gears/schema";
+import { attemptSchema as kakuroAttempt } from "./kakuro/schema";
 import { attemptSchema as keywordAttempt } from "./keyword/schema";
 import { attemptSchema as knightsKnavesAttempt } from "./knights-knaves/schema";
 import { attemptSchema as logicGridAttempt } from "./logic-grid/schema";
@@ -44,6 +45,7 @@ const attemptSchemas = {
   futoshiki: futoshikiAttempt,
   "gear-train": gearTrainAttempt,
   gears: gearsAttempt,
+  kakuro: kakuroAttempt,
   keyword: keywordAttempt,
   "knights-knaves": knightsKnavesAttempt,
   "logic-grid": logicGridAttempt,

@@ -5,6 +5,11 @@ import {
   resolveVersion,
   type GeneratorVersions,
 } from "./_shared/generate/pipeline";
+import { circle9Generators } from "./circle9/generate";
+import { gradeCircle9 } from "./circle9/grade";
+import { layoutOf } from "./circle9/engine";
+import { numbers } from "./circle9/verify";
+import { contentSchema as circle9Content } from "./circle9/schema";
 import { futoshikiGenerators } from "./futoshiki/generate";
 import { gradeFutoshiki } from "./futoshiki/grade";
 import { contentSchema as futoshikiContent } from "./futoshiki/schema";
@@ -33,6 +38,7 @@ import { contentSchema as troixContent } from "./troix/schema";
  */
 export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
   {
+    circle9: circle9Generators,
     sudoku: sudokuGenerators,
     "sudoku-jigsaw": sudokuJigsawGenerators,
     "sudoku-rainbow": sudokuRainbowGenerators,
@@ -77,6 +83,10 @@ const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
       variantFor({ cages, xv }),
     );
   },
+  circle9: (content) =>
+    gradeCircle9(
+      layoutOf({ numbers: numbers(circle9Content.parse(content)) }),
+    ),
   futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
   "star-battle": (content) =>
     gradeStarBattle(starBattleContent.parse(content)),

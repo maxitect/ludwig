@@ -11,7 +11,7 @@ import type { Content } from "./schema";
 const MAX_CANDIDATES = 400;
 
 /** Small grids for the gentle puzzles, the large grid for the rest. */
-const sizesFor = (difficulty: Difficulty) => {
+const sizesFor = (difficulty: Difficulty): Content["size"][] => {
   switch (difficulty) {
     case 1:
       return [6];
@@ -53,7 +53,7 @@ function randomFilledGrid(rng: () => number, size: number) {
   return fill(0) ? grid : null;
 }
 
-function toContent(size: number, grid: Grid, kept: ReadonlyArray<number>): Content {
+function toContent(size: Content["size"], grid: Grid, kept: ReadonlyArray<number>): Content {
   return {
     size,
     givens: [...kept]

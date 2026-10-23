@@ -4,7 +4,7 @@ import { gradeTroix, solveTroix } from "./grade";
 import type { Content } from "./schema";
 
 const fromRows = (rows: ReadonlyArray<string>): Content => ({
-  size: rows.length,
+  size: rows.length === 6 ? 6 : 9,
   givens: rows.flatMap((line, row) =>
     [...line].flatMap((letter, col) =>
       letter === "."

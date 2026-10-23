@@ -17,7 +17,8 @@ const rows = Number(rowsArg);
 const cols = Number(colsArg);
 const density = Number(densityArg ?? 0.22);
 const rand = mulberry32(hashSeed(seed));
-const MAX_RUN = 5;
+const MAX_RUN = Number(process.env.MAX_RUN ?? 5);
+const MIN_FRACTION = Number(process.env.MIN_FRACTION ?? 0.62);
 
 type Grid = boolean[][];
 
@@ -61,7 +62,7 @@ function layout(): Grid {
       }
     }
     const whites = grid.flat().filter(Boolean).length;
-    if (whites >= (rows - 1) * (cols - 1) * 0.62) return grid;
+    if (whites >= (rows - 1) * (cols - 1) * MIN_FRACTION) return grid;
   }
 }
 

@@ -130,6 +130,25 @@ export async function troixCells(email: string) {
   }
 }
 
+export async function fillominoAttemptCellCount(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ count: number }>(
+      `select count(*)::int as count
+         from fillomino_attempt_cells c
+         join attempts a on a.id = c.attempt_id
+         join "user" u on u.id = a.user_id
+        where u.email = $1`,
+      [email],
+    );
+    return rows[0].count;
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function circle9Circles(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

@@ -9,6 +9,7 @@ import { Preview as chessProblemPreview } from "./chess-problem/preview";
 import { Preview as circle9Preview } from "./circle9/preview";
 import { Preview as crosswordPreview } from "./crossword/preview";
 import { Preview as detectiveScenePreview } from "./detective-scene/preview";
+import { Preview as fillominoPreview } from "./fillomino/preview";
 import { Preview as futoshikiPreview } from "./futoshiki/preview";
 import { Preview as gearTrainPreview } from "./gear-train/preview";
 import { Preview as gearsPreview } from "./gears/preview";
@@ -48,6 +49,7 @@ export const previews = {
   circle9: circle9Preview,
   crossword: crosswordPreview,
   "detective-scene": detectiveScenePreview,
+  fillomino: fillominoPreview,
   futoshiki: futoshikiPreview,
   "gear-train": gearTrainPreview,
   gears: gearsPreview,

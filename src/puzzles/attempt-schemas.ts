@@ -7,6 +7,7 @@ import { attemptSchema as chessProblemAttempt } from "./chess-problem/schema";
 import { attemptSchema as circle9Attempt } from "./circle9/schema";
 import { attemptSchema as crosswordAttempt } from "./crossword/schema";
 import { attemptSchema as detectiveSceneAttempt } from "./detective-scene/schema";
+import { attemptSchema as fillominoAttempt } from "./fillomino/schema";
 import { attemptSchema as futoshikiAttempt } from "./futoshiki/schema";
 import { attemptSchema as gearTrainAttempt } from "./gear-train/schema";
 import { attemptSchema as gearsAttempt } from "./gears/schema";
@@ -42,6 +43,7 @@ const attemptSchemas = {
   circle9: circle9Attempt,
   crossword: crosswordAttempt,
   "detective-scene": detectiveSceneAttempt,
+  fillomino: fillominoAttempt,
   futoshiki: futoshikiAttempt,
   "gear-train": gearTrainAttempt,
   gears: gearsAttempt,

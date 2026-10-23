@@ -33,23 +33,25 @@ describe("troix grader", () => {
     expect(solved?.grid.slice(0, 6)).toEqual([1, 1, 2, 2, 3, 3]);
   });
 
-  it("grades a frozen 9 by 9 puzzle as 5 and stops at 4", () => {
+  it("grades a frozen 9 by 9 puzzle needing three line arrangements as 5 and stops at 4", () => {
     const puzzle = fromRows([
-      ".IOII...O",
-      "..I.O..OI",
-      ".X..X.OXO",
-      "....O.XO.",
-      ".XOO.I...",
-      "X...IOI.I",
-      "O.XX...XO",
-      "X..XX....",
-      "I.....I..",
+      "IO..IO.I.",
+      "X...O.X.I",
+      ".OO..I.XI",
+      "OII.IO...",
+      "..II..XIX",
+      "X....I...",
+      "OI....X..",
+      ".....I..I",
+      "..I......",
     ]);
     expect(countSolutions(puzzle, 2)).toBe(1);
-    expect(gradeTroix(puzzle)).toMatchObject({
+    const grade = gradeTroix(puzzle);
+    expect(grade).toMatchObject({
       difficulty: 5,
-      hardest: "contradiction",
+      hardest: "line arrangements",
     });
+    expect(grade?.uses["line arrangements"]).toBe(3);
     expect(gradeTroix(puzzle, 4)).toBeNull();
   });
 

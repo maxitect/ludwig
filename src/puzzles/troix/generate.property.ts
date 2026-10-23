@@ -1,5 +1,6 @@
 import { expect } from "vitest";
 import { propertySlice } from "../_shared/generate/property";
+import { solve, toSolution } from "./engine";
 import { troixGenerators } from "./generate";
 import { solveTroix } from "./grade";
 import { verifyTroix } from "./verify";
@@ -14,7 +15,11 @@ export function troixProperty(slice: number) {
     (_, seed, difficulty) => {
       const { content } = troixGenerators[1](seed, difficulty);
       verifyTroix(content);
-      expect(solveTroix(content)?.grade.difficulty).toBe(difficulty);
+      const solved = solveTroix(content);
+      expect(solved?.grade.difficulty).toBe(difficulty);
+      expect(solved && toSolution(content.size, solved.grid)).toEqual(
+        solve(content),
+      );
     },
   );
 }

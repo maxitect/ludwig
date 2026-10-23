@@ -101,7 +101,8 @@ const pairEnds: Technique = {
       let progress: Outcome = false;
       for (let at = 0; at + 1 < line.length; at++) {
         const symbol = placedSymbol(state, line[at]);
-        if (symbol < 0 || placedSymbol(state, line[at + 1]) !== symbol) continue;
+        if (symbol < 0 || placedSymbol(state, line[at + 1]) !== symbol)
+          continue;
         const ends = [line[at - 1], line[at + 2]].filter(
           (end) => end !== undefined,
         );
@@ -121,7 +122,8 @@ const gap: Technique = {
       let progress: Outcome = false;
       for (let at = 0; at + 2 < line.length; at++) {
         const symbol = placedSymbol(state, line[at]);
-        if (symbol < 0 || placedSymbol(state, line[at + 2]) !== symbol) continue;
+        if (symbol < 0 || placedSymbol(state, line[at + 2]) !== symbol)
+          continue;
         progress = merge(progress, remove(state, line[at + 1], 1 << symbol));
         if (progress === "dead") return "dead";
       }
@@ -137,14 +139,19 @@ const onlyPlaces: Technique = {
     overLines(state, (line) => {
       let progress: Outcome = false;
       for (let symbol = 0; symbol < 3; symbol++) {
-        const held = line.filter((i) => placedSymbol(state, i) === symbol).length;
+        const held = line.filter(
+          (i) => placedSymbol(state, i) === symbol,
+        ).length;
         const open = line.filter(
           (i) => !isPlaced(state.dom[i]) && state.dom[i] & (1 << symbol),
         );
         const need = state.quota - held;
         if (need < 0 || open.length < need) return "dead";
         if (need === 0 || open.length !== need) continue;
-        progress = merge(progress, removeAll(state, open, ALL & ~(1 << symbol)));
+        progress = merge(
+          progress,
+          removeAll(state, open, ALL & ~(1 << symbol)),
+        );
         if (progress === "dead") return "dead";
       }
       return progress;
@@ -169,7 +176,11 @@ const lineArrangements: Technique = {
         }
         for (const symbol of symbolsOf(state.dom[line[at]])) {
           if (counts[symbol] >= state.quota) continue;
-          if (at >= 2 && picked[at - 1] === symbol && picked[at - 2] === symbol) {
+          if (
+            at >= 2 &&
+            picked[at - 1] === symbol &&
+            picked[at - 2] === symbol
+          ) {
             continue;
           }
           counts[symbol]++;
@@ -190,42 +201,6 @@ const lineArrangements: Technique = {
     }),
 };
 
-/** Applies the techniques of levels 1 to 4 until none helps. True when the state reaches a contradiction. */
-function propagatesToContradiction(state: State) {
-  for (;;) {
-    let progress = false;
-    for (const technique of ladder) {
-      if (technique.level > 4) break;
-      const result = technique.apply(state);
-      if (result === "dead") return true;
-      if (result) {
-        progress = true;
-        break;
-      }
-    }
-    if (!progress) return false;
-  }
-}
-
-/** A symbol that, assumed in a cell, forces a contradiction by the simpler techniques is ruled out of it. */
-const contradiction: Technique = {
-  name: "contradiction",
-  level: 5,
-  apply: (state) => {
-    for (let index = 0; index < state.dom.length; index++) {
-      if (isPlaced(state.dom[index])) continue;
-      for (const symbol of symbolsOf(state.dom[index])) {
-        const trial: State = { ...state, dom: [...state.dom] };
-        trial.dom[index] = 1 << symbol;
-        if (propagatesToContradiction(trial)) {
-          return remove(state, index, 1 << symbol);
-        }
-      }
-    }
-    return false;
-  },
-};
-
 /** Easiest first. A puzzle's difficulty is the level of the hardest technique it needs. */
 const ladder: ReadonlyArray<Technique> = [
   quotaFull,
@@ -233,12 +208,15 @@ const ladder: ReadonlyArray<Technique> = [
   gap,
   onlyPlaces,
   lineArrangements,
-  contradiction,
 ];
+
+/** Line-arrangement steps from which a puzzle grades 5 instead of 4 (the tie-break on hard steps). */
+const HARDEST_STEPS = 3;
 
 /**
  * Solves a puzzle by technique alone and returns the filled grid (1 to 3 per cell) with its grade,
- * or null when techniques up to `maxLevel` cannot finish it. The grade is the hardest level used.
+ * or null when it cannot be finished within `maxLevel`. The grade is the hardest level used, and
+ * 5 when line arrangements were needed at least `HARDEST_STEPS` times.
  */
 export function solveTroix(puzzle: Puzzle, maxLevel: Difficulty = 5) {
   const { size, givens } = puzzle;
@@ -266,15 +244,14 @@ export function solveTroix(puzzle: Puzzle, maxLevel: Difficulty = 5) {
     uses[applied.name] = (uses[applied.name] ?? 0) + 1;
     if (applied.level > hardest.level) hardest = applied;
   }
-  const grade: Grade = {
-    difficulty: hardest.level,
-    hardest: hardest.name,
-    uses,
-  };
+  const difficulty: Difficulty =
+    (uses[lineArrangements.name] ?? 0) >= HARDEST_STEPS ? 5 : hardest.level;
+  if (difficulty > maxLevel) return null;
+  const grade: Grade = { difficulty, hardest: hardest.name, uses };
   return { grade, grid: state.dom.map((mask) => Math.log2(mask) + 1) };
 }
 
-/** Grades a puzzle by technique alone, or null when techniques up to `maxLevel` cannot finish it. */
+/** Grades a puzzle by technique alone, or null when it cannot be finished within `maxLevel`. */
 export function gradeTroix(puzzle: Puzzle, maxLevel: Difficulty = 5) {
   return solveTroix(puzzle, maxLevel)?.grade ?? null;
 }

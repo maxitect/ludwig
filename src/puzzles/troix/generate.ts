@@ -4,7 +4,7 @@ import {
   type GeneratorVersions,
   shuffle,
 } from "../_shared/generate/pipeline";
-import { conflictingIndexes, countSolutions, type Grid, SYMBOLS } from "./engine";
+import { countSolutions, type Grid, SYMBOLS } from "./engine";
 import { solveTroix } from "./grade";
 import type { Content } from "./schema";
 
@@ -35,8 +35,13 @@ function randomFilledGrid(rng: () => number, size: number) {
     const col = index % size;
     for (const code of shuffle(rng, [1, 2, 3])) {
       if (rows[row][code] >= quota || cols[col][code] >= quota) continue;
-      if (col >= 2 && grid[index - 1] === code && grid[index - 2] === code) continue;
-      if (row >= 2 && grid[index - size] === code && grid[index - 2 * size] === code) {
+      if (col >= 2 && grid[index - 1] === code && grid[index - 2] === code)
+        continue;
+      if (
+        row >= 2 &&
+        grid[index - size] === code &&
+        grid[index - 2 * size] === code
+      ) {
         continue;
       }
       grid[index] = code;
@@ -53,7 +58,11 @@ function randomFilledGrid(rng: () => number, size: number) {
   return fill(0) ? grid : null;
 }
 
-function toContent(size: Content["size"], grid: Grid, kept: ReadonlyArray<number>): Content {
+function toContent(
+  size: Content["size"],
+  grid: Grid,
+  kept: ReadonlyArray<number>,
+): Content {
   return {
     size,
     givens: [...kept]
@@ -76,7 +85,7 @@ function generateV1(seed: string, difficulty: Difficulty) {
   return generateGraded(seed, difficulty, MAX_CANDIDATES, (rng) => {
     const size = sizes[Math.floor(rng() * sizes.length)];
     const grid = randomFilledGrid(rng, size);
-    if (!grid || conflictingIndexes(size, grid).size) return null;
+    if (!grid) return null;
     let kept = grid.map((_, index) => index);
     for (const index of shuffle(rng, kept)) {
       const rest = kept.filter((other) => other !== index);

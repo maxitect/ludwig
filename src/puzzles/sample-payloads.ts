@@ -142,6 +142,22 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
       { gearAId: ids[1], gearBId: ids[2] },
     ],
   },
+  kakuro: {
+    rows: 5,
+    cols: 5,
+    cells: [
+      { row: 1, col: 1 },
+      { row: 1, col: 2 },
+      { row: 2, col: 1 },
+      { row: 2, col: 2 },
+    ],
+    clues: [
+      { direction: "across", row: 1, col: 0, length: 2, sum: 4 },
+      { direction: "across", row: 2, col: 0, length: 2, sum: 3 },
+      { direction: "down", row: 0, col: 1, length: 2, sum: 3 },
+      { direction: "down", row: 0, col: 2, length: 2, sum: 4 },
+    ],
+  },
   keyword: { ciphertext: "qhvgw bmzn yxt aqgvu" },
   "knights-knaves": {
     questionText: "Who is the knave?",

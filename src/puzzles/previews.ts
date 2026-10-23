@@ -12,6 +12,7 @@ import { Preview as detectiveScenePreview } from "./detective-scene/preview";
 import { Preview as futoshikiPreview } from "./futoshiki/preview";
 import { Preview as gearTrainPreview } from "./gear-train/preview";
 import { Preview as gearsPreview } from "./gears/preview";
+import { Preview as kakuroPreview } from "./kakuro/preview";
 import { Preview as keywordPreview } from "./keyword/preview";
 import { Preview as knightsKnavesPreview } from "./knights-knaves/preview";
 import { Preview as logicGridPreview } from "./logic-grid/preview";
@@ -50,6 +51,7 @@ export const previews = {
   futoshiki: futoshikiPreview,
   "gear-train": gearTrainPreview,
   gears: gearsPreview,
+  kakuro: kakuroPreview,
   keyword: keywordPreview,
   "knights-knaves": knightsKnavesPreview,
   "logic-grid": logicGridPreview,

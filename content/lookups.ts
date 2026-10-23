@@ -264,6 +264,14 @@ export const types = [
     subtypeTable: "napkin_maths_puzzles",
     sort: 1,
   },
+  {
+    key: "kakuro",
+    categoryKey: "numbers",
+    name: "Kakuro",
+    description: "Fill each run with digits 1 to 9 that add up to its clue.",
+    subtypeTable: "kakuro_puzzles",
+    sort: 2,
+  },
 ] satisfies PuzzleType[];
 
 export const volumes = [

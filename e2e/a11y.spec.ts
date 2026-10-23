@@ -16,6 +16,7 @@ const PUZZLE_TYPES = [
   "futoshiki",
   "gear-train",
   "gears",
+  "kakuro",
   "keyword",
   "knights-knaves",
   "logic-grid",

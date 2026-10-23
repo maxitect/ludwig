@@ -13,6 +13,7 @@ import { detectiveSceneModule } from "./detective-scene/module";
 import { futoshikiModule } from "./futoshiki/module";
 import { gearTrainModule } from "./gear-train/module";
 import { gearsModule } from "./gears/module";
+import { kakuroModule } from "./kakuro/module";
 import { keywordModule } from "./keyword/module";
 import { knightsKnavesModule } from "./knights-knaves/module";
 import { logicGridModule } from "./logic-grid/module";
@@ -121,6 +122,7 @@ const modules = {
   futoshiki: futoshikiModule,
   "gear-train": gearTrainModule,
   gears: gearsModule,
+  kakuro: kakuroModule,
   keyword: keywordModule,
   "knights-knaves": knightsKnavesModule,
   "logic-grid": logicGridModule,

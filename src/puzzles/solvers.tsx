@@ -25,6 +25,7 @@ export const solvers: Readonly<Record<string, ComponentType<SolverProps>>> = {
   futoshiki: lazy(() => import("./futoshiki/solver")),
   "gear-train": lazy(() => import("./gear-train/solver")),
   gears: lazy(() => import("./gears/solver")),
+  kakuro: lazy(() => import("./kakuro/solver")),
   keyword: lazy(() => import("./keyword/solver")),
   "knights-knaves": lazy(() => import("./knights-knaves/solver")),
   "logic-grid": lazy(() => import("./logic-grid/solver")),

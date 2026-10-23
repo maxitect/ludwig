@@ -169,6 +169,24 @@ export async function futoshikiAttemptCounts(email: string) {
   }
 }
 
+export async function kakuroAttemptCellCount(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ cells: number }>(
+      `select (select count(*) from kakuro_attempt_cells c where c.attempt_id = a.id)::int as cells
+         from attempts a
+         join "user" u on u.id = a.user_id
+        where u.email = $1 and a.type_key = 'kakuro'`,
+      [email],
+    );
+    return rows[0]?.cells;
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function logicGridMarks(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

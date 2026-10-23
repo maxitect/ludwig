@@ -168,8 +168,8 @@ Not on the launch path (PLAN §3 M6).
 | [T092](./T092-detective-scene-content.md) | Detective scene: artwork and launch content | T091 | | ✔ | todo |
 | [T093](./T093-sudoku-killer-xv.md) | Sudoku: killer and XV constraint variants | T084 | ✔ | | done |
 | [T094](./T094-type-nonogram.md) | Puzzle type: nonogram (Ludwig picture reveals) | T021 | ✔ | | done |
-| [T095](./T095-type-kakuro.md) | Puzzle type: kakuro | T021 | ✔ | | todo |
-| [T096](./T096-type-fillomino.md) | Puzzle type: fillomino | T021 | ✔ | | todo |
+| [T095](./T095-type-kakuro.md) | Puzzle type: kakuro | T021 | ✔ | | done |
+| [T096](./T096-type-fillomino.md) | Puzzle type: fillomino | T021 | ✔ | | done |
 | [T097](./T097-type-norinori.md) | Puzzle type: norinori | T084 | ✔ | | done |
 | [T098](./T098-type-reflections.md) | Puzzle type: reflections (mirrors and beams) | T021 | ✔ | | todo |
 | [T099](./T099-research-generators-krazydad.md) | Research: puzzle generation and grading, KrazyDad's blog against our pipeline | — | | | done |
@@ -179,7 +179,7 @@ Not on the launch path (PLAN §3 M6).
 | [T103](./T103-kakuro-generator.md) | Kakuro generator | T100, T095 | | | todo |
 | [T104](./T104-fillomino-generator.md) | Fillomino generator | T100, T096 | | | todo |
 | [T105](./T105-norinori-generator.md) | Norinori generator | T100, T097 | | | todo |
-| [T106](./T106-railroad-generator.md) | Railroad generator | T100, T086 | | | todo |
+| [T106](./T106-railroad-generator.md) | Railroad generator | T100, T086 | | | done |
 | [T107](./T107-reflections-generator.md) | Reflections generator | T100, T098 | | | todo |
 | [T108](./T108-jigsaw-rainbow-generators.md) | Jigsaw and rainbow sudoku generators | T100, T084 | | | done |
 | [T109](./T109-killer-xv-generators.md) | Killer and XV sudoku generators | T100, T093 | | | done |

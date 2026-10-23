@@ -1,4 +1,4 @@
-import { OPEN, OPPOSITE, SIDES, STEP, otherSide, pieceJoining } from "./geometry";
+import { OPEN, OPPOSITE, STEP, otherSide, pieceJoining } from "./geometry";
 import {
   type State,
   UNKNOWN,

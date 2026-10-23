@@ -95,12 +95,9 @@ function randomPath(
 const bends = (pieces: readonly Placed[]) =>
   pieces.filter(({ piece }) => piece !== "ns" && piece !== "ew").length;
 
-const HARDEST_TRIES = 8;
-
 /**
  * Reveals every piece, then takes them back in random order while the clues keep one track that
- * the grader finishes at or below the target. The costliest technique is only tried on a few
- * pieces, once the cheaper ones have run out.
+ * the grader finishes at or below the target.
  */
 function reveal(
   rng: () => number,
@@ -109,18 +106,11 @@ function reveal(
   difficulty: Difficulty,
 ) {
   let given = [...pieces];
-  const take = (piece: Placed, level: Difficulty) => {
+  for (const piece of shuffle(rng, pieces)) {
     const fewer = given.filter((other) => other !== piece);
     const layout = { ...base, given: fewer };
-    if (countSolutions(layout) === 1 && gradeRailroad(layout, level)) {
+    if (countSolutions(layout) === 1 && gradeRailroad(layout, difficulty)) {
       given = fewer;
-    }
-  };
-  const cheap = Math.min(difficulty, 4) as Difficulty;
-  for (const piece of shuffle(rng, pieces)) take(piece, cheap);
-  if (difficulty > cheap) {
-    for (const piece of shuffle(rng, given).slice(0, HARDEST_TRIES)) {
-      take(piece, difficulty);
     }
   }
   return given;

@@ -10,18 +10,20 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
-  rows: 8,
-  cols: 8,
-  entry: { row: 0, col: 1, side: "n" },
-  exit: { row: 7, col: 5, side: "s" },
+  rows: 10,
+  cols: 10,
+  entry: { row: 3, col: 0, side: "w" },
+  exit: { row: 0, col: 9, side: "n" },
   rowCounts: [
-    3, 5, 5, 6, 4, 3, 2, 2,
+    3, 5, 4, 6, 6, 6, 9, 4, 0, 0,
   ],
   colCounts: [
-    0, 3, 3, 5, 7, 5, 3, 4,
+    5, 6, 6, 6, 5, 2, 2, 2, 4, 5,
   ],
   given: [
-    { row: 2, col: 2, piece: "sw" }, { row: 4, col: 4, piece: "nw" },
+    { row: 1, col: 2, piece: "ne" }, { row: 2, col: 3, piece: "ne" }, { row: 2, col: 9, piece: "ns" },
+    { row: 3, col: 0, piece: "nw" }, { row: 4, col: 1, piece: "ns" }, { row: 5, col: 3, piece: "sw" },
+    { row: 6, col: 2, piece: "ew" },
   ],
 } satisfies Content;
 

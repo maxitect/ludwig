@@ -1,7 +1,7 @@
 import type { Difficulty } from "../_shared/generate/pipeline";
 import { OPEN, SIDES, STEP, OPPOSITE, pieceJoining } from "./geometry";
 import type { Layout } from "./engine";
-import type { Placed, Side } from "./schema";
+import type { Cell, Placed, Side } from "./schema";
 
 export const UNKNOWN = 0;
 export const YES = 1;
@@ -87,7 +87,9 @@ const lines = ({ layout: { rows, cols } }: State) => [
 ];
 
 const countOf = ({ layout }: State, line: number) =>
-  line < layout.rows ? layout.rowCounts[line] : layout.colCounts[line - layout.rows];
+  line < layout.rows
+    ? layout.rowCounts[line]
+    : layout.colCounts[line - layout.rows];
 
 /** A row or column with all its cells on the track clears the rest; one with only as many open cells as it needs fills them. */
 const lineCount: Technique = {
@@ -104,7 +106,8 @@ const lineCount: Technique = {
       } else if (on === need) {
         for (const cell of open) progress = markOff(state, cell) || progress;
       } else if (on + open.length === need) {
-        for (const cell of open) progress = markCell(state, cell, YES) || progress;
+        for (const cell of open)
+          progress = markCell(state, cell, YES) || progress;
       }
     });
     return progress;
@@ -213,18 +216,140 @@ const connectivity: Technique = {
   },
 };
 
-export const basic: ReadonlyArray<Technique> = [
+/** The pieces of track that cross each line between two rows or two columns, with whether the two ends lie on opposite sides of it. */
+function cuts({ layout: { rows, cols, entry, exit } }: State) {
+  const across = (line: number, at: (end: Cell) => number) =>
+    at(entry) < line !== at(exit) < line;
+  return [
+    ...Array.from({ length: rows - 1 }, (_, i) => ({
+      pieces: Array.from({ length: cols }, (_, col) => i * cols + col),
+      side: "s" as const,
+      odd: across(i + 1, (end) => end.row),
+    })),
+    ...Array.from({ length: cols - 1 }, (_, i) => ({
+      pieces: Array.from({ length: rows }, (_, row) => row * cols + i),
+      side: "e" as const,
+      odd: across(i + 1, (end) => end.col),
+    })),
+  ];
+}
+
+/**
+ * The track crosses a line between two rows (or columns) an odd number of times when the entry and
+ * exit lie on opposite sides of it, and an even number when they lie on the same side. Once every
+ * piece across the line but one is known, that one follows.
+ */
+const parity: Technique = {
+  name: "crossing parity",
+  level: 4,
+  apply(state) {
+    let progress = false;
+    for (const { pieces, side, odd } of cuts(state)) {
+      const at = (cell: number) => state.edges[cell * 4 + dirOf(side)];
+      const open = pieces.filter((cell) => at(cell) === UNKNOWN);
+      const crossings = pieces.filter((cell) => at(cell) === YES).length;
+      const wrong = (crossings % 2 === 1) !== odd;
+      if (open.length === 0 && wrong) state.bad = true;
+      if (open.length === 1) {
+        progress = markEdge(state, open[0], side, wrong ? YES : NO) || progress;
+      }
+    }
+    return progress;
+  },
+};
+
+/** The cells the entry can still reach through cells and pieces of track not ruled out, without `blocked` (a cell, or one piece of track). */
+function reachable(state: State, blocked?: { cell: number; side?: Side }) {
+  const { entry, cols } = state.layout;
+  const start = entry.row * cols + entry.col;
+  const seen = new Uint8Array(state.cells.length);
+  const queue = [start];
+  seen[start] = 1;
+  const cut = (cell: number, side: Side, next: number) =>
+    blocked?.side !== undefined &&
+    ((cell === blocked.cell && side === blocked.side) ||
+      (next === blocked.cell && OPPOSITE[side] === blocked.side));
+  while (queue.length) {
+    const cell = queue.pop()!;
+    for (const side of SIDES) {
+      const next = neighbour(state, cell, side);
+      if (
+        next < 0 ||
+        seen[next] ||
+        state.edges[cell * 4 + dirOf(side)] === NO ||
+        state.cells[next] === NO ||
+        (blocked?.side === undefined && next === blocked?.cell) ||
+        cut(cell, side, next)
+      ) {
+        continue;
+      }
+      seen[next] = 1;
+      queue.push(next);
+    }
+  }
+  return seen;
+}
+
+const reachesTrack = (state: State, seen: Uint8Array) =>
+  state.cells.every((mark, cell) => mark !== YES || seen[cell]);
+
+/** A cell the entry can no longer reach is off the track, and the track breaks when it is on it. */
+const isolated: Technique = {
+  name: "cut off",
+  level: 4,
+  apply(state) {
+    const seen = reachable(state);
+    let progress = false;
+    for (let cell = 0; cell < state.cells.length; cell++) {
+      if (seen[cell]) continue;
+      if (state.cells[cell] === YES) state.bad = true;
+      else progress = markOff(state, cell) || progress;
+    }
+    return progress;
+  },
+};
+
+/** A cell or piece of track that every way from the entry to some known track passes through is on the track. */
+const bottleneck: Technique = {
+  name: "bottleneck",
+  level: 5,
+  apply(state) {
+    let progress = false;
+    for (let cell = 0; cell < state.cells.length; cell++) {
+      if (state.bad) return progress;
+      if (
+        state.cells[cell] === UNKNOWN &&
+        !reachesTrack(state, reachable(state, { cell }))
+      ) {
+        progress = markCell(state, cell, YES) || progress;
+      }
+      for (const side of edgesOf(state, cell, UNKNOWN)) {
+        if (neighbour(state, cell, side) < cell) continue;
+        if (!reachesTrack(state, reachable(state, { cell, side }))) {
+          progress = markEdge(state, cell, side, YES) || progress;
+        }
+      }
+    }
+    return progress;
+  },
+};
+
+/** Every technique, easiest first. */
+export const ladder: ReadonlyArray<Technique> = [
   lineCount,
   continuation,
   deadEnd,
   connectivity,
+  parity,
+  isolated,
+  bottleneck,
 ];
 
 export function propagate(state: State, maxLevel: Difficulty) {
   let again = true;
   while (again && !state.bad) {
     again = false;
-    for (const technique of basic) {
+    for (const technique of ladder) {
       if (technique.level <= maxLevel && technique.apply(state)) again = true;
     }
   }
@@ -276,6 +401,12 @@ export function piecesOf(state: State): Placed[] {
   return state.cells.flatMap((mark, cell) => {
     if (mark !== YES) return [];
     const [a, b] = edgesOf(state, cell, YES);
-    return [{ row: Math.floor(cell / cols), col: cell % cols, piece: pieceJoining(a, b) }];
+    return [
+      {
+        row: Math.floor(cell / cols),
+        col: cell % cols,
+        piece: pieceJoining(a, b),
+      },
+    ];
   });
 }

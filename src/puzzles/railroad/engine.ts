@@ -9,9 +9,9 @@ import {
   fragments,
   markEdge,
   piecesOf,
+  propagate,
   stateFor,
 } from "./propagate";
-import { deduce } from "./grade";
 import type { Cell, Payload, Piece, Placed, Side } from "./schema";
 
 /** The clues and ends a track must satisfy. */
@@ -147,27 +147,14 @@ function search(layout: Layout, found: (track: Placed[]) => boolean) {
   let stopped = false;
 
   function walk(state: State) {
-    if (!deduce(state, 4)) return;
-    let cell = -1;
-    let side: Side | undefined;
-    for (let at = 0; at < state.cells.length && cell < 0; at++) {
-      const open = edgesOf(state, at, UNKNOWN);
-      if (open.length) {
-        cell = at;
-        side = open[0];
-        if (state.cells[at] !== YES) cell = -1;
-      }
-    }
+    if (!propagate(state, 4)) return;
+    const undecided = (at: number) => edgesOf(state, at, UNKNOWN).length > 0;
+    const onTrack = state.cells.findIndex(
+      (mark, at) => mark === YES && undecided(at),
+    );
+    const cell =
+      onTrack >= 0 ? onTrack : state.cells.findIndex((_, at) => undecided(at));
     if (cell < 0) {
-      for (let at = 0; at < state.cells.length && cell < 0; at++) {
-        const open = edgesOf(state, at, UNKNOWN);
-        if (open.length) {
-          cell = at;
-          side = open[0];
-        }
-      }
-    }
-    if (cell < 0 || !side) {
       const { find } = fragments(state);
       const root = find(indexOf(cols, entry));
       const joined = state.cells.every(
@@ -182,6 +169,7 @@ function search(layout: Layout, found: (track: Placed[]) => boolean) {
       }
       return;
     }
+    const [side] = edgesOf(state, cell, UNKNOWN);
     for (const mark of [YES, NO] as const) {
       if (stopped) return;
       const trial = copy(state);

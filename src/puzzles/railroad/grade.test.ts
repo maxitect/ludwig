@@ -4,7 +4,12 @@ import { countSolutions, solve } from "./engine";
 import { payload } from "./fixture";
 import { gradeRailroad, solveRailroad } from "./grade";
 
-const loose = { ...payload, rowCounts: [3, 3, 4, 3], colCounts: [4, 4, 3, 2], given: [] };
+const loose = {
+  ...payload,
+  rowCounts: [3, 3, 4, 3],
+  colCounts: [4, 4, 3, 2],
+  given: [],
+};
 
 describe("gradeRailroad", () => {
   it("grades a puzzle that the counts and the bends finish as 1", () => {
@@ -15,12 +20,12 @@ describe("gradeRailroad", () => {
     });
   });
 
-  it("grades a puzzle that needs a contradiction on a piece of track as 4 or more", () => {
+  it("grades a puzzle that needs a bottleneck as 4 or more", () => {
     expect(countSolutions(bufferStop)).toBe(1);
     const grade = gradeRailroad(bufferStop);
     expect(grade?.difficulty).toBeGreaterThanOrEqual(4);
-    expect(grade?.uses["contradiction on a cell or piece"]).toBeGreaterThan(0);
-    expect(gradeRailroad(bufferStop, 3)).toBeNull();
+    expect(grade?.uses.bottleneck).toBeGreaterThan(0);
+    expect(gradeRailroad(bufferStop, 4)).toBeNull();
   });
 
   it("finds exactly the track of the unique solution", () => {

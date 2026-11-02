@@ -178,7 +178,7 @@ Not on the launch path (PLAN §3 M6).
 | [T102](./T102-star-battle-generator.md) | Star battle generator | T100, T087 | | | done |
 | [T103](./T103-kakuro-generator.md) | Kakuro generator | T100, T095 | | | todo |
 | [T104](./T104-fillomino-generator.md) | Fillomino generator | T100, T096 | | | todo |
-| [T105](./T105-norinori-generator.md) | Norinori generator | T100, T097 | | | todo |
+| [T105](./T105-norinori-generator.md) | Norinori generator | T100, T097 | | | done |
 | [T106](./T106-railroad-generator.md) | Railroad generator | T100, T086 | | | done |
 | [T107](./T107-reflections-generator.md) | Reflections generator | T100, T098 | | | todo |
 | [T108](./T108-jigsaw-rainbow-generators.md) | Jigsaw and rainbow sudoku generators | T100, T084 | | | done |

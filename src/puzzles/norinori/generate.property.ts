@@ -3,8 +3,7 @@ import { propertySlice } from "../_shared/generate/property";
 import { layoutOf, solve } from "./engine";
 import { norinoriGenerators } from "./generate";
 import { solveNorinori } from "./grade";
-import { regionCells } from "./verify";
-import { verifyNorinori } from "./verify";
+import { regionCells, verifyNorinori } from "./verify";
 
 export const NORINORI_SLICES = 3;
 

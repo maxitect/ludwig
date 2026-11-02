@@ -9,7 +9,7 @@ import { solveLayout } from "./grade";
 import type { Content } from "./schema";
 
 const MAX_CANDIDATES = 4000;
-const MAX_CELLS_PER_REGION = 7;
+const CELLS_PER_DOMINO = 7;
 const PLANT_TRIES = 4;
 const CASCADE_TRIES = 6;
 const HARDEN_STEPS = 80;
@@ -52,8 +52,8 @@ function neighboursOf(index: number, { rows, cols }: Shape) {
 /**
  * The densest of `PLANT_TRIES` maximal packings of non-touching dominoes, as pairs of cell indexes:
  * dominoes are laid in random order until no more fit. Maximal means no two empty cells sit side by
- * side out of reach of every domino, which a solver could never clear. Null when fewer than one
- * domino per `MAX_CELLS_PER_REGION` cells fit.
+ * side out of reach of every domino, which a solver could never clear. Null when the packing is
+ * sparser than one domino per `CELLS_PER_DOMINO` cells.
  */
 function plantDominoes(rng: () => number, shape: Shape) {
   const { rows, cols } = shape;
@@ -81,7 +81,7 @@ function plantDominoes(rng: () => number, shape: Shape) {
     }
     if (dominoes.length > best.length) best = dominoes;
   }
-  return best.length * MAX_CELLS_PER_REGION >= rows * cols ? best : null;
+  return best.length * CELLS_PER_DOMINO >= rows * cols ? best : null;
 }
 
 /**

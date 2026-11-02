@@ -27,6 +27,7 @@ const PUZZLE_TYPES = [
   "odd-one-out",
   "pictogram-cipher",
   "railroad",
+  "reflections",
   "reverse-chess",
   "rota",
   "sightlines",

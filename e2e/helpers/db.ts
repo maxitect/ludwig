@@ -149,6 +149,25 @@ export async function fillominoAttemptCellCount(email: string) {
   }
 }
 
+export async function reflectionsMirrorCount(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ count: number }>(
+      `select count(*)::int as count
+         from reflections_attempt_mirrors m
+         join attempts a on a.id = m.attempt_id
+         join "user" u on u.id = a.user_id
+        where u.email = $1`,
+      [email],
+    );
+    return rows[0].count;
+  } finally {
+    await pool.end();
+  }
+}
+
 export async function circle9Circles(email: string) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),

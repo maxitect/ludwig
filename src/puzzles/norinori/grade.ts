@@ -105,12 +105,16 @@ const dominoCompletion: Technique = {
       if (cell !== SHADED) return;
       if (shadedAround(state, index) === 1) {
         for (const next of state.board.neighbours[index]) {
-          if (state.cells[next] === OPEN) progress = set(state, next, EMPTY);
+          if (state.cells[next] === OPEN) {
+            progress = set(state, next, EMPTY) || progress;
+          }
         }
         return;
       }
       const partners = partnersOf(state, index);
-      if (partners.length === 1) progress = set(state, partners[0], SHADED);
+      if (partners.length === 1) {
+        progress = set(state, partners[0], SHADED) || progress;
+      }
     });
     return progress;
   },
@@ -124,7 +128,7 @@ const noTouching: Technique = {
     let progress = false;
     state.cells.forEach((cell, index) => {
       if (cell === OPEN && !partnersOf(state, index).length) {
-        progress = set(state, index, EMPTY);
+        progress = set(state, index, EMPTY) || progress;
       }
     });
     return progress;
@@ -152,7 +156,7 @@ const sharedNeighbour: Technique = {
       );
       for (const other of beside) {
         if (other !== index && state.cells[other] === OPEN) {
-          progress = set(state, other, EMPTY);
+          progress = set(state, other, EMPTY) || progress;
         }
       }
     });
@@ -303,12 +307,12 @@ const regionOverlap: Technique = {
         const counts = new Map(open.map((index) => [index, 0]));
         let total = 0;
         for (const a of firstPicks) {
-          const after = taking(state, regions[first], a);
+          const taken = taking(state, regions[first], a);
           for (const b of secondPicks) {
-            if (contradicts(taking(after, regions[second], b))) continue;
+            if (contradicts(taking(taken, regions[second], b))) continue;
             total++;
             for (const index of [...a, ...b]) {
-              counts.set(index, counts.get(index)! + 1);
+              counts.set(index, (counts.get(index) ?? 0) + 1);
             }
           }
         }

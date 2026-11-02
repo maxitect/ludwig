@@ -24,6 +24,7 @@ import { norinoriModule } from "./norinori/module";
 import { oddOneOutModule } from "./odd-one-out/module";
 import { pictogramCipherModule } from "./pictogram-cipher/module";
 import { railroadModule } from "./railroad/module";
+import { reflectionsModule } from "./reflections/module";
 import { reverseChessModule } from "./reverse-chess/module";
 import { rotaModule } from "./rota/module";
 import { sightlinesModule } from "./sightlines/module";
@@ -134,6 +135,7 @@ const modules = {
   "odd-one-out": oddOneOutModule,
   "pictogram-cipher": pictogramCipherModule,
   railroad: railroadModule,
+  reflections: reflectionsModule,
   "reverse-chess": reverseChessModule,
   rota: rotaModule,
   sightlines: sightlinesModule,

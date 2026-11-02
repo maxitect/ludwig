@@ -23,6 +23,7 @@ import { Preview as norinoriPreview } from "./norinori/preview";
 import { Preview as oddOneOutPreview } from "./odd-one-out/preview";
 import { Preview as pictogramCipherPreview } from "./pictogram-cipher/preview";
 import { Preview as railroadPreview } from "./railroad/preview";
+import { Preview as reflectionsPreview } from "./reflections/preview";
 import { Preview as reverseChessPreview } from "./reverse-chess/preview";
 import { Preview as rotaPreview } from "./rota/preview";
 import { Preview as sightlinesPreview } from "./sightlines/preview";
@@ -63,6 +64,7 @@ export const previews = {
   "odd-one-out": oddOneOutPreview,
   "pictogram-cipher": pictogramCipherPreview,
   railroad: railroadPreview,
+  reflections: reflectionsPreview,
   "reverse-chess": reverseChessPreview,
   rota: rotaPreview,
   sightlines: sightlinesPreview,

@@ -1,7 +1,9 @@
 import { expect } from "vitest";
 import { propertySlice } from "../_shared/generate/property";
+import { layoutOf, solve } from "./engine";
 import { norinoriGenerators } from "./generate";
 import { solveNorinori } from "./grade";
+import { regionCells } from "./verify";
 import { verifyNorinori } from "./verify";
 
 export const NORINORI_SLICES = 3;
@@ -14,7 +16,13 @@ export function norinoriProperty(slice: number) {
     (_, seed, difficulty) => {
       const { content } = norinoriGenerators[1](seed, difficulty);
       verifyNorinori(content);
-      expect(solveNorinori(content)?.grade.difficulty).toBe(difficulty);
+      const solved = solveNorinori(content);
+      expect(solved?.grade?.difficulty).toBe(difficulty);
+      expect(solved?.shaded).toEqual(
+        solve(
+          layoutOf({ ...content, regions: regionCells(content) }),
+        )?.toSorted((a, b) => a - b),
+      );
     },
   );
 }

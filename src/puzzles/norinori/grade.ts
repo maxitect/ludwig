@@ -1,5 +1,6 @@
-import type { Grade } from "../_shared/generate/candidates";
+import { combinations, type Grade } from "../_shared/generate/candidates";
 import type { Difficulty } from "../_shared/generate/pipeline";
+import { type Layout, layoutOf } from "./engine";
 import type { Content } from "./schema";
 import { regionCells } from "./verify";
 
@@ -10,8 +11,11 @@ const EMPTY = 2;
 type Cells = ReadonlyArray<number>;
 
 type Board = {
+  regionOf: Cells;
   regions: Cells[];
   neighbours: Cells[];
+  /** The regions that share an edge with each region. */
+  adjacent: Cells[];
 };
 
 type State = { board: Board; cells: number[] };
@@ -25,8 +29,29 @@ type Technique = {
 const shadedAround = ({ board, cells }: State, index: number) =>
   board.neighbours[index].filter((next) => cells[next] === SHADED).length;
 
-const openAround = ({ board, cells }: State, index: number) =>
-  board.neighbours[index].filter((next) => cells[next] === OPEN);
+const isLone = (state: State, index: number) =>
+  state.cells[index] === SHADED && shadedAround(state, index) === 0;
+
+/**
+ * The cells that could still be the other half of `index`'s domino: a lone shaded neighbour, or an
+ * open neighbour that no other shaded cell touches. A shaded cell already in a domino has none left.
+ */
+function partnersOf(state: State, index: number): Cells {
+  const { board, cells } = state;
+  const shadedNext = board.neighbours[index].filter(
+    (next) => cells[next] === SHADED,
+  );
+  if (shadedNext.length > 1) return [];
+  if (shadedNext.length === 1) {
+    return cells[index] === OPEN && isLone(state, shadedNext[0])
+      ? [shadedNext[0]]
+      : [];
+  }
+  const own = cells[index] === SHADED ? 1 : 0;
+  return board.neighbours[index].filter(
+    (next) => cells[next] === OPEN && shadedAround(state, next) === own,
+  );
+}
 
 const shadedIn = (state: State, region: Cells) =>
   region.filter((index) => state.cells[index] === SHADED).length;
@@ -34,7 +59,7 @@ const shadedIn = (state: State, region: Cells) =>
 const openIn = (state: State, region: Cells) =>
   region.filter((index) => state.cells[index] === OPEN);
 
-/** A broken rule: a region that cannot hold two shaded cells, or a shaded cell that cannot be part of exactly one domino. */
+/** A broken rule: a region that cannot hold two shaded cells, or a shaded cell that cannot be in exactly one domino. */
 function contradicts(state: State) {
   for (const region of state.board.regions) {
     const shaded = shadedIn(state, region);
@@ -43,8 +68,14 @@ function contradicts(state: State) {
   return state.cells.some((cell, index) => {
     if (cell !== SHADED) return false;
     const shaded = shadedAround(state, index);
-    return shaded > 1 || (shaded === 0 && !openAround(state, index).length);
+    return shaded > 1 || (shaded === 0 && !partnersOf(state, index).length);
   });
+}
+
+function set(state: State, index: number, value: number) {
+  if (state.cells[index] === value) return false;
+  state.cells[index] = value;
+  return true;
 }
 
 /** A region with two shaded cells clears the rest; a region with only as many open cells as it needs shades them all. */
@@ -57,14 +88,14 @@ const regionOfTwo: Technique = {
       const need = 2 - shadedIn(state, region);
       const open = openIn(state, region);
       if (!open.length || (need > 0 && open.length !== need)) continue;
-      for (const index of open) state.cells[index] = need ? SHADED : EMPTY;
+      for (const index of open) set(state, index, need ? SHADED : EMPTY);
       progress = true;
     }
     return progress;
   },
 };
 
-/** A lone shaded cell with one open neighbour shades it; a cell in a finished domino clears its other neighbours. */
+/** A cell in a finished domino clears its other neighbours; a lone shaded cell with one possible partner shades it. */
 const dominoCompletion: Technique = {
   name: "domino completion",
   level: 1,
@@ -72,128 +103,242 @@ const dominoCompletion: Technique = {
     let progress = false;
     state.cells.forEach((cell, index) => {
       if (cell !== SHADED) return;
-      const open = openAround(state, index);
-      if (!open.length) return;
       if (shadedAround(state, index) === 1) {
-        for (const next of open) state.cells[next] = EMPTY;
-        progress = true;
-      } else if (open.length === 1) {
-        state.cells[open[0]] = SHADED;
-        progress = true;
+        for (const next of state.board.neighbours[index]) {
+          if (state.cells[next] === OPEN) progress = set(state, next, EMPTY);
+        }
+        return;
+      }
+      const partners = partnersOf(state, index);
+      if (partners.length === 1) progress = set(state, partners[0], SHADED);
+    });
+    return progress;
+  },
+};
+
+/** An open cell is empty when shading it would touch two shaded cells or a finished domino, or when nothing could be its partner. */
+const noTouching: Technique = {
+  name: "no touching",
+  level: 1,
+  apply(state) {
+    let progress = false;
+    state.cells.forEach((cell, index) => {
+      if (cell === OPEN && !partnersOf(state, index).length) {
+        progress = set(state, index, EMPTY);
       }
     });
     return progress;
   },
 };
 
-/** An open cell is empty when shading it would give a neighbour a second shaded neighbour, or leave it with no partner. */
-const noTouching: Technique = {
-  name: "no touching",
+/** A lone shaded cell's partner is one of a few cells: an open cell beside every one of them would touch it, so it is empty. */
+const sharedNeighbour: Technique = {
+  name: "shared neighbour",
   level: 2,
   apply(state) {
     let progress = false;
     state.cells.forEach((cell, index) => {
-      if (cell !== OPEN) return;
-      const partnered = state.board.neighbours[index].some(
-        (next) =>
-          state.cells[next] === OPEN ||
-          (state.cells[next] === SHADED && shadedAround(state, next) === 0),
+      if (!isLone(state, index)) return;
+      const partners = partnersOf(state, index);
+      if (partners.length < 2) return;
+      const beside = new Set(
+        state.board.neighbours[partners[0]].filter((other) =>
+          partners.every(
+            (partner) =>
+              other !== partner &&
+              state.board.neighbours[partner].includes(other),
+          ),
+        ),
       );
-      if (shadedAround(state, index) > 1 || !partnered) {
-        state.cells[index] = EMPTY;
-        progress = true;
+      for (const other of beside) {
+        if (other !== index && state.cells[other] === OPEN) {
+          progress = set(state, other, EMPTY);
+        }
       }
     });
     return progress;
   },
 };
 
-const pairsOf = (open: Cells) =>
-  open.flatMap((a, i) => open.slice(i + 1).map((b) => [a, b]));
-
 /**
- * Tries every way a region could take the shaded cells it still needs. A cell in none of the
- * workable ways is empty, and a cell in all of them is shaded.
+ * The state after `shade` is shaded and `clear` emptied: a domino finished by the move also empties
+ * the cells around it, as the no-touching rule says.
  */
-const regionPairs: Technique = {
-  name: "region pairs",
+function after(state: State, shade: Cells, clear: Cells): State {
+  const trial = { board: state.board, cells: [...state.cells] };
+  for (const index of clear) trial.cells[index] = EMPTY;
+  for (const index of shade) trial.cells[index] = SHADED;
+  for (const index of shade) {
+    const shadedNext = state.board.neighbours[index].filter(
+      (next) => trial.cells[next] === SHADED,
+    );
+    if (shadedNext.length !== 1) continue;
+    for (const half of [index, shadedNext[0]]) {
+      for (const next of state.board.neighbours[half]) {
+        if (trial.cells[next] === OPEN) trial.cells[next] = EMPTY;
+      }
+    }
+  }
+  return trial;
+}
+
+/** The state after a region takes `pick` as the shaded cells it still needs and gives up its other open cells. */
+const taking = (state: State, region: Cells, pick: Cells) =>
+  after(
+    state,
+    pick,
+    openIn(state, region).filter((index) => !pick.includes(index)),
+  );
+
+/** A lone shaded cell's partner can only be a cell that holds up on the spot; one left is shaded. */
+const partnerWays: Technique = {
+  name: "partner ways",
   level: 3,
   apply(state) {
-    for (const region of state.board.regions) {
-      const need = 2 - shadedIn(state, region);
-      const open = openIn(state, region);
-      if (need < 1 || open.length <= need) continue;
-      const picks = need === 1 ? open.map((index) => [index]) : pairsOf(open);
-      const workable = picks.filter((pick) => {
-        for (const index of pick) state.cells[index] = SHADED;
-        const ok = !contradicts(state);
-        for (const index of pick) state.cells[index] = OPEN;
-        return ok;
-      });
-      if (!workable.length) continue;
+    for (let index = 0; index < state.cells.length; index++) {
+      if (!isLone(state, index)) continue;
+      const partners = partnersOf(state, index);
+      if (partners.length < 2) continue;
+      const workable = partners.filter(
+        (partner) => !contradicts(after(state, [partner], [])),
+      );
+      if (workable.length === 1) return set(state, workable[0], SHADED);
+      if (workable.length && workable.length < partners.length) {
+        let progress = false;
+        for (const partner of partners) {
+          if (!workable.includes(partner)) {
+            progress = set(state, partner, EMPTY) || progress;
+          }
+        }
+        if (progress) return true;
+      }
+    }
+    return false;
+  },
+};
+
+/** Every way the region could still take the shaded cells it needs without breaking a rule on the spot. */
+function workablePicks(
+  state: State,
+  region: number,
+  deep: boolean,
+): number[][] {
+  const cells = state.board.regions[region];
+  const need = 2 - shadedIn(state, cells);
+  const open = openIn(state, cells);
+  if (need < 1 || open.length <= need) return [];
+  const picks: number[][] = [];
+  combinations(open, need, (pick) => {
+    const trial = taking(state, cells, pick);
+    if (contradicts(trial)) return false;
+    if (
+      deep &&
+      state.board.adjacent[region].some(
+        (other) =>
+          openIn(trial, state.board.regions[other]).length >
+            2 - shadedIn(trial, state.board.regions[other]) &&
+          !workablePicks(trial, other, false).length,
+      )
+    ) {
+      return false;
+    }
+    picks.push([...pick]);
+    return false;
+  });
+  return picks;
+}
+
+/**
+ * Tries every way a region of at most `maxOpen` open cells could take the shaded cells it still
+ * needs. A cell in none of the workable ways is empty, and a cell in all of them is shaded. The
+ * deep form also drops a way that leaves a neighbouring region with no way of its own.
+ */
+const regionPicks = (
+  name: string,
+  level: Difficulty,
+  maxOpen: number,
+  deep: boolean,
+): Technique => ({
+  name,
+  level,
+  apply(state) {
+    for (let region = 0; region < state.board.regions.length; region++) {
+      const open = openIn(state, state.board.regions[region]);
+      if (open.length > maxOpen) continue;
+      const picks = workablePicks(state, region, deep);
+      if (!picks.length) continue;
       let progress = false;
       for (const index of open) {
-        const count = workable.filter((pick) => pick.includes(index)).length;
-        if (count === 0 || count === workable.length) {
-          state.cells[index] = count ? SHADED : EMPTY;
-          progress = true;
+        const count = picks.filter((pick) => pick.includes(index)).length;
+        if (count === 0 || count === picks.length) {
+          progress = set(state, index, count ? SHADED : EMPTY) || progress;
         }
       }
       if (progress) return true;
     }
     return false;
   },
-};
+});
 
-const simple: ReadonlyArray<Technique> = [
-  regionOfTwo,
-  dominoCompletion,
-  noTouching,
-  regionPairs,
-];
-
-/** Applies the techniques up to `maxLevel` until none helps. True when a rule breaks on the way. */
-function propagate(state: State, maxLevel: Difficulty) {
-  for (;;) {
-    if (contradicts(state)) return true;
-    if (!simple.some((tech) => tech.level <= maxLevel && tech.apply(state))) {
-      return false;
-    }
-  }
-}
-
-/** Assumes each open cell shaded then empty and propagates up to `inner`: the assumption that breaks a rule is wrong. */
-const lookahead = (
-  name: string,
-  level: Difficulty,
-  inner: Difficulty,
-): Technique => ({
-  name,
-  level,
+/**
+ * Two neighbouring regions taken together: every pair of their workable ways that holds up on the
+ * spot. A cell in none of the pairs is empty, and a cell in all of them is shaded.
+ */
+const regionOverlap: Technique = {
+  name: "region overlap",
+  level: 5,
   apply(state) {
-    for (let index = 0; index < state.cells.length; index++) {
-      if (state.cells[index] !== OPEN) continue;
-      for (const guess of [SHADED, EMPTY]) {
-        const trial = { board: state.board, cells: [...state.cells] };
-        trial.cells[index] = guess;
-        if (propagate(trial, inner)) {
-          state.cells[index] = guess === SHADED ? EMPTY : SHADED;
-          return true;
+    const { regions, adjacent } = state.board;
+    for (let first = 0; first < regions.length; first++) {
+      const firstPicks = workablePicks(state, first, false);
+      if (!firstPicks.length) continue;
+      for (const second of adjacent[first]) {
+        if (second < first) continue;
+        const secondPicks = workablePicks(state, second, false);
+        if (!secondPicks.length) continue;
+        const open = [
+          ...openIn(state, regions[first]),
+          ...openIn(state, regions[second]),
+        ];
+        const counts = new Map(open.map((index) => [index, 0]));
+        let total = 0;
+        for (const a of firstPicks) {
+          const after = taking(state, regions[first], a);
+          for (const b of secondPicks) {
+            if (contradicts(taking(after, regions[second], b))) continue;
+            total++;
+            for (const index of [...a, ...b]) {
+              counts.set(index, counts.get(index)! + 1);
+            }
+          }
         }
+        if (!total) continue;
+        let progress = false;
+        for (const [index, count] of counts) {
+          if (count === 0 || count === total) {
+            progress = set(state, index, count ? SHADED : EMPTY) || progress;
+          }
+        }
+        if (progress) return true;
       }
     }
     return false;
   },
-});
+};
 
 const ladder: ReadonlyArray<Technique> = [
-  ...simple,
-  lookahead("assumption", 4, 2),
-  lookahead("deep assumption", 5, 3),
+  regionOfTwo,
+  dominoCompletion,
+  noTouching,
+  sharedNeighbour,
+  regionPicks("small region ways", 2, 3, false),
+  partnerWays,
+  regionPicks("region ways", 3, Infinity, false),
+  regionPicks("neighbouring regions", 4, Infinity, true),
+  regionOverlap,
 ];
 
-function boardFor({ rows, cols, grid }: Pick<Content, "rows" | "cols" | "grid">) {
-  const regionOf = regionCells({ grid }).map(({ region }) => region);
+function boardFor({ rows, cols, regionOf }: Layout): Board {
   const count = Math.max(...regionOf) + 1;
   const neighbours = regionOf.map((_, index) => {
     const row = Math.floor(index / cols);
@@ -205,26 +350,29 @@ function boardFor({ rows, cols, grid }: Pick<Content, "rows" | "cols" | "grid">)
     if (col < cols - 1) next.push(index + 1);
     return next;
   });
-  return {
-    neighbours,
-    regions: Array.from({ length: count }, (_, region) =>
-      regionOf.flatMap((of, index) => (of === region ? [index] : [])),
+  const regions = Array.from({ length: count }, (_, region) =>
+    regionOf.flatMap((of, index) => (of === region ? [index] : [])),
+  );
+  const adjacent = regions.map((cells, region) => [
+    ...new Set(
+      cells
+        .flatMap((index) => neighbours[index])
+        .map((index) => regionOf[index])
+        .filter((other) => other !== region),
     ),
-  } satisfies Board;
+  ]);
+  return { regionOf, regions, neighbours, adjacent };
 }
 
 /**
- * Grades a norinori by technique alone, easiest first: null when the techniques up to `maxLevel`
- * cannot shade it, which is what a puzzle that needs trial and error looks like. Also returns the
- * shaded cells it found.
+ * Runs the ladder up to `maxLevel` on a layout, easiest technique first, restarting from the
+ * easiest after each success. The grade is null when the techniques stall short of a full grid,
+ * and the whole result is null when a rule broke.
  */
-export function solveNorinori(
-  content: Pick<Content, "rows" | "cols" | "grid">,
-  maxLevel: Difficulty = 5,
-) {
+export function solveLayout(layout: Layout, maxLevel: Difficulty = 5) {
   const state: State = {
-    board: boardFor(content),
-    cells: Array<number>(content.rows * content.cols).fill(OPEN),
+    board: boardFor(layout),
+    cells: Array<number>(layout.regionOf.length).fill(OPEN),
   };
   const uses: Record<string, number> = {};
   let hardest: Technique = ladder[0];
@@ -233,20 +381,35 @@ export function solveNorinori(
     const next = ladder.find(
       (technique) => technique.level <= maxLevel && technique.apply(state),
     );
-    if (!next) return null;
+    if (!next) break;
     uses[next.name] = (uses[next.name] ?? 0) + 1;
     if (next.level > hardest.level) hardest = next;
   }
   if (contradicts(state)) return null;
-  const shaded = state.cells.flatMap((cell, index) =>
-    cell === SHADED ? [index] : [],
+  const grade: Grade | null = state.cells.includes(OPEN)
+    ? null
+    : { difficulty: hardest.level, hardest: hardest.name, uses };
+  return { grade, cells: state.cells };
+}
+
+/**
+ * Grades a norinori by technique alone. The grade and shaded cells are null when the techniques
+ * up to `maxLevel` cannot decide every cell, which is what a puzzle that needs trial and error
+ * looks like. Null when a rule broke.
+ */
+export function solveNorinori(
+  content: Pick<Content, "rows" | "cols" | "grid">,
+  maxLevel: Difficulty = 5,
+) {
+  const solved = solveLayout(
+    layoutOf({ ...content, regions: regionCells(content) }),
+    maxLevel,
   );
-  const grade: Grade = {
-    difficulty: hardest.level,
-    hardest: hardest.name,
-    uses,
-  };
-  return { grade, shaded };
+  if (!solved) return null;
+  const shaded = solved.grade
+    ? solved.cells.flatMap((cell, index) => (cell === SHADED ? [index] : []))
+    : null;
+  return { grade: solved.grade, shaded };
 }
 
 export const gradeNorinori = (

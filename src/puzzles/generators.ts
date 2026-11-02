@@ -13,6 +13,9 @@ import { numbers } from "./circle9/verify";
 import { futoshikiGenerators } from "./futoshiki/generate";
 import { gradeFutoshiki } from "./futoshiki/grade";
 import { contentSchema as futoshikiContent } from "./futoshiki/schema";
+import { norinoriGenerators } from "./norinori/generate";
+import { gradeNorinori } from "./norinori/grade";
+import { contentSchema as norinoriContent } from "./norinori/schema";
 import { railroadGenerators } from "./railroad/generate";
 import { gradeRailroad } from "./railroad/grade";
 import { contentSchema as railroadContent } from "./railroad/schema";
@@ -43,6 +46,7 @@ export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
   {
     circle9: circle9Generators,
     futoshiki: futoshikiGenerators,
+    norinori: norinoriGenerators,
     railroad: railroadGenerators,
     "star-battle": starBattleGenerators,
     sudoku: sudokuGenerators,
@@ -83,6 +87,7 @@ const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
       layoutOf({ numbers: numbers(circle9Content.parse(content)) }),
     ),
   futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
+  norinori: (content) => gradeNorinori(norinoriContent.parse(content)),
   railroad: (content) => gradeRailroad(railroadContent.parse(content)),
   "star-battle": (content) =>
     gradeStarBattle(starBattleContent.parse(content)),

@@ -262,6 +262,15 @@
   );
 }
 
+@keyframes beam-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @keyframes walker-cross {
   from {
     translate: 0 0;

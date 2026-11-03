@@ -21,6 +21,7 @@ import { attemptSchema as norinoriAttempt } from "./norinori/schema";
 import { attemptSchema as oddOneOutAttempt } from "./odd-one-out/schema";
 import { attemptSchema as pictogramCipherAttempt } from "./pictogram-cipher/schema";
 import { attemptSchema as railroadAttempt } from "./railroad/schema";
+import { attemptSchema as reflectionsAttempt } from "./reflections/schema";
 import { attemptSchema as reverseChessAttempt } from "./reverse-chess/schema";
 import { attemptSchema as rotaAttempt } from "./rota/schema";
 import { attemptSchema as sightlinesAttempt } from "./sightlines/schema";
@@ -57,6 +58,7 @@ const attemptSchemas = {
   "odd-one-out": oddOneOutAttempt,
   "pictogram-cipher": pictogramCipherAttempt,
   railroad: railroadAttempt,
+  reflections: reflectionsAttempt,
   "reverse-chess": reverseChessAttempt,
   rota: rotaAttempt,
   sightlines: sightlinesAttempt,

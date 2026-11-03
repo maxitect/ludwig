@@ -390,6 +390,26 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.railroadAttemptCrosses.attemptId,
     }),
   },
+  reflectionsPuzzles: {
+    fixedMirrors: r.many.reflectionsFixedMirrors({
+      from: r.reflectionsPuzzles.puzzleId,
+      to: r.reflectionsFixedMirrors.puzzleId,
+    }),
+    slots: r.many.reflectionsSlots({
+      from: r.reflectionsPuzzles.puzzleId,
+      to: r.reflectionsSlots.puzzleId,
+    }),
+    ports: r.many.reflectionsPorts({
+      from: r.reflectionsPuzzles.puzzleId,
+      to: r.reflectionsPorts.puzzleId,
+    }),
+  },
+  reflectionsAttempts: {
+    mirrors: r.many.reflectionsAttemptMirrors({
+      from: r.reflectionsAttempts.attemptId,
+      to: r.reflectionsAttemptMirrors.attemptId,
+    }),
+  },
   pictogramCipherPuzzles: {
     symbols: r.many.pictogramCipherSymbols({
       from: r.pictogramCipherPuzzles.puzzleId,

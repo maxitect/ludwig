@@ -209,6 +209,14 @@ export const types = [
     sort: 4,
   },
   {
+    key: "reflections",
+    categoryKey: "spatial",
+    name: "Reflections",
+    description: "Put a mirror in every marked cell so each lettered pair of ports is joined by a beam.",
+    subtypeTable: "reflections_puzzles",
+    sort: 6,
+  },
+  {
     key: "cctv-maze",
     categoryKey: "spatial",
     name: "CCTV Maze",

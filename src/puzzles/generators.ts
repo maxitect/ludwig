@@ -10,6 +10,9 @@ import { circle9Generators } from "./circle9/generate";
 import { gradeCircle9 } from "./circle9/grade";
 import { contentSchema as circle9Content } from "./circle9/schema";
 import { numbers } from "./circle9/verify";
+import { fillominoGenerators } from "./fillomino/generate";
+import { gradeFillomino } from "./fillomino/grade";
+import { contentSchema as fillominoContent } from "./fillomino/schema";
 import { futoshikiGenerators } from "./futoshiki/generate";
 import { gradeFutoshiki } from "./futoshiki/grade";
 import { contentSchema as futoshikiContent } from "./futoshiki/schema";
@@ -51,6 +54,7 @@ import { contentSchema as troixContent } from "./troix/schema";
 export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
   {
     circle9: circle9Generators,
+    fillomino: fillominoGenerators,
     futoshiki: futoshikiGenerators,
     kakuro: kakuroGenerators,
     norinori: norinoriGenerators,
@@ -94,6 +98,7 @@ const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
     gradeCircle9(
       layoutOf({ numbers: numbers(circle9Content.parse(content)) }),
     ),
+  fillomino: (content) => gradeFillomino(fillominoContent.parse(content)),
   futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
   kakuro: (content) => gradeKakuro(kakuroContent.parse(content)),
   norinori: (content) => gradeNorinori(norinoriContent.parse(content)),

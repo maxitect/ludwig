@@ -18,6 +18,8 @@ import type { Content, Payload } from "./schema";
 
 type Run = { cells: number[]; sum: number };
 
+const DIGITS = 0b1111111110;
+
 const maskOf = (digits: ReadonlyArray<number>) =>
   digits.reduce((mask, digit) => mask | bit(digit), 0);
 
@@ -94,14 +96,14 @@ const reachable = (state: CandidateState, rest: number, open: number[]) => {
 /** The digits every combination still open to a run holds, so the run must contain them. */
 function requiredDigits(state: CandidateState, run: Run, open: number[]) {
   const used = usedIn(state, run.cells);
-  let required = ~0;
+  let required = DIGITS;
   for (const combo of comboMasks(run.cells.length, run.sum)) {
     const rest = combo & ~used;
     if ((combo & used) === used && reachable(state, rest, open)) {
       required &= rest;
     }
   }
-  return required & ~1;
+  return required;
 }
 
 const spotsOf = (state: CandidateState, open: number[], digit: number) =>

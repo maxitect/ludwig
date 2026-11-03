@@ -12,6 +12,7 @@ import { verifyFullSsl } from "../src/utils/verify-full-ssl";
 import { relations } from "../src/db/relations";
 import { attempts } from "../src/db/schema/progress";
 import {
+  dailyPuzzles,
   puzzleCategories,
   puzzleTypes,
   puzzles,
@@ -170,6 +171,10 @@ export async function seed({
         notInArray(
           puzzles.id,
           db.select({ id: gearDaily.puzzleId }).from(gearDaily),
+        ),
+        notInArray(
+          puzzles.id,
+          db.select({ id: dailyPuzzles.puzzleId }).from(dailyPuzzles),
         ),
         or(
           ...Object.keys(registry).map((typeKey) => {

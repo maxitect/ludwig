@@ -31,13 +31,11 @@ describe("kakuro generator", () => {
       );
       expect(contentSchema.safeParse(content).success).toBe(true);
     }
-  }, 120_000);
+  });
 });
 
 describe("kakuro property", () => {
   it("has a test file for every slice", () => {
-    expect(sliceFileCount(import.meta.dirname, "generate")).toBe(
-      KAKURO_SLICES,
-    );
+    expect(sliceFileCount(import.meta.dirname, "generate")).toBe(KAKURO_SLICES);
   });
 });

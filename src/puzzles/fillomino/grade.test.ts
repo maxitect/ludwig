@@ -1,7 +1,13 @@
 import { readdirSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { brokenIndexes, countSolutions, solve } from "./engine";
+import { seedRng, shuffle } from "../_shared/generate/pipeline";
+import {
+  brokenIndexes,
+  countSolutions,
+  enumerateSolutions,
+  solve,
+} from "./engine";
 import { gradeFillomino, solveFillomino } from "./grade";
 import type { Content } from "./schema";
 
@@ -56,8 +62,10 @@ describe("gradeFillomino", () => {
   it("grades a generated puzzle that needs the pooled areas as 5, and null below it", () => {
     const hard = contents["last-light"];
     expect(countSolutions(hard, 2)).toBe(1);
-    const grade = gradeFillomino(hard);
-    expect(grade?.difficulty).toBeGreaterThanOrEqual(4);
+    expect(gradeFillomino(hard)).toMatchObject({
+      difficulty: 5,
+      hardest: "pooled bottleneck",
+    });
     expect(gradeFillomino(hard, 3)).toBeNull();
   });
 
@@ -77,6 +85,53 @@ describe("gradeFillomino", () => {
         expect(cells[row * content.cols + col]).toBe(digit);
       }
     }
+  });
+
+  it("never fills a grid with another solution while givens are removed one by one", () => {
+    const size = 6;
+    const at = (index: number) => ({
+      row: Math.floor(index / size),
+      col: index % size,
+    });
+    let proofs = 0;
+    for (let seed = 0; seed < 60; seed++) {
+      const rng = seedRng(`soundness-${seed}`, 1);
+      const cells = shuffle(
+        rng,
+        Array.from({ length: size * size }, (_, index) => index),
+      );
+      const [solution] = enumerateSolutions(
+        {
+          rows: size,
+          cols: size,
+          givens: cells
+            .slice(0, 4)
+            .map((index) => ({ ...at(index), digit: 2 + (index % 6) })),
+        },
+        1,
+      );
+      if (!solution) continue;
+      const kept = solution.map(() => true);
+      for (const index of cells) {
+        kept[index] = false;
+        const puzzle = {
+          rows: size,
+          cols: size,
+          givens: solution.flatMap((digit, cell) =>
+            kept[cell] ? [{ ...at(cell), digit }] : [],
+          ),
+        };
+        const solved = solveFillomino(puzzle);
+        expect(solved).not.toBeNull();
+        if (!solved?.cells) {
+          kept[index] = true;
+          continue;
+        }
+        proofs++;
+        expect(enumerateSolutions(puzzle, 2)).toEqual([solved.cells]);
+      }
+    }
+    expect(proofs).toBeGreaterThan(500);
   });
 
   it("returns null for a puzzle with several solutions, which needs a guess", () => {

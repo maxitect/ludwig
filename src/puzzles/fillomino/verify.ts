@@ -1,8 +1,12 @@
 import { cellKey } from "../_shared/cell-grid/navigation";
 import { countSolutions } from "./engine";
+import { solveFillomino } from "./grade";
 import type { Content } from "./schema";
 
-/** Givens occupy distinct cells, and the puzzle has exactly one completion. */
+/**
+ * Givens occupy distinct cells, and the puzzle has exactly one completion: either the techniques of
+ * the grader fill the grid (each deduction is forced, so that is a proof), or a search finds one.
+ */
 export function verifyFillomino(content: Content) {
   const seen = new Set<string>();
   for (const { row, col } of content.givens) {
@@ -12,6 +16,7 @@ export function verifyFillomino(content: Content) {
     }
     seen.add(key);
   }
+  if (solveFillomino(content)?.cells) return;
   const solutions = countSolutions(content, 2);
   if (solutions !== 1) {
     throw new Error(

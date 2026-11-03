@@ -75,9 +75,11 @@ export function brokenIndexes(layout: Layout, grid: Grid) {
 }
 
 /**
- * Finds up to `limit` completions by backtracking on the empty cell with the fewest candidate digits.
- * A digit is a candidate when the area it would join stays no bigger than the digit and can still
- * reach it through empty cells. Contradictory givens yield none.
+ * Finds up to `limit` completions by backtracking, branching on whichever is tighter: the empty cell
+ * with the fewest candidate digits, or the unfinished area with the fewest cells it could grow into
+ * (an area must take one of them, so no solution is missed; repeats are dropped). A digit is a
+ * candidate when the area it would join stays no bigger than the digit and can still reach it
+ * through empty cells. Contradictory givens yield none.
  */
 export function enumerateSolutions(puzzle: Puzzle, limit: number) {
   const layout = { rows: puzzle.rows, cols: puzzle.cols };
@@ -139,6 +141,32 @@ export function enumerateSolutions(puzzle: Puzzle, limit: number) {
   };
 
   const found: Grid[] = [];
+  const seenKeys = new Set<string>();
+
+  /** The unfinished area with the fewest cells it could grow into, and those cells. */
+  function tightestArea() {
+    let best: { digit: number; exits: number[] } | null = null;
+    for (const { digit, cells } of areas(layout, grid)) {
+      if (cells.length >= digit) continue;
+      const exits = new Set<number>();
+      for (const cell of cells) {
+        for (const next of neighbours(layout, cell)) {
+          if (grid[next] === 0) exits.add(next);
+        }
+      }
+      const open = [...exits].filter((exit) => {
+        const fits = place(exit, digit);
+        grid[exit] = 0;
+        return fits;
+      });
+      if (!best || open.length < best.exits.length) {
+        best = { digit, exits: open };
+        if (!open.length) break;
+      }
+    }
+    return best;
+  }
+
   function search() {
     let best = -1;
     let bestCodes: number[] = [];
@@ -152,7 +180,21 @@ export function enumerateSolutions(puzzle: Puzzle, limit: number) {
       }
     }
     if (best === -1) {
-      if (!brokenIndexes(layout, grid).size) found.push([...grid]);
+      const key = grid.join("");
+      if (!brokenIndexes(layout, grid).size && !seenKeys.has(key)) {
+        seenKeys.add(key);
+        found.push([...grid]);
+      }
+      return;
+    }
+    const area = bestCodes.length > 1 ? tightestArea() : null;
+    if (area && area.exits.length < bestCodes.length) {
+      for (const exit of area.exits) {
+        if (found.length >= limit) return;
+        grid[exit] = area.digit;
+        search();
+        grid[exit] = 0;
+      }
       return;
     }
     for (const digit of bestCodes) {

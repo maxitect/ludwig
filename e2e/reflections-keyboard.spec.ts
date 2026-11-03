@@ -117,6 +117,9 @@ test("focusing a camera announces and draws its beam, which respects reduced mot
     await beam.evaluate((node) => getComputedStyle(node).animationName),
   ).toBe("none");
   await page.emulateMedia({ reducedMotion: "no-preference" });
+  await beam.evaluate((node) =>
+    Promise.all(node.getAnimations().map(({ finished }) => finished)),
+  );
 
   mkdirSync(SHOTS, { recursive: true });
   const width = testInfo.project.name === "mobile" ? 390 : 1280;

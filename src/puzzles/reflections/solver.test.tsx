@@ -100,4 +100,16 @@ describe("reflections Solver", () => {
       first.mirror === "slash" ? /forward slash/ : /backslash mirror/,
     );
   });
+
+  it("presses a camera only when it is tapped, not when it is focused", async () => {
+    const user = userEvent.setup();
+    renderSolver();
+    const [camera] = screen.getAllByRole("button", { name: /^Camera / });
+    act(() => camera.focus());
+    expect(camera.getAttribute("aria-pressed")).toBe("false");
+    await user.click(camera);
+    expect(camera.getAttribute("aria-pressed")).toBe("true");
+    await user.click(camera);
+    expect(camera.getAttribute("aria-pressed")).toBe("false");
+  });
 });

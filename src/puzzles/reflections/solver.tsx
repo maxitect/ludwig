@@ -66,6 +66,7 @@ function Camera({
   joined,
   wrong,
   shown,
+  pinned,
   describe,
   onFocus,
   onBlur,
@@ -78,6 +79,7 @@ function Camera({
   joined: boolean;
   wrong: boolean;
   shown: boolean;
+  pinned: boolean;
   describe: string;
   onFocus: () => void;
   onBlur: () => void;
@@ -92,7 +94,7 @@ function Camera({
       data-port={portKey(port)}
       data-joined={joined}
       aria-label={`Camera ${label}, ${where(port)}. ${describe}${wrong ? ". Its beam does not reach its pair" : ""}`}
-      aria-pressed={shown}
+      aria-pressed={pinned}
       className="relative size-full min-w-0 cursor-pointer outline-0 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
       style={{
         gridColumn: port.side === "w" ? 1 : port.side === "e" ? "-2" : port.offset + 2,
@@ -287,12 +289,9 @@ export function Solver({
   function describe(port: PortRef) {
     const { exit } = trace(payload, list, port);
     const reached = labels.get(portKey(exit));
-    const place =
-      portKey(exit) === portKey(port)
-        ? "back out at the same camera"
-        : reached
-          ? `at camera ${reached}, ${where(exit)}`
-          : `at an unmarked port, ${where(exit)}`;
+    const place = reached
+      ? `at camera ${reached}, ${where(exit)}`
+      : `at an unmarked port, ${where(exit)}`;
     return `Its beam currently exits ${place}${lost.has(portKey(port)) ? ", which is not its pair" : ", which is its pair"}`;
   }
 
@@ -430,6 +429,7 @@ export function Solver({
                 joined={!lost.has(key)}
                 wrong={flagged.has(key)}
                 shown={shown === key}
+                pinned={pinned === key}
                 describe={describe(port)}
                 onFocus={() => setFocused(key)}
                 onBlur={() => setFocused(null)}

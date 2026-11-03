@@ -19,6 +19,9 @@ import { contentSchema as norinoriContent } from "./norinori/schema";
 import { railroadGenerators } from "./railroad/generate";
 import { gradeRailroad } from "./railroad/grade";
 import { contentSchema as railroadContent } from "./railroad/schema";
+import { reflectionsGenerators } from "./reflections/generate";
+import { gradeReflections } from "./reflections/grade";
+import { contentSchema as reflectionsContent } from "./reflections/schema";
 import { starBattleGenerators } from "./star-battle/generate";
 import { gradeStarBattle } from "./star-battle/grade";
 import { contentSchema as starBattleContent } from "./star-battle/schema";
@@ -42,20 +45,20 @@ import { contentSchema as troixContent } from "./troix/schema";
  * Generators by name, then by frozen version. A name is not always a type key: a variant of a type
  * (jigsaw sudoku) registers its own generator.
  */
-export const generators: Readonly<Record<string, GeneratorVersions<object>>> =
-  {
-    circle9: circle9Generators,
-    futoshiki: futoshikiGenerators,
-    norinori: norinoriGenerators,
-    railroad: railroadGenerators,
-    "star-battle": starBattleGenerators,
-    sudoku: sudokuGenerators,
-    "sudoku-jigsaw": sudokuJigsawGenerators,
-    "sudoku-killer": sudokuKillerGenerators,
-    "sudoku-rainbow": sudokuRainbowGenerators,
-    "sudoku-xv": sudokuXvGenerators,
-    troix: troixGenerators,
-  };
+export const generators: Readonly<Record<string, GeneratorVersions<object>>> = {
+  circle9: circle9Generators,
+  futoshiki: futoshikiGenerators,
+  norinori: norinoriGenerators,
+  railroad: railroadGenerators,
+  reflections: reflectionsGenerators,
+  "star-battle": starBattleGenerators,
+  sudoku: sudokuGenerators,
+  "sudoku-jigsaw": sudokuJigsawGenerators,
+  "sudoku-killer": sudokuKillerGenerators,
+  "sudoku-rainbow": sudokuRainbowGenerators,
+  "sudoku-xv": sudokuXvGenerators,
+  troix: troixGenerators,
+};
 
 /** Provenance a generated content file exports beside `meta` and `content`. Read by `puzzles:verify`, never seeded. */
 export const generatedSchema = z.strictObject({
@@ -83,14 +86,12 @@ export function regenerate(
 /** Grades a type's content by technique alone, or null when it needs trial and error. */
 const graders: Readonly<Record<string, (content: unknown) => Grade | null>> = {
   circle9: (content) =>
-    gradeCircle9(
-      layoutOf({ numbers: numbers(circle9Content.parse(content)) }),
-    ),
+    gradeCircle9(layoutOf({ numbers: numbers(circle9Content.parse(content)) })),
   futoshiki: (content) => gradeFutoshiki(futoshikiContent.parse(content)),
   norinori: (content) => gradeNorinori(norinoriContent.parse(content)),
   railroad: (content) => gradeRailroad(railroadContent.parse(content)),
-  "star-battle": (content) =>
-    gradeStarBattle(starBattleContent.parse(content)),
+  reflections: (content) => gradeReflections(reflectionsContent.parse(content)),
+  "star-battle": (content) => gradeStarBattle(starBattleContent.parse(content)),
   sudoku: (content) => {
     const { givens, regions, cages, xv } = sudokuContent.parse(content);
     return gradeSudoku(

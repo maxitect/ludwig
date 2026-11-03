@@ -106,8 +106,8 @@ function follow(
 /**
  * Follows the beam that enters at `port` through the fixed mirrors and the placed `mirrors`. A slot
  * with no mirror is open floor. `path` lists every cell the beam enters in order with its heading on
- * entry, so a cell crossed twice appears twice. `exit` is the port it leaves by, which can be
- * `port` itself.
+ * entry, so a cell crossed twice appears twice. `exit` is the port it leaves by, which can be on
+ * the entry side but is never `port` itself.
  */
 export function trace(
   layout: Layout,

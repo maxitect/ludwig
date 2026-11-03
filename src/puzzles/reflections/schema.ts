@@ -61,7 +61,7 @@ const port = portSelect
 const portRef = port.pick({ side: true, offset: true });
 
 /** Where the player puts mirrors: one `/` or `\` for each slot. The mirrors are not stored. */
-export const solutionSchema = z.array(mirror).min(0).max(100);
+export const solutionSchema = z.array(mirror).max(100);
 
 export const payloadSchema = z
   .object({

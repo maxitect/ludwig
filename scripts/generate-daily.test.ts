@@ -95,4 +95,14 @@ describe("generateDailies", () => {
     );
     expect(mine).toEqual([]);
   });
+
+  it("lets overlapping runs skip each other's dates", async () => {
+    const overlap = { typeKey: "sudoku", from: "2099-04-01", days: 4 };
+    const summaries = await Promise.all([
+      generateDailies(db, registry, overlap),
+      generateDailies(db, registry, overlap),
+    ]);
+    expect(summaries[0].created + summaries[1].created).toBe(4);
+    expect(summaries.map(({ created, skipped }) => created + skipped)).toEqual([4, 4]);
+  });
 });

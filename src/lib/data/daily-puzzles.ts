@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, eq, gte, lte, sql } from "drizzle-orm";
 import type { db as appDb } from "@/db";
 import { dailyPuzzles } from "@/db/schema";
 import {
@@ -35,7 +35,8 @@ export function latestVersion(typeKey: string) {
  * Generates `daily-<type>-<date>` for each of `days` dates from `from`, seeded by the date, at the
  * generator's newest version. Each puzzle is written by `upsertPuzzle`, nested in a transaction
  * that also inserts its `daily_puzzles` row. A date that already has a row is skipped, so a
- * published daily never changes.
+ * published daily never changes. The transaction holds an advisory lock on the (type, date) and
+ * re-checks it, so overlapping runs skip each other's dates instead of failing.
  */
 export async function generateDailies(
   db: Db,
@@ -76,7 +77,15 @@ export async function generateDailies(
       difficulty,
       publishedAt: londonMidnight(date),
     });
-    await db.transaction(async (tx) => {
+    const created = await db.transaction(async (tx) => {
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtext(${`daily_puzzles:${typeKey}:${date}`}))`,
+      );
+      const [taken] = await tx
+        .select({ date: dailyPuzzles.date })
+        .from(dailyPuzzles)
+        .where(and(eq(dailyPuzzles.typeKey, typeKey), eq(dailyPuzzles.date, date)));
+      if (taken) return false;
       const { id } = await upsertPuzzle(tx, puzzleRegistry, {
         typeKey,
         meta,
@@ -85,8 +94,9 @@ export async function generateDailies(
       await tx
         .insert(dailyPuzzles)
         .values({ typeKey, date, puzzleId: id, generatorVersion: version });
+      return true;
     });
-    summary.created += 1;
+    summary[created ? "created" : "skipped"] += 1;
   }
   return summary;
 }

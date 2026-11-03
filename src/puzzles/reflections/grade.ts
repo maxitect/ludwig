@@ -1,6 +1,6 @@
 import type { Grade } from "../_shared/generate/candidates";
 import type { Difficulty } from "../_shared/generate/pipeline";
-import { follow, type Layout, pairsOf, portKey, type Step } from "./engine";
+import { follow, type Layout, pairsOf, portKey } from "./engine";
 import type { Content, Mirror, Placed, PortRef } from "./schema";
 
 const MIRRORS: readonly Mirror[] = ["slash", "backslash"];
@@ -56,14 +56,15 @@ function ways(
   const assign = new Map(base);
   const found: Assignment[] = [];
   const search = (depth: number) => {
-    let stopped: Step | undefined;
+    let open = -1;
     const exit = follow(
       context.layout,
-      (row, col) => mirrorAt(context, assign, row, col),
-      from,
-      (step) => {
-        stopped = step;
+      (row, col) => {
+        const mirror = mirrorAt(context, assign, row, col);
+        if (mirror === null) open = indexOf(context.layout, row, col);
+        return mirror;
       },
+      from,
     );
     if (exit) {
       if (portKey(exit) === portKey(to)) found.push(new Map(assign));
@@ -73,12 +74,11 @@ function ways(
       found.push(new Map(assign));
       return;
     }
-    const index = indexOf(context.layout, stopped!.row, stopped!.col);
     for (const mirror of MIRRORS) {
-      assign.set(index, mirror);
+      assign.set(open, mirror);
       search(depth + 1);
     }
-    assign.delete(index);
+    assign.delete(open);
   };
   search(0);
   return found;
@@ -128,7 +128,7 @@ const along = (name: string, level: Difficulty, limit: number): Technique => ({
 const BLOCKED_LIMIT = 6;
 
 /**
- * A mirror in a slot that leaves some other lettered beam no way at all to reach its partner cannot
+ * A mirror in a slot that leaves some lettered beam no way at all to reach its partner cannot
  * go there, so the slot takes the other mirror. Each mirror is checked on the spot, with nothing
  * else assumed.
  */
@@ -148,7 +148,7 @@ const blockedBeam: Technique = {
       if (blocked.length === 1) {
         context.decided.set(
           index,
-          MIRRORS.find((mirror) => mirror !== blocked[0])!,
+          blocked[0] === "slash" ? "backslash" : "slash",
         );
         return true;
       }

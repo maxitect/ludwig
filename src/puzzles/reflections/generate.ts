@@ -8,7 +8,7 @@ import { countSolutions, portKey, trace } from "./engine";
 import { solveLayout } from "./grade";
 import type { Content, Mirror, PortRef } from "./schema";
 
-const MAX_CANDIDATES = 8000;
+const MAX_CANDIDATES = 30_000;
 const MIN_SLOTS = 2;
 const MAX_SLOTS = 16;
 const MIN_PAIRS = 2;
@@ -122,9 +122,10 @@ function toContent(
 
 /**
  * Version 1: random mirrors are planted and some cells made slots; every pair of edge ports the
- * mirrors join is lettered. Slots are fixed back to their mirror until the puzzle is unique, then
- * letters are dropped one pair at a time while it stays unique and the techniques up to the target
- * difficulty still solve it. The grader gives the difficulty.
+ * mirrors join is lettered. Slots are fixed back to their mirror until the puzzle is unique. Then,
+ * to a fixpoint, letter pairs are dropped and fixed mirrors made slots while the techniques up to
+ * the target difficulty still solve it. The planted mirrors always join the letters, so a puzzle the
+ * techniques solve is unique; the exact count confirms the one that is kept.
  */
 function generateV1(seed: string, difficulty: Difficulty) {
   const sizes = sizesFor(difficulty);
@@ -144,19 +145,14 @@ function generateV1(seed: string, difficulty: Difficulty) {
     const slots = new Set(shuffle(rng, mirrored).slice(0, target));
     if (slots.size < MIN_SLOTS) return null;
     let pairs = joinedPairs(planted);
-    if (pairs.length > 26) return null;
     while (countSolutions(toContent(planted, slots, pairs), 2) !== 1) {
       const [fix] = shuffle(rng, [...slots]);
       slots.delete(fix);
       if (slots.size < MIN_SLOTS) return null;
     }
-    const holds = (nextSlots: ReadonlySet<number>, nextPairs: Pair[]) => {
-      const content = toContent(planted, nextSlots, nextPairs);
-      return (
-        countSolutions(content, 2) === 1 &&
-        !!solveLayout(content, difficulty)?.grade
-      );
-    };
+    const holds = (nextSlots: ReadonlySet<number>, nextPairs: Pair[]) =>
+      !!solveLayout(toContent(planted, nextSlots, nextPairs), difficulty)
+        ?.grade;
     for (let changed = true; changed;) {
       changed = false;
       for (const pair of shuffle(rng, pairs)) {
@@ -176,8 +172,8 @@ function generateV1(seed: string, difficulty: Difficulty) {
     }
     const content = toContent(planted, slots, pairs);
     const grade = solveLayout(content)?.grade;
-    return grade && grade.difficulty === difficulty
-      ? { content, difficulty: grade.difficulty }
+    return grade?.difficulty === difficulty && countSolutions(content, 2) === 1
+      ? { content, difficulty }
       : null;
   });
 }

@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   date,
+  foreignKey,
   integer,
   pgEnum,
   pgTable,
@@ -131,6 +132,26 @@ export const weeklyPuzzles = pgTable(
       table.weekStart,
       table.puzzleId,
     ),
+  ],
+);
+
+export const dailyPuzzles = pgTable(
+  "daily_puzzles",
+  {
+    typeKey: text("type_key").notNull(),
+    date: date("date", { mode: "string" }).notNull(),
+    puzzleId: uuid("puzzle_id").notNull(),
+    generatorVersion: smallint("generator_version").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.typeKey, table.date] }),
+    unique("daily_puzzles_puzzle_id_unique").on(table.puzzleId),
+    foreignKey({
+      name: "daily_puzzles_puzzle_id_type_key_fk",
+      columns: [table.puzzleId, table.typeKey],
+      foreignColumns: [puzzles.id, puzzles.typeKey],
+    }).onDelete("cascade"),
+    check("daily_puzzles_generator_version_check", sql`${table.generatorVersion} > 0`),
   ],
 );
 

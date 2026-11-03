@@ -25,15 +25,16 @@ describe("reflections generator", () => {
     ).toThrow(/version/);
   });
 
-  it("keeps every puzzle schema-valid, between 4x4 and 10x10, with every letter on two ports", () => {
+  it("keeps every puzzle schema-valid (4x4 to 10x10), with every letter on two ports", () => {
     for (const difficulty of difficulties.filter((d) => d <= 3)) {
       const { content } = reflectionsGenerators[1](
         `shape-${difficulty}`,
         difficulty,
       );
       expect(contentSchema.safeParse(content).success).toBe(true);
-      expect(content.ports.length % 2).toBe(0);
-      expect(content.ports.length).toBeGreaterThanOrEqual(4);
+      const labels = Map.groupBy(content.ports, ({ label }) => label);
+      expect(labels.size).toBeGreaterThanOrEqual(2);
+      for (const ports of labels.values()) expect(ports).toHaveLength(2);
     }
   });
 });

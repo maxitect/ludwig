@@ -8,10 +8,7 @@ import { ambiguous, content as small } from "./fixture";
 import { gradeKakuro, solveKakuro } from "./grade";
 import type { Content } from "./schema";
 
-const contentDir = path.resolve(
-  import.meta.dirname,
-  "../../../content/kakuro",
-);
+const contentDir = path.resolve(import.meta.dirname, "../../../content/kakuro");
 const contents = await Promise.all(
   readdirSync(contentDir).map(
     async (file) =>
@@ -21,7 +18,9 @@ const contents = await Promise.all(
 
 describe("gradeKakuro", () => {
   it("grades a puzzle that the combination table and naked singles finish as 1", () => {
-    expect(countSolutions({ cells: small.cells, clues: deriveClues(small.cells) })).toBe(1);
+    expect(
+      countSolutions({ cells: small.cells, clues: deriveClues(small.cells) }),
+    ).toBe(1);
     expect(gradeKakuro(small)).toMatchObject({
       difficulty: 1,
       hardest: "naked single",
@@ -36,7 +35,10 @@ describe("gradeKakuro", () => {
   });
 
   it("fills exactly the digits of the unique solution", () => {
-    for (const { cells } of [small, ...contents.map(({ content }) => content)]) {
+    for (const { cells } of [
+      small,
+      ...contents.map(({ content }) => content),
+    ]) {
       const solved = solveKakuro({ cells, clues: deriveClues(cells) });
       expect(solved.grade).not.toBeNull();
       expect(solved.digits).toEqual(cells.map(({ digit }) => digit));

@@ -90,7 +90,14 @@ function reachable(grid: Grid) {
       [row, col + 1],
     ]) {
       const next = r * cols + c;
-      if (r >= 0 && r < rows && c >= 0 && c < cols && grid[r][c] && !seen.has(next)) {
+      if (
+        r >= 0 &&
+        r < rows &&
+        c >= 0 &&
+        c < cols &&
+        grid[r][c] &&
+        !seen.has(next)
+      ) {
         seen.add(next);
         queue.push(next);
       }
@@ -105,7 +112,8 @@ const hasSingle = (grid: Grid) =>
   );
 
 const isValid = (grid: Grid) =>
-  !hasSingle(grid) && reachable(grid).size === grid.flat().filter(Boolean).length;
+  !hasSingle(grid) &&
+  reachable(grid).size === grid.flat().filter(Boolean).length;
 
 /**
  * A random layout: the first row and column black and the rest white, long runs split where both
@@ -140,7 +148,8 @@ function layout(
     if (!split) return null;
   }
   const interior = Array.from({ length: rows * cols }, (_, at) => at).filter(
-    (at) => at % cols > 0 && at >= cols && grid[Math.floor(at / cols)][at % cols],
+    (at) =>
+      at % cols > 0 && at >= cols && grid[Math.floor(at / cols)][at % cols],
   );
   for (const at of shuffle(rng, interior)) {
     if (rng() < density) blacken(at, true);
@@ -186,7 +195,10 @@ const solve = (cells: Fill, maxLevel: Difficulty) =>
 type Solved = ReturnType<typeof solve>;
 
 /** How far a fill is from the target: unsolved grids by what the techniques left open, solved ones by how easy they are. */
-function distance({ grade, digits, candidates }: Solved, difficulty: Difficulty) {
+function distance(
+  { grade, digits, candidates }: Solved,
+  difficulty: Difficulty,
+) {
   if (grade) return difficulty - grade.difficulty;
   return (
     10 +
@@ -251,7 +263,8 @@ function sameRun(
     ? [Math.min(a.col, b.col), Math.max(a.col, b.col)]
     : [Math.min(a.row, b.row), Math.max(a.row, b.row)];
   for (let i = low; i <= high; i++) {
-    if (!white.has(across ? cellKey(a.row, i) : cellKey(i, a.col))) return false;
+    if (!white.has(across ? cellKey(a.row, i) : cellKey(i, a.col)))
+      return false;
   }
   return true;
 }
@@ -272,7 +285,12 @@ function generateV1(seed: string, difficulty: Difficulty) {
     const repaired = repair(rng, fill(rng, grid, weights), difficulty);
     if (!repaired) return null;
     const content: Content = { rows, cols, cells: repaired.cells };
-    if (countSolutions({ cells: content.cells, clues: deriveClues(content.cells) }) !== 1) {
+    if (
+      countSolutions({
+        cells: content.cells,
+        clues: deriveClues(content.cells),
+      }) !== 1
+    ) {
       return null;
     }
     return { content, difficulty: repaired.grade.difficulty };

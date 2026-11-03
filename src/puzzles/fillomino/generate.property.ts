@@ -1,11 +1,14 @@
 import { expect } from "vitest";
 import { propertySlice } from "../_shared/generate/property";
-import { brokenIndexes } from "./engine";
+import { brokenIndexes, countSolutions } from "./engine";
 import { fillominoGenerators } from "./generate";
 import { solveFillomino } from "./grade";
 import { verifyFillomino } from "./verify";
 
 export const FILLOMINO_SLICES = 3;
+
+/** The exact search settles an 8 by 8 grid in milliseconds; on 10 by 10 the grader's fill is the proof. */
+const EXACT_ROWS = 8;
 
 export function fillominoProperty(slice: number) {
   propertySlice(
@@ -15,6 +18,9 @@ export function fillominoProperty(slice: number) {
     (_, seed, difficulty) => {
       const { content } = fillominoGenerators[1](seed, difficulty);
       verifyFillomino(content);
+      if (content.rows === EXACT_ROWS) {
+        expect(countSolutions(content, 2)).toBe(1);
+      }
       const solved = solveFillomino(content);
       expect(solved?.grade?.difficulty).toBe(difficulty);
       const cells = solved?.cells ?? [];

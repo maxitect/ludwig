@@ -77,8 +77,9 @@ export function brokenIndexes(layout: Layout, grid: Grid) {
 /**
  * Finds up to `limit` completions by backtracking, branching on whichever is tighter: the empty cell
  * with the fewest candidate digits, or the unfinished area with the fewest cells it could grow into
- * (an area must take one of them, so no solution is missed; repeats are dropped). A digit is a candidate when the area it would join stays no bigger than the digit and can still
- * reach it through empty cells. Contradictory givens yield none.
+ * (an area must take one of them, so no solution is missed; repeats are dropped). A digit is a
+ * candidate when the area it would join stays no bigger than the digit and can still reach it
+ * through empty cells. Contradictory givens yield none.
  */
 export function enumerateSolutions(puzzle: Puzzle, limit: number) {
   const layout = { rows: puzzle.rows, cols: puzzle.cols };

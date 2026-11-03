@@ -25,6 +25,7 @@
     "puzzles:gears-report": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/gears-playtest-report.ts",
     "puzzles:gen": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/gen-puzzle.ts",
     "puzzles:grade": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/dev/grade-puzzles.ts",
+    "puzzles:gen-daily": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-daily.ts",
     "puzzles:gen-gears": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-gears.ts",
     "perf:lighthouse": "node scripts/dev/lighthouse.ts"
   },

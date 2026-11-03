@@ -21,8 +21,17 @@ type Run = { cells: number[]; sum: number };
 const maskOf = (digits: ReadonlyArray<number>) =>
   digits.reduce((mask, digit) => mask | bit(digit), 0);
 
-const comboMasks = (length: number, sum: number) =>
-  combinations(length, sum).map(maskOf);
+const comboCache = new Map<number, ReadonlyArray<number>>();
+
+function comboMasks(length: number, sum: number) {
+  const key = length * 46 + sum;
+  let masks = comboCache.get(key);
+  if (!masks) {
+    masks = combinations(length, sum).map(maskOf);
+    comboCache.set(key, masks);
+  }
+  return masks;
+}
 
 const openIn = (state: CandidateState, cells: ReadonlyArray<number>) =>
   cells.filter((index) => !state.grid[index]);
@@ -31,25 +40,19 @@ const usedIn = (state: CandidateState, cells: ReadonlyArray<number>) =>
   cells.reduce((mask, index) => mask | bit(state.grid[index]), 0) & ~1;
 
 /**
- * Whether each digit of `rest` can go in a cell of its own among `open`, given their candidates.
- * `pinned` forces one cell to take one digit.
+ * Whether each digit of `left` can go in a cell of its own among the open cells of a run from
+ * position `at` on, given their candidates (`options`; a pinned cell holds only its one digit).
  */
 function assignable(
-  state: CandidateState,
-  open: ReadonlyArray<number>,
-  rest: number,
-  pinned?: { cell: number; digit: number },
-) {
-  const fit = (at: number, left: number): boolean => {
-    if (at === open.length) return left === 0;
-    const index = open[at];
-    const options =
-      pinned?.cell === index
-        ? state.cand[index] & left & bit(pinned.digit)
-        : state.cand[index] & left;
-    return digitsOf(options).some((digit) => fit(at + 1, left & ~bit(digit)));
-  };
-  return fit(0, rest);
+  options: ReadonlyArray<number>,
+  at: number,
+  left: number,
+): boolean {
+  if (at === options.length) return left === 0;
+  for (let rest = options[at] & left; rest; rest &= rest - 1) {
+    if (assignable(options, at + 1, left & ~(rest & -rest))) return true;
+  }
+  return false;
 }
 
 /**
@@ -137,8 +140,11 @@ function hiddenPairs(runs: ReadonlyArray<Run>) {
           if (spots.size !== 2) continue;
           for (const index of spots) {
             progress =
-              eliminate(state, index, state.cand[index] & ~(bit(first) | bit(second))) ||
-              progress;
+              eliminate(
+                state,
+                index,
+                state.cand[index] & ~(bit(first) | bit(second)),
+              ) || progress;
           }
         }
       }
@@ -158,19 +164,19 @@ function runConsistency(runs: ReadonlyArray<Run>) {
       const combos = comboMasks(run.cells.length, run.sum).filter(
         (combo) => (combo & used) === used,
       );
-      for (const index of open) {
+      const options = open.map((index) => state.cand[index]);
+      for (const [at, index] of open.entries()) {
         let keep = 0;
         for (const digit of digitsOf(state.cand[index])) {
+          options[at] = bit(digit);
           const supported = combos.some((combo) => {
             const rest = combo & ~used;
-            return (
-              rest & bit(digit) &&
-              assignable(state, open, rest, { cell: index, digit })
-            );
+            return rest & bit(digit) && assignable(options, 0, rest);
           });
           if (supported) keep |= bit(digit);
         }
         progress = eliminate(state, index, ~keep) || progress;
+        options[at] = state.cand[index];
       }
     }
     return progress;

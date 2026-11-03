@@ -78,7 +78,7 @@ function mirrorMap(
  * or null when that is not known yet, which stops the walk. Returns the port the beam leaves by, or
  * null when it was stopped. Mirrors are reversible, so a beam from an edge can never loop.
  */
-function follow(
+export function follow(
   layout: Pick<Layout, "rows" | "cols">,
   mirrorAt: (row: number, col: number) => Mirror | undefined | null,
   port: PortRef,

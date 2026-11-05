@@ -11,14 +11,14 @@ export const meta = {
 export const content = {
   sceneKey: "bridge-of-sighs",
   differences: [
-    { x: 1306, y: 88, width: 96, height: 96 },
-    { x: 1406, y: 152, width: 96, height: 96 },
-    { x: 976, y: 144, width: 96, height: 96 },
-    { x: 268, y: 192, width: 96, height: 112 },
-    { x: 128, y: 232, width: 136, height: 120 },
-    { x: 1316, y: 268, width: 96, height: 96 },
-    { x: 1320, y: 592, width: 96, height: 96 },
-    { x: 408, y: 920, width: 96, height: 96 },
-    { x: 1332, y: 968, width: 96, height: 96 },
+    { x: 816, y: 54, width: 60, height: 60 },
+    { x: 876, y: 98, width: 60, height: 60 },
+    { x: 606, y: 94, width: 60, height: 60 },
+    { x: 168, y: 120, width: 60, height: 72 },
+    { x: 80, y: 144, width: 88, height: 80 },
+    { x: 826, y: 170, width: 60, height: 60 },
+    { x: 818, y: 362, width: 60, height: 60 },
+    { x: 254, y: 574, width: 60, height: 60 },
+    { x: 834, y: 610, width: 60, height: 60 },
   ],
 } satisfies Content;

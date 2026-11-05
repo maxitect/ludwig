@@ -18,8 +18,8 @@ export const scenes: Readonly<Record<string, Scene>> = {
       "https://commons.wikimedia.org/wiki/File:Clandon_House_1824_engraving.jpg",
   },
   "pembroke-college": {
-    width: 1600,
-    height: 1155,
+    width: 1000,
+    height: 722,
     credit: {
       artist: "John Le Keux, after J. A. Bell",
       work: "Memorials of Cambridge, Pembroke College from the Street",
@@ -29,8 +29,8 @@ export const scenes: Readonly<Record<string, Scene>> = {
       "https://commons.wikimedia.org/wiki/File:LeKeux_-_Cambridge,_c1840_-_Pembroke_01,_from_the_Street_-_memorialsofcambr01wriguoft_0334.jpg",
   },
   "erthig-hall": {
-    width: 1600,
-    height: 1058,
+    width: 1000,
+    height: 661,
     credit: {
       artist: "J. Westley, after J. P. Neale",
       work: "Views of the Seats of Noblemen and Gentlemen, Erthig",
@@ -40,8 +40,8 @@ export const scenes: Readonly<Record<string, Scene>> = {
       "https://commons.wikimedia.org/wiki/File:Views_of_the_seats_of_noblemen_and_gentlemen,_in_England,_Wales,_Scotland,_and_Ireland_(1824)_(14591922417).jpg",
   },
   "bridge-of-sighs": {
-    width: 1600,
-    height: 1136,
+    width: 1000,
+    height: 710,
     credit: {
       artist: "John Le Keux, after J. A. Bell",
       work: "Memorials of Cambridge, New Bridge, St John's College",
@@ -51,8 +51,8 @@ export const scenes: Readonly<Record<string, Scene>> = {
       "https://commons.wikimedia.org/wiki/File:LeKeux_-_Cambridge,_c1840_-_St_John's_03,_Bridge_of_Sighs_-_memorialsofcambr01wriguoft_0190.jpg",
   },
   "over-london": {
-    width: 1600,
-    height: 1286,
+    width: 1000,
+    height: 804,
     credit: {
       artist: "Adolphe Pannemaker, after Gustave Doré",
       work: "London: A Pilgrimage, Over London by Rail",
@@ -62,8 +62,8 @@ export const scenes: Readonly<Record<string, Scene>> = {
       "https://commons.wikimedia.org/wiki/File:YCBA_London_a_Pilgrimage_06.jpg",
   },
   "march-to-finchley": {
-    width: 1600,
-    height: 1197,
+    width: 1000,
+    height: 748,
     credit: {
       artist: "Luke Sullivan, after William Hogarth",
       work: "The March to Finchley",

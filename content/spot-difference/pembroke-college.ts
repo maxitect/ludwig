@@ -11,10 +11,10 @@ export const meta = {
 export const content = {
   sceneKey: "pembroke-college",
   differences: [
-    { x: 1012, y: 136, width: 96, height: 96 },
-    { x: 796, y: 492, width: 96, height: 96 },
-    { x: 560, y: 496, width: 96, height: 96 },
-    { x: 1488, y: 1024, width: 112, height: 131 },
-    { x: 512, y: 1052, width: 104, height: 96 },
+    { x: 630, y: 86, width: 60, height: 60 },
+    { x: 498, y: 310, width: 60, height: 60 },
+    { x: 350, y: 310, width: 60, height: 60 },
+    { x: 936, y: 640, width: 64, height: 82 },
+    { x: 320, y: 658, width: 72, height: 60 },
   ],
 } satisfies Content;

@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 
-const LONG_EDGE = 1600;
+const LONG_EDGE = 1000;
 const THUMB_EDGE = 480;
 const PAPER_LEVEL = 215;
 const INK_LEVEL = 75;

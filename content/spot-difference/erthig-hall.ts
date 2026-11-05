@@ -11,12 +11,12 @@ export const meta = {
 export const content = {
   sceneKey: "erthig-hall",
   differences: [
-    { x: 936, y: 200, width: 72, height: 48 },
-    { x: 796, y: 356, width: 56, height: 80 },
-    { x: 828, y: 444, width: 48, height: 64 },
-    { x: 1208, y: 848, width: 92, height: 88 },
-    { x: 740, y: 964, width: 64, height: 64 },
-    { x: 212, y: 972, width: 80, height: 64 },
-    { x: 908, y: 972, width: 56, height: 48 },
+    { x: 924, y: 180, width: 96, height: 96 },
+    { x: 776, y: 342, width: 96, height: 96 },
+    { x: 804, y: 442, width: 96, height: 96 },
+    { x: 1152, y: 576, width: 96, height: 96 },
+    { x: 1140, y: 864, width: 96, height: 96 },
+    { x: 724, y: 948, width: 96, height: 96 },
+    { x: 204, y: 956, width: 96, height: 96 },
   ],
 } satisfies Content;

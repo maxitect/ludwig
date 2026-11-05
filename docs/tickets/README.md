@@ -150,6 +150,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T145](./T145-spot-difference-engraved-scenes.md) | Spot the difference: authored engraving scenes replace the procedural SVG | — | ✔ | | done |
 | [T146](./T146-spot-difference-launch-scenes.md) | Spot the difference: five launch scenes from public-domain engravings | T145 | | ✔ | todo |
 | [T147](./T147-repair-preview-e2e.md) | Repair the preview end-to-end suite that main broke | — | | | done |
+| [T148](./T148-extend-weekly-schedule.md) | Extend the weekly schedule through June 2027 with the newer puzzle types | T064 | | | todo |
+| [T151](./T151-word-search-grid-lines.md) | Even grid lines on the word-search grid | T125 | | | todo |
 
 ## M6: Radio Times set
 
@@ -185,6 +187,8 @@ Not on the launch path (PLAN §3 M6).
 | [T109](./T109-killer-xv-generators.md) | Killer and XV sudoku generators | T100, T093 | | | done |
 | [T110](./T110-circle9-generator.md) | Circle9 generator | T100, T089 | | | done |
 | [T111](./T111-daily-grid-puzzles.md) | Daily seeded grid puzzles | T100 | ✔ | | done |
+| [T149](./T149-more-daily-types.md) | Generate daily puzzles for more grid types | T111 | | | todo |
+| [T150](./T150-retune-handwritten-difficulty.md) | Make hand-written puzzles agree with the difficulty grader | T100 | | | todo |
 
 ## M7: Offline PWA (native deferred)
 

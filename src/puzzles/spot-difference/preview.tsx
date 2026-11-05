@@ -1,7 +1,7 @@
 import { SceneArt } from "./scene-art";
 import type { Payload } from "./schema";
 
-/** The original scene on the thumbnail's paper, in the same mask the solver uses. */
+/** The small thumbnail of the scene on the card paper, in the same mask the solver uses. */
 export function Preview({
   payload: { sceneKey, width, height },
 }: {
@@ -18,7 +18,7 @@ export function Preview({
           sceneKey={sceneKey}
           width={width}
           height={height}
-          version="original"
+          version="thumb"
         />
       </foreignObject>
     </svg>

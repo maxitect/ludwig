@@ -3,6 +3,7 @@ import path from "node:path";
 import sharp from "sharp";
 
 const LONG_EDGE = 1600;
+const THUMB_EDGE = 480;
 const PAPER_LEVEL = 215;
 const INK_LEVEL = 75;
 const ALPHA_QUALITY = 15;
@@ -16,12 +17,12 @@ function alphaOf(grey: number) {
   return Math.round(255 * Math.min(1, Math.max(0, ink)));
 }
 
-async function prepare(input: string, output: string) {
+async function prepare(input: string, output: string, longEdge = LONG_EDGE) {
   const { data, info } = await sharp(input)
     .greyscale()
     .resize({
-      width: LONG_EDGE,
-      height: LONG_EDGE,
+      width: longEdge,
+      height: longEdge,
       fit: "inside",
       kernel: "lanczos3",
     })
@@ -60,6 +61,7 @@ async function main() {
   if (first.width !== second.width || first.height !== second.height) {
     throw new Error("the prepared images differ in size");
   }
+  await prepare(original, path.join(directory, "thumb.webp"), THUMB_EDGE);
   console.log(`${key}: width ${first.width}, height ${first.height}`);
 }
 

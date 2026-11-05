@@ -10,6 +10,7 @@ import {
   REPO_URL,
   TANDEM_URL,
 } from "@/config/about";
+import { scenes } from "@/puzzles/spot-difference/scenes";
 
 export const metadata: Metadata = {
   title: "About | Ludwig.",
@@ -138,6 +139,24 @@ export default function AboutPage() {
             </a>
             , modified.
           </p>
+          <h3 className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+            Picture credits
+          </h3>
+          <p>
+            The engravings in Spot the Difference are in the public domain,
+            scanned by the Internet Archive, the Metropolitan Museum of Art and
+            the Yale Center for British Art, and edited here.
+          </p>
+          <ul className="flex flex-col gap-1">
+            {Object.entries(scenes).map(([key, { credit, sourceUrl }]) => (
+              <li key={key}>
+                {credit.artist}, <em>{credit.work}</em>, {credit.year}.{" "}
+                <a href={sourceUrl} className={link}>
+                  Source
+                </a>
+              </li>
+            ))}
+          </ul>
           <p>
             <a
               href="https://fonts.google.com/?query=Josefin+Sans+Jost+Dancing+Script+Barlow+Caveat+JetBrains+Mono"

@@ -8,28 +8,28 @@ export const weekly = [
   },
   {
     weekStart: "2026-10-05",
-    first: { type: "anagram", slug: "holy-ground" },
+    first: { type: "spot-difference", slug: "march-to-finchley" },
     second: { type: "crossword", slug: "paper-round" },
   },
   {
     weekStart: "2026-10-12",
     first: { type: "anagram", slug: "crossing-point" },
-    second: { type: "crossword", slug: "red-herring" },
+    second: { type: "spot-difference", slug: "bridge-of-sighs" },
   },
   {
     weekStart: "2026-10-19",
     first: { type: "crossword", slug: "pencil-case" },
-    second: { type: "anagram", slug: "night-light" },
+    second: { type: "spot-difference", slug: "over-london" },
   },
   {
     weekStart: "2026-10-26",
-    first: { type: "crossword", slug: "fine-print" },
+    first: { type: "spot-difference", slug: "pembroke-college" },
     second: { type: "anagram", slug: "looking-back" },
   },
   {
     weekStart: "2026-11-02",
     first: { type: "crossword", slug: "second-draft" },
-    second: { type: "anagram", slug: "crossing-point" },
+    second: { type: "spot-difference", slug: "erthig-hall" },
   },
   {
     weekStart: "2026-11-09",
@@ -38,13 +38,13 @@ export const weekly = [
   },
   {
     weekStart: "2026-11-16",
-    first: { type: "crossword", slug: "loose-ends" },
+    first: { type: "spot-difference", slug: "march-to-finchley" },
     second: { type: "anagram", slug: "holy-ground" },
   },
   {
     weekStart: "2026-11-23",
     first: { type: "crossword", slug: "fresh-ink" },
-    second: { type: "anagram", slug: "looking-back" },
+    second: { type: "spot-difference", slug: "bridge-of-sighs" },
   },
   {
     weekStart: "2026-11-30",
@@ -53,13 +53,13 @@ export const weekly = [
   },
   {
     weekStart: "2026-12-07",
-    first: { type: "anagram", slug: "title-sequence" },
+    first: { type: "spot-difference", slug: "over-london" },
     second: { type: "crossword", slug: "pencil-case" },
   },
   {
     weekStart: "2026-12-14",
     first: { type: "anagram", slug: "crossing-point" },
-    second: { type: "crossword", slug: "fresh-ink" },
+    second: { type: "spot-difference", slug: "pembroke-college" },
   },
   {
     weekStart: "2026-12-21",
@@ -68,7 +68,7 @@ export const weekly = [
   },
   {
     weekStart: "2026-12-28",
-    first: { type: "anagram", slug: "night-light" },
+    first: { type: "spot-difference", slug: "erthig-hall" },
     second: { type: "crossword", slug: "margin-notes" },
   },
 ] satisfies WeeklySchedule;

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 import { loadFoundRegions, tapScene } from "@/lib/actions/spot-difference";
 import { regionCentre } from "../_shared/regions";
 import { SceneArt } from "./scene-art";
-import { getScene } from "./scenes";
+import { getScene, sceneImage } from "./scenes";
 import type { SolverProps } from "../solver-types";
 import type * as schema from "./schema";
 
@@ -135,6 +136,12 @@ export function Solver({
   const rows = Math.round((COLUMNS * height) / width);
   const sector: Sector = { width: width / COLUMNS, height: height / rows };
   const scene = getScene(sceneKey);
+  // CSS masks fetch in CORS mode, so a preload without crossOrigin downloads the image twice.
+  preload(sceneImage(sceneKey, "original"), {
+    as: "image",
+    crossOrigin: "anonymous",
+    fetchPriority: "high",
+  });
   const [found, setFound] = useState<ReadonlyMap<number, schema.Region>>(
     new Map(),
   );

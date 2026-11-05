@@ -148,7 +148,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T143](./T143-email-verification-password-reset.md) | Email verification, password reset and password change through Resend | — | ✔ | ✔ | done |
 | [T144](./T144-about-page.md) | About page (who made this, why, and how to get in touch) | — | | ✔ | done |
 | [T145](./T145-spot-difference-engraved-scenes.md) | Spot the difference: authored engraving scenes replace the procedural SVG | — | ✔ | | done |
-| [T146](./T146-spot-difference-launch-scenes.md) | Spot the difference: five launch scenes from public-domain engravings | T145 | | ✔ | todo |
+| [T146](./T146-spot-difference-launch-scenes.md) | Spot the difference: five launch scenes from public-domain engravings | T145 | | ✔ | done |
 | [T147](./T147-repair-preview-e2e.md) | Repair the preview end-to-end suite that main broke | — | | | done |
 | [T148](./T148-extend-weekly-schedule.md) | Extend the weekly schedule through June 2027 with the newer puzzle types | T064 | | | todo |
 | [T151](./T151-word-search-grid-lines.md) | Even grid lines on the word-search grid | T125 | | | todo |
@@ -167,7 +167,7 @@ Not on the launch path (PLAN §3 M6).
 | [T089](./T089-type-circle9.md) | Puzzle type: Circle9 | T046 | ✔ | | done |
 | [T090](./T090-type-word-wheel.md) | Puzzle type: word wheel | T049 | ✔ | | done |
 | [T091](./T091-type-detective-scene.md) | Puzzle type: detective scene (engine, hit-test and solver) | T061 | ✔ | | done |
-| [T092](./T092-detective-scene-content.md) | Detective scene: artwork and launch content | T091 | | ✔ | todo |
+| [T092](./T092-detective-scene-content.md) | Detective scene: artwork and launch content | T091 | | ✔ | done |
 | [T093](./T093-sudoku-killer-xv.md) | Sudoku: killer and XV constraint variants | T084 | ✔ | | done |
 | [T094](./T094-type-nonogram.md) | Puzzle type: nonogram (Ludwig picture reveals) | T021 | ✔ | | done |
 | [T095](./T095-type-kakuro.md) | Puzzle type: kakuro | T021 | ✔ | | done |

@@ -1,13 +1,14 @@
 import { mkdirSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-import { content, meta } from "../content/detective-scene/fixture-street";
+import { content, meta } from "../content/detective-scene/cambridge-night";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, detectiveSceneAttemptFor } from "./helpers/db";
 import { hydrated, openPuzzle } from "./helpers/solve";
 
-const SHOTS = ".verification/T091";
+const SHOTS = ".verification/T092";
 const puzzle = { typeKey: "detective-scene", slug: meta.slug };
 const { width, height, items } = content;
+const COUNT = items.length;
 const COLUMNS = 40;
 const ROWS = Math.round((COLUMNS * height) / width);
 const SERVER_ROUND_TRIPS = { timeout: 15_000 };
@@ -45,7 +46,7 @@ async function shoot(page: Page, name: string, viewport: number) {
       theme,
     );
     await page.screenshot({
-      path: `${SHOTS}/ac7-${name}-${theme}-${viewport}.png`,
+      path: `${SHOTS}/ac4-${name}-${theme}-${viewport}.png`,
     });
   }
 }
@@ -56,7 +57,7 @@ test("solve by keyboard alone through the sector grid, keep the finds across a r
   test.skip(testInfo.project.name !== "desktop", "keyboard flow runs on desktop");
   test.skip(!databaseAvailable, "needs the local database");
   test.slow();
-  const email = uniqueEmail("t091");
+  const email = uniqueEmail("t092");
   await signUp(page, email);
   await openScene(page);
   await shoot(page, "start", 1280);
@@ -90,38 +91,75 @@ test("solve by keyboard alone through the sector grid, keep the finds across a r
   await expect(page.getByTestId("scene-status")).toContainText("No match", SERVER_ROUND_TRIPS);
   await expect(page.getByTestId("found-ring")).toHaveCount(0);
 
-  await titleField(page).fill("the sweeney");
+  await titleField(page).fill("ludwig");
   await page.keyboard.press("Enter");
-  await expect(page.getByText("Found 1 of 3")).toBeVisible(SERVER_ROUND_TRIPS);
+  await expect(page.getByText(`Found 1 of ${COUNT}`)).toBeVisible(SERVER_ROUND_TRIPS);
   await expect(page.getByTestId("found-ring")).toHaveCount(1);
 
   await scene(page).focus();
   await pinAt(1);
-  await page.keyboard.type("Starsky and Hutch");
+  await page.keyboard.type("Father Brown");
   await page.keyboard.press("Enter");
-  await expect(page.getByText("Found 2 of 3")).toBeVisible(SERVER_ROUND_TRIPS);
+  await expect(page.getByText(`Found 2 of ${COUNT}`)).toBeVisible(SERVER_ROUND_TRIPS);
 
   await expect
     .poll(() => detectiveSceneAttemptFor(email).then((row) => row?.found))
     .toEqual([0, 1]);
   await page.reload();
-  await expect(page.getByText("Found 2 of 3")).toBeVisible(SERVER_ROUND_TRIPS);
+  await expect(page.getByText(`Found 2 of ${COUNT}`)).toBeVisible(SERVER_ROUND_TRIPS);
   await expect(page.getByTestId("found-ring")).toHaveCount(2, SERVER_ROUND_TRIPS);
-  await expect(page.getByRole("list", { name: "Titles" })).toContainText("The Sweeney");
+  await expect(page.getByRole("list", { name: "Titles" })).toContainText("Ludwig");
   await shoot(page, "two-found", 1280);
 
   await openScene(page);
   await scene(page).focus();
   cursor = { column: COLUMNS / 2, row: Math.floor(ROWS / 2) };
   await pinAt(2);
-  await page.keyboard.type("Morse");
+  await page.keyboard.type("Grantchester");
   await page.keyboard.press("Enter");
-  await expect(page.getByText(/Solved in/)).toBeVisible(SERVER_ROUND_TRIPS);
+  await expect(page.getByText(`Found 3 of ${COUNT}`)).toBeVisible(SERVER_ROUND_TRIPS);
   await expect(page.getByTestId("found-ring")).toHaveCount(3);
   await expect
     .poll(() => detectiveSceneAttemptFor(email))
-    .toEqual({ found: [0, 1, 2], completed: true });
+    .toEqual({ found: [0, 1, 2], completed: false });
+});
+
+test("every hidden title is found by tapping its region and typing it", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "full pass runs on desktop");
+  test.skip(!databaseAvailable, "needs the local database");
+  test.setTimeout(300_000);
+  const email = uniqueEmail("t092all");
+  await signUp(page, email);
+  await openScene(page);
+
+  for (const [index, item] of items.entries()) {
+    const point = await screenPoint(page, centre(index));
+    await page.mouse.click(point.x, point.y);
+    await titleField(page).fill(item.title);
+    await page.keyboard.press("Enter");
+    await expect(page.getByText(`Found ${index + 1} of ${COUNT}`)).toBeVisible(
+      SERVER_ROUND_TRIPS,
+    );
+  }
+  await expect(page.getByText(/Solved in/)).toBeVisible(SERVER_ROUND_TRIPS);
+  await expect(page.getByTestId("found-ring")).toHaveCount(COUNT);
+  await expect
+    .poll(() => detectiveSceneAttemptFor(email).then((row) => row?.completed))
+    .toBe(true);
   await shoot(page, "solved", 1280);
+});
+
+test("an alias is accepted", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "desktop only");
+  await openScene(page);
+  const index = items.findIndex(({ title }) => title === "Softly, Softly");
+  const point = await screenPoint(page, centre(index));
+  await page.mouse.click(point.x, point.y);
+  await titleField(page).fill("softly softly task force");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText(`Found 1 of ${COUNT}`)).toBeVisible(SERVER_ROUND_TRIPS);
 });
 
 test("pan and zoom by touch, and tap a pin on a phone", async ({
@@ -177,9 +215,9 @@ test("pan and zoom by touch, and tap a pin on a phone", async ({
   const target = await screenPoint(page, centre(0));
   await page.touchscreen.tap(target.x, target.y);
   await expect(page.getByTestId("pin")).toBeVisible();
-  await titleField(page).fill("Sweeney");
+  await titleField(page).fill("Ludwig");
   await page.getByRole("button", { name: "Try it" }).click();
-  await expect(page.getByText("Found 1 of 3")).toBeVisible(SERVER_ROUND_TRIPS);
+  await expect(page.getByText(`Found 1 of ${COUNT}`)).toBeVisible(SERVER_ROUND_TRIPS);
   await shoot(page, "found", 390);
 });
 
@@ -187,7 +225,7 @@ test("reveal lists every title and ring", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "desktop only");
   await openScene(page);
   await page.getByRole("button", { name: "Reveal" }).click();
-  await expect(page.getByTestId("revealed-ring")).toHaveCount(3, SERVER_ROUND_TRIPS);
+  await expect(page.getByTestId("revealed-ring")).toHaveCount(COUNT, SERVER_ROUND_TRIPS);
   await expect(page.getByRole("list", { name: "Titles" })).toContainText("Inspector Morse");
 });
 
@@ -198,7 +236,9 @@ test("the solve page and payload carry no titles, aliases or regions", async ({
   const response = await request.get(`/puzzles/${puzzle.typeKey}/${puzzle.slug}`);
   const html = await response.text();
   for (const { title, aliases } of items) {
-    expect(html).not.toContain(title.replace("&", "&amp;"));
+    if (title !== "Ludwig") {
+      expect(html).not.toContain(title.replace("&", "&amp;"));
+    }
     for (const alias of aliases) expect(html).not.toContain(alias);
   }
   expect(html).not.toMatch(/"x":\d+,"y":\d+,"width"/);

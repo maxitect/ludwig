@@ -136,7 +136,12 @@ export function Solver({
   const rows = Math.round((COLUMNS * height) / width);
   const sector: Sector = { width: width / COLUMNS, height: height / rows };
   const scene = getScene(sceneKey);
-  preload(sceneImage(sceneKey, "original"), { as: "image", fetchPriority: "high" });
+  // CSS masks fetch in CORS mode, so a preload without crossOrigin downloads the image twice.
+  preload(sceneImage(sceneKey, "original"), {
+    as: "image",
+    crossOrigin: "anonymous",
+    fetchPriority: "high",
+  });
   const [found, setFound] = useState<ReadonlyMap<number, schema.Region>>(
     new Map(),
   );

@@ -1,8 +1,9 @@
 import type { Scene } from "./schema";
 
 /**
- * One entry per scene key. The prepared images are `public/spot-difference/<key>/original.webp`, `thumb.webp`
- * and `altered.webp` (`scripts/dev/prepare-scene.ts`); `width` and `height` are their size in pixels.
+ * One entry per scene key. The prepared images are `original.webp`, `altered.webp` and the shelf's `thumb.webp`
+ * in `public/spot-difference/<key>/` (`scripts/dev/prepare-scene.ts`); `width` and `height` are the size in pixels
+ * of the first two.
  */
 export const scenes: Readonly<Record<string, Scene>> = {
   "fixture-clandon": {
@@ -31,7 +32,7 @@ export const scenes: Readonly<Record<string, Scene>> = {
     width: 1600,
     height: 1058,
     credit: {
-      artist: "J. P. Neale",
+      artist: "J. Westley, after J. P. Neale",
       work: "Views of the Seats of Noblemen and Gentlemen, Erthig",
       year: 1828,
     },
@@ -76,5 +77,7 @@ export const scenes: Readonly<Record<string, Scene>> = {
 export const getScene = (key: string) =>
   Object.hasOwn(scenes, key) ? scenes[key] : undefined;
 
-export const sceneImage = (key: string, version: "original" | "altered" | "thumb") =>
-  `/spot-difference/${key}/${version}.webp`;
+export const sceneImage = (
+  key: string,
+  version: "original" | "altered" | "thumb",
+) => `/spot-difference/${key}/${version}.webp`;

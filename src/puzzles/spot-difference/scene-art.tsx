@@ -18,7 +18,7 @@ export function SceneArt({
   children,
   ...props
 }: Pick<Payload, "sceneKey" | "width" | "height"> & {
-  version: "original" | "altered" | "thumb";
+  version: Parameters<typeof sceneImage>[1];
 } & ComponentProps<"div">) {
   const url = `url(${sceneImage(sceneKey, version)})`;
   return (

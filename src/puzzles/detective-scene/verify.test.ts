@@ -26,6 +26,13 @@ describe("verifyDetectiveScene", () => {
     expect(scene.items.length).toBeGreaterThanOrEqual(MIN_SCENE_TITLES);
   });
 
+  it("keeps every region of the real scene reachable on the keyboard sector grid", () => {
+    const sector = 30;
+    for (const { title, width, height } of scene.items) {
+      expect(Math.min(width, height), title).toBeGreaterThanOrEqual(sector);
+    }
+  });
+
   it("rejects a scene with fewer titles than the minimum", () => {
     expect(() => verifyDetectiveScene(fixture)).toThrow(/at least 30 titles/);
     expect(() =>

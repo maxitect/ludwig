@@ -48,3 +48,16 @@ export const presets = {
 export type Difficulty = keyof typeof presets;
 
 export const difficulties = Object.keys(presets) as Difficulty[];
+
+/**
+ * Daily diagrams (T139) also draw 12-tooth gears. Easy keeps 8 and 16: with only 7 gears the
+ * covering step finds no unique diagram once the crank period grows from 16 to 48.
+ */
+export const dailyTeeth = [8, 12, 16] as const;
+
+export const dailyPresets = {
+  easy: presets.easy,
+  medium: { ...presets.medium, teeth: dailyTeeth },
+  hard: { ...presets.hard, teeth: dailyTeeth },
+  expert: { ...presets.expert, teeth: dailyTeeth },
+} as const;

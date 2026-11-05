@@ -2,7 +2,7 @@ import "server-only";
 import { and, gte, lte } from "drizzle-orm";
 import { gearDaily } from "@/db/schema";
 import type { db as appDb } from "@/db";
-import { generateDiagram } from "@/puzzles/gears/generate";
+import { generateDailyDiagram } from "@/puzzles/gears/generate";
 import { difficulties, type Difficulty } from "@/puzzles/gears/presets";
 import type { PuzzleRegistry } from "@/puzzles/registry";
 import { addDays, daysSinceEpoch, londonMidnight } from "@/utils/london-time";
@@ -46,7 +46,7 @@ export async function generateDailies(
 
     const difficulty = cycle[daysSinceEpoch(date) % cycle.length];
     const slug = `daily-${date}`;
-    const content = contentSchema.parse(generateDiagram(date, difficulty));
+    const content = contentSchema.parse(generateDailyDiagram(date, difficulty));
     const meta = contentMetaSchema.parse({
       slug,
       title: `Daily Diagram ${date}`,

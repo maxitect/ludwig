@@ -1,6 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { content as fixture } from "../../../content/detective-scene/fixture-street";
+import { content as scene } from "../../../content/detective-scene/cambridge-night";
+import { testScene as fixture } from "./test-content";
 import { db } from "@/db";
 import {
   createTestUser,
@@ -311,14 +312,14 @@ describe("detective scene module", () => {
       .returning({ key: puzzleTypes.key });
     insertedTypes.push(...added.map((row) => row.key));
     const seeded = await db.query.detectiveScenePuzzles.findFirst({
-      where: { sceneKey: fixture.sceneKey },
+      where: { sceneKey: scene.sceneKey },
       columns: { puzzleId: true },
     });
     if (seeded) {
       fixtureId = seeded.puzzleId;
     } else {
       created = true;
-      fixtureId = await insertContentPuzzle("t091-fixture", fixture);
+      fixtureId = await insertContentPuzzle("t092-scene", scene);
     }
     editedId = await insertContentPuzzle("t091-edited", {
       ...fixture,
@@ -346,13 +347,13 @@ describe("detective scene module", () => {
       "sceneKey",
       "width",
     ]);
-    expect(payload.itemCount).toBe(3);
+    expect(payload.itemCount).toBe(scene.items.length);
   });
 
   it("carries no title, alias or region in the payload", async () => {
     const payload = await load(fixtureId);
     const json = JSON.stringify(payload);
-    for (const item of fixture.items) {
+    for (const item of scene.items) {
       expect(json).not.toContain(item.title);
       for (const alias of item.aliases) expect(json).not.toContain(alias);
     }
@@ -370,11 +371,19 @@ describe("detective scene module", () => {
   it("stores the items and aliases and checks a full set of finds", async () => {
     const solution = await loadSolution(fixtureId);
     expect(solution.items.map(({ title }) => title)).toEqual(
-      fixture.items.map(({ title }) => title),
+      scene.items.map(({ title }) => title),
     );
-    expect(solution.aliases).toEqual([{ position: 2, alias: "Morse" }]);
+    const aliasKey = ({ position, alias }: { position: number; alias: string }) =>
+      `${position}:${alias}`;
+    expect(solution.aliases.map(aliasKey).sort()).toEqual(
+      scene.items
+        .flatMap(({ aliases }, position) =>
+          aliases.map((alias) => aliasKey({ position, alias })),
+        )
+        .sort(),
+    );
     const payload = await load(fixtureId);
-    const finds = fixture.items.map((item) => ({
+    const finds = scene.items.map((item) => ({
       x: item.x + item.width / 2,
       y: item.y + item.height / 2,
       title: item.title,

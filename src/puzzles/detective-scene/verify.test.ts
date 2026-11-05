@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { content as fixture } from "../../../content/detective-scene/fixture-street";
+import { content as scene } from "../../../content/detective-scene/cambridge-night";
 import type { Content } from "./schema";
-import { verifyDetectiveScene } from "./verify";
+import { testScene } from "./test-content";
+import { MIN_SCENE_TITLES, verifyDetectiveScene } from "./verify";
+
+const fixture: Content = { ...testScene, sceneKey: "cambridge-night" };
 
 const item = (overrides: Partial<Content["items"][number]>) => ({
   title: "Taggart",
@@ -18,8 +21,32 @@ const withItems = (...items: Content["items"]): Content => ({
 });
 
 describe("verifyDetectiveScene", () => {
-  it("accepts the fixture", () => {
-    expect(() => verifyDetectiveScene(fixture)).not.toThrow();
+  it("accepts the real scene", () => {
+    expect(() => verifyDetectiveScene(scene)).not.toThrow();
+    expect(scene.items.length).toBeGreaterThanOrEqual(MIN_SCENE_TITLES);
+  });
+
+  it("keeps every region of the real scene reachable on the keyboard sector grid", () => {
+    const sector = 30;
+    for (const { title, width, height } of scene.items) {
+      expect(Math.min(width, height), title).toBeGreaterThanOrEqual(sector);
+    }
+  });
+
+  it("rejects a scene with fewer titles than the minimum", () => {
+    expect(() => verifyDetectiveScene(fixture)).toThrow(/at least 30 titles/);
+    expect(() =>
+      verifyDetectiveScene({
+        ...scene,
+        items: scene.items.slice(0, MIN_SCENE_TITLES - 1),
+      }),
+    ).toThrow(/hides 29/);
+    expect(() =>
+      verifyDetectiveScene({
+        ...scene,
+        items: scene.items.slice(0, MIN_SCENE_TITLES),
+      }),
+    ).not.toThrow();
   });
 
   it("rejects an unknown scene key", () => {
@@ -49,10 +76,10 @@ describe("verifyDetectiveScene", () => {
     ).toThrow(/items 0 and 3 overlap/);
   });
 
-  it("accepts regions with a gap between them", () => {
+  it("passes the overlap check for regions with a gap between them", () => {
     expect(() =>
       verifyDetectiveScene(withItems(item({ x: 381, y: 470 }))),
-    ).not.toThrow();
+    ).toThrow(/at least 30 titles/);
   });
 
   it("rejects duplicate titles after normalising", () => {

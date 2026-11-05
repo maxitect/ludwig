@@ -97,10 +97,10 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
   },
   "detective-scene": {
     puzzleId: ids[0],
-    sceneKey: "fixture-street",
+    sceneKey: "cambridge-night",
     width: 1200,
     height: 800,
-    itemCount: 3,
+    itemCount: 46,
   },
   fillomino: {
     rows: 5,

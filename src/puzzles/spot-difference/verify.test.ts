@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, rm } from "node:fs/promises";
+import { copyFile, mkdtemp, mkdir, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
@@ -129,6 +129,19 @@ describe("a doctored fixture scene", () => {
     await expect(
       verifyScene(withEmptyRegion, path.join(publicRoot, "spot-difference")),
     ).rejects.toThrow(/difference 3 contains no change/);
+  });
+});
+
+describe("a scene without its thumbnail", () => {
+  it("fails, as the shelf preview would render blank", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "spot-difference-"));
+    const from = path.join(process.cwd(), "public", "spot-difference", fixture.sceneKey);
+    const to = path.join(root, fixture.sceneKey);
+    await mkdir(to);
+    await copyFile(path.join(from, "original.webp"), path.join(to, "original.webp"));
+    await copyFile(path.join(from, "altered.webp"), path.join(to, "altered.webp"));
+    await expect(verifyScene(fixture, root)).rejects.toThrow(/has no thumb\.webp/);
+    await rm(root, { recursive: true, force: true });
   });
 });
 

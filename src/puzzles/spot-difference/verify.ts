@@ -1,3 +1,4 @@
+import { access } from "node:fs/promises";
 import path from "node:path";
 import { changedBlocks, clusterBlocks } from "./pixel-diff";
 import { regionInScene, regionsOverlap } from "../_shared/regions";
@@ -59,7 +60,7 @@ export function verifyChanges(
   }
 }
 
-/** The scene is registered, the regions are separate and inside it, and the images differ exactly there. */
+/** The scene is registered, the regions are separate and inside it, the images differ exactly there, and the shelf has its thumbnail. */
 export async function verifyScene(
   { sceneKey, differences }: Content,
   assetRoot: string,
@@ -86,6 +87,9 @@ export async function verifyScene(
     );
   }
   verifyChanges(original, altered, differences);
+  await access(path.join(assetRoot, sceneKey, "thumb.webp")).catch(() => {
+    throw new Error(`scene "${sceneKey}" has no thumb.webp`);
+  });
 }
 
 export const verifySpotDifference = (content: Content) =>

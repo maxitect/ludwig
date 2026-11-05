@@ -3,6 +3,8 @@ import { normaliseTitle } from "./engine";
 import { getScene } from "./scenes";
 import type { Content } from "./schema";
 
+export const MIN_SCENE_TITLES = 30;
+
 /** The scene is registered at the stated size, regions are inside it and apart, and every name is distinct. */
 export function verifyDetectiveScene({
   sceneKey,
@@ -39,5 +41,10 @@ export function verifyDetectiveScene({
       }
       owner.set(key, i);
     }
+  }
+  if (items.length < MIN_SCENE_TITLES) {
+    throw new Error(
+      `a scene hides at least ${MIN_SCENE_TITLES} titles, this one hides ${items.length}`,
+    );
   }
 }

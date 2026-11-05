@@ -1,5 +1,5 @@
 import type { ComponentType, ComponentProps } from "react";
-import { FIXTURE_STREET_SIZE, FixtureStreet } from "./fixture-street";
+import { CAMBRIDGE_NIGHT_SIZE, CambridgeNight } from "./cambridge-night";
 
 export type SceneEntry = {
   width: number;
@@ -9,7 +9,7 @@ export type SceneEntry = {
 
 /** One entry per `scene_key`. The art is drawn in the current text colour and sized by its viewBox. */
 export const scenes: Readonly<Record<string, SceneEntry>> = {
-  "fixture-street": { ...FIXTURE_STREET_SIZE, Art: FixtureStreet },
+  "cambridge-night": { ...CAMBRIDGE_NIGHT_SIZE, Art: CambridgeNight },
 };
 
 export const getScene = (key: string) =>

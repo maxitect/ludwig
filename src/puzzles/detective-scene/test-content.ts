@@ -1,15 +1,8 @@
-import type { ContentMeta } from "../../scripts/content-files";
-import type { Content } from "../../src/puzzles/detective-scene/schema";
+import type { Content } from "./schema";
 
-export const meta = {
-  slug: "fixture-street",
-  title: "Fixture Street",
-  difficulty: 1,
-  publishedAt: new Date("2026-10-01T00:00:00Z"),
-} satisfies ContentMeta;
-
-export const content = {
-  sceneKey: "fixture-street",
+/** Three titles for tests that need a small scene; not a real puzzle and not seeded. */
+export const testScene = {
+  sceneKey: "test-street",
   width: 1200,
   height: 800,
   items: [

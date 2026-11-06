@@ -10,6 +10,8 @@ import { verifyStored } from "../src/puzzles/gears/verify-stored";
 import { type Provenance, regenerate } from "../src/puzzles/generators";
 import { dailySlug } from "../src/lib/data/daily-puzzles";
 import { type PuzzleRegistry, registry as appRegistry } from "../src/puzzles/registry";
+import { deriveClues } from "../src/puzzles/kakuro/derive";
+import { contentSchema as kakuroContent } from "../src/puzzles/kakuro/schema";
 import { londonMidnight } from "../src/utils/london-time";
 import {
   type ContentFailure,
@@ -114,6 +116,18 @@ const canonical = (value: unknown): unknown =>
         )
       : value;
 
+/** What `load` serves for a generated puzzle: the content, except for types whose payload derives its clues from the solution. */
+function payloadSource(typeKey: string, content: unknown) {
+  if (typeKey !== "kakuro") return content;
+  const { rows, cols, cells } = kakuroContent.parse(content);
+  return {
+    rows,
+    cols,
+    cells: cells.map(({ row, col }) => ({ row, col })),
+    clues: deriveClues(cells),
+  };
+}
+
 /**
  * Regenerates every daily puzzle in the DB from its stored generator version and date, re-solves
  * the result, and compares it with what the DB serves.
@@ -152,7 +166,7 @@ export async function verifyDailyRows() {
       if (
         !isDeepStrictEqual(
           canonical(stored),
-          canonical(puzzleType.schema.payloadSchema.parse(content)),
+          canonical(puzzleType.schema.payloadSchema.parse(payloadSource(typeKey, content))),
         )
       ) {
         throw new Error(

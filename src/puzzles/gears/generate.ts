@@ -95,9 +95,7 @@ export function diagramOf(
 const orderedPair = (a: string, b: string) =>
   a < b ? { gearAId: a, gearBId: b } : { gearAId: b, gearBId: a };
 
-type Preset =
-  | (typeof presets)[Difficulty]
-  | (typeof dailyPresets)[Difficulty];
+type Preset = (typeof presets)[Difficulty] | (typeof dailyPresets)[Difficulty];
 
 function shapeOf(preset: Preset) {
   return {
@@ -428,7 +426,7 @@ export function generateDiagram(seed: string, difficulty: Difficulty): Content {
   return generateDiagramWithAttempts(seed, difficulty).content;
 }
 
-/** A daily diagram: the same presets as `generateDiagram`, with the wider `dailyTeeth`. */
+/** A daily diagram: `generateDiagram` over `dailyPresets`, so medium and up also draw 12 teeth. */
 export function generateDailyDiagram(
   seed: string,
   difficulty: Difficulty,

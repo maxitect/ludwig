@@ -1,6 +1,6 @@
-import { SerwistProvider } from "@serwist/turbopack/react";
 import type { Metadata, Viewport } from "next";
 import { InitScript } from "@/components/shell/init-script";
+import { ServiceWorkerRegistration } from "@/components/shell/service-worker-registration";
 import { themeColors } from "@/config/theme-colors";
 import { reduceMotionInitScript } from "@/utils/reduce-motion";
 import { themeInitScript } from "@/utils/theme";
@@ -50,15 +50,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <InitScript html={reduceMotionInitScript} />
       </head>
       <body className="group/body flex min-h-dvh flex-col">
-        <SerwistProvider
-          swUrl="/serwist/sw.js"
-          disable={process.env.NODE_ENV !== "production"}
-          cacheOnNavigation={false}
-          reloadOnOnline={false}
-          options={{ updateViaCache: "none" }}
-        >
-          {children}
-        </SerwistProvider>
+        {children}
+        {process.env.NODE_ENV === "production" && <ServiceWorkerRegistration />}
       </body>
     </html>
   );

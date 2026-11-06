@@ -145,3 +145,19 @@ test("a signed-in visitor online sees their account, not the cached guest page",
   await page.reload();
   await expect(page.getByText("E2E Tester")).toHaveCount(0);
 });
+
+for (const [label, register] of [
+  ["rejects", "async () => { throw new TypeError('refused'); }"],
+  ["resolves with nothing", "async () => undefined"],
+] as const) {
+  test(`a page stays error free when registration ${label}`, async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.addInitScript(`navigator.serviceWorker.register = ${register};`);
+    await visit(page, "/puzzles");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Collection",
+    );
+    expect(errors).toEqual([]);
+  });
+}

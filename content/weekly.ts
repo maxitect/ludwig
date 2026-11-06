@@ -164,7 +164,7 @@ export const weekly = [
   {
     weekStart: "2027-05-10",
     first: { type: "railroad", slug: "buffer-stop" },
-    second: { type: "sudoku", slug: "back-room" },
+    second: { type: "sudoku", slug: "night-desk" },
   },
   {
     weekStart: "2027-05-17",
@@ -198,7 +198,7 @@ export const weekly = [
   },
   {
     weekStart: "2027-06-28",
-    first: { type: "pictogram-cipher", slug: "first-drawing" },
+    first: { type: "pictogram-cipher", slug: "scribble-pad" },
     second: { type: "star-battle", slug: "final-cut" },
   },
 ] satisfies WeeklySchedule;

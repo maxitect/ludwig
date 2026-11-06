@@ -2,12 +2,12 @@
 /// <reference lib="webworker" />
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import {
+  ExpirationPlugin,
   NetworkFirst,
   NetworkOnly,
   type RuntimeCaching,
   Serwist,
   type SerwistPlugin,
-  StaleWhileRevalidate,
 } from "serwist";
 import {
   isCacheablePublicPath,
@@ -22,7 +22,7 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
-const pageCaches = ["pages", "pages-rsc", "pages-rsc-prefetch"];
+const pagesCache = "pages";
 
 const requireGuestBody: SerwistPlugin = {
   cacheWillUpdate: async ({ response }) => {
@@ -32,48 +32,18 @@ const requireGuestBody: SerwistPlugin = {
   },
 };
 
-/** A prefetch returns only the static shell, which cannot contain session data. */
-const staticShellOnly: SerwistPlugin = {
-  cacheWillUpdate: async ({ response }) =>
-    response.status === 200 && response.type === "basic" ? response : null,
-};
-
-const publicPage = (request: Request, url: URL, sameOrigin: boolean) =>
-  sameOrigin && request.method === "GET" && isCacheablePublicPath(url.pathname);
-
-const matchOptions = { ignoreVary: true };
-
-/** Network first, so a signed-in visitor is never handed the cached signed-out copy while online. */
-const live = (cacheName: string, plugin: SerwistPlugin) =>
-  new NetworkFirst({
-    cacheName,
-    networkTimeoutSeconds: 8,
-    plugins: [plugin],
-    matchOptions,
-  });
-
+/** No network timeout: a timeout would hand a signed-in visitor on a slow link the cached signed-out copy. */
 const runtimeCaching: RuntimeCaching[] = [
   {
     matcher: ({ request, url, sameOrigin }) =>
-      publicPage(request, url, sameOrigin) &&
-      request.headers.get("RSC") === "1" &&
-      request.headers.has("Next-Router-Prefetch"),
-    handler: new StaleWhileRevalidate({
-      cacheName: "pages-rsc-prefetch",
-      plugins: [staticShellOnly],
-      matchOptions,
+      sameOrigin &&
+      request.mode === "navigate" &&
+      isCacheablePublicPath(url.pathname),
+    handler: new NetworkFirst({
+      cacheName: pagesCache,
+      plugins: [requireGuestBody, new ExpirationPlugin({ maxEntries: 64 })],
+      matchOptions: { ignoreVary: true },
     }),
-  },
-  {
-    matcher: ({ request, url, sameOrigin }) =>
-      publicPage(request, url, sameOrigin) &&
-      request.headers.get("RSC") === "1",
-    handler: live("pages-rsc", requireGuestBody),
-  },
-  {
-    matcher: ({ request, url, sameOrigin }) =>
-      publicPage(request, url, sameOrigin) && request.mode === "navigate",
-    handler: live("pages", requireGuestBody),
   },
   {
     matcher: ({ request }) => request.mode === "navigate",
@@ -98,7 +68,7 @@ const serwist = new Serwist({
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(Promise.all(pageCaches.map((name) => caches.delete(name))));
+  event.waitUntil(caches.delete(pagesCache));
 });
 
 serwist.addEventListeners();

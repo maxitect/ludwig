@@ -10,9 +10,9 @@ let counter = 0;
 export const uniqueEmail = (flow: string) =>
   `e2e-${flow}-${runId}-${counter++}-${Math.random().toString(36).slice(2, 6)}@${E2E_EMAIL_DOMAIN}`;
 
-export async function signUp(page: Page, email: string) {
+export async function signUp(page: Page, email: string, name = "E2E Tester") {
   await page.goto("/sign-up");
-  await page.getByLabel("Name").fill("E2E Tester");
+  await page.getByLabel("Name").fill(name);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Create account" }).click();

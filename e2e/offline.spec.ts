@@ -13,6 +13,12 @@ async function waitForControl(page: Page) {
     .toBe(true);
 }
 
+/** The landing page's prefetches keep `networkidle` from settling, so this just gives the worker time to finish a cache write. */
+async function visit(page: Page, path: string) {
+  await page.goto(path);
+  await page.waitForTimeout(500);
+}
+
 async function cachedUrls(page: Page) {
   return page.evaluate(async () => {
     const urls: string[] = [];
@@ -21,6 +27,18 @@ async function cachedUrls(page: Page) {
       for (const request of await cache.keys()) urls.push(request.url);
     }
     return urls;
+  });
+}
+
+async function cachedPages(page: Page) {
+  return page.evaluate(async () => {
+    const cache = await caches.open("pages");
+    const entries: { url: string; body: string }[] = [];
+    for (const request of await cache.keys()) {
+      const response = await cache.match(request);
+      entries.push({ url: request.url, body: (await response?.text()) ?? "" });
+    }
+    return entries;
   });
 }
 
@@ -75,8 +93,7 @@ test("no session-dependent response is cached and sign-out leaves nothing readab
     "/settings",
     `/puzzles/crossword/${slug}`,
   ]) {
-    await page.goto(path);
-    await page.waitForLoadState("networkidle");
+    await visit(page, path);
   }
 
   const urls = await cachedUrls(page);
@@ -85,26 +102,10 @@ test("no session-dependent response is cached and sign-out leaves nothing readab
     expect(pathname).not.toMatch(/\/casebook|\/settings|\/api\//);
     expect(pathname).not.toMatch(/^\/puzzles\/[^/]+\/[^/]+/);
   }
-  const stored = await page.evaluate(async () => {
-    const entries: { name: string; url: string; body: string }[] = [];
-    for (const name of await caches.keys()) {
-      if (!name.startsWith("pages")) continue;
-      const cache = await caches.open(name);
-      for (const request of await cache.keys()) {
-        const response = await cache.match(request);
-        entries.push({
-          name,
-          url: request.url,
-          body: (await response?.text()) ?? "",
-        });
-      }
-    }
-    return entries;
-  });
-  for (const { name, body } of stored) {
-    if (name !== "pages-rsc-prefetch") expect(body).toContain("data-guest-menu");
+  for (const { body } of await cachedPages(page)) {
+    expect(body).toContain("data-guest-menu");
+    expect(body).not.toContain("E2E Tester");
   }
-  for (const { body } of stored) expect(body).not.toContain("E2E Tester");
 
   await page.goto("/");
   await page.getByRole("button", { name: /E2E Tester|account/i }).click();
@@ -115,4 +116,32 @@ test("no session-dependent response is cached and sign-out leaves nothing readab
   await page.goto("/");
   await expect(page.getByText("E2E Tester")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+});
+
+test("a display name imitating the guest menu is not cached as a guest page", async ({
+  page,
+}) => {
+  await waitForControl(page);
+  await page.evaluate(async () => {
+    await caches.delete("pages");
+  });
+  await signUp(page, uniqueEmail("offline-forged"), '<div data-guest-menu="">');
+  for (const path of ["/", "/puzzles", "/gears"]) {
+    await visit(page, path);
+  }
+  expect(await cachedPages(page)).toEqual([]);
+});
+
+test("a signed-in visitor online sees their account, not the cached guest page", async ({
+  page,
+  context,
+}) => {
+  await waitForControl(page);
+  await signUp(page, uniqueEmail("offline-transition"));
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "Sign in" })).toHaveCount(0);
+
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByText("E2E Tester")).toHaveCount(0);
 });

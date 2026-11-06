@@ -150,7 +150,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T145](./T145-spot-difference-engraved-scenes.md) | Spot the difference: authored engraving scenes replace the procedural SVG | — | ✔ | | done |
 | [T146](./T146-spot-difference-launch-scenes.md) | Spot the difference: five launch scenes from public-domain engravings | T145 | | ✔ | done |
 | [T147](./T147-repair-preview-e2e.md) | Repair the preview end-to-end suite that main broke | — | | | done |
-| [T148](./T148-extend-weekly-schedule.md) | Extend the weekly schedule through June 2027 with the newer puzzle types | T064 | | | todo |
+| [T148](./T148-extend-weekly-schedule.md) | Extend the weekly schedule through June 2027 with the newer puzzle types | T064 | | | done |
 | [T151](./T151-word-search-grid-lines.md) | Even grid lines on the word-search grid | T125 | | | todo |
 
 ## M6: Radio Times set

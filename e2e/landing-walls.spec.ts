@@ -396,41 +396,45 @@ test.describe("landing walls", () => {
     expect(paints).toBeLessThanOrEqual(20);
   });
 
-  test("AC10 server and client render the same with no layout shift", async ({ page, browserName }) => {
-    test.skip(browserName === "firefox", "layout-shift entries are Chromium only");
-    const messages: string[] = [];
-    page.on("console", (message) => {
-      if (["error", "warning"].includes(message.type())) messages.push(message.text());
-    });
-    page.on("pageerror", (error) => messages.push(error.message));
-    await page.addInitScript(() => {
-      const record = window as unknown as { __shift: number; __shifted: string[] };
-      record.__shift = 0;
-      record.__shifted = [];
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          const shift = entry as unknown as {
-            value: number;
-            sources: { node: Node | null }[];
-          };
-          record.__shift += shift.value;
-          for (const { node } of shift.sources) {
-            record.__shifted.push(
-              node instanceof Element ? node.outerHTML.slice(0, 120) : String(node?.nodeName),
-            );
+  test.describe("with the service worker registering", () => {
+    test.use({ serviceWorkers: "allow" });
+
+    test("AC10 server and client render the same with no layout shift", async ({ page, browserName }) => {
+      test.skip(browserName === "firefox", "layout-shift entries are Chromium only");
+      const messages: string[] = [];
+      page.on("console", (message) => {
+        if (["error", "warning"].includes(message.type())) messages.push(message.text());
+      });
+      page.on("pageerror", (error) => messages.push(error.message));
+      await page.addInitScript(() => {
+        const record = window as unknown as { __shift: number; __shifted: string[] };
+        record.__shift = 0;
+        record.__shifted = [];
+        new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            const shift = entry as unknown as {
+              value: number;
+              sources: { node: Node | null }[];
+            };
+            record.__shift += shift.value;
+            for (const { node } of shift.sources) {
+              record.__shifted.push(
+                node instanceof Element ? node.outerHTML.slice(0, 120) : String(node?.nodeName),
+              );
+            }
           }
-        }
-      }).observe({ type: "layout-shift", buffered: true });
+        }).observe({ type: "layout-shift", buffered: true });
+      });
+      await page.goto("/");
+      await page.locator(".title-sequence").waitFor();
+      await page.waitForTimeout(1500);
+      expect(messages.filter((text) => /hydrat|did not match/i.test(text))).toEqual([]);
+      expect(messages).toEqual([]);
+      const { shift, shifted } = await page.evaluate(() => {
+        const record = window as unknown as { __shift: number; __shifted: string[] };
+        return { shift: record.__shift, shifted: record.__shifted };
+      });
+      expect(shift, `shifted: ${shifted.join(" | ")}`).toBe(0);
     });
-    await page.goto("/");
-    await page.locator(".title-sequence").waitFor();
-    await page.waitForTimeout(1500);
-    expect(messages.filter((text) => /hydrat|did not match/i.test(text))).toEqual([]);
-    expect(messages).toEqual([]);
-    const { shift, shifted } = await page.evaluate(() => {
-      const record = window as unknown as { __shift: number; __shifted: string[] };
-      return { shift: record.__shift, shifted: record.__shifted };
-    });
-    expect(shift, `shifted: ${shifted.join(" | ")}`).toBe(0);
   });
 });

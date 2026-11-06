@@ -48,3 +48,16 @@ export const presets = {
 export type Difficulty = keyof typeof presets;
 
 export const difficulties = Object.keys(presets) as Difficulty[];
+
+/**
+ * Daily diagrams (T139) also draw 12-tooth gears. Easy keeps 8 and 16: no mix with 12 teeth has a
+ * unique diagram at 7 gears, and the 9 it would take is medium's size.
+ */
+const dailyTeeth = [8, 12, 16] as const;
+
+export const dailyPresets = {
+  easy: presets.easy,
+  medium: { ...presets.medium, teeth: dailyTeeth },
+  hard: { ...presets.hard, teeth: dailyTeeth },
+  expert: { ...presets.expert, teeth: dailyTeeth },
+} as const;

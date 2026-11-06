@@ -49,7 +49,7 @@ import {
   phaseOf,
   seesMask,
 } from "./masks";
-import { type Difficulty, presets } from "./presets";
+import { type Difficulty, dailyPresets, presets } from "./presets";
 import type { Content, Solution } from "./schema";
 
 type Gear = Diagram["gears"][number];
@@ -95,7 +95,7 @@ export function diagramOf(
 const orderedPair = (a: string, b: string) =>
   a < b ? { gearAId: a, gearBId: b } : { gearAId: b, gearBId: a };
 
-type Preset = (typeof presets)[Difficulty];
+type Preset = (typeof presets)[Difficulty] | (typeof dailyPresets)[Difficulty];
 
 function shapeOf(preset: Preset) {
   return {
@@ -424,6 +424,15 @@ export function generateDiagramWithAttempts(
 
 export function generateDiagram(seed: string, difficulty: Difficulty): Content {
   return generateDiagramWithAttempts(seed, difficulty).content;
+}
+
+/** A daily diagram: `generateDiagram` over `dailyPresets`, so medium and up also draw 12 teeth. */
+export function generateDailyDiagram(
+  seed: string,
+  difficulty: Difficulty,
+): Content {
+  const rand = mulberry32(hashSeed(`${seed}:${difficulty}`));
+  return drawUnique(rand, dailyPresets[difficulty], seed).content;
 }
 
 type SwapIndexes = [number, number][];

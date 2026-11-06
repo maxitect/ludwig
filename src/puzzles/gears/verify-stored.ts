@@ -14,7 +14,7 @@ function assertWithinCap({ gears }: Diagram) {
   );
   if (bad) {
     throw new Error(
-      `a gear has ${bad.teeth} teeth, only ${gearCap.teeth.join(" and ")} are allowed`,
+      `a gear has ${bad.teeth} teeth, allowed: ${gearCap.teeth.join(", ")}`,
     );
   }
 }

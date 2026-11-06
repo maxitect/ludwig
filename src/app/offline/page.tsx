@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Credit, Walker, Wordmark } from "@/components/brand";
 
-export const metadata: Metadata = { title: "Offline | Ludwig." };
+export const metadata: Metadata = {
+  title: "Offline | Ludwig.",
+  robots: { index: false },
+};
 
 export default function OfflinePage() {
   return (

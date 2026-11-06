@@ -19,6 +19,10 @@ function firstInVolumeOrder<
   )[0];
 }
 
+/** The daily shelf keeps a type page small: a year of dailies would add hundreds of thumbnails. */
+const DAILY_SHELF_SIZE = 14;
+const DAILY_STYLE = "Daily";
+
 export async function getCatalogue() {
   "use cache";
   cacheLife("minutes");
@@ -67,22 +71,32 @@ export async function getTypeCatalogue(typeKey: string) {
         with: {
           volume: { columns: { id: true, title: true, sort: true } },
           crossword: { columns: { style: true } },
+          daily: { columns: { date: true } },
         },
       },
     },
   });
   if (!type) return null;
   const { puzzles: rows, ...rest } = type;
-  const puzzles = rows.map(({ crossword, ...puzzle }) => ({
+  const puzzles = rows.map(({ crossword, daily, ...puzzle }) => ({
     ...puzzle,
-    style: crossword?.style ?? null,
+    style: crossword?.style ?? (daily ? DAILY_STYLE : null),
   }));
+  // A daily's title carries its ISO date, so the query's title order is date order.
+  const dailies = puzzles
+    .filter(({ style }) => style === DAILY_STYLE)
+    .slice(-DAILY_SHELF_SIZE)
+    .reverse();
   const volumes = new Map(
     puzzles.flatMap(({ volume }) => (volume ? [[volume.id, volume]] : [])),
   );
   return {
     type: rest,
-    puzzles,
+    puzzleIds: puzzles.map(({ id }) => id),
+    puzzles: [
+      ...dailies,
+      ...puzzles.filter(({ style }) => style !== DAILY_STYLE),
+    ],
     volumes: [...volumes.values()]
       .sort((a, b) => a.sort - b.sort)
       .map(({ id, title }) => ({

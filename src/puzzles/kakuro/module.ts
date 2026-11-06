@@ -2,6 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import type { PuzzleTypeModule } from "../registry";
 import { check } from "./check";
+import { payloadFromContent } from "./derive";
 import { load } from "./load";
 import { loadSolution } from "./load-solution";
 import * as schema from "./schema";
@@ -20,6 +21,7 @@ export const kakuroModule = {
   loadSolution,
   check,
   verify: verifyKakuro,
+  payloadFromContent,
   async upsertContent(tx, puzzleId, { rows, cols, cells }) {
     await tx
       .insert(kakuroPuzzles)

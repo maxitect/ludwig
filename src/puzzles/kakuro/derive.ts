@@ -1,5 +1,5 @@
 import { cellKey, type CellPosition } from "../_shared/cell-grid/navigation";
-import type { Clue, Solution } from "./schema";
+import type { Clue, Content, Solution } from "./schema";
 
 export type Direction = Clue["direction"];
 
@@ -68,4 +68,14 @@ export function deriveClues(solution: Solution): Clue[] {
 export function clueRun({ direction, row, col, length }: Clue): Run {
   const step = STEP[direction];
   return { direction, row: row + step.row, col: col + step.col, length };
+}
+
+/** The player's view of a kakuro: white cells without digits, plus the clues the digits give. */
+export function payloadFromContent({ rows, cols, cells }: Content) {
+  return {
+    rows,
+    cols,
+    cells: cells.map(({ row, col }) => ({ row, col })),
+    clues: deriveClues(cells),
+  };
 }

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { InitScript } from "@/components/shell/init-script";
+import { ServiceWorkerRegistration } from "@/components/shell/service-worker-registration";
 import { themeColors } from "@/config/theme-colors";
 import { reduceMotionInitScript } from "@/utils/reduce-motion";
 import { themeInitScript } from "@/utils/theme";
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="group/body flex min-h-dvh flex-col">
         {children}
+        {process.env.NODE_ENV === "production" && <ServiceWorkerRegistration />}
       </body>
     </html>
   );

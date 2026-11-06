@@ -15,7 +15,7 @@ import { verifyDailyRows } from "./verify-puzzles";
 const options = { typeKey: "sudoku", from: "2099-03-01", days: 3 };
 
 const cleanUp = () =>
-  db.delete(puzzles).where(like(puzzles.slug, "daily-sudoku-2099-%"));
+  db.delete(puzzles).where(like(puzzles.slug, "daily-%-2099-%"));
 
 const rows = () =>
   db
@@ -94,6 +94,23 @@ describe("generateDailies", () => {
       slug.includes("2099-"),
     );
     expect(mine).toEqual([]);
+  });
+
+  it.each(["troix", "kakuro"])("regenerates a %s daily from its seed", async (typeKey) => {
+    const daily = { typeKey, from: "2099-05-01", days: 2 };
+    expect(await generateDailies(db, registry, daily)).toEqual({ created: 2, skipped: 0 });
+    const mine = (await verifyDailyRows()).failures.filter(({ slug }) =>
+      slug.startsWith(`daily-${typeKey}-2099-`),
+    );
+    expect(mine).toEqual([]);
+  });
+
+  it("starts no date after the deadline, and a later run writes what is left", async () => {
+    const budgeted = { typeKey: "sudoku", from: "2099-06-01", days: 2 };
+    expect(
+      await generateDailies(db, registry, { ...budgeted, deadline: Date.now() }),
+    ).toEqual({ created: 0, skipped: 0 });
+    expect(await generateDailies(db, registry, budgeted)).toEqual({ created: 2, skipped: 0 });
   });
 
   it("lets overlapping runs skip each other's dates", async () => {

@@ -57,8 +57,8 @@ export default async function TypePage({
   const { type: typeKey } = await params;
   const catalogue = await getTypeCatalogue(typeKey);
   if (!catalogue) notFound();
-  const { type, volumes } = catalogue;
-  const solved = getSolvedPuzzleIds(catalogue.puzzles.map(({ id }) => id));
+  const { type, volumes, puzzleIds } = catalogue;
+  const solved = getSolvedPuzzleIds(puzzleIds);
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
@@ -67,7 +67,7 @@ export default async function TypePage({
         <Credit level={1} top={type.category.name} bottom={type.name} />
         <Suspense fallback={null}>
           <CompleteBadge
-            puzzleIds={catalogue.puzzles.map(({ id }) => id)}
+            puzzleIds={puzzleIds}
             solved={solved}
             className="self-start"
           />

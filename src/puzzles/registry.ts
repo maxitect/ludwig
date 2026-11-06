@@ -100,6 +100,11 @@ export type PuzzleTypeModule<
   /** Deletes the attempt's saved state, so a reset survives a reload. */
   clearAttemptState(attemptId: string): Promise<void>;
   /**
+   * The payload `load` serves for `content`, for types whose payload is not simply the content
+   * (kakuro derives its clues from the solution). `puzzles:verify` compares it with the stored puzzle.
+   */
+  payloadFromContent?(content: z.infer<S["contentSchema"]>): unknown;
+  /**
    * Throws if the content is not uniquely solvable. `authoring` carries the file's meta notes
    * that are not stored, for types whose uniqueness only a human can judge.
    */

@@ -10,6 +10,9 @@ export const maxDuration = 300;
 
 const WINDOW_DAYS = 366;
 
+/** Stops starting dates here, so a long backfill ends cleanly before `maxDuration`. The next run resumes it. */
+const RUN_BUDGET_MS = 270_000;
+
 const digest = (value: string) => createHash("sha256").update(value).digest();
 
 function isAuthorised(request: Request) {
@@ -26,6 +29,7 @@ export async function GET(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
+  const deadline = Date.now() + RUN_BUDGET_MS;
   const from = londonDate(new Date());
   const types = [];
   for (const typeKey of dailyTypes) {
@@ -33,8 +37,10 @@ export async function GET(request: Request) {
       typeKey,
       from,
       days: WINDOW_DAYS,
+      deadline,
     });
-    types.push({ typeKey, ...summary });
+    const pending = WINDOW_DAYS - summary.created - summary.skipped;
+    types.push({ typeKey, ...summary, pending });
   }
   return Response.json({ from, through: addDays(from, WINDOW_DAYS - 1), types });
 }

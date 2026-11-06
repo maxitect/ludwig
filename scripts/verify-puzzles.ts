@@ -147,12 +147,14 @@ export async function verifyDailyRows() {
         { generator: typeKey, version, seed: date },
         difficulty,
       );
-      await puzzleType.verify?.(puzzleType.schema.contentSchema.parse(content), {});
+      const parsed = puzzleType.schema.contentSchema.parse(content);
+      await puzzleType.verify?.(parsed, {});
       const stored = await puzzleType.load(id);
+      const expected = puzzleType.payloadFromContent?.(parsed) ?? content;
       if (
         !isDeepStrictEqual(
           canonical(stored),
-          canonical(puzzleType.schema.payloadSchema.parse(content)),
+          canonical(puzzleType.schema.payloadSchema.parse(expected)),
         )
       ) {
         throw new Error(

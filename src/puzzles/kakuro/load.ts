@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/db";
-import { deriveClues } from "./derive";
+import { payloadFromContent } from "./derive";
 import { loadSolution } from "./load-solution";
 import { payloadSchema } from "./schema";
 
@@ -11,10 +11,6 @@ export async function load(puzzleId: string) {
     columns: { rows: true, cols: true },
   });
   if (!puzzle) throw new Error(`Kakuro puzzle not found: ${puzzleId}`);
-  const solution = await loadSolution(puzzleId);
-  return payloadSchema.parse({
-    ...puzzle,
-    cells: solution.map(({ row, col }) => ({ row, col })),
-    clues: deriveClues(solution),
-  });
+  const cells = await loadSolution(puzzleId);
+  return payloadSchema.parse(payloadFromContent({ ...puzzle, cells }));
 }

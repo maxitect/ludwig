@@ -36,12 +36,18 @@ export function latestVersion(typeKey: string) {
  * generator's newest version. Each puzzle is written by `upsertPuzzle`, nested in a transaction
  * that also inserts its `daily_puzzles` row. A date that already has a row is skipped, so a
  * published daily never changes. The transaction holds an advisory lock on the (type, date) and
- * re-checks it, so overlapping runs skip each other's dates instead of failing.
+ * re-checks it, so overlapping runs skip each other's dates instead of failing. Once `deadline`
+ * (epoch ms) passes no new date is started; a later run writes the dates left over.
  */
 export async function generateDailies(
   db: Db,
   puzzleRegistry: PuzzleRegistry,
-  { typeKey, from, days }: { typeKey: string; from: string; days: number },
+  {
+    typeKey,
+    from,
+    days,
+    deadline = Infinity,
+  }: { typeKey: string; from: string; days: number; deadline?: number },
 ) {
   const contentSchema = puzzleRegistry[typeKey].schema.contentSchema;
   const version = latestVersion(typeKey);
@@ -65,6 +71,7 @@ export async function generateDailies(
   for (let i = 0; i < days; i++) {
     const date = addDays(from, i);
     if (existing.has(date)) continue;
+    if (Date.now() >= deadline) break;
 
     const difficulty = dailyDifficulty(date);
     const { content } = regenerate(

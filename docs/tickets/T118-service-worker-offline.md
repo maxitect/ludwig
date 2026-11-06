@@ -6,6 +6,7 @@ epic: E12
 depends_on: [T112, T070]
 migrations: false
 requires_human: false
+preview: true
 spec: ["SPEC §7", "SPEC §4.3", "PLAN §3 M7"]
 skills: []
 ---

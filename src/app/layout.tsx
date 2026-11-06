@@ -1,3 +1,4 @@
+import { SerwistProvider } from "@serwist/turbopack/react";
 import type { Metadata, Viewport } from "next";
 import { InitScript } from "@/components/shell/init-script";
 import { themeColors } from "@/config/theme-colors";
@@ -49,7 +50,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <InitScript html={reduceMotionInitScript} />
       </head>
       <body className="group/body flex min-h-dvh flex-col">
-        {children}
+        <SerwistProvider
+          swUrl="/serwist/sw.js"
+          disable={process.env.NODE_ENV !== "production"}
+          cacheOnNavigation={false}
+          reloadOnOnline={false}
+          options={{ updateViaCache: "none" }}
+        >
+          {children}
+        </SerwistProvider>
       </body>
     </html>
   );

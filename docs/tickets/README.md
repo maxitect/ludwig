@@ -187,7 +187,7 @@ Not on the launch path (PLAN §3 M6).
 | [T109](./T109-killer-xv-generators.md) | Killer and XV sudoku generators | T100, T093 | | | done |
 | [T110](./T110-circle9-generator.md) | Circle9 generator | T100, T089 | | | done |
 | [T111](./T111-daily-grid-puzzles.md) | Daily seeded grid puzzles | T100 | ✔ | | done |
-| [T149](./T149-more-daily-types.md) | Generate daily puzzles for more grid types | T111 | | | todo |
+| [T149](./T149-more-daily-types.md) | Generate daily puzzles for more grid types | T111 | | | done |
 | [T150](./T150-retune-handwritten-difficulty.md) | Make hand-written puzzles agree with the difficulty grader | T100 | | | todo |
 
 ## M7: Offline PWA (native deferred)

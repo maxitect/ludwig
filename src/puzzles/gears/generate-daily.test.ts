@@ -7,13 +7,12 @@ import { dailyPresets, difficulties } from "./presets";
 const SEEDS = 100;
 
 describe("generateDailyDiagram", () => {
-  const diagrams = Array.from({ length: SEEDS }, (_, i) => {
-    const difficulty = difficulties[i % difficulties.length]!;
-    return {
-      difficulty,
-      content: generateDailyDiagram(`2027-03-${i}`, difficulty),
-    };
-  });
+  const diagrams = Array.from({ length: SEEDS }, (_, i) => ({
+    content: generateDailyDiagram(
+      `2027-03-${i}`,
+      difficulties[i % difficulties.length]!,
+    ),
+  }));
 
   it("AC1: uses at least three tooth sizes overall", () => {
     const sizes = new Set(

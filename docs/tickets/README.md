@@ -196,5 +196,5 @@ After launch (PLAN §3 M7). Native apps are not ticketed; the open options are i
 
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
-| [T118](./T118-service-worker-offline.md) | Service worker and offline fallback (Serwist) | T112, T070 | | | todo |
+| [T118](./T118-service-worker-offline.md) | Service worker and offline fallback (Serwist) | T112, T070 | | | done |
 | [T139](./T139-daily-gear-tooth-variety.md) | Widen the tooth sizes used by daily gear diagrams | T119, T070 | | | done |

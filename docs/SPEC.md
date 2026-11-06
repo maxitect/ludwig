@@ -721,13 +721,14 @@ Serwist (`@serwist/turbopack`) builds `src/app/sw.ts` into `/serwist/sw.js` (rou
 
 - **Precached:** `.next/static` JS, CSS, fonts and JSON, `public/{glyphs,icons,textures}`, and `/offline`. The spot-difference images and splash screens are not touched by the worker.
 - **Runtime caching,** HTML navigations only, for `/`, `/puzzles`, `/puzzles/[type]`, `/reverse-chess`, `/gears` and `/this-week`, in one `pages` cache capped at 64 entries. It is network first with no timeout, so the cached copy appears only when the network fails: stale-while-revalidate, or a timeout, would hand a signed-in visitor the signed-out copy. A page is stored only if its body contains the opening tag `<div data-guest-menu=""`, which only the signed-out account slot renders, and which React escapes in user text, so a response that read a session is never stored. The rules are in `src/utils/offline-cache.ts`. A signed-in visitor who goes offline can therefore see a signed-out copy of a public page, never their own.
-- **RSC is not cached.** A failed client navigation falls back to a document navigation, which the rules above serve. RSC navigations rarely carry the header, so they could not be admitted, and a cached prefetch adds nothing offline.
+- **RSC is not cached.** A failed client navigation falls back to a document navigation, which the rules above serve. The guest menu is a client component, so its marker never appears in an RSC response and one could not be admitted, and a cached prefetch adds nothing offline: an unvisited page still shows `/offline`.
 - **Never cached:** solve pages, `/casebook`, `/settings`, `/api/*`, sign-in pages, every non-GET (Server Actions), every RSC request and every response that read a session. Failed navigations show `/offline` (Walker, brand style).
 - **Removing a bad worker.** Every deploy replaces the worker: the script is never HTTP-cached and differs per deploy, so browsers fetch it on navigation and it takes over at once. To remove it outright, keep the route serving `/serwist/sw.js`, because a 404 leaves the installed worker running. Replace the body of `src/app/sw.ts` with the block below, and set `disable` on `SerwistProvider` so pages stop registering it. It clears only Cache Storage; do not use `Clear-Site-Data: "storage"`, which wipes signed-out progress in `localStorage`.
 
   ```ts
   /// <reference lib="esnext" />
   /// <reference lib="webworker" />
+  export {};
   declare const self: ServiceWorkerGlobalScope;
 
   self.addEventListener("install", () => self.skipWaiting());

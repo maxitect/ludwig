@@ -9,7 +9,7 @@ const loadThemeMenu = () =>
 
 export function GuestMenu() {
   return (
-    <div className="flex items-center gap-3">
+    <div data-guest-menu="" className="flex items-center gap-3">
       <Link href="/sign-in" className="underline underline-offset-4">
         Sign in
       </Link>

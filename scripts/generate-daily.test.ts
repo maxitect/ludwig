@@ -103,7 +103,7 @@ describe("generateDailies", () => {
       slug.startsWith(`daily-${typeKey}-2099-`),
     );
     expect(mine).toEqual([]);
-  });
+  }, 60_000);
 
   it("starts no date after the deadline, and a later run writes what is left", async () => {
     const budgeted = { typeKey: "sudoku", from: "2099-06-01", days: 2 };

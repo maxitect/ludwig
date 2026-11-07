@@ -17,6 +17,7 @@ import { attempts } from "../../db/schema/progress";
 export const crosswordStyleEnum = pgEnum("crossword_style", [
   "cryptic",
   "quick",
+  "mini",
 ]);
 export const clueDirectionEnum = pgEnum("clue_direction", ["across", "down"]);
 export const segmentSeparatorEnum = pgEnum("segment_separator", [

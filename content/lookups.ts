@@ -52,7 +52,8 @@ export const types = [
     key: "crossword",
     categoryKey: "word",
     name: "Crossword",
-    description: "Cryptic and quick crosswords with original clues.",
+    description:
+      "Mini grids for a quick break, Quick crosswords with plain clues, and Cryptics with wordplay. All clues original.",
     subtypeTable: "crossword_puzzles",
     sort: 1,
   },
@@ -294,6 +295,7 @@ export const volumes = [
   { slug: "pocket-collection-1", title: "Pocket Puzzle Collection 1", cover: "blue", sort: 1 },
   { slug: "pocket-collection-2", title: "Pocket Puzzle Collection 2", cover: "red", sort: 2 },
   { slug: "pocket-collection-3", title: "Pocket Puzzle Collection 3", cover: "ink", sort: 3 },
+  { slug: "quick-crosswords-1", title: "Quick Crosswords 1", cover: "red", sort: 4 },
 ] satisfies Volume[];
 
 /** Keys are neutral and shuffled against the alphabet, so neither the file name nor the order gives a letter away. */

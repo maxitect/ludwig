@@ -1,0 +1,1 @@
+ALTER TYPE "crossword_style" ADD VALUE 'mini';

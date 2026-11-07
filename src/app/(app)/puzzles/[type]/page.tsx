@@ -127,6 +127,8 @@ export default async function TypePage({
   );
 }
 
+const SHELF_ORDER = ["mini", "quick", "cryptic"];
+
 async function PuzzleList({
   typeKey,
   puzzles,
@@ -147,7 +149,11 @@ async function PuzzleList({
     : puzzles;
 
   const shelves = Map.groupBy(shown, ({ style }) => style);
-  const names = [...new Set(puzzles.map(({ style }) => style))].sort();
+  const names = [...new Set(puzzles.map(({ style }) => style))].sort(
+    (a, b) =>
+      SHELF_ORDER.indexOf(a ?? "") - SHELF_ORDER.indexOf(b ?? "") ||
+      String(a).localeCompare(String(b)),
+  );
 
   return (
     <div className="flex flex-col gap-10">

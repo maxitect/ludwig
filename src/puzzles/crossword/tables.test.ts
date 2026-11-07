@@ -97,6 +97,26 @@ describe("crossword schema", () => {
     ).toBeUndefined();
   });
 
+  it("accepts the mini style and rejects an unknown one", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await insertPuzzle(tx, "crossword");
+        await tx
+          .insert(crosswordPuzzles)
+          .values({ ...grid, style: "mini", puzzleId });
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await insertPuzzle(tx, "crossword");
+        await tx.execute(
+          sql`insert into crossword_puzzles (puzzle_id, style, rows, cols) values (${puzzleId}, 'maxi', 5, 5)`,
+        );
+      }),
+    ).toBe("22P02");
+  });
+
   it("rejects a clue that does not start on a cell", async () => {
     expect(
       await pgErrorCode(async (tx) => {

@@ -69,7 +69,7 @@ export const weekly = [
   {
     weekStart: "2026-12-28",
     first: { type: "spot-difference", slug: "erthig-hall" },
-    second: { type: "crossword", slug: "margin-notes" },
+    second: { type: "crossword", slug: "stage-door" },
   },
   {
     weekStart: "2027-01-04",
@@ -158,7 +158,7 @@ export const weekly = [
   },
   {
     weekStart: "2027-05-03",
-    first: { type: "crossword", slug: "fresh-ink" },
+    first: { type: "crossword", slug: "night-train" },
     second: { type: "knights-knaves", slug: "long-table" },
   },
   {

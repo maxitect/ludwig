@@ -293,6 +293,7 @@ graph LR
 - Authors follow Mr Todd's principle: start from the solution, then layer in false paths. The verifier proves uniqueness.
 - Launch volume targets: Reverse Chess 10, Gears 12 curated plus daily seeds, M4 types 5 each (cryptic 3). M6 types 5 each (detective scene 1).
 - Third-party puzzles, including the Radio Times special and KrazyDad, are format references only. Never copy an instance into `content/` (spec section 10, decision 6).
+- Crosswords follow the grid standard in `docs/research/crossword-grids.md` (Mini, Quick and Cryptic). `puzzles:verify` enforces it per style (`GRID_STANDARDS` in `src/puzzles/crossword/standards.ts`) and fails when two crosswords share an answer of four or more letters; `pnpm content:audit-words` lists repeats across all the word games.
 - Content tickets are separate from feature tickets, so engine and UI work never waits on writing clues.
 
 ---

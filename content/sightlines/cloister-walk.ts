@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Three people say they walked the cloister that night. Mark every square none of them could see.",
   grid: [
     ".......",
     ".#...#.",
@@ -21,8 +22,8 @@ export const content = {
   targetRow: 3,
   targetCol: 1,
   observers: [
-    { row: 0, col: 3, facing: "s", fovDeg: 60 },
-    { row: 6, col: 6, facing: "n", fovDeg: 60 },
-    { row: 3, col: 6, facing: "w", fovDeg: 60 },
+    { row: 0, col: 3, facing: "s", fovDeg: 60, name: "The gardener" },
+    { row: 6, col: 6, facing: "n", fovDeg: 60, name: "The bursar" },
+    { row: 3, col: 6, facing: "w", fovDeg: 60, name: "The chaplain" },
   ],
 } satisfies Content;

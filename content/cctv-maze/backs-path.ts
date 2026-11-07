@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Slip along the Backs to the far gate without crossing a camera's view.",
   rows: 10,
   cols: 10,
   startRow: 6,

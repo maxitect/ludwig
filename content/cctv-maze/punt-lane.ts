@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Reach the river end of Punt Lane without stepping into a camera's view.",
   rows: 6,
   cols: 6,
   startRow: 4,

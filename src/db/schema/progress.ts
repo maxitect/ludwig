@@ -42,6 +42,9 @@ export const attempts = pgTable(
       .defaultNow(),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     durationMs: integer("duration_ms"),
+    lastSavedAt: timestamp("last_saved_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     unique("attempts_user_id_puzzle_id_unique").on(

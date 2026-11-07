@@ -1,7 +1,12 @@
 import { expect, test } from "@playwright/test";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { anagramPuzzle } from "./helpers/content";
-import { checkSolved, openPuzzle, typeAnagram } from "./helpers/solve";
+import {
+  checkSolved,
+  hydrated,
+  openPuzzle,
+  typeAnagram,
+} from "./helpers/solve";
 
 test("the Desk lists an unfinished puzzle until it is solved", async ({
   page,
@@ -32,7 +37,8 @@ test("the Desk lists an unfinished puzzle until it is solved", async ({
     continuing.getByRole("link", { name: anagram.title }),
   ).toBeVisible();
 
-  await openPuzzle(page, anagram);
+  await page.goto(`/puzzles/${anagram.typeKey}/${anagram.slug}`);
+  await hydrated(page.getByRole("group", { name: "Anagram", exact: true }));
   await typeAnagram(page, anagram.letters.slice(2));
   await checkSolved(page);
 

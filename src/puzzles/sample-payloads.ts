@@ -43,6 +43,7 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
   },
   "cctv-maze": {
     puzzleId: ids[0],
+    brief: "Cross the street unnoticed.",
     rows: 5,
     cols: 5,
     startRow: 0,

@@ -26,7 +26,7 @@ function throwIfAny(problems: string[]) {
 
 const percent = (ratio: number) => `${Math.round(ratio * 100)}%`;
 
-function gridStandardProblems({ style, rows, cols, cells }: Content) {
+export function gridStandardProblems({ style, rows, cols, cells }: Content) {
   const problems: string[] = [];
   const keys = new Set(cells.map(({ row, col }) => cellKey(row, col)));
   const asymmetric = cells.filter(

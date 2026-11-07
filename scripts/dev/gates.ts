@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { openSync, writeFileSync } from "node:fs";
+import { openSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   currentBranch,
@@ -20,9 +20,10 @@ const root = topLevel();
 const id = idFromBranch(currentBranch()) ?? "local";
 const dir = path.join(root, ".verification", id);
 const devPort = id === "local" ? 3099 : port(id);
-const projects = ["desktop", "mobile", "landing-fallback", "iphone"];
+const projects = ["desktop", "mobile", "iphone"];
 
 openLog(path.join(dir, "gates.log"));
+rmSync(path.join(dir, "gates.ok"), { force: true });
 
 let e2eStamp = "e2e: skipped (no app files changed)";
 

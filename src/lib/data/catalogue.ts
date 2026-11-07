@@ -146,12 +146,28 @@ export async function getPuzzleSummary(typeKey: string, slug: string) {
   };
 }
 
-/** Unpublished puzzles are included: Cache Components needs at least one param, and the page itself 404s on them. */
+/** Prerenders curated puzzles and each type's shelf dailies. Other published dailies render on first request, and an unpublished one is never prerendered as a 404. */
 export async function getPuzzleStaticParams() {
   const rows = await db.query.puzzles.findMany({
     columns: { typeKey: true, slug: true },
+    where: { RAW: isPublished },
+    with: { daily: { columns: { date: true } } },
   });
-  return rows.map(({ typeKey, slug }) => ({ type: typeKey, slug }));
+  const curated = rows.filter(({ daily }) => !daily);
+  const shelf = Array.from(
+    Map.groupBy(
+      rows.filter(({ daily }) => daily),
+      ({ typeKey }) => typeKey,
+    ).values(),
+  ).flatMap((dailies) =>
+    dailies
+      .toSorted((a, b) => (b.daily?.date ?? "").localeCompare(a.daily?.date ?? ""))
+      .slice(0, DAILY_SHELF_SIZE),
+  );
+  return [...curated, ...shelf].map(({ typeKey, slug }) => ({
+    type: typeKey,
+    slug,
+  }));
 }
 
 export async function getTypeStaticParams() {

@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { puzzles } from "@/db/schema";
 import { registry } from "@/puzzles/registry";
 import { generateDailies } from "./daily-puzzles";
-import { getTypeCatalogue } from "./catalogue";
+import { getPuzzleStaticParams, getTypeCatalogue } from "./catalogue";
 
 vi.mock("next/cache", () => ({ cacheLife: () => {}, cacheTag: () => {} }));
 
@@ -37,5 +37,18 @@ describe("getTypeCatalogue", () => {
     });
     expect(dailies.map(({ id }) => id)).not.toContain(oldest!.id);
     expect(catalogue!.puzzleIds).toContain(oldest!.id);
+  });
+});
+
+describe("getPuzzleStaticParams", () => {
+  it("prerenders at most the 14 newest published dailies per type", async () => {
+    const params = await getPuzzleStaticParams();
+    const sudokuDailies = params.filter(
+      ({ type, slug }) => type === "sudoku" && slug.startsWith("daily-"),
+    );
+    expect(sudokuDailies.length).toBeLessThanOrEqual(14);
+    expect(params.map(({ slug }) => slug)).not.toContain(
+      "daily-sudoku-2001-01-01",
+    );
   });
 });

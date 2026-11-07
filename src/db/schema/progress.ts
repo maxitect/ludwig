@@ -8,6 +8,7 @@ import {
   pgEnum,
   pgTable,
   pgView,
+  primaryKey,
   smallint,
   text,
   timestamp,
@@ -15,7 +16,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "../auth-schema";
-import { puzzles } from "./core";
+import { puzzles, puzzleTypes } from "./core";
 
 export const hintKindEnum = pgEnum("hint_kind", [
   "check_cell",
@@ -168,3 +169,35 @@ export const userStreaks = pgView("user_streaks", {
   from runs
   group by user_id
 `);
+
+export const userFavouriteTypes = pgTable(
+  "user_favourite_types",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    typeKey: text("type_key")
+      .notNull()
+      .references(() => puzzleTypes.key),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.typeKey] })],
+);
+
+export const userTypeVisits = pgTable(
+  "user_type_visits",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    typeKey: text("type_key")
+      .notNull()
+      .references(() => puzzleTypes.key),
+    visitedAt: timestamp("visited_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.typeKey] })],
+);

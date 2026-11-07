@@ -39,11 +39,42 @@ test("shows two wide scenes side by side and finds a difference in the altered o
   await expect(page.getByTestId("found-circle")).toHaveCount(2);
 });
 
-test("keeps other solve pages in the reading column", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto("/puzzles/sudoku");
-  await page.locator('a[href^="/puzzles/sudoku/"]').first().click();
-  await page.waitForURL(/\/puzzles\/sudoku\/.+/);
-  const box = (await page.locator("main").first().boundingBox())!;
-  expect(box.width).toBeLessThanOrEqual(768);
+test("draws the scene as ink on a paper sheet in Ink", async ({ page }) => {
+  await openPuzzle(page, puzzle);
+  await page.evaluate(() =>
+    document.documentElement.setAttribute("data-theme", "ink"),
+  );
+  const colours = await page
+    .getByRole("img", { name: "Scene one" })
+    .evaluate((scene) => {
+      const token = (name: string) => {
+        const probe = document.createElement("div");
+        probe.style.color = `var(${name})`;
+        document.body.append(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      };
+      return {
+        mask: getComputedStyle(scene.firstElementChild!).backgroundColor,
+        sheet: getComputedStyle(scene.parentElement!).backgroundColor,
+        ink: token("--color-ink"),
+        paper: token("--color-paper"),
+      };
+    });
+  expect(colours.mask).toBe(colours.ink);
+  expect(colours.sheet).toBe(colours.paper);
 });
+
+for (const type of ["crossword", "sudoku"]) {
+  test(`keeps the ${type} solve page in the reading column`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`/puzzles/${type}`);
+    await page.locator(`a[href^="/puzzles/${type}/"]`).first().click();
+    await page.waitForURL(new RegExp(`/puzzles/${type}/.+`));
+    const box = (await page.locator("main").first().boundingBox())!;
+    expect(box.width).toBeLessThanOrEqual(768);
+  });
+}

@@ -5,7 +5,7 @@ import type { Payload } from "./schema";
 
 /**
  * One prepared engraving, drawn as a mask over the current text colour: the paper is transparent and
- * the ink is alpha, so the lines take the ink of the surface they sit on in both themes.
+ * the ink is alpha, so the lines take the ink of the paper sheet they sit on in both themes.
  * The aspect ratio reserves the box, so nothing shifts when the image arrives.
  */
 export function SceneArt({

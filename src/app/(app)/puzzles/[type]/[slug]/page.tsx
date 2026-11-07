@@ -8,6 +8,7 @@ import {
   getPuzzleSummary,
 } from "@/lib/data/catalogue";
 import { getAttemptState, getCompletion } from "@/lib/data/attempts";
+import { wideSolveTypes } from "@/config/solve-layout";
 import { getPuzzleForPlay } from "@/lib/data/puzzles";
 import { getCurrentUser, getUserChessNotation } from "@/lib/data/user";
 
@@ -36,7 +37,7 @@ export default async function SolvePage({
   if (!summary) notFound();
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-12 sm:px-8 touch:h-dvh touch:max-w-none touch:gap-0 touch:overflow-hidden touch:p-0">
+    <main className={`mx-auto flex ${wideSolveTypes.has(type) ? "max-w-7xl" : "max-w-3xl"} flex-col gap-8 px-4 py-12 sm:px-8 touch:h-dvh touch:max-w-none touch:gap-0 touch:overflow-hidden touch:p-0`}>
       <Suspense
         fallback={
           <div className="min-h-dvh">

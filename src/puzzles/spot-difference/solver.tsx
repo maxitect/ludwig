@@ -39,7 +39,7 @@ function SceneView({
   const { width, height } = payload;
   const circlePadding = width * 0.008;
   return (
-    <div className="border-2 border-border bg-card text-card-foreground shadow-[3px_3px_0_var(--cast)]">
+    <div className="paper-sheet">
       <SceneArt
         sceneKey={payload.sceneKey}
         width={width}

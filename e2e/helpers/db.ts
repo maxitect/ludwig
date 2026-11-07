@@ -567,11 +567,11 @@ export async function detectiveSceneAttemptFor(email: string) {
   }
 }
 
-/** Moves a puzzle's `published_at` and returns what it was, so the test can put it back. */
+/** Moves a puzzle's `published_at` (the database's `now()` when `at` is null) and returns what it was, so the test can put it back. */
 export async function setPublishedAt(
   typeKey: string,
   slug: string,
-  publishedAtSql: string,
+  at: Date | null,
 ) {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),
@@ -579,10 +579,10 @@ export async function setPublishedAt(
   try {
     const { rows } = await pool.query<{ previous: Date }>(
       `with old as (select published_at from puzzles where type_key = $1 and slug = $2)
-       update puzzles set published_at = ${publishedAtSql}
+       update puzzles set published_at = coalesce($3::timestamptz, now())
         where type_key = $1 and slug = $2
        returning (select published_at from old) as previous`,
-      [typeKey, slug],
+      [typeKey, slug, at],
     );
     return rows[0].previous;
   } finally {
@@ -590,19 +590,30 @@ export async function setPublishedAt(
   }
 }
 
-export async function restorePublishedAt(
-  typeKey: string,
-  slug: string,
-  previous: Date,
-) {
+export type PublishedPuzzleRow = {
+  typeKey: string;
+  slug: string;
+  daily: boolean;
+  isNew: boolean;
+};
+
+/** Every published puzzle with the database's own reading of the New rule: within 14 × 24 hours of now, never a daily. */
+export async function publishedPuzzles() {
   const pool = new Pool({
     connectionString: verifyFullSsl(process.env.DATABASE_URL!),
   });
   try {
-    await pool.query(
-      `update puzzles set published_at = $3 where type_key = $1 and slug = $2`,
-      [typeKey, slug, previous],
+    const { rows } = await pool.query<PublishedPuzzleRow>(
+      `select p.type_key as "typeKey", p.slug,
+              (d.puzzle_id is not null or g.puzzle_id is not null) as daily,
+              (d.puzzle_id is null and g.puzzle_id is null
+                and p.published_at > now() - interval '336 hours') as "isNew"
+         from puzzles p
+         left join daily_puzzles d on d.puzzle_id = p.id
+         left join gear_daily g on g.puzzle_id = p.id
+        where p.published_at <= now()`,
     );
+    return rows;
   } finally {
     await pool.end();
   }

@@ -1,11 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { firstPublishedSlug } from "./helpers/content";
-import {
-  databaseAvailable,
-  restorePublishedAt,
-  setPublishedAt,
-} from "./helpers/db";
+import { databaseAvailable, setPublishedAt } from "./helpers/db";
 import { hydrated } from "./helpers/solve";
 
 const favourite = (page: Page) =>
@@ -79,7 +75,7 @@ test("the Desk counts puzzles published since the last visit", async ({
   await visitTroix(page);
   await toggle(page, "true");
 
-  const previous = await setPublishedAt("troix", slug, "now()");
+  const previous = await setPublishedAt("troix", slug, null);
   try {
     await page.goto("/");
     const shelf = page.getByRole("region", { name: "Your favourites" });
@@ -89,6 +85,6 @@ test("the Desk counts puzzles published since the last visit", async ({
     await page.goto("/");
     await expect(shelf).toContainText("0 new since your last visit");
   } finally {
-    await restorePublishedAt("troix", slug, previous);
+    await setPublishedAt("troix", slug, previous);
   }
 });

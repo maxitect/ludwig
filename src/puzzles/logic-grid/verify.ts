@@ -52,12 +52,17 @@ function structure({ categories, solution, clues }: Content) {
   }
   const categoryOf = (label: string) =>
     categories.findIndex(({ items }) => items.includes(label));
-  clues.forEach(({ content, rule }, index) => {
+  clues.forEach(({ content, rule, speaker }, index) => {
     const where = `clue ${index + 1}`;
+    if (speaker !== undefined && categoryOf(speaker) !== 0) {
+      problems.push(
+        `${where}: speaker "${speaker}" is not an item of the first category (the people go first)`,
+      );
+    }
     for (const label of labelsOf(rule)) {
       if (categoryOf(label) < 0) {
         problems.push(`${where}: unknown item "${label}"`);
-      } else if (!names(content, label)) {
+      } else if (label !== speaker && !names(content, label)) {
         problems.push(`${where}: the text never mentions "${label}"`);
       }
     }
@@ -81,6 +86,12 @@ function structure({ categories, solution, clues }: Content) {
   });
   if (clues.filter(({ isFalse }) => isFalse).length > 1) {
     problems.push("at most one clue can be false");
+  }
+  if (!clues.some(({ speaker }) => speaker)) {
+    problems.push("no clue is spoken by a person");
+  }
+  if (clues.some(({ isFalse, speaker }) => isFalse && !speaker)) {
+    problems.push("the false clue needs a speaker, so the liar is a person");
   }
   return problems;
 }

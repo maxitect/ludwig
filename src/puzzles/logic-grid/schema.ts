@@ -7,9 +7,12 @@ import {
   logicGridCategories,
   logicGridClues,
   logicGridItems,
+  logicGridPuzzles,
   logicGridSolutionLinks,
 } from "./tables";
 
+const puzzleSelect = createSelectSchema(logicGridPuzzles);
+const puzzleInsert = createInsertSchema(logicGridPuzzles);
 const categorySelect = createSelectSchema(logicGridCategories);
 const categoryInsert = createInsertSchema(logicGridCategories);
 const itemSelect = createSelectSchema(logicGridItems);
@@ -31,6 +34,7 @@ export const solutionSchema = z.object({
 /** Strict, so a clue that carries `isFalse` is rejected. `variant` is derived from the solution and says only that one clue is false. */
 export const payloadSchema = z
   .object({
+    brief: puzzleSelect.shape.brief,
     variant: z.boolean(),
     categories: z.array(
       z
@@ -43,7 +47,9 @@ export const payloadSchema = z
         .strict(),
     ),
     clues: z.array(
-      clueSelect.pick({ position: true, content: true }).strict(),
+      clueSelect
+        .pick({ position: true, content: true, speakerItemId: true })
+        .strict(),
     ),
   })
   .strict();
@@ -83,6 +89,7 @@ export const ruleSchema = z.discriminatedUnion("kind", [
 
 /** `solution` has one row per household of linked items, one label per category in category order. */
 export const contentSchema = z.object({
+  brief: puzzleInsert.shape.brief.min(1).max(280),
   categories: z
     .array(
       z.object({
@@ -98,6 +105,7 @@ export const contentSchema = z.object({
       z.object({
         content: clueInsert.shape.content,
         isFalse: clueInsert.shape.isFalse,
+        speaker: itemInsert.shape.label.optional(),
         rule: ruleSchema,
       }),
     )

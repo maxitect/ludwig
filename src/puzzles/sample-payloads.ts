@@ -178,6 +178,7 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     ],
   },
   "logic-grid": {
+    brief: "Three neighbours, three pets.",
     variant: false,
     categories: [
       {
@@ -199,7 +200,13 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
         })),
       },
     ],
-    clues: [{ position: 1, content: "Ann owns the Dog." }],
+    clues: [
+      {
+        position: 1,
+        content: "I own the Dog.",
+        speakerItemId: ids[0],
+      },
+    ],
   },
   "napkin-maths": {
     questionText: "How many are left?",

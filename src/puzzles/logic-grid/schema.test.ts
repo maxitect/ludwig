@@ -22,6 +22,15 @@ describe("logic grid schemas", () => {
         clues: [{ ...payload.clues[0], isFalse: false }],
       }).success,
     ).toBe(false);
+    expect(
+      payloadSchema.strict().safeParse({
+        ...payload,
+        clues: [{ ...payload.clues[0], isFalse: false }],
+      }).success,
+    ).toBe(false);
+    expect(payload.brief).toBe(variant.brief);
+    expect(payload.clues[0].speakerItemId).toBe(itemId(0, 0));
+    expect(payload.clues[1].speakerItemId).toBeNull();
   });
 
   it("shows a variant payload only that a clue is false, never which", () => {

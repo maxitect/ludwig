@@ -1,6 +1,8 @@
 import { isVariant } from "./derive";
 import type { Content, Payload, Solution } from "./schema";
 
+const brief = "Three neighbours, three pets, three hats.";
+
 const categories = [
   { name: "Person", items: ["Ann", "Bob", "Cat"] },
   { name: "Pet", items: ["Dog", "Eel", "Fox"] },
@@ -15,7 +17,8 @@ const solution = [
 
 const trueClues: Content["clues"] = [
   {
-    content: "Ann owns the Dog.",
+    content: "I own the Dog.",
+    speaker: "Ann",
     rule: { kind: "is", a: "Ann", b: "Dog" },
   },
   {
@@ -33,23 +36,26 @@ const trueClues: Content["clues"] = [
 ];
 
 /** Classic, worked out by hand: Ann has Dog and Red, Bob has Eel, Cat has Fox, so Cat is Green and Bob Blue. */
-export const classic: Content = { categories, solution, clues: trueClues };
+export const classic: Content = { brief, categories, solution, clues: trueClues };
 
 /** Dropping the last clue leaves Bob and Cat free to swap Blue and Green. */
 export const classicAmbiguous: Content = {
+  brief,
   categories,
   solution,
   clues: trueClues.slice(0, 3),
 };
 
 const falseClue = {
-  content: "Ann does not wear the Red hat.",
+  content: "I do not wear the Red hat.",
   isFalse: true,
+  speaker: "Ann",
   rule: { kind: "isNot", a: "Ann", b: "Red" },
 } as const;
 
 /** Only dropping the false clue leaves one solution: dropping any other leaves none, or three when Ann's hat is freed. */
 export const variant: Content = {
+  brief,
   categories,
   solution,
   clues: [...trueClues, falseClue],
@@ -57,13 +63,15 @@ export const variant: Content = {
 
 /** With "Bob wears Green" as the false clue, dropping clue 3 or clue 4 also leaves exactly one solution, so three clue choices work. */
 export const variantAmbiguous: Content = {
+  brief,
   categories,
   solution,
   clues: [
     ...trueClues,
     {
-      content: "Bob wears the Green hat.",
+      content: "I wear the Green hat.",
       isFalse: true,
+      speaker: "Bob",
       rule: { kind: "is", a: "Bob", b: "Green" },
     },
   ],
@@ -77,6 +85,7 @@ export const itemId = (category: number, index: number) =>
 
 /** The payload `load` would build for `content`, with ids `itemId(category, index)`. */
 export const payloadOf = (content: Content): Payload => ({
+  brief: content.brief,
   variant: isVariant(content.clues.map(({ isFalse }) => ({ isFalse: Boolean(isFalse) }))),
   categories: content.categories.map(({ name, items }, position) => ({
     position,
@@ -87,9 +96,12 @@ export const payloadOf = (content: Content): Payload => ({
       label,
     })),
   })),
-  clues: content.clues.map(({ content: text }, position) => ({
+  clues: content.clues.map(({ content: text, speaker }, position) => ({
     position,
     content: text,
+    speakerItemId: speaker
+      ? itemId(0, content.categories[0].items.indexOf(speaker))
+      : null,
   })),
 });
 

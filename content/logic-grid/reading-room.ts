@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Closing time at the library. The night porter found four cups and four books left out, and each reader remembers the evening differently.",
   categories: [
     { name: "Reader", items: ["Agnes", "Bertie", "Cora", "Dev"] },
     { name: "Book", items: ["Atlas", "Almanac", "Folio", "Primer"] },
@@ -22,14 +23,14 @@ export const content = {
     ["Agnes", "Almanac", "Fireplace", "Tea"],
   ],
   clues: [
-    { content: "Atlas is not paired with Bertie.", rule: { kind: "isNot", a: "Atlas", b: "Bertie" } },
-    { content: "Window is paired with Cora on the plan.", rule: { kind: "is", a: "Window", b: "Cora" } },
-    { content: "On the plan, Almanac sits with Agnes.", rule: { kind: "is", a: "Almanac", b: "Agnes" } },
-    { content: "Cora and Cocoa are the same entry.", rule: { kind: "is", a: "Cora", b: "Cocoa" } },
-    { content: "The plan never pairs Bertie with Primer.", rule: { kind: "isNot", a: "Bertie", b: "Primer" } },
-    { content: "Cider is not the entry for Almanac.", rule: { kind: "isNot", a: "Almanac", b: "Cider" } },
-    { content: "Atlas is paired with Corner on the plan.", rule: { kind: "is", a: "Atlas", b: "Corner" } },
-    { content: "On the plan, Water sits with Stairs.", rule: { kind: "is", a: "Water", b: "Stairs" } },
-    { content: "Agnes is not paired with Stairs.", rule: { kind: "isNot", a: "Agnes", b: "Stairs" } },
+    { content: "I never opened the Atlas.", speaker: "Bertie", rule: { kind: "isNot", a: "Atlas", b: "Bertie" } },
+    { content: "I sat in the Window.", speaker: "Cora", rule: { kind: "is", a: "Window", b: "Cora" } },
+    { content: "I was reading the Almanac.", speaker: "Agnes", rule: { kind: "is", a: "Almanac", b: "Agnes" } },
+    { content: "Cora drank Cocoa all evening.", speaker: "Dev", rule: { kind: "is", a: "Cora", b: "Cocoa" } },
+    { content: "Bertie never took the Primer. I had it.", speaker: "Cora", rule: { kind: "isNot", a: "Bertie", b: "Primer" } },
+    { content: "The porter never put Cider beside the Almanac.", rule: { kind: "isNot", a: "Almanac", b: "Cider" } },
+    { content: "I took the Atlas into the Corner.", speaker: "Dev", rule: { kind: "is", a: "Atlas", b: "Corner" } },
+    { content: "Whoever sat on the Stairs had the Water.", speaker: "Agnes", rule: { kind: "is", a: "Water", b: "Stairs" } },
+    { content: "I was never on the Stairs.", speaker: "Agnes", rule: { kind: "isNot", a: "Agnes", b: "Stairs" } },
   ],
 } satisfies Content;

@@ -24,6 +24,7 @@ export const logicGridPuzzles = pgTable(
     typeKey: text("type_key")
       .notNull()
       .generatedAlwaysAs(sql`'logic-grid'`),
+    brief: text("brief").notNull(),
   },
   (table) => [
     foreignKey({
@@ -31,6 +32,10 @@ export const logicGridPuzzles = pgTable(
       columns: [table.puzzleId, table.typeKey],
       foreignColumns: [puzzles.id, puzzles.typeKey],
     }).onDelete("cascade"),
+    check(
+      "logic_grid_puzzles_brief_check",
+      sql`char_length(${table.brief}) between 1 and 280`,
+    ),
   ],
 );
 
@@ -90,6 +95,7 @@ export const logicGridClues = pgTable(
     position: smallint("position").notNull(),
     content: text("content").notNull(),
     isFalse: boolean("is_false").notNull().default(false),
+    speakerItemId: uuid("speaker_item_id"),
   },
   (table) => [
     primaryKey({
@@ -101,6 +107,11 @@ export const logicGridClues = pgTable(
       columns: [table.puzzleId],
       foreignColumns: [logicGridPuzzles.puzzleId],
     }).onDelete("cascade"),
+    foreignKey({
+      name: "logic_grid_clues_speaker_fk",
+      columns: [table.puzzleId, table.speakerItemId],
+      foreignColumns: [logicGridItems.puzzleId, logicGridItems.id],
+    }),
     uniqueIndex("logic_grid_clues_one_false_idx")
       .on(table.puzzleId)
       .where(sql`${table.isFalse}`),

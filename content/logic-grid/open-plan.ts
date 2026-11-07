@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Four inspectors walked the new office block before the opening. Each wrote up one defect on one floor, and the site manager wants to know who found what, and where.",
   categories: [
     { name: "Inspector", items: ["Sarah", "Tom", "Priya", "Marcus"] },
     { name: "Defect", items: ["Fire door", "Cracked beam", "Loose rail", "Damp wall"] },
@@ -21,11 +22,11 @@ export const content = {
     ["Priya", "Loose rail", "Basement"],
   ],
   clues: [
-    { content: "Basement and Loose rail share a line of the report.", rule: { kind: "is", a: "Basement", b: "Loose rail" } },
-    { content: "The report ties Ground to Tom.", rule: { kind: "is", a: "Ground", b: "Tom" } },
-    { content: "Sarah and First never share a line of the report.", rule: { kind: "isNot", a: "Sarah", b: "First" } },
-    { content: "Whatever else is true, Basement goes with Priya.", rule: { kind: "is", a: "Basement", b: "Priya" } },
-    { content: "Tom and Damp wall share a line of the report.", rule: { kind: "is", a: "Tom", b: "Damp wall" } },
-    { content: "The report ties Cracked beam to First.", rule: { kind: "is", a: "Cracked beam", b: "First" } },
+    { content: "The site report logs the Loose rail in the Basement.", rule: { kind: "is", a: "Basement", b: "Loose rail" } },
+    { content: "I was on the Ground floor.", speaker: "Tom", rule: { kind: "is", a: "Ground", b: "Tom" } },
+    { content: "I never went up to First.", speaker: "Sarah", rule: { kind: "isNot", a: "Sarah", b: "First" } },
+    { content: "I spent the day in the Basement.", speaker: "Priya", rule: { kind: "is", a: "Basement", b: "Priya" } },
+    { content: "Tom's find was the Damp wall.", speaker: "Marcus", rule: { kind: "is", a: "Tom", b: "Damp wall" } },
+    { content: "The Cracked beam I found was on First.", speaker: "Marcus", rule: { kind: "is", a: "Cracked beam", b: "First" } },
   ],
 } satisfies Content;

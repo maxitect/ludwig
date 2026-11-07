@@ -69,6 +69,54 @@ describe("verifyLogicGrid, variant", () => {
   });
 });
 
+describe("verifyLogicGrid, voice", () => {
+  it("lets a speaker stand for their own item in the text", () => {
+    expect(() => verifyLogicGrid(classic)).not.toThrow();
+    expect(classic.clues[0].content).not.toMatch(/Ann/);
+  });
+
+  it("rejects a spoken clue that names neither the speaker nor the partner item", () => {
+    expect(() =>
+      verifyLogicGrid(withClue(classic, 0, { content: "Somebody owns the Cow." })),
+    ).toThrow(/clue 1: the text never mentions "Dog"/);
+    expect(() =>
+      verifyLogicGrid(withClue(classic, 0, { speaker: "Bob" })),
+    ).toThrow(/clue 1: the text never mentions "Ann"/);
+  });
+
+  it("rejects a speaker who is not an item of the first category", () => {
+    expect(() =>
+      verifyLogicGrid(withClue(classic, 0, { speaker: "Dog" })),
+    ).toThrow(/speaker "Dog" is not an item of the first category/);
+  });
+
+  it("rejects a puzzle with no spoken clue", () => {
+    expect(() =>
+      verifyLogicGrid({
+        ...classic,
+        clues: [
+          { ...classic.clues[0], content: "Ann owns the Dog.", speaker: undefined },
+          ...classic.clues.slice(1),
+        ],
+      }),
+    ).toThrow(/no clue is spoken by a person/);
+  });
+
+  it("rejects a variant whose false clue has no speaker", () => {
+    expect(() =>
+      verifyLogicGrid(
+        withClue(variant, 4, { content: "Ann does not wear the Red hat.", speaker: undefined }),
+      ),
+    ).toThrow(/in the variant every clue needs a speaker.*unspoken: clue 5/);
+  });
+
+  it("rejects a variant with an unspoken true clue, which would be known true", () => {
+    expect(() =>
+      verifyLogicGrid(withClue(variant, 1, { speaker: undefined })),
+    ).toThrow(/in the variant every clue needs a speaker.*unspoken: clue 2/);
+  });
+});
+
 describe("verifyLogicGrid, structure", () => {
   it("rejects a clue naming an item the puzzle lacks", () => {
     expect(() =>
@@ -83,13 +131,13 @@ describe("verifyLogicGrid, structure", () => {
 
   it("rejects clue text that never names an item of its rule", () => {
     expect(() =>
-      verifyLogicGrid(withClue(classic, 0, { content: "Somebody owns the Dog." })),
+      verifyLogicGrid(withClue(classic, 0, { content: "Somebody owns the Dog.", speaker: undefined })),
     ).toThrow(/clue 1: the text never mentions "Ann"/);
   });
 
   it("rejects a label found only inside another word", () => {
     expect(() =>
-      verifyLogicGrid(withClue(classic, 0, { content: "Annie owns the Dog." })),
+      verifyLogicGrid(withClue(classic, 0, { content: "Annie owns the Dog.", speaker: undefined })),
     ).toThrow(/clue 1: the text never mentions "Ann"/);
   });
 

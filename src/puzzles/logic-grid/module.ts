@@ -26,48 +26,20 @@ export const logicGridModule = {
   loadSolution,
   check,
   verify: verifyLogicGrid,
-  async upsertContent(tx, puzzleId, { categories, solution, clues }) {
+  async upsertContent(tx, puzzleId, { brief, categories, solution, clues }) {
     await tx
       .insert(logicGridPuzzles)
-      .values({ puzzleId })
-      .onConflictDoNothing();
+      .values({ puzzleId, brief })
+      .onConflictDoUpdate({
+        target: logicGridPuzzles.puzzleId,
+        set: { brief: sql`excluded.brief` },
+      });
     await tx
       .insert(logicGridCategories)
       .values(categories.map(({ name }, position) => ({ puzzleId, position, name })))
       .onConflictDoUpdate({
         target: [logicGridCategories.puzzleId, logicGridCategories.position],
         set: { name: sql`excluded.name` },
-      });
-
-    await tx
-      .update(logicGridClues)
-      .set({ isFalse: false })
-      .where(eq(logicGridClues.puzzleId, puzzleId));
-    await tx.delete(logicGridClues).where(
-      and(
-        eq(logicGridClues.puzzleId, puzzleId),
-        notInArray(
-          logicGridClues.position,
-          clues.map((_, position) => position),
-        ),
-      ),
-    );
-    await tx
-      .insert(logicGridClues)
-      .values(
-        clues.map(({ content, isFalse }, position) => ({
-          puzzleId,
-          position,
-          content,
-          isFalse: Boolean(isFalse),
-        })),
-      )
-      .onConflictDoUpdate({
-        target: [logicGridClues.puzzleId, logicGridClues.position],
-        set: {
-          content: sql`excluded.content`,
-          isFalse: sql`excluded.is_false`,
-        },
       });
 
     await tx
@@ -120,6 +92,39 @@ export const logicGridModule = {
       if (!item) throw new Error(`Unknown item "${label}"`);
       return item.id;
     };
+    await tx
+      .update(logicGridClues)
+      .set({ isFalse: false })
+      .where(eq(logicGridClues.puzzleId, puzzleId));
+    await tx.delete(logicGridClues).where(
+      and(
+        eq(logicGridClues.puzzleId, puzzleId),
+        notInArray(
+          logicGridClues.position,
+          clues.map((_, position) => position),
+        ),
+      ),
+    );
+    await tx
+      .insert(logicGridClues)
+      .values(
+        clues.map(({ content, isFalse, speaker }, position) => ({
+          puzzleId,
+          position,
+          content,
+          isFalse: Boolean(isFalse),
+          speakerItemId: speaker ? idOf(0, speaker) : null,
+        })),
+      )
+      .onConflictDoUpdate({
+        target: [logicGridClues.puzzleId, logicGridClues.position],
+        set: {
+          content: sql`excluded.content`,
+          isFalse: sql`excluded.is_false`,
+          speakerItemId: sql`excluded.speaker_item_id`,
+        },
+      });
+
     await tx.insert(logicGridSolutionLinks).values(
       solution.flatMap((row) =>
         row.slice(1).map((label, offset) => ({

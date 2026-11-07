@@ -39,6 +39,8 @@ test("a signed-in player's marks persist and the puzzle completes", async ({
   await signUp(page, email);
   await openPuzzle(page, puzzle);
   await expect(page.getByRole("grid", { name: "Logic grid" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Case notes" })).toBeVisible();
+  await expect(page.getByTestId("logic-grid-brief")).toHaveText(puzzle.brief);
 
   await markYes(page, first[0], first[1]);
   const autosave = page.waitForResponse(
@@ -89,12 +91,14 @@ test("the false-statement variant needs the false clue flagged", async ({
     page.getByText("Finish the puzzle before checking it."),
   ).toBeVisible();
   const wrong = puzzle.falseClue === 1 ? 2 : 1;
-  await page.getByRole("radio", { name: `Clue ${wrong}`, exact: true }).check();
+  await page.getByRole("radio", { name: new RegExp(`clue ${wrong}$`) }).check();
   await check(page);
   await expect(page.getByText("Not quite. Keep going.")).toBeVisible();
-  await page
-    .getByRole("radio", { name: `Clue ${puzzle.falseClue}`, exact: true })
-    .check();
+  const liar = page.getByRole("radio", {
+    name: `Name the liar: ${puzzle.liar}, clue ${puzzle.falseClue}`,
+  });
+  await expect(liar).toBeVisible();
+  await liar.check();
   await check(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
 });

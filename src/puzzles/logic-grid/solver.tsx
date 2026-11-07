@@ -36,6 +36,10 @@ export function Solver({
   );
   const categoryName = (position: number) =>
     payload.categories.find((category) => category.position === position)?.name;
+  const speakerOf = (id: string | null) =>
+    payload.categories
+      .flatMap(({ items }) => items)
+      .find((item) => item.id === id)?.label;
   const [falseClue, setFalseClue] = useState<number | null>(
     initialState?.falseCluePosition ?? null,
   );
@@ -77,6 +81,18 @@ export function Solver({
         Each cell pairs two items. Press Space or Enter to cycle a cell through
         blank, no and yes, Backspace to clear it, and the arrow keys to move.
       </p>
+      <section
+        aria-labelledby="logic-grid-case-notes"
+        className="paper-sheet flex flex-col gap-1 p-3"
+      >
+        <h2
+          id="logic-grid-case-notes"
+          className="font-display text-sm font-bold tracking-[0.08em] uppercase"
+        >
+          Case notes
+        </h2>
+        <p data-testid="logic-grid-brief">{payload.brief}</p>
+      </section>
       <MarkGrid
         categories={payload.categories}
         marks={marks}
@@ -108,61 +124,72 @@ export function Solver({
         >
           Clues
         </h2>
-        <ol className="flex flex-col gap-2">
-          {payload.clues.map(({ position, content }) => {
-            const isStruck = struck.has(position);
-            return (
-              <li key={position} className="flex items-start gap-3">
-                <span className="w-6 shrink-0 font-mono tabular-nums">
-                  {position + 1}.
-                </span>
-                <button
-                  type="button"
-                  aria-pressed={isStruck}
-                  onClick={() => {
-                    const nextStruck = new Set(struck);
-                    if (!nextStruck.delete(position)) nextStruck.add(position);
-                    setStruck(nextStruck);
-                    report(marks, nextStruck, falseClue);
-                  }}
-                  className={cn(
-                    "cursor-pointer text-left outline-0 focus-visible:outline-2 focus-visible:outline-ring",
-                    isStruck && "text-muted-foreground line-through",
-                  )}
-                >
-                  <span className="sr-only">Cross out clue {position + 1}: </span>
-                  {content}
-                </button>
-              </li>
-            );
-          })}
-        </ol>
+        <div
+          role={payload.variant ? "radiogroup" : undefined}
+          aria-label={payload.variant ? "Which statement is false?" : undefined}
+        >
+          {payload.variant && (
+            <p className="mb-3">
+              Exactly one statement is false. Name the liar.
+            </p>
+          )}
+          <ol className="flex flex-col gap-3">
+            {payload.clues.map(({ position, content, speakerItemId }) => {
+              const isStruck = struck.has(position);
+              const speaker = speakerOf(speakerItemId);
+              const control = speaker ? "Name the liar" : "Mark the false statement";
+              return (
+                <li key={position} className="flex items-start gap-3">
+                  <span className="w-6 shrink-0 font-mono tabular-nums">
+                    {position + 1}.
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      type="button"
+                      aria-pressed={isStruck}
+                      onClick={() => {
+                        const nextStruck = new Set(struck);
+                        if (!nextStruck.delete(position)) nextStruck.add(position);
+                        setStruck(nextStruck);
+                        report(marks, nextStruck, falseClue);
+                      }}
+                      className={cn(
+                        "cursor-pointer text-left outline-0 focus-visible:outline-2 focus-visible:outline-ring",
+                        isStruck && "text-muted-foreground line-through",
+                      )}
+                    >
+                      <span className="sr-only">Cross out clue {position + 1}: </span>
+                      {speaker ? (
+                        <>
+                          <strong>{speaker}:</strong> “{content}”
+                        </>
+                      ) : (
+                        content
+                      )}
+                    </button>
+                    {payload.variant && (
+                      <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
+                        <input
+                          type="radio"
+                          name="false-clue"
+                          aria-label={`${control}: ${speaker ? `${speaker}, ` : ""}clue ${position + 1}`}
+                          checked={falseClue === position}
+                          onChange={() => {
+                            setFalseClue(position);
+                            report(marks, struck, position);
+                          }}
+                          className="size-5 accent-ink"
+                        />
+                        <span aria-hidden>{control}</span>
+                      </label>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
       </section>
-      {payload.variant && (
-        <fieldset className="flex flex-col gap-3">
-          <legend className="font-display text-2xl font-bold uppercase">
-            Which clue is false?
-          </legend>
-          <p>Exactly one clue above is false. Name it.</p>
-          <div className="flex flex-wrap gap-4">
-            {payload.clues.map(({ position }) => (
-              <label key={position} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="false-clue"
-                  checked={falseClue === position}
-                  onChange={() => {
-                    setFalseClue(position);
-                    report(marks, struck, position);
-                  }}
-                  className="size-5 accent-ink"
-                />
-                Clue {position + 1}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      )}
     </div>
   );
 }

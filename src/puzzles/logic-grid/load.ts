@@ -8,7 +8,7 @@ export async function load(puzzleId: string) {
   const [puzzle, solution] = await Promise.all([
     db.query.logicGridPuzzles.findFirst({
       where: { puzzleId },
-      columns: {},
+      columns: { brief: true },
       with: {
         categories: {
           columns: { position: true, name: true },
@@ -21,7 +21,7 @@ export async function load(puzzleId: string) {
           },
         },
         clues: {
-          columns: { position: true, content: true },
+          columns: { position: true, content: true, speakerItemId: true },
           orderBy: { position: "asc" },
         },
       },

@@ -203,7 +203,9 @@ export async function logicGridPuzzle(variant: boolean) {
     typeKey: "logic-grid",
     slug: found.meta.slug,
     title: found.meta.title,
+    brief: content.brief,
     households: content.solution,
     falseClue: content.clues.findIndex(({ isFalse }) => isFalse) + 1,
+    liar: content.clues.find(({ isFalse }) => isFalse)?.speaker,
   };
 }

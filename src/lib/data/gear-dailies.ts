@@ -17,7 +17,7 @@ const TYPE_KEY = "gears";
  * cycles through `cycle` by date (days since 1970-01-01), so a date's difficulty does not depend on
  * which run generated it. Each puzzle is written by `upsertPuzzle`, nested in a transaction that
  * also links it in `gear_daily`. A date that already has a `gear_daily` row is skipped, so a
- * published daily never changes.
+ * published daily never changes. Once `deadline` (epoch ms) passes no new date is started.
  */
 export async function generateDailies(
   db: Db,
@@ -26,7 +26,13 @@ export async function generateDailies(
     from,
     days,
     cycle,
-  }: { from: string; days: number; cycle: readonly Difficulty[] },
+    deadline = Infinity,
+  }: {
+    from: string;
+    days: number;
+    cycle: readonly Difficulty[];
+    deadline?: number;
+  },
 ) {
   const contentSchema = puzzleRegistry[TYPE_KEY].schema.contentSchema;
   const through = addDays(from, days - 1);
@@ -43,6 +49,7 @@ export async function generateDailies(
   for (let i = 0; i < days; i++) {
     const date = addDays(from, i);
     if (existing.has(date)) continue;
+    if (Date.now() >= deadline) break;
 
     const difficulty = cycle[daysSinceEpoch(date) % cycle.length];
     const slug = `daily-${date}`;

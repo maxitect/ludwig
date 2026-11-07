@@ -182,6 +182,8 @@ The five files get a brief, speakers on most clues, and clue text rewritten in v
 
 ## 7. Suggested tickets
 
+Status 2026-11-07: T164 (R1 to R5) is built. The summing-up is a list rendered under the stamp, and the instigator is an accusation backed by the `not_instigator` clue. Optional step times (R3) are left for after the user plays it.
+
 | Ticket | Scope | Mig | Depends on |
 |---|---|---|---|
 | T164 Rota: the case | R1 to R5. Tables, schema, new clue kind, verify, board, solver, accuse step, epilogue list, hub copy, five content files, e2e update | ✔ | T063 |

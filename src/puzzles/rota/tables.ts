@@ -4,6 +4,7 @@ import {
   foreignKey,
   pgEnum,
   pgTable,
+  type PgTableExtraConfigValue,
   primaryKey,
   smallint,
   text,
@@ -19,6 +20,7 @@ export const rotaClueKindEnum = pgEnum("rota_clue_kind", [
   "adjacent_only",
   "never_in_rank",
   "max_swaps",
+  "not_instigator",
 ]);
 
 export const rotaPuzzles = pgTable(
@@ -28,13 +30,24 @@ export const rotaPuzzles = pgTable(
     typeKey: text("type_key")
       .notNull()
       .generatedAlwaysAs(sql`'rota'`),
+    brief: text("brief").notNull(),
+    victimWorkerId: uuid("victim_worker_id").notNull(),
   },
-  (table) => [
+  (table): PgTableExtraConfigValue[] => [
     foreignKey({
       name: "rota_puzzles_puzzle_id_type_key_fk",
       columns: [table.puzzleId, table.typeKey],
       foreignColumns: [puzzles.id, puzzles.typeKey],
     }).onDelete("cascade"),
+    foreignKey({
+      name: "rota_puzzles_victim_fk",
+      columns: [table.puzzleId, table.victimWorkerId],
+      foreignColumns: [rotaWorkers.puzzleId, rotaWorkers.id],
+    }),
+    check(
+      "rota_puzzles_brief_check",
+      sql`char_length(${table.brief}) between 1 and 280`,
+    ),
   ],
 );
 
@@ -97,6 +110,7 @@ export const rotaClues = pgTable(
     position: smallint("position").notNull(),
     kind: rotaClueKindEnum("kind").notNull(),
     displayText: text("display_text").notNull(),
+    speakerWorkerId: uuid("speaker_worker_id"),
   },
   (table) => [
     foreignKey({
@@ -104,6 +118,11 @@ export const rotaClues = pgTable(
       columns: [table.puzzleId],
       foreignColumns: [rotaPuzzles.puzzleId],
     }).onDelete("cascade"),
+    foreignKey({
+      name: "rota_clues_speaker_fk",
+      columns: [table.puzzleId, table.speakerWorkerId],
+      foreignColumns: [rotaWorkers.puzzleId, rotaWorkers.id],
+    }),
     unique("rota_clues_id_kind_unique").on(table.id, table.kind),
     unique("rota_clues_id_puzzle_id_unique").on(table.id, table.puzzleId),
     unique("rota_clues_puzzle_id_position_unique").on(
@@ -173,6 +192,37 @@ export const rotaClueNeverInRank = pgTable(
   ],
 );
 
+export const rotaClueNotInstigator = pgTable(
+  "rota_clue_not_instigator",
+  {
+    clueId: uuid("clue_id").primaryKey(),
+    kind: rotaClueKindEnum("kind")
+      .notNull()
+      .generatedAlwaysAs(sql`'not_instigator'::rota_clue_kind`),
+    puzzleId: uuid("puzzle_id")
+      .notNull()
+      .default(sql`NULL`),
+    workerId: uuid("worker_id").notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "rota_clue_not_instigator_clue_id_kind_fk",
+      columns: [table.clueId, table.kind],
+      foreignColumns: [rotaClues.id, rotaClues.kind],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "rota_clue_not_instigator_clue_id_puzzle_id_fk",
+      columns: [table.clueId, table.puzzleId],
+      foreignColumns: [rotaClues.id, rotaClues.puzzleId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "rota_clue_not_instigator_worker_fk",
+      columns: [table.puzzleId, table.workerId],
+      foreignColumns: [rotaWorkers.puzzleId, rotaWorkers.id],
+    }).onDelete("cascade"),
+  ],
+);
+
 export const rotaClueMaxSwaps = pgTable(
   "rota_clue_max_swaps",
   {
@@ -219,6 +269,7 @@ export const rotaSolutionSwaps = pgTable(
     step: smallint("step").notNull(),
     workerAId: uuid("worker_a_id").notNull(),
     workerBId: uuid("worker_b_id").notNull(),
+    excuse: text("excuse").notNull(),
   },
   (table) => [
     primaryKey({
@@ -258,8 +309,14 @@ export const rotaAttempts = pgTable(
     puzzleId: uuid("puzzle_id")
       .notNull()
       .default(sql`NULL`),
+    instigatorWorkerId: uuid("instigator_worker_id"),
   },
   (table) => [
+    foreignKey({
+      name: "rota_attempts_instigator_fk",
+      columns: [table.puzzleId, table.instigatorWorkerId],
+      foreignColumns: [rotaWorkers.puzzleId, rotaWorkers.id],
+    }),
     foreignKey({
       name: "rota_attempts_attempt_id_puzzle_id_type_key_fk",
       columns: [table.attemptId, table.puzzleId, table.typeKey],

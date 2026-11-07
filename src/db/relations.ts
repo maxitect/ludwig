@@ -182,6 +182,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.rotaClues.id,
       to: r.rotaClueMaxSwaps.clueId,
     }),
+    notInstigator: r.one.rotaClueNotInstigator({
+      from: r.rotaClues.id,
+      to: r.rotaClueNotInstigator.clueId,
+    }),
   },
   rotaSolutions: {
     swaps: r.many.rotaSolutionSwaps({

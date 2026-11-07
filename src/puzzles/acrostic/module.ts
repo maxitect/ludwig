@@ -49,6 +49,7 @@ export const acrosticModule = {
       .delete(acrosticAttempts)
       .where(eq(acrosticAttempts.attemptId, attemptId));
   },
+  attemptRoot: acrosticAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.acrosticAttempts.findFirst({
       where: { attemptId },

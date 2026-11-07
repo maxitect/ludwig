@@ -54,6 +54,7 @@ export const napkinMathsModule = {
       .delete(napkinMathsAttempts)
       .where(eq(napkinMathsAttempts.attemptId, attemptId));
   },
+  attemptRoot: napkinMathsAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.napkinMathsAttempts.findFirst({
       where: { attemptId },

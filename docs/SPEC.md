@@ -190,7 +190,7 @@ These types come from the Radio Times special (section 1.2.1) and from KrazyDad'
 ## 3. Information architecture
 
 ```
-/                          Title-sequence landing for everyone (the signed-in Desk is post-launch). Its three room captions are links: The Grid to Word puzzles (/puzzles#word), The Board to Reverse Chess (/reverse-chess), The Mirror to Logic puzzles (/puzzles#logic)
+/                          Title-sequence landing for signed-out visitors, static. A request carrying a session cookie is rewritten by `proxy.ts` to `/desk`, the signed-in Desk (dynamic): Continue (unfinished attempts with saved state, newest first, at most 8), then favourites (T154), Today and This week, recommendations (T161), stats and charts (T160). A stale cookie shows the landing. Its three room captions are links: The Grid to Word puzzles (/puzzles#word), The Board to Reverse Chess (/reverse-chess), The Mirror to Logic puzzles (/puzzles#logic)
 /sign-in  /sign-up
 /puzzles                   The Collection: all categories
 /puzzles/[type]            Category index (volumes, daily shelf, difficulty filter)
@@ -906,7 +906,8 @@ daily_puzzles          type_key text, date date, puzzle_id, generator_version sm
 // Progress
 attempts               id uuid pk, user_id fk→user, puzzle_id fk→puzzles,
                        type_key text  (trigger-filled, see 7.4.5),
-                       started_at, completed_at null, duration_ms int null
+                       started_at, completed_at null, duration_ms int null,
+                       last_saved_at timestamptz default now() (set by state writes only, never by clear or check)
                        unique (user_id, puzzle_id), unique (id, puzzle_id, type_key),
                        unique (id, type_key) (target of the `<type>_attempts` FK),
                        fk (puzzle_id, type_key) → puzzles (id, type_key)

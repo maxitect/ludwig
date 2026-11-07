@@ -104,6 +104,7 @@ export const futoshikiModule = {
       .delete(futoshikiAttempts)
       .where(eq(futoshikiAttempts.attemptId, attemptId));
   },
+  attemptRoot: futoshikiAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.futoshikiAttempts.findFirst({
       where: { attemptId },

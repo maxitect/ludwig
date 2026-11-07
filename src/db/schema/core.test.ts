@@ -235,6 +235,27 @@ describe("attempts", () => {
     }
   });
 
+  it("defaults last_saved_at to now and rejects null", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await setup(tx);
+        const [row] = await tx
+          .insert(attempts)
+          .values({ userId, puzzleId })
+          .returning({ lastSavedAt: attempts.lastSavedAt });
+        expect(row.lastSavedAt).toBeInstanceOf(Date);
+      }),
+    ).toBeUndefined();
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await setup(tx);
+        await tx.execute(
+          sql`insert into attempts (user_id, puzzle_id, last_saved_at) values (${userId}, ${puzzleId}, null)`,
+        );
+      }),
+    ).toBe("23502");
+  });
+
   it("cascades user deletion to settings and attempts", async () => {
     const cascadeEmail = `t004-cascade-${Date.now()}@test.local`;
     const { user: created } = await auth.api.signUpEmail({

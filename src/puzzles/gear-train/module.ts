@@ -91,6 +91,7 @@ export const gearTrainModule = {
       .delete(gearTrainAttempts)
       .where(eq(gearTrainAttempts.attemptId, attemptId));
   },
+  attemptRoot: gearTrainAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.gearTrainAttempts.findFirst({
       where: { attemptId },

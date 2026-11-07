@@ -77,6 +77,7 @@ export const wordWheelModule = {
       .delete(wordWheelAttempts)
       .where(eq(wordWheelAttempts.attemptId, attemptId));
   },
+  attemptRoot: wordWheelAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.wordWheelAttempts.findFirst({
       where: { attemptId },

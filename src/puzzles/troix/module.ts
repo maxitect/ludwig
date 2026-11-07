@@ -60,6 +60,7 @@ export const troixModule = {
   async clearAttemptState(attemptId) {
     await db.delete(troixAttempts).where(eq(troixAttempts.attemptId, attemptId));
   },
+  attemptRoot: troixAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.troixAttempts.findFirst({
       where: { attemptId },

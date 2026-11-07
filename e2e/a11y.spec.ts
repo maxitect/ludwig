@@ -116,7 +116,7 @@ test.describe("axe, signed out", () => {
 
 test.describe("axe, signed in", () => {
   for (const theme of THEMES) {
-    for (const path of ["/casebook", "/settings"]) {
+    for (const path of ["/", "/casebook", "/settings"]) {
       test(`${theme} ${path}`, async ({ page }) => {
         await signUp(page, uniqueEmail("a11y"));
         await audit(page, theme, path, true);

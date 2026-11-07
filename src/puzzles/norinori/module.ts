@@ -67,6 +67,7 @@ export const norinoriModule = {
       .delete(norinoriAttempts)
       .where(eq(norinoriAttempts.attemptId, attemptId));
   },
+  attemptRoot: norinoriAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.norinoriAttempts.findFirst({
       where: { attemptId },

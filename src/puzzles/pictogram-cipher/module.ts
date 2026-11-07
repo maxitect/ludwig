@@ -96,6 +96,7 @@ export const pictogramCipherModule = {
       .delete(pictogramCipherAttempts)
       .where(eq(pictogramCipherAttempts.attemptId, attemptId));
   },
+  attemptRoot: pictogramCipherAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.pictogramCipherAttempts.findFirst({
       where: { attemptId },

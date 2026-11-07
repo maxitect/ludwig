@@ -123,6 +123,7 @@ export const gearsModule = {
   async clearAttemptState(attemptId) {
     await db.delete(gearAttempts).where(eq(gearAttempts.attemptId, attemptId));
   },
+  attemptRoot: gearAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.gearAttempts.findFirst({
       where: { attemptId },

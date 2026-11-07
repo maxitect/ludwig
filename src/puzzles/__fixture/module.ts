@@ -59,6 +59,7 @@ export const fixtureModule = {
       .delete(fixtureAttemptRows)
       .where(eq(fixtureAttemptRows.attemptId, attemptId));
   },
+  attemptRoot: fixtureAttemptRows,
   async loadAttemptState(attemptId) {
     const rows = await db
       .select({

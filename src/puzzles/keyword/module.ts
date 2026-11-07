@@ -35,6 +35,7 @@ export const keywordModule = {
       .delete(keywordAttempts)
       .where(eq(keywordAttempts.attemptId, attemptId));
   },
+  attemptRoot: keywordAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.keywordAttempts.findFirst({
       where: { attemptId },

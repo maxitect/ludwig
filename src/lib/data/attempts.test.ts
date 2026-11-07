@@ -75,6 +75,7 @@ vi.mock("@/lib/auth", async (importOriginal) => {
 const { completeAttempt, getAttemptState, getOrCreateAttempt } = await import(
   "@/lib/data/attempts"
 );
+const { getDesk } = await import("@/lib/data/desk");
 const { getPublishedTypeKey, getPuzzleForPlay } = await import(
   "@/lib/data/puzzles"
 );
@@ -108,7 +109,7 @@ function makePuzzle(name: string, publishedAt: Date | null) {
 }
 
 const removePuzzles = () =>
-  db.delete(puzzles).where(sql`${puzzles.slug} like 't017-%'`);
+  db.delete(puzzles).where(sql`${puzzles.slug} like 't017-%' or ${puzzles.slug} like 't153-%'`);
 
 beforeAll(async () => {
   await db
@@ -384,5 +385,58 @@ describe("getPuzzleForPlay", () => {
     expect(await getPuzzleForPlay("__fixture", "t017-draft")).toBeNull();
     expect(await getPuzzleForPlay("__fixture", "t017-missing")).toBeNull();
     expect(await getPublishedTypeKey(unpublishedId)).toBeNull();
+  });
+});
+
+describe("attempts.last_saved_at", () => {
+  const state = { rows: [{ position: 0, value: "saved" }] };
+  const savedAt = async () => (await attemptRow()).lastSavedAt;
+
+  it("moves forward on saveState only", async () => {
+    await getOrCreateAttempt(userId, puzzleId);
+    const created = await savedAt();
+    await saveState(puzzleId, state);
+    const saved = await savedAt();
+    expect(saved.getTime()).toBeGreaterThan(created.getTime());
+
+    await clearState(puzzleId);
+    expect(await savedAt()).toEqual(saved);
+    await checkAnswer(puzzleId, { label: "alpha" }, { mode: "full", durationMs: 0 });
+    expect(await savedAt()).toEqual(saved);
+  });
+});
+
+describe("getDesk continue shelf", () => {
+  const state = { rows: [{ position: 0, value: "saved" }] };
+
+  it("lists only unfinished attempts with saved state", async () => {
+    const solvedId = await makePuzzle("t153-solved", new Date(Date.now() - 1000));
+    const emptyId = await makePuzzle("t153-empty", new Date(Date.now() - 1000));
+    await saveState(puzzleId, state);
+    await saveState(solvedId, state);
+    await checkAnswer(solvedId, { label: "alpha" }, { mode: "full", durationMs: 0 });
+    await getOrCreateAttempt(userId, emptyId);
+
+    const { continuing } = await getDesk();
+    expect(continuing.map(({ puzzle }) => puzzle.slug)).toEqual([slug]);
+  });
+
+  it("shows 8 of 9 saved attempts, newest first", async () => {
+    const ids = [puzzleId];
+    for (let i = 0; i < 8; i++) {
+      ids.push(await makePuzzle(`t153-many-${i}`, new Date(Date.now() - 1000)));
+    }
+    for (const id of ids) await saveState(id, state);
+    const { continuing } = await getDesk();
+    expect(continuing).toHaveLength(8);
+    expect(continuing[0].puzzle.slug).toBe("t153-many-7");
+  });
+
+  it("never lists another user's attempts and rejects signed out", async () => {
+    await saveState(puzzleId, state);
+    session.userId = await createTestUser("t153");
+    expect((await getDesk()).continuing).toEqual([]);
+    session.userId = null;
+    await expect(getDesk()).rejects.toThrow("Unauthorised");
   });
 });

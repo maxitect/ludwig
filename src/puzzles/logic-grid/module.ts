@@ -162,6 +162,7 @@ export const logicGridModule = {
       .delete(logicGridAttempts)
       .where(eq(logicGridAttempts.attemptId, attemptId));
   },
+  attemptRoot: logicGridAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.logicGridAttempts.findFirst({
       where: { attemptId },

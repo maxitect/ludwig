@@ -71,6 +71,7 @@ export const sightlinesModule = {
       .delete(sightlinesAttempts)
       .where(eq(sightlinesAttempts.attemptId, attemptId));
   },
+  attemptRoot: sightlinesAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.sightlinesAttempts.findFirst({
       where: { attemptId },

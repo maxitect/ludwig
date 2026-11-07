@@ -73,6 +73,7 @@ export const bookCipherModule = {
       .delete(bookCipherAttempts)
       .where(eq(bookCipherAttempts.attemptId, attemptId));
   },
+  attemptRoot: bookCipherAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.bookCipherAttempts.findFirst({
       where: { attemptId },

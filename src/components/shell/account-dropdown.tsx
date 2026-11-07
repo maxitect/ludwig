@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useOpenRequested } from "@/components/after-hydration";
 import {
   DropdownMenu,
@@ -23,7 +22,6 @@ import { ThemeRadioGroup } from "./theme-radio-group";
 type AccountDropdownProps = { name: string; theme: Theme };
 
 export function AccountDropdown({ name, theme }: AccountDropdownProps) {
-  const router = useRouter();
   const openRequested = useOpenRequested();
 
   async function signOut() {
@@ -31,7 +29,7 @@ export function AccountDropdown({ name, theme }: AccountDropdownProps) {
     writeThemeCookie(null);
     applyReduceMotion(false);
     applyTheme(readStoredTheme());
-    router.refresh();
+    window.location.reload();
   }
 
   return (

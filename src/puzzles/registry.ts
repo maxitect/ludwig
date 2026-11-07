@@ -1,3 +1,4 @@
+import type { AnyPgColumn, PgTable } from "drizzle-orm/pg-core";
 import type { z } from "zod";
 import type { db } from "@/db";
 import type { puzzleTypes } from "@/db/schema";
@@ -93,6 +94,8 @@ export type PuzzleTypeModule<
     attemptId: string,
     state: z.infer<S["attemptSchema"]>,
   ): Promise<void>;
+  /** The `<type>_attempts` root table: an attempt has saved state exactly when it has a row here. */
+  attemptRoot: PgTable & { attemptId: AnyPgColumn };
   /** Reads back what `replaceAttemptState` wrote, or null when the attempt has no saved state. */
   loadAttemptState(
     attemptId: string,

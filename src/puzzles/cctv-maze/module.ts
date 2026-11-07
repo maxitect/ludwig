@@ -59,6 +59,7 @@ export const cctvMazeModule = {
       .delete(cctvMazeAttempts)
       .where(eq(cctvMazeAttempts.attemptId, attemptId));
   },
+  attemptRoot: cctvMazeAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.cctvMazeAttempts.findFirst({
       where: { attemptId },

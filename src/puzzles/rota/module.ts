@@ -192,6 +192,7 @@ export const rotaModule = {
   async clearAttemptState(attemptId) {
     await db.delete(rotaAttempts).where(eq(rotaAttempts.attemptId, attemptId));
   },
+  attemptRoot: rotaAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.rotaAttempts.findFirst({
       where: { attemptId },

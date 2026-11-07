@@ -63,6 +63,7 @@ export const circle9Module = {
       .delete(circle9Attempts)
       .where(eq(circle9Attempts.attemptId, attemptId));
   },
+  attemptRoot: circle9Attempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.circle9Attempts.findFirst({
       where: { attemptId },

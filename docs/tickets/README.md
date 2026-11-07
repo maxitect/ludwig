@@ -217,3 +217,13 @@ User feedback after launch testing (2026-11-07). The signed-in Desk was cut from
 | [T162](./T162-three-js-set-pieces.md) | Brand set pieces in three.js: a spike, then one piece on the Desk | T160, T156 | | | todo |
 | [T163](./T163-gate-runs-affected-e2e.md) | Run the affected end-to-end specs in the ticket gate, and archive done tickets | — | | | todo |
 | [T157](./T157-favourite-type-digest-email.md) | Email players when a favourite type gets a new puzzle, and when a streak is about to break | T154, T155 | ✔ | ✔ | todo |
+
+## M8: Narrative pass
+
+User feedback after launch testing (2026-11-07): the Rota "is adding names to people but there's absolutely no narrative to it". Research and design in [`docs/research/narrative.md`](../research/narrative.md). Order: T164 first, then T165 and T166 in parallel.
+
+| ID | Title | Depends on | Mig | Human | Status |
+|---|---|---|---|---|---|
+| [T164](./T164-rota-the-case.md) | Rota: the case. Victim, incident sheet, voiced clues, the accusation and the summing-up | T063, T141 | ✔ | | todo |
+| [T165](./T165-logic-grid-witness-voice.md) | Logic grid: witness voice. A brief, a speaker per clue, and "Name the liar" | T048, T131 | ✔ | | todo |
+| [T166](./T166-briefs-sightlines-cctv.md) | One-line briefs for sightlines and the CCTV maze, and named witnesses in sightlines | T059, T060 | ✔ | | todo |

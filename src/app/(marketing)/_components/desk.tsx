@@ -197,9 +197,9 @@ function FavouritesShelf({
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Badge variant="outline" className="bg-paper text-ink">
+                  <p className="text-sm font-semibold">
                     {favourite.fresh} new since your last visit
-                  </Badge>
+                  </p>
                 </CardContent>
               </Card>
             </li>

@@ -10,6 +10,7 @@ import {
   pass,
   prChecks,
   prsForTicket,
+  readStamp,
   type Result,
   runSteps,
   sh,
@@ -60,6 +61,14 @@ function reviewVerdict(): Result {
   return /^Verdict:\s*ALL CLEAR/m.test(report.out)
     ? pass
     : fail("report has no `Verdict: ALL CLEAR`: the reviewer has not cleared it");
+}
+
+function gatesStamp(): Result {
+  const tree = worktrees(root).find((w) => w.branch === branch)?.path;
+  if (!tree) return pass;
+  const stamp = readStamp(id, tree);
+  if (!stamp) return fail(`no gates.ok in ${tree}: run pnpm ticket:gates`);
+  return stamp.e2e ? pass : fail("gates.ok predates the e2e step: rerun pnpm ticket:gates");
 }
 
 function noAttribution(): Result {
@@ -192,6 +201,7 @@ runSteps(
   "MERGE",
   [
     { name: "review verdict", run: reviewVerdict },
+    { name: "gates stamp", run: gatesStamp },
     { name: "no AI attribution", run: noAttribution },
     { name: "no unpushed code", run: unpushedDocsOnly },
     { name: "up to date with main", run: upToDate },

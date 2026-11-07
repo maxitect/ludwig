@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
-import path from "node:path";
 import {
   codeUnchangedSince,
   currentBranch,
   idFromBranch,
   readIfExists,
+  readStamp,
   reportPath,
   sh,
   text,
@@ -38,10 +38,11 @@ if (untrackedReport || text("git status --porcelain --untracked-files=no", cwd))
   block("commit your changes, including the report.");
 }
 
-const recorded = readIfExists(path.join(root, ".verification", id, "gates.ok"))?.trim();
-if (!recorded || !codeUnchangedSince(recorded, cwd)) {
+const stamp = readStamp(id, root);
+if (!stamp || !codeUnchangedSince(stamp.tree, cwd)) {
   block("code changed since the last green `pnpm ticket:gates`. Run it again.");
 }
+if (!stamp.e2e) block("the last green `pnpm ticket:gates` predates the e2e step. Run it again.");
 
 const prs = sh(`gh pr list --head "${branch}" --state open --json number`, cwd);
 if (!prs.ok || prs.out.trim() === "[]") {

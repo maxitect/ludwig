@@ -84,7 +84,7 @@ export async function getDesk() {
       })
       .from(userStreaks)
       .where(eq(userStreaks.userId, userId)),
-    getDeskCharts(userId, weekStart),
+    getDeskCharts(userId, today, weekStart),
   ]);
 
   const pair =

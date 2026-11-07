@@ -14,6 +14,8 @@ import {
   userDifficultyStats,
   userTypeStats,
 } from "@/db/schema";
+import { getDeskCharts } from "@/lib/data/desk-charts";
+import { londonDate, londonWeekStart } from "@/utils/london-time";
 
 const HOUR = 3_600_000;
 let userId: string;
@@ -188,6 +190,41 @@ describe("user_difficulty_stats", () => {
       { difficulty: 1, solves: 2, medianDurationMs: 20_000 },
       { difficulty: 3, solves: 2, medianDurationMs: 150_000 },
     ]);
+  });
+});
+
+describe("getDeskCharts", () => {
+  it("reads only the given user's solves", async () => {
+    const now = Date.now();
+    const ago = (hours: number) => new Date(now - hours * HOUR).toISOString();
+    await solve(userId, "t160-a1", ago(1), 10_000);
+    await solve(userId, "t160-s1", ago(30), 40_000);
+    await solve(otherUserId, "t160-a2", ago(2), 1_000);
+    await solve(otherUserId, "t160-a3", ago(3), 2_000);
+    await solve(otherUserId, "t160-s2", ago(4), 3_000);
+
+    const charts = await getDeskCharts(
+      userId,
+      londonDate(new Date(now)),
+      londonWeekStart(new Date(now)),
+    );
+
+    expect(charts.days.reduce((sum, { solves }) => sum + solves, 0)).toBe(2);
+    expect(charts.weeks.reduce((sum, { solves }) => sum + solves, 0)).toBe(2);
+    expect(
+      charts.types.map(({ key, solves, recent }) => ({ key, solves, recent })),
+    ).toEqual([
+      { key: "circle9", solves: 1, recent: [10_000] },
+      { key: "troix", solves: 1, recent: [40_000] },
+    ]);
+    expect(charts.difficulties).toEqual([
+      { difficulty: 1, solves: 1, medianDurationMs: 10_000 },
+      { difficulty: 3, solves: 1, medianDurationMs: 40_000 },
+    ]);
+    expect(charts.categories.reduce((sum, { solved }) => sum + solved, 0)).toBe(
+      2,
+    );
+    expect(charts.fastest?.durationMs).toBe(10_000);
   });
 });
 

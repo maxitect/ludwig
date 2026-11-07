@@ -8,13 +8,17 @@ import {
   userTypeStats,
 } from "@/db/schema";
 import { HEAT_WEEKS, SPARK_SOLVES } from "@/config/desk";
-import { addDays, londonDate } from "@/utils/london-time";
+import { addDays } from "@/utils/london-time";
 
 /**
  * Every chart on the Desk, read from the `user_*` views. Weeks begin on Monday in Europe/London.
- * `weekStart` is the Monday of the current week.
+ * `today` is the London date and `weekStart` the Monday of the current week.
  */
-export async function getDeskCharts(userId: string, weekStart: string) {
+export async function getDeskCharts(
+  userId: string,
+  today: string,
+  weekStart: string,
+) {
   const heatStart = addDays(weekStart, -(HEAT_WEEKS - 1) * 7);
 
   const [days, weeks, pairs, categories, types, sparks, difficulties, fastest] =
@@ -116,7 +120,7 @@ export async function getDeskCharts(userId: string, weekStart: string) {
   }
 
   return {
-    today: londonDate(new Date()),
+    today,
     heatStart,
     days,
     weeks: weeks.rows,

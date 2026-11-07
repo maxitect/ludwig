@@ -73,7 +73,8 @@ function TypeTile({ type }: { type: DeskCharts["types"][number] }) {
   const slowest = max(type.recent) ?? 1;
   const height = scaleLinear().domain([0, slowest]).range([3, SPARK_H]);
   const step = SPARK_W / SPARK_SOLVES;
-  const summary = `${type.name}: ${plural(type.solves, "solve")}, best ${formatDuration(type.bestDurationMs)}`;
+  const latest = type.recent.at(-1);
+  const summary = `${type.name}: ${plural(type.solves, "solve")}, best ${formatDuration(type.bestDurationMs)}${latest === undefined ? "" : `, latest ${formatDuration(latest)}`}`;
 
   return (
     <li

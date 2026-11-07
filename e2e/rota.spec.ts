@@ -9,6 +9,10 @@ const unswaps = [...content.solution.swaps].reverse();
 const token = (page: Page, name: string) => page.getByTestId(`token-${name}`);
 const stack = (page: Page) => page.getByTestId("rota-stack").locator("li");
 
+const insisted = content.solution.instigatorName;
+const accusation = (page: Page) =>
+  page.getByRole("group", { name: "Who insisted on the first swap?" });
+
 async function unswap(page: Page, a: string, b: string) {
   await token(page, a).click();
   await token(page, b).click();
@@ -48,10 +52,28 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
   await unswap(page, unswaps[1].a, unswaps[1].b);
   for (const { a, b } of unswaps.slice(2)) await unswap(page, a, b);
 
+  const autosaveAccusation = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      "next-action" in response.request().headers(),
+  );
+  await accusation(page).getByLabel(insisted).check();
+  await autosaveAccusation;
+  await page.reload();
+  await expect(accusation(page).getByLabel(insisted)).toBeChecked();
+  if (databaseAvailable) {
+    expect((await rotaAttemptFor(email)).instigator).toBe(insisted);
+  }
+
   await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
-  await expect(page.getByTestId("epilogue")).toHaveText(
-    `Opening gambit: ${content.solution.instigatorName} insisted on it.`,
+  const timeline = page.getByTestId("epilogue").locator("li");
+  await expect(timeline).toHaveCount(content.solution.swaps.length + 1);
+  await expect(timeline.first()).toContainText(
+    content.solution.swaps[0].excuse,
+  );
+  await expect(timeline.last()).toContainText(
+    `${insisted} insisted on the first swap`,
   );
 
   if (databaseAvailable) {
@@ -64,6 +86,37 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
   }
 });
 
+test("the right sequence with the wrong accusation is not accepted", async ({
+  page,
+}) => {
+  await openPuzzle(page, puzzle);
+  for (const { a, b } of unswaps) await unswap(page, a, b);
+  const [{ a, b }] = content.solution.swaps;
+  const other = a === insisted ? b : a;
+  await accusation(page).getByLabel(other).check();
+  await clickCheck(page);
+  await expect(page.getByText("Not quite. Keep going.")).toBeVisible();
+  await expect(page.getByText(/Solved in/)).toHaveCount(0);
+  await expect(page.getByTestId("epilogue")).toHaveCount(0);
+});
+
+test("the board marks the hazard zone and a tapped clue highlights its speaker", async ({
+  page,
+}) => {
+  await openPuzzle(page, puzzle);
+  await expect(
+    page.getByRole("group", { name: "D3, where Hobb was found" }),
+  ).toBeVisible();
+  await expect(page.getByTestId("rota-brief")).toContainText("D3");
+  await page.getByTestId("clue-2").getByRole("button").click();
+  await expect(token(page, "Colm")).toHaveAttribute("data-highlighted", "true");
+  await token(page, "Bridget").click();
+  await expect(token(page, "Colm")).not.toHaveAttribute(
+    "data-highlighted",
+    "true",
+  );
+});
+
 test("a wrong sequence is not accepted and reveals no gambit", async ({
   page,
 }) => {
@@ -72,6 +125,7 @@ test("a wrong sequence is not accepted and reveals no gambit", async ({
   await unswap(page, a, b);
   await unswap(page, a, b);
   for (const step of unswaps) await unswap(page, step.a, step.b);
+  await accusation(page).getByRole("radio").first().check();
   await clickCheck(page);
   await expect(page.getByText("Not quite. Keep going.")).toBeVisible();
   await expect(page.getByText(/Solved in/)).toHaveCount(0);

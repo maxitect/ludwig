@@ -27,7 +27,7 @@ T044 measured the gear performance budget once, by hand, on one curated diagram 
 - **Cap the generator.** A diagram may have at most 11 gears and only 8- or 16-tooth gears, which is what T044 measured. Put the cap in one constant in `src/puzzles/gears/`, used by:
   - a unit test asserting every preset's `gears.max` and `teeth` are within the cap;
   - `puzzles:verify`, which fails any stored diagram (curated or `gear_daily`) over the cap and names it.
-- **Fix the provenance wording.** `docs/tickets/T044-gear-content-e2e-perf.md` says curated diagrams are "generated and then hand-tuned". Change it to "selected from generator seeds and published unedited", which is what T044 shipped. Check SPEC §5.2 for the same claim.
+- **Fix the provenance wording.** `docs/tickets/done/T044-gear-content-e2e-perf.md` says curated diagrams are "generated and then hand-tuned". Change it to "selected from generator seeds and published unedited", which is what T044 shipped. Check SPEC §5.2 for the same claim.
 
 **Out**
 
@@ -50,6 +50,6 @@ T044 measured the gear performance budget once, by hand, on one curated diagram 
 - [ ] **AC3**: The generator and stored diagrams are capped.
   - _Verify (unit + cli):_ the preset unit test passes. A copied curated content file with a 12th gear (not committed) makes `pnpm puzzles:verify` fail and name the file. Without it, `puzzles:verify` passes, including every `gear_daily` row.
 - [ ] **AC4**: The provenance wording matches what shipped.
-  - _Verify (code):_ `grep -rn "hand-tuned" docs/tickets/T044-gear-content-e2e-perf.md docs/SPEC.md` finds no gear-content claim.
+  - _Verify (code):_ `grep -rn "hand-tuned" docs/tickets/done/T044-gear-content-e2e-perf.md docs/SPEC.md` finds no gear-content claim.
 - [ ] **AC5**: Gates pass.
   - _Verify (cli):_ `pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm puzzles:verify` exits 0.

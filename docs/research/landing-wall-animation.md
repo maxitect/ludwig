@@ -1,6 +1,6 @@
 # Landing: motion on the title-sequence walls
 
-Research only, no production code. This looks at adding motion to the three walls of the landing title sequence (`src/app/(marketing)/_components/title-sequence.tsx`, `title-sequence.css`, `scroll-fallback.tsx`) as of `05ca452`: chess pieces moving on The Board, letters filling The Grid and digits appearing in The Mirror. Measurements were taken against the local dev server with headless Chromium from `@playwright/test`. Headless Chromium rasterises on the CPU, so the timings compare variants with each other; they are not device numbers. Ticket: [T140](../tickets/T140-landing-wall-motion.md).
+Research only, no production code. This looks at adding motion to the three walls of the landing title sequence (`src/app/(marketing)/_components/title-sequence.tsx`, `title-sequence.css`, `scroll-fallback.tsx`) as of `05ca452`: chess pieces moving on The Board, letters filling The Grid and digits appearing in The Mirror. Measurements were taken against the local dev server with headless Chromium from `@playwright/test`. Headless Chromium rasterises on the CPU, so the timings compare variants with each other; they are not device numbers. Ticket: [T140](../tickets/done/T140-landing-wall-motion.md).
 
 ## 1. Summary
 

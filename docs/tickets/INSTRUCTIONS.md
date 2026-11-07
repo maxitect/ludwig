@@ -24,10 +24,11 @@ Each prints one `PASS` line, or `FAIL: <step>`, the last lines of output and the
 | Script | Who runs it | What it does |
 |---|---|---|
 | `pnpm ticket:setup <id>` | implementer, in its worktree | Names the branch `ticket/<id>-<slug>`, installs, creates `ludwig_<id>`, writes `.env.local`, migrates and seeds. Idempotent |
-| `pnpm ticket:gates` | implementer, reviewer | typecheck, lint, test, build, `puzzles:verify`; records the tree they passed on in `.verification/<id>/gates.ok` |
+| `pnpm ticket:gates` | implementer, reviewer | typecheck, lint, test, build, `puzzles:verify`, then the e2e specs CI would run for the branch; records the tree they passed on, and the specs run, in `.verification/<id>/gates.ok` |
 | `pnpm ticket:stop-check` | implementer's Stop hook | Blocks finishing until the report is committed, the gates passed on the current code and the PR is open and pushed |
 | `pnpm ticket:status` | orchestrator | In-flight tickets (PR, report, verdict, worktree) and the tickets whose dependencies are all done |
 | `pnpm ticket:merge <id>` | orchestrator | Verdict, staleness, mergeability and CI checks, then squash-merge, sync `main` and sweep |
+| `pnpm ticket:archive` | orchestrator | Moves every ticket the README marks `done` into `docs/tickets/done/` (`git mv`) and rewrites links to it. Idempotent; run it with each status update |
 | `pnpm ticket:cleanup` | orchestrator, preflight | Sweeps every merged ticket's worktree, branches, databases, dev server and Neon preview branch |
 
 ## 2. Verification
@@ -35,6 +36,10 @@ Each prints one `PASS` line, or `FAIL: <step>`, the last lines of output and the
 ### 2.1 Gates
 
 `pnpm ticket:gates` must pass before AC verification and before every push. A test that fails is a failed AC.
+
+The last step, `e2e`, runs the Playwright specs CI would select for the branch (`scripts/ci-changes.mts`, against the merge base with `origin/main`) on the desktop, mobile, landing-fallback and iphone projects. It builds nothing: it starts the build the gate just made with `pnpm start` on the ticket's port (`3000 + id`) with `VERCEL_ENV=preview`, re-seeds the database, and stops the server when it ends. It reads the branch's commits, so commit before running the gates. When CI would run every spec (shared code, CI or dependency changes) the step prints a skip message and CI covers it; with no app files changed it skips silently. The stamp records which. The report's Gates line lists the e2e specs that ran, or why the step skipped.
+
+Ticket files live in `docs/tickets/` until their README status is `done`, then in `docs/tickets/done/`. Resolve a ticket path in both.
 
 ### 2.2 Methods
 
@@ -128,7 +133,7 @@ Verify cycles: <n>
 
 ## Gates
 
-typecheck ✔ · lint ✔ · test ✔ (N passed) · build ✔ · puzzles:verify ✔/n.a.
+typecheck ✔ · lint ✔ · test ✔ (N passed) · build ✔ · puzzles:verify ✔/n.a. · e2e ✔ (<specs run>) / skipped (<reason>)
 
 ## Evidence
 

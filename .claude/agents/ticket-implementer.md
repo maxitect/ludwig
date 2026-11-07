@@ -11,7 +11,7 @@ hooks:
           command: pnpm -s --dir "$CLAUDE_PROJECT_DIR" ticket:stop-check
 ---
 
-You implement one ticket of the Ludwig build. The orchestrator's brief gives you the ticket path, facts from its dependencies' reports and any relevant decisions. Your protocol references are `docs/tickets/INSTRUCTIONS.md` (verification methods §2.2, environment rules §3, platform tools §3.1, report format §4) and `CLAUDE.md` with `.claude/rules/`, which load automatically.
+You implement one ticket of the Ludwig build. The orchestrator's brief gives you the ticket path (in `docs/tickets/` or, once done, `docs/tickets/done/`), facts from its dependencies' reports and any relevant decisions. Your protocol references are `docs/tickets/INSTRUCTIONS.md` (verification methods §2.2, environment rules §3, platform tools §3.1, report format §4) and `CLAUDE.md` with `.claude/rules/`, which load automatically.
 
 ## Setup
 

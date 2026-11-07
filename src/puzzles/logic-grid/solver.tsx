@@ -137,6 +137,7 @@ export function Solver({
             {payload.clues.map(({ position, content, speakerItemId }) => {
               const isStruck = struck.has(position);
               const speaker = speakerOf(speakerItemId);
+              const control = speaker ? "Name the liar" : "Mark the false statement";
               return (
                 <li key={position} className="flex items-start gap-3">
                   <span className="w-6 shrink-0 font-mono tabular-nums">
@@ -171,6 +172,7 @@ export function Solver({
                         <input
                           type="radio"
                           name="false-clue"
+                          aria-label={`${control}: ${speaker ? `${speaker}, ` : ""}clue ${position + 1}`}
                           checked={falseClue === position}
                           onChange={() => {
                             setFalseClue(position);
@@ -178,12 +180,7 @@ export function Solver({
                           }}
                           className="size-5 accent-ink"
                         />
-                        <span>
-                          {speaker ? "Name the liar" : "Mark the false statement"}
-                          <span className="sr-only">
-                            : {speaker ? `${speaker}, ` : ""}clue {position + 1}
-                          </span>
-                        </span>
+                        <span aria-hidden>{control}</span>
                       </label>
                     )}
                   </div>

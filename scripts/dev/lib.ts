@@ -109,11 +109,28 @@ export function idFromBranch(branch: string): string | undefined {
   return /^ticket\/(T\d{3})-/.exec(branch)?.[1];
 }
 
-export function ticketFile(id: string, root = mainCheckout()): string {
+export function ticketDirs(root = mainCheckout()): string[] {
   const dir = path.join(root, "docs", "tickets");
-  const file = readdirSync(dir).find((f) => f.startsWith(`${id}-`));
-  if (!file) die("TICKET", `no ticket file for ${id} in docs/tickets`);
-  return path.join(dir, file);
+  return [dir, path.join(dir, "done")];
+}
+
+export function ticketFile(id: string, root = mainCheckout()): string {
+  for (const dir of ticketDirs(root)) {
+    if (!existsSync(dir)) continue;
+    const file = readdirSync(dir).find((f) => f.startsWith(`${id}-`) && f.endsWith(".md"));
+    if (file) return path.join(dir, file);
+  }
+  die("TICKET", `no ticket file for ${id} in docs/tickets or docs/tickets/done`);
+}
+
+export type GatesStamp = { tree: string; e2e: string | undefined };
+
+/** The `gates.ok` stamp: the tree the gates passed on, then the e2e step's outcome. */
+export function readStamp(id: string, root: string): GatesStamp | undefined {
+  const raw = readIfExists(path.join(root, ".verification", id, "gates.ok"));
+  if (raw === undefined) return undefined;
+  const [tree = "", ...rest] = raw.trim().split("\n");
+  return { tree: tree.trim(), e2e: rest.find((l) => l.startsWith("e2e:")) };
 }
 
 export function ticketBranch(id: string, root = mainCheckout()): string {

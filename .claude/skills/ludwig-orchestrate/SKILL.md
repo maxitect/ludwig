@@ -62,7 +62,7 @@ Take **4 to 6 tickets** through to merged, then wind down.
 
 When the session scope is met and nothing is in flight:
 
-1. Update the status column in @docs/tickets/README.md for every ticket you touched.
+1. Update the status column in @docs/tickets/README.md for every ticket you touched, then run `pnpm ticket:archive` so each newly `done` ticket file moves to `docs/tickets/done/` and its links update. Commit the move with the status change. A ticket file is in `docs/tickets/` or `docs/tickets/done/`; look in both.
 2. Rewrite `PROMPT.md` (git-ignored, never committed) for the next orchestrator. Keep its section structure and update it in place:
    - **Where we are**: today's date, the session number, the done list, anything still in flight, and anything parked or blocked.
    - **Ready to start now**: a suggested next launch and the gotchas a ticket needs. `ticket:status` computes the ready list itself, so don't copy it.

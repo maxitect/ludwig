@@ -15,6 +15,7 @@
     "ticket:gates": "tsx scripts/dev/gates.ts",
     "ticket:status": "tsx scripts/dev/status.ts",
     "ticket:merge": "tsx scripts/dev/merge.ts",
+    "ticket:archive": "tsx scripts/dev/archive.ts",
     "ticket:cleanup": "tsx scripts/dev/cleanup.ts",
     "ticket:stop-check": "tsx scripts/dev/stop-check.ts",
     "db:generate": "drizzle-kit generate",

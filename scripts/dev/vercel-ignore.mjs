@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const tooling = [/^docs\//, /\.md$/, /^\.claude\//, /^scripts\/dev\//];
 
@@ -44,7 +44,10 @@ function wantsPreview() {
   if (/\[preview\]/i.test(process.env.VERCEL_GIT_COMMIT_MESSAGE ?? "")) return true;
   if (!branch.startsWith("ticket/")) return false;
   try {
-    const ticket = readFileSync(`docs/tickets/${branch.slice("ticket/".length)}.md`, "utf8");
+    const name = `${branch.slice("ticket/".length)}.md`;
+    const file = [`docs/tickets/${name}`, `docs/tickets/done/${name}`].find((f) => existsSync(f));
+    if (!file) return false;
+    const ticket = readFileSync(file, "utf8");
     return /^preview:\s*true\s*$/m.test(ticket.split("---")[1] ?? "");
   } catch {
     return false;

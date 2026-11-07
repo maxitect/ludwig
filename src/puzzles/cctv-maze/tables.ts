@@ -57,7 +57,7 @@ export const cctvMazePuzzles = pgTable(
     ),
     check(
       "cctv_maze_puzzles_brief_check",
-      sql`char_length(${table.brief}) between 1 and 160 and ${table.brief} !~ '[[:cntrl:]]'`,
+      sql`char_length(${table.brief}) between 1 and 160 and btrim(${table.brief}) <> '' and ${table.brief} !~ '[[:cntrl:]]'`,
     ),
   ],
 );

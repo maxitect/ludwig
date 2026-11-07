@@ -149,7 +149,7 @@ describe("sightlines tables", () => {
     ).toBe("23514");
   });
 
-  it("rejects two observers of one puzzle with the same name, and an empty or overlong name", async () => {
+  it("rejects two observers of one puzzle with the same name, and an empty, blank, multi-line or overlong name", async () => {
     const observer = (row: number, name: string) => ({
       row,
       col: 0,
@@ -166,7 +166,7 @@ describe("sightlines tables", () => {
           .values([observer(0, "The porter"), observer(1, "The porter")].map((o) => ({ ...o, puzzleId })));
       }),
     ).toBe("23505");
-    for (const name of ["", "x".repeat(41)]) {
+    for (const name of ["", "   ", "The\nporter", "x".repeat(41)]) {
       expect(
         await pgErrorCode(async (tx) => {
           const puzzleId = await insertPuzzle(tx, "sightlines");
@@ -195,6 +195,7 @@ describe("sightlines tables", () => {
   it.each([
     ["an empty brief", ""],
     ["a brief over 160 characters", "x".repeat(161)],
+    ["a blank brief", "   "],
     ["a brief with a line break", "one\ntwo"],
   ])("rejects %s", async (_, brief) => {
     expect(

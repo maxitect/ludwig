@@ -15,7 +15,7 @@ const fovDeg = (schema: z.ZodNumber) => schema.min(1).max(360);
 const rangeCells = (schema: z.ZodNumber) => schema.min(1).max(30);
 
 const brief = (schema: z.ZodString) =>
-  schema.min(1).max(160).regex(/^[^\p{Cc}]*$/u);
+  schema.max(160).regex(/\S/).regex(/^[^\p{Cc}]*$/u);
 
 const layoutOverrides = {
   brief,

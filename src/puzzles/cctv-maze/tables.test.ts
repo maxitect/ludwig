@@ -112,6 +112,7 @@ describe("cctv maze tables", () => {
   it.each([
     ["an empty brief", ""],
     ["a brief over 160 characters", "x".repeat(161)],
+    ["a blank brief", "   "],
     ["a brief with a line break", "one\ntwo"],
   ])("rejects %s", async (_, brief) => {
     expect(

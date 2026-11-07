@@ -19612,7 +19612,7 @@
       "table": "sightlines_attempt_marks"
     },
     {
-      "value": "char_length(\"name\") between 1 and 40",
+      "value": "char_length(\"name\") between 1 and 40 and btrim(\"name\") <> '' and \"name\" !~ '[[:cntrl:]]'",
       "name": "sightlines_observers_name_check",
       "entityType": "checks",
       "schema": "public",
@@ -19682,7 +19682,7 @@
       "table": "sightlines_puzzles"
     },
     {
-      "value": "char_length(\"brief\") between 1 and 160 and \"brief\" !~ '[[:cntrl:]]'",
+      "value": "char_length(\"brief\") between 1 and 160 and btrim(\"brief\") <> '' and \"brief\" !~ '[[:cntrl:]]'",
       "name": "sightlines_puzzles_brief_check",
       "entityType": "checks",
       "schema": "public",
@@ -19780,7 +19780,7 @@
       "table": "cctv_maze_puzzles"
     },
     {
-      "value": "char_length(\"brief\") between 1 and 160 and \"brief\" !~ '[[:cntrl:]]'",
+      "value": "char_length(\"brief\") between 1 and 160 and btrim(\"brief\") <> '' and \"brief\" !~ '[[:cntrl:]]'",
       "name": "cctv_maze_puzzles_brief_check",
       "entityType": "checks",
       "schema": "public",

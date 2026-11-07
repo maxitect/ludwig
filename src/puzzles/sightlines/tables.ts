@@ -55,7 +55,7 @@ export const sightlinesPuzzles = pgTable(
     ),
     check(
       "sightlines_puzzles_brief_check",
-      sql`char_length(${table.brief}) between 1 and 160 and ${table.brief} !~ '[[:cntrl:]]'`,
+      sql`char_length(${table.brief}) between 1 and 160 and btrim(${table.brief}) <> '' and ${table.brief} !~ '[[:cntrl:]]'`,
     ),
   ],
 );
@@ -105,7 +105,7 @@ export const sightlinesObservers = pgTable(
     unique("sightlines_observers_name_key").on(table.puzzleId, table.name),
     check(
       "sightlines_observers_name_check",
-      sql`char_length(${table.name}) between 1 and 40`,
+      sql`char_length(${table.name}) between 1 and 40 and btrim(${table.name}) <> '' and ${table.name} !~ '[[:cntrl:]]'`,
     ),
     check("sightlines_observers_row_check", sql`${table.row} >= 0`),
     check("sightlines_observers_col_check", sql`${table.col} >= 0`),

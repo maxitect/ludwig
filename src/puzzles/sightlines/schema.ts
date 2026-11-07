@@ -12,8 +12,15 @@ const dimension = (schema: z.ZodNumber) => schema.min(3).max(15);
 const fovDeg = (schema: z.ZodNumber) => schema.min(1).max(360);
 
 const brief = (schema: z.ZodString) =>
-  schema.min(1).max(160).regex(/^[^\p{Cc}]*$/u);
-const name = (schema: z.ZodString) => schema.min(1).max(40);
+  schema
+    .max(160)
+    .regex(/\S/)
+    .regex(/^[^\p{Cc}]*$/u);
+const name = (schema: z.ZodString) =>
+  schema
+    .max(40)
+    .regex(/\S/)
+    .regex(/^[^\p{Cc}]*$/u);
 
 const puzzleSelect = createSelectSchema(sightlinesPuzzles, {
   brief,

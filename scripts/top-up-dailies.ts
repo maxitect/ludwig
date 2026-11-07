@@ -1,6 +1,7 @@
 import { pathToFileURL } from "node:url";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { z } from "zod";
 import { verifyFullSsl } from "../src/utils/verify-full-ssl";
 import { relations } from "../src/db/relations";
 import { dailyTypes } from "../src/config/daily-types";
@@ -16,9 +17,11 @@ const WINDOW_DAYS = 400;
 const DEFAULT_BUDGET_SECONDS = 900;
 
 async function main() {
-  const budgetSeconds = Number(
-    process.env.TOP_UP_BUDGET_SECONDS ?? DEFAULT_BUDGET_SECONDS,
-  );
+  const budgetSeconds = z.coerce
+    .number()
+    .positive()
+    .default(DEFAULT_BUDGET_SECONDS)
+    .parse(process.env.TOP_UP_BUDGET_SECONDS || undefined);
   const deadline = Date.now() + budgetSeconds * 1000;
   const from = londonDate(new Date());
   const pool = new Pool({

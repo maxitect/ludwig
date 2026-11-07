@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { Star } from "lucide-react";
-import { Toggle } from "@/components/ui/toggle";
+import Link from "next/link";
+import { Toggle, toggleVariants } from "@/components/ui/toggle";
 import { toggleFavouriteType } from "@/lib/actions/favourites";
 import { cn } from "@/utils/cn";
 
@@ -40,5 +41,25 @@ export function FavouriteToggle({
       <Star aria-hidden="true" className={pressed ? "fill-current" : ""} />
       Favourite
     </Toggle>
+  );
+}
+
+export function FavouriteSignIn({
+  next,
+  size,
+  className,
+}: {
+  next: string;
+  size?: "default" | "sm";
+  className?: string;
+}) {
+  return (
+    <Link
+      href={`/sign-in?next=${next}`}
+      className={cn(toggleVariants({ size }), className)}
+    >
+      <Star aria-hidden="true" />
+      Favourite
+    </Link>
   );
 }

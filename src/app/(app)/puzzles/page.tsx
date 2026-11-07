@@ -124,7 +124,7 @@ function TypeCardBody({
           <Suspense fallback={null}>
             <CompleteBadge puzzleIds={type.puzzleIds} solved={solved} />
           </Suspense>
-          {type.newCount > 0 && <Badge>{type.newCount} new</Badge>}
+          {type.newCount > 0 && <Badge>{`${type.newCount} new`}</Badge>}
           <Badge variant="outline">{status}</Badge>
         </span>
       </span>

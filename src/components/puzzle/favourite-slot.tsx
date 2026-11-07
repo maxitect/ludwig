@@ -1,8 +1,7 @@
-import Link from "next/link";
-import { Star } from "lucide-react";
-import { FavouriteToggle } from "@/components/puzzle/favourite-toggle";
-import { toggleVariants } from "@/components/ui/toggle";
-import { cn } from "@/utils/cn";
+import {
+  FavouriteSignIn,
+  FavouriteToggle,
+} from "@/components/puzzle/favourite-toggle";
 
 export type FavouriteKeys = Promise<Set<string> | null>;
 
@@ -22,15 +21,7 @@ export async function FavouriteSlot({
 }) {
   const keys = await favourites;
   if (!keys) {
-    return (
-      <Link
-        href={`/sign-in?next=${next}`}
-        className={cn(toggleVariants({ size }), className)}
-      >
-        <Star aria-hidden="true" />
-        Favourite
-      </Link>
-    );
+    return <FavouriteSignIn next={next} size={size} className={className} />;
   }
   return (
     <FavouriteToggle

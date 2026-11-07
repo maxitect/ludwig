@@ -913,7 +913,14 @@ attempts               id uuid pk, user_id fk→user, puzzle_id fk→puzzles,
                        fk (puzzle_id, type_key) → puzzles (id, type_key)
 attempt_hints          id uuid pk, attempt_id fk→attempts, kind hint_kind,
                        row smallint null, col smallint null, used_at
+user_favourite_types   user_id fk→user on delete cascade, type_key fk→puzzle_types, created_at
+                       pk (user_id, type_key). A type the user starred; shown on the Desk and the Collection
+user_type_visits       user_id fk→user on delete cascade, type_key fk→puzzle_types, visited_at
+                       pk (user_id, type_key). When the user last opened the type page, written after hydration.
+                       The Desk counts non-daily puzzles with published_at > visited_at (the 14-day New window when never visited)
 ```
+
+A puzzle is "New" for 14 days after `published_at` (`NEW_WINDOW_DAYS`, `src/config/new-puzzles.ts`); dailies are excluded. It is derived at read time, never stored.
 
 #### 7.4.4 Per-type tables
 

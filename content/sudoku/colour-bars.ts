@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/sudoku/schema";
 export const meta = {
   slug: "colour-bars",
   title: "Colour Bars",
-  difficulty: 3,
+  difficulty: 1,
   publishedAt: new Date("2026-10-09T00:00:00Z"),
 } satisfies ContentMeta;
 

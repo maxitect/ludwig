@@ -1,4 +1,5 @@
 import type { ContentMeta } from "../../scripts/content-files";
+import type { Provenance } from "../../src/puzzles/generators";
 import type { Content } from "../../src/puzzles/railroad/schema";
 
 export const meta = {
@@ -9,14 +10,19 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
-  rows: 7,
-  cols: 7,
-  entry: { row: 6, col: 5, side: "s" },
-  exit: { row: 0, col: 6, side: "e" },
-  rowCounts: [5, 5, 5, 4, 5, 3, 5],
-  colCounts: [4, 5, 2, 6, 5, 7, 3],
+  rows: 6,
+  cols: 6,
+  entry: { row: 4, col: 5, side: "e" },
+  exit: { row: 0, col: 0, side: "w" },
+  rowCounts: [
+    1, 4, 3, 5, 4, 3,
+  ],
+  colCounts: [
+    5, 4, 3, 3, 4, 1,
+  ],
   given: [
-    { row: 2, col: 5, piece: "se" },
-    { row: 6, col: 4, piece: "nw" },
+    { row: 3, col: 4, piece: "ns" }, { row: 5, col: 0, piece: "ne" },
   ],
 } satisfies Content;
+
+export const generated = { generator: "railroad", version: 1, seed: "last-stop" } satisfies Provenance;

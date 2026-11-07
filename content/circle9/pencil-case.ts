@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/circle9/schema";
 export const meta = {
   slug: "pencil-case",
   title: "Pencil Case",
-  difficulty: 4,
+  difficulty: 5,
   publishedAt: new Date("2026-10-16T00:00:00Z"),
 } satisfies ContentMeta;
 

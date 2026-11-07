@@ -16,6 +16,8 @@ const worker = (
 });
 
 const payload: Payload = {
+  brief: "Marty was found in **B3**. The rota had him in **A1**.",
+  victimWorkerId: "Marty",
   workers: [
     worker("Marty", ["a", 1], ["b", 3]),
     worker("Gary", ["a", 2], ["a", 1]),
@@ -24,12 +26,18 @@ const payload: Payload = {
     worker("Zara", ["c", 3], ["c", 3]),
   ],
   clues: [
-    { position: 0, displayText: "Only neighbours swap", kind: "adjacent_only" },
+    {
+      position: 0,
+      displayText: "Only neighbours swap",
+      kind: "adjacent_only",
+      speakerWorkerId: null,
+    },
     {
       position: 1,
       displayText: "At most three",
       kind: "max_swaps",
       maxSwaps: 3,
+      speakerWorkerId: null,
     },
   ],
 };
@@ -38,24 +46,40 @@ const swaps: Answer["swaps"] = [
   { workerAId: "Marty", workerBId: "Ojay" },
   { workerAId: "Marty", workerBId: "Stefan" },
 ];
-const solution: Solution = { instigatorWorkerId: "Marty", swaps };
-const answer: Answer = { swaps };
+const excuses = [
+  "Marty wanted the quiet corner.",
+  "Marty said the stair made him dizzy.",
+  "Marty offered to cover the last zone.",
+];
+const solution: Solution = {
+  instigatorWorkerId: "Marty",
+  swaps: swaps.map((swap, index) => ({ ...swap, excuse: excuses[index] })),
+};
+const answer: Answer = { swaps, instigatorWorkerId: "Marty" };
 
 describe("rota check", () => {
-  it("accepts the correct answer", () => {
-    expect(check(payload, solution, answer)).toEqual({
-      correct: true,
-      epilogue: "Opening gambit: Marty insisted on it.",
-    });
+  it("accepts the correct answer and returns the forward timeline", () => {
+    const result = check(payload, solution, answer);
+    expect(result.correct).toBe(true);
+    expect(result.epilogue).toEqual([
+      "Step 1: Marty and Gary swap. Marty wanted the quiet corner. Marty is now 2 zones from B3.",
+      "Step 2: Marty and Ojay swap. Marty said the stair made him dizzy. Marty is now one zone from B3.",
+      "Step 3: Marty and Stefan swap. Marty offered to cover the last zone. Marty is now on B3.",
+      "Marty insisted on the first swap. From there, every favour fell the way Marty needed it.",
+    ]);
   });
 
-  it("does not depend on the instigator, and reveals it only for a correct answer", () => {
-    const other = { ...solution, instigatorWorkerId: "Gary" };
-    expect(check(payload, other, answer).correct).toBe(true);
-    expect(check(payload, other, answer).epilogue).toBe(
-      "Opening gambit: Gary insisted on it.",
-    );
-    const wrong = check(payload, solution, { swaps: swaps.slice(0, 2) });
+  it("rejects the other first-swap worker even with the right sequence, and says nothing more", () => {
+    const result = check(payload, solution, {
+      ...answer,
+      instigatorWorkerId: "Gary",
+    });
+    expect(result).toEqual({ correct: false });
+    expect(result).not.toHaveProperty("epilogue");
+  });
+
+  it("returns no epilogue for a wrong sequence", () => {
+    const wrong = check(payload, solution, { ...answer, swaps: swaps.slice(0, 2) });
     expect(wrong.correct).toBe(false);
     expect(wrong).not.toHaveProperty("epilogue");
   });
@@ -94,11 +118,11 @@ describe("rota check", () => {
       { workerAId: "Stefan", workerBId: "Gary" },
     ];
     const results = [
-      check(payload, solution, { swaps: farApart }),
+      check(payload, solution, { ...answer, swaps: farApart }),
       check(
         payload,
         { ...solution, instigatorWorkerId: "Gary" },
-        { swaps: farApart },
+        { ...answer, swaps: farApart },
       ),
     ];
     for (const result of results) {
@@ -128,7 +152,7 @@ describe("rota check", () => {
     expect(
       check(
         { ...payload, clues: [] },
-        { ...solution, swaps: selfSwap },
+        solution,
         { ...answer, swaps: selfSwap },
       ),
     ).toEqual({ correct: false });

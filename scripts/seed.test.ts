@@ -303,6 +303,8 @@ describe("in-place content updates", () => {
     clueText = "Only neighbours swap",
     workerNames = ["Marty", "Gary", "Sue"],
   ): RotaContent => ({
+    brief: "Gary was found in **A1**. The rota had him in **A2**.",
+    victimName: "Gary",
     workers: workerNames.map((name, index) => ({
       name,
       intended: { file: "a", rank: index + 1 },
@@ -312,7 +314,10 @@ describe("in-place content updates", () => {
       { displayText: clueText, kind: "adjacent_only" },
       { displayText: "One swap at most", kind: "max_swaps", maxSwaps: 2 },
     ],
-    solution: { instigatorName: "Marty", swaps: [{ a: "Marty", b: "Gary" }] },
+    solution: {
+      instigatorName: "Marty",
+      swaps: [{ a: "Marty", b: "Gary", excuse: "Marty wanted the corner." }],
+    },
   });
 
   const reverseChessContent = (): ReverseChessContent => ({
@@ -452,6 +457,7 @@ describe("in-place content updates", () => {
     await db.transaction((tx) =>
       realRegistry.rota.replaceAttemptState(tx, attemptId, {
         swaps: [{ workerAId: marty.id, workerBId: gary.id }],
+        instigatorWorkerId: marty.id,
       }),
     );
     return { puzzleId, attemptId };

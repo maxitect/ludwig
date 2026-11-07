@@ -239,6 +239,8 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     ],
   },
   rota: {
+    brief: "Bram was found in **A1**. The rota had him in **B2**.",
+    victimWorkerId: ids[1],
     workers: [
       {
         id: ids[0],
@@ -263,6 +265,7 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
         displayText: "No more than two swaps.",
         kind: "max_swaps",
         maxSwaps: 2,
+        speakerWorkerId: null,
       },
     ],
   },

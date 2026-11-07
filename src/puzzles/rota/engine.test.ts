@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   applySwaps,
+  instigatorCandidates,
   openingGambit,
   type Placement,
   placementFor,
@@ -182,5 +183,41 @@ describe("placementFor", () => {
       },
     ];
     expect(placementFor(workers, "final")).toEqual({ w1: sq("b", 3) });
+  });
+});
+
+describe("not_instigator", () => {
+  const swaps = [
+    { workerAId: "a", workerBId: "b" },
+    { workerAId: "b", workerBId: "c" },
+  ];
+
+  it("never prunes a sequence", () => {
+    const intended = {
+      a: { file: "a" as const, rank: 1 },
+      b: { file: "a" as const, rank: 2 },
+      c: { file: "a" as const, rank: 3 },
+    };
+    expect(
+      validateClues(intended, swaps, [
+        { kind: "not_instigator", workerId: "a" },
+      ]),
+    ).toBe(true);
+  });
+
+  it("clears the named worker of the first swap only", () => {
+    expect(
+      instigatorCandidates(swaps, [{ kind: "not_instigator", workerId: "a" }]),
+    ).toEqual(["b"]);
+    expect(
+      instigatorCandidates(swaps, [{ kind: "not_instigator", workerId: "c" }]),
+    ).toEqual(["a", "b"]);
+    expect(
+      instigatorCandidates(swaps, [
+        { kind: "not_instigator", workerId: "a" },
+        { kind: "not_instigator", workerId: "b" },
+      ]),
+    ).toEqual([]);
+    expect(instigatorCandidates([], [])).toEqual([]);
   });
 });

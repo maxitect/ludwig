@@ -65,7 +65,7 @@ export type PuzzleTypeModule<
     payload: z.infer<S["payloadSchema"]>,
     solution: TSolution,
     answer: z.infer<S["answerSchema"]>,
-  ): { correct: boolean; epilogue?: string; wrongParts?: WrongPart<S>[] };
+  ): { correct: boolean; epilogue?: string | string[]; wrongParts?: WrongPart<S>[] };
   /** Per-cell check for grid types: whether `value` is the solution's value at `(row, col)`. */
   checkCell?(
     payload: z.infer<S["payloadSchema"]>,

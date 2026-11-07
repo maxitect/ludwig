@@ -21,7 +21,7 @@ import type { RungProblem } from "@/puzzles/word-ladder/schema";
 
 type CheckResult = {
   correct: boolean;
-  epilogue?: string;
+  epilogue?: string | string[];
   rungProblems?: RungProblem[];
   wrongParts?: WrongPart[];
 };

@@ -1,4 +1,4 @@
-import type { Answer, ClueParams, Payload, Solution } from "./schema";
+import type { Answer, ClueParams, Payload } from "./schema";
 
 type Worker = Payload["workers"][number];
 export type Square = Pick<Worker["squares"][number], "file" | "rank">;
@@ -92,6 +92,8 @@ const evaluators: { [K in ClueParams["kind"]]: Evaluator<K> } = {
       (placement) => squareOf(placement, clue.workerId).rank !== clue.rank,
     ),
   max_swaps: (clue, { steps }) => steps.length <= clue.maxSwaps,
+  // A statement about the accusation, not the swaps: it never prunes a sequence.
+  not_instigator: () => true,
 };
 
 function evaluate(clue: ClueParams, run: Trace) {
@@ -167,7 +169,10 @@ export function solve(
 export function openingGambit({
   swaps: [swap],
   instigatorWorkerId,
-}: Pick<Solution, "swaps" | "instigatorWorkerId">) {
+}: {
+  swaps: Swap[];
+  instigatorWorkerId: string;
+}) {
   if (
     !swap ||
     (swap.workerAId !== instigatorWorkerId &&
@@ -176,4 +181,18 @@ export function openingGambit({
     return undefined;
   }
   return { swap, instigator: instigatorWorkerId };
+}
+
+/** The workers of the first swap that no `not_instigator` clue clears of insisting on it. */
+export function instigatorCandidates(
+  [first]: Swap[],
+  clues: ClueParams[],
+) {
+  if (!first) return [];
+  const cleared = new Set(
+    clues.flatMap((clue) =>
+      clue.kind === "not_instigator" ? [clue.workerId] : [],
+    ),
+  );
+  return [first.workerAId, first.workerBId].filter((id) => !cleared.has(id));
 }

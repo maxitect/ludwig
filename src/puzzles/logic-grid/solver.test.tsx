@@ -151,7 +151,7 @@ describe("logic grid Solver", () => {
       screen.getByRole("button", { name: /Cross out clue 1/ }).getAttribute("aria-pressed"),
     ).toBe("true");
     expect(
-      (screen.getByRole("radio", { name: "Clue 5" }) as HTMLInputElement).checked,
+      (screen.getByRole("radio", { name: "Name the liar: Ann, clue 5" }) as HTMLInputElement).checked,
     ).toBe(true);
   });
 
@@ -176,12 +176,30 @@ describe("logic grid Solver", () => {
       struckClues: [],
       falseCluePosition: null,
     });
-    expect(screen.getByText("Which clue is false?")).toBeTruthy();
+    expect(screen.getByRole("radiogroup", { name: "Which statement is false?" })).toBeTruthy();
     expect(read()).toBeNull();
-    await user.click(screen.getByRole("radio", { name: "Clue 5" }));
+    await user.click(screen.getByRole("radio", { name: "Name the liar: Ann, clue 5" }));
     expect(read()).toMatchObject({ falseCluePosition: 4 });
     cleanup();
     renderSolver(classic);
-    expect(screen.queryByText("Which clue is false?")).toBeNull();
+    expect(screen.queryByRole("radiogroup")).toBeNull();
+  });
+
+  it("shows the brief and renders a spoken clue with its speaker", () => {
+    renderSolver(variant);
+    expect(screen.getByText("Case notes")).toBeTruthy();
+    expect(screen.getByText(variant.brief)).toBeTruthy();
+    expect(screen.getAllByText("Ann:")).toHaveLength(2);
+    expect(screen.getByText(/“I own the Dog\.”/)).toBeTruthy();
+    expect(screen.getByText("Cat does not wear the Blue hat.")).toBeTruthy();
+  });
+
+  it("labels the flag control by whether the clue has a speaker", () => {
+    renderSolver(variant);
+    expect(screen.getAllByText("Name the liar").length).toBe(2);
+    expect(screen.getAllByText("Mark the false statement").length).toBe(3);
+    expect(
+      screen.getByRole("radio", { name: "Mark the false statement: clue 2" }),
+    ).toBeTruthy();
   });
 });

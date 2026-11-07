@@ -3,6 +3,7 @@ import type { Content } from "./schema";
 import { verifyCctvMaze } from "./verify";
 
 const good: Content = {
+  brief: "Cross the street unnoticed.",
   rows: 3,
   cols: 3,
   startRow: 0,

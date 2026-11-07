@@ -28,10 +28,11 @@ import { sightlinesModule } from "./module";
 import { payloadSchema } from "./schema";
 
 const content = {
+  brief: "Three people swear they saw the alcove.",
   grid: ["...#.", ".....", "....."],
   targetRow: 0,
   targetCol: 4,
-  observers: [{ row: 0, col: 0, facing: "e" as const, fovDeg: 90 }],
+  observers: [{ row: 0, col: 0, facing: "e" as const, fovDeg: 90, name: "Observer 1" }],
 };
 
 async function ensureTypes(tx: Tx) {
@@ -57,6 +58,7 @@ async function insertPuzzle(tx: Tx, typeKey: string, slug = "one") {
 
 const subtype = (puzzleId: string) => ({
   puzzleId,
+  brief: "Three people swear they saw the alcove.",
   rows: 3,
   cols: 5,
   targetRow: 0,
@@ -123,6 +125,7 @@ describe("sightlines tables", () => {
           col: 0,
           facing: "e",
           fovDeg: 90,
+          name: "The porter",
         });
         await forceDeferred(tx);
       }),
@@ -140,7 +143,66 @@ describe("sightlines tables", () => {
           col: 0,
           facing: "e",
           fovDeg,
+          name: "The porter",
         });
+      }),
+    ).toBe("23514");
+  });
+
+  it("rejects two observers of one puzzle with the same name, and an empty or overlong name", async () => {
+    const observer = (row: number, name: string) => ({
+      row,
+      col: 0,
+      facing: "e" as const,
+      fovDeg: 90,
+      name,
+    });
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await insertPuzzle(tx, "sightlines");
+        await tx.insert(sightlinesPuzzles).values(subtype(puzzleId));
+        await tx
+          .insert(sightlinesObservers)
+          .values([observer(0, "The porter"), observer(1, "The porter")].map((o) => ({ ...o, puzzleId })));
+      }),
+    ).toBe("23505");
+    for (const name of ["", "x".repeat(41)]) {
+      expect(
+        await pgErrorCode(async (tx) => {
+          const puzzleId = await insertPuzzle(tx, "sightlines");
+          await tx.insert(sightlinesPuzzles).values(subtype(puzzleId));
+          await tx
+            .insert(sightlinesObservers)
+            .values({ ...observer(0, name), puzzleId });
+        }),
+      ).toBe("23514");
+    }
+    expect(
+      await pgErrorCode(async (tx) => {
+        const first = await insertPuzzle(tx, "sightlines", "one");
+        const second = await insertPuzzle(tx, "sightlines", "two");
+        for (const puzzleId of [first, second]) {
+          await tx.insert(sightlinesPuzzles).values(subtype(puzzleId));
+          await tx
+            .insert(sightlinesObservers)
+            .values({ ...observer(0, "The porter"), puzzleId });
+        }
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+  });
+
+  it.each([
+    ["an empty brief", ""],
+    ["a brief over 160 characters", "x".repeat(161)],
+    ["a brief with a line break", "one\ntwo"],
+  ])("rejects %s", async (_, brief) => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await insertPuzzle(tx, "sightlines");
+        await tx
+          .insert(sightlinesPuzzles)
+          .values({ ...subtype(puzzleId), brief });
       }),
     ).toBe("23514");
   });
@@ -156,6 +218,7 @@ describe("sightlines tables", () => {
           col: 0,
           facing: "e",
           fovDeg,
+          name: "The porter",
         });
         await forceDeferred(tx);
       }),
@@ -168,7 +231,7 @@ describe("sightlines tables", () => {
         const puzzleId = await insertPuzzle(tx, "sightlines");
         await tx.insert(sightlinesPuzzles).values(subtype(puzzleId));
         await tx.execute(
-          sql`insert into sightlines_observers (puzzle_id, row, col, facing, fov_deg) values (${puzzleId}, 0, 0, 'up', 90)`,
+          sql`insert into sightlines_observers (puzzle_id, row, col, facing, fov_deg, name) values (${puzzleId}, 0, 0, 'up', 90, 'x')`,
         );
       }),
     ).toBe("22P02");
@@ -205,6 +268,7 @@ describe("sightlines tables", () => {
           col: 1,
           facing: "n",
           fovDeg: 90,
+          name: "The porter",
         });
         await forceDeferred(tx);
       }),
@@ -230,6 +294,7 @@ describe("sightlines tables", () => {
           col: 1,
           facing: "n" as const,
           fovDeg: 90,
+          name: "The porter",
         };
         await tx.insert(sightlinesObservers).values([observer, observer]);
       }),
@@ -333,6 +398,7 @@ describe("sightlines module", () => {
     const payload = await load(puzzleId);
     expect(payloadSchema.strict().parse(payload)).toEqual(payload);
     expect(Object.keys(payload).sort()).toEqual([
+      "brief",
       "cols",
       "observers",
       "obstacles",
@@ -341,6 +407,11 @@ describe("sightlines module", () => {
       "targetRow",
     ]);
     expect(payload.obstacles).toEqual([{ row: 0, col: 3 }]);
+    expect(payload.brief).toBe(content.brief);
+    expect(payload.observers.map((o) => o.name)).toEqual(["Observer 1"]);
+    expect(
+      Object.keys(payload.observers[0]).sort(),
+    ).toEqual(["col", "facing", "fovDeg", "name", "row"]);
     expect(JSON.stringify(payload)).not.toMatch(/blind|visible|solution/);
   });
 

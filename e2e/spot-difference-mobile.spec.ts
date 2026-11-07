@@ -34,6 +34,8 @@ test("stacks both scenes and counts taps in either", async ({ page }) => {
   expect(bottom.y).toBeGreaterThanOrEqual(top.y + top.height);
   expect(Math.abs(bottom.x - top.x)).toBeLessThan(1);
 
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
   await tapAt(one, regionCentre(differences[0]));
   await expect(page.getByText(`Found 1 of ${differenceCount} differences.`)).toBeVisible();
 

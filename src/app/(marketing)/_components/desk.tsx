@@ -13,7 +13,7 @@ import { getDesk } from "@/lib/data/desk";
 import { getCurrentUser } from "@/lib/data/user";
 import { TitleSequence } from "./title-sequence";
 
-type Desk = Awaited<ReturnType<typeof getDesk>>;
+type DeskData = Awaited<ReturnType<typeof getDesk>>;
 type PuzzleCardProps = {
   href: string;
   title: string;
@@ -124,7 +124,7 @@ function Shelf({
   );
 }
 
-function ContinueShelf({ continuing }: { continuing: Desk["continuing"] }) {
+function ContinueShelf({ continuing }: { continuing: DeskData["continuing"] }) {
   return (
     <Shelf id="continue" title="Continue">
       {continuing.length === 0 ? (
@@ -157,7 +157,7 @@ function ContinueShelf({ continuing }: { continuing: Desk["continuing"] }) {
   );
 }
 
-function PuzzleList({ puzzles }: { puzzles: Desk["today"] }) {
+function PuzzleList({ puzzles }: { puzzles: DeskData["today"] }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {puzzles.map((puzzle) => (
@@ -175,7 +175,7 @@ function PuzzleList({ puzzles }: { puzzles: Desk["today"] }) {
   );
 }
 
-function TodayShelf({ today }: { today: Desk["today"] }) {
+function TodayShelf({ today }: { today: DeskData["today"] }) {
   return (
     <Shelf id="today" title="Today">
       {today.length === 0 ? (
@@ -187,7 +187,7 @@ function TodayShelf({ today }: { today: Desk["today"] }) {
   );
 }
 
-function WeekShelf({ week }: { week: Desk["week"] }) {
+function WeekShelf({ week }: { week: DeskData["week"] }) {
   return (
     <Shelf id="this-week" title="This week">
       {week.length === 0 ? (
@@ -199,7 +199,7 @@ function WeekShelf({ week }: { week: Desk["week"] }) {
   );
 }
 
-function Stats({ stats }: { stats: Desk["stats"] }) {
+function Stats({ stats }: { stats: DeskData["stats"] }) {
   const days = (count: number) => `${count} ${count === 1 ? "day" : "days"}`;
   return (
     <Shelf id="stats" title="Your stats">

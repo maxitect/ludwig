@@ -75,7 +75,7 @@ export function RotaBoard({
   placement: Placement;
   steps: readonly StackStep[];
   selectedId: string | null;
-  victim: Token;
+  victim: Pick<Token, "id" | "name">;
   hazardZone: string;
   highlight: Highlight | null;
   disabled: boolean;

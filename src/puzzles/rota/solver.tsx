@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { SolverProps } from "../solver-types";
 import { RotaBoard, type Highlight } from "./board";
 import { brokenClues } from "./check";
+import { hazardSquare } from "./derive";
 import { placementFor, samePlacement } from "./engine";
 import type * as schema from "./schema";
 import {
@@ -72,8 +73,11 @@ export function Solver({
     payload.workers.find((worker) => worker.id === id)?.name ?? id;
   const restored = samePlacement(placement, intended);
   const broken = restored ? brokenClues(payload, swaps) : [];
-  const victim = tokens.find(({ id }) => id === payload.victimWorkerId);
-  const hazardZone = zoneName(final[payload.victimWorkerId]);
+  const victim = {
+    id: payload.victimWorkerId,
+    name: nameOf(payload.victimWorkerId),
+  };
+  const hazardZone = zoneName(hazardSquare(payload));
   const gambit = swaps[0] ? [swaps[0].workerAId, swaps[0].workerBId] : [];
 
   function update(next: typeof swaps) {
@@ -196,7 +200,7 @@ export function Solver({
           placement={placement}
           steps={steps}
           selectedId={selectedId}
-          victim={victim ?? tokens[0]}
+          victim={victim}
           hazardZone={hazardZone}
           highlight={highlight}
           disabled={Boolean(solved)}
@@ -243,7 +247,7 @@ export function Solver({
           >
             Clues
           </h3>
-          <ol className="flex list-decimal flex-col gap-1 pl-6">
+          <ol className="flex flex-col gap-1">
             {payload.clues.map((clue) => {
               const isBroken = broken.includes(clue);
               const speaker = clue.speakerWorkerId
@@ -254,15 +258,16 @@ export function Solver({
                 <li
                   key={clue.position}
                   data-testid={`clue-${clue.position}`}
-                  className={
-                    isBroken ? "border-l-4 border-primary pl-2" : undefined
-                  }
+                  className={`flex items-start gap-2 ${isBroken ? "border-l-4 border-primary pl-2" : ""}`}
                 >
+                  <span aria-hidden="true" className="w-5 shrink-0 text-right">
+                    {clue.position + 1}.
+                  </span>
                   <button
                     type="button"
                     onClick={() => highlightClue(clue)}
                     onFocus={() => highlightClue(clue)}
-                    className="block w-full text-left focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    className="block min-w-0 flex-1 text-left focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
                     {isBroken && (
                       <strong className="block">

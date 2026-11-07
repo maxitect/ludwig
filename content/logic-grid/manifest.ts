@@ -38,6 +38,6 @@ export const content = {
     { content: "My cargo was Coal or Salt.", speaker: "Dilys", rule: { kind: "either", a: "Dilys", b: "Coal", c: "Salt" } },
     { content: "The Coal was stowed Aft.", speaker: "Anders", rule: { kind: "is", a: "Coal", b: "Aft" } },
     { content: "We never stowed the Wool Forward.", speaker: "Emeka", rule: { kind: "isNot", a: "Wool", b: "Forward" } },
-    { content: "The Lower bunk never belonged to the man from Brest.", speaker: "Carlo", rule: { kind: "isNot", a: "Brest", b: "Lower bunk" } },
+    { content: "The Lower bunk never went to whoever came from Brest.", speaker: "Carlo", rule: { kind: "isNot", a: "Brest", b: "Lower bunk" } },
   ],
 } satisfies Content;

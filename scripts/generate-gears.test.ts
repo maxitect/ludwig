@@ -160,4 +160,22 @@ describe("generateDailies", () => {
     await generateDailies(db, registry, { ...options, cycle: [...options.cycle] });
     expect(await snapshot()).toEqual(before);
   });
+
+  it("starts no date after the deadline, and a later run writes what is left", async () => {
+    const budgeted = { from: "2099-06-01", days: 2, cycle: ["easy", "medium"] as const };
+    expect(
+      await generateDailies(db, registry, { ...budgeted, deadline: Date.now() }),
+    ).toEqual({ created: 0, skipped: 0 });
+    expect(await generateDailies(db, registry, budgeted)).toEqual({ created: 2, skipped: 0 });
+  });
+
+  it("lets overlapping runs skip each other's dates", async () => {
+    const overlap = { from: "2099-07-01", days: 4, cycle: ["easy", "medium"] as const };
+    const summaries = await Promise.all([
+      generateDailies(db, registry, overlap),
+      generateDailies(db, registry, overlap),
+    ]);
+    expect(summaries[0].created + summaries[1].created).toBe(4);
+    expect(summaries.map(({ created, skipped }) => created + skipped)).toEqual([4, 4]);
+  });
 });

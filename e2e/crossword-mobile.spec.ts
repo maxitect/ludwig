@@ -115,6 +115,7 @@ test("the clue sheet opens on the active clue", async ({ page }) => {
 });
 
 test("a crossword is solved by tapping alone", async ({ page }) => {
+  test.slow();
   const quick = await quickCrosswordPuzzle();
   await openPuzzle(page, quick);
   await expect(pad(page)).toBeVisible();

@@ -294,6 +294,7 @@ graph LR
 - Launch volume targets: Reverse Chess 10, Gears 12 curated plus daily seeds, M4 types 5 each (cryptic 3). M6 types 5 each (detective scene 1).
 - Third-party puzzles, including the Radio Times special and KrazyDad, are format references only. Never copy an instance into `content/` (spec section 10, decision 6).
 - Crosswords follow the grid standard in `docs/research/crossword-grids.md` (Mini, Quick and Cryptic). `puzzles:verify` enforces it per style (`GRID_STANDARDS` in `src/puzzles/crossword/standards.ts`) and fails when two crosswords share an answer of four or more letters; `pnpm content:audit-words` lists repeats across all the word games.
+- `publishedAt` in a content file is the date the puzzle should appear, and it drives the New marker (14 days from that date). New files set the date they ship.
 - Content tickets are separate from feature tickets, so engine and UI work never waits on writing clues.
 
 ---

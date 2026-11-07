@@ -10,6 +10,17 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.userSettings.userId,
     }),
     attempts: r.many.attempts({ from: r.user.id, to: r.attempts.userId }),
+    favouriteTypes: r.many.userFavouriteTypes({
+      from: r.user.id,
+      to: r.userFavouriteTypes.userId,
+    }),
+  },
+  userFavouriteTypes: {
+    type: r.one.puzzleTypes({
+      from: r.userFavouriteTypes.typeKey,
+      to: r.puzzleTypes.key,
+      optional: false,
+    }),
   },
   session: {
     user: r.one.user({ from: r.session.userId, to: r.user.id }),

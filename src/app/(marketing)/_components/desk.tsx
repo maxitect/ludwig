@@ -51,6 +51,7 @@ export async function Desk() {
     <DeskFrame>
       <Credit level={1} top="Your desk" bottom={desk.name} />
       <ContinueShelf continuing={desk.continuing} />
+      <FavouritesShelf favourites={desk.favourites} />
       <TodayShelf today={desk.today} />
       <WeekShelf week={desk.week} />
       <Stats stats={desk.stats} />
@@ -149,6 +150,58 @@ function ContinueShelf({ continuing }: { continuing: DeskData["continuing"] }) {
                 difficulty={puzzle.difficulty}
                 note={touched.format(lastSavedAt)}
               />
+            </li>
+          ))}
+        </ul>
+      )}
+    </Shelf>
+  );
+}
+
+function FavouritesShelf({
+  favourites,
+}: {
+  favourites: DeskData["favourites"];
+}) {
+  return (
+    <Shelf id="favourites" title="Your favourites">
+      {favourites.length === 0 ? (
+        <p>
+          Star a puzzle type in{" "}
+          <Link
+            href="/puzzles"
+            className="font-bold underline underline-offset-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            the Collection
+          </Link>{" "}
+          and it will wait here.
+        </p>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {favourites.map((favourite) => (
+            <li key={favourite.key}>
+              <Card variant="book" className="h-full">
+                <CardHeader>
+                  <CardTitle>
+                    <Link
+                      href={`/puzzles/${favourite.key}`}
+                      className="after:absolute after:inset-0 focus-visible:outline-none"
+                    >
+                      {favourite.name}
+                    </Link>
+                  </CardTitle>
+                  <CardDescription>
+                    {favourite.newest
+                      ? `Newest: ${favourite.newest.title}`
+                      : "Nothing published yet"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm font-semibold">
+                    {favourite.fresh} new since your last visit
+                  </p>
+                </CardContent>
+              </Card>
             </li>
           ))}
         </ul>

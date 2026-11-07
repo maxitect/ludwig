@@ -14,6 +14,9 @@ import {
   type SolvedIds,
 } from "@/components/puzzle/solved-badge";
 import { PuzzleThumbnail } from "@/components/puzzle/puzzle-thumbnail";
+import { FavouriteSlot } from "@/components/puzzle/favourite-slot";
+import { VisitSlot } from "@/components/puzzle/visit-slot";
+import { getFavouriteTypeKeys } from "@/lib/data/favourites";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
 import { getTypeCatalogue, getTypeStaticParams } from "@/lib/data/catalogue";
 
@@ -59,6 +62,7 @@ export default async function TypePage({
   if (!catalogue) notFound();
   const { type, volumes, puzzleIds } = catalogue;
   const solved = getSolvedPuzzleIds(puzzleIds);
+  const favourites = getFavouriteTypeKeys();
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
@@ -72,6 +76,19 @@ export default async function TypePage({
             className="self-start"
           />
         </Suspense>
+        <div className="flex flex-wrap items-center gap-3">
+          <Suspense fallback={null}>
+            <FavouriteSlot
+              typeKey={type.key}
+              favourites={favourites}
+              next={`/puzzles/${type.key}`}
+              className="min-w-32"
+            />
+          </Suspense>
+          <Suspense fallback={null}>
+            <VisitSlot typeKey={type.key} />
+          </Suspense>
+        </div>
         <p>{type.description}</p>
         {Object.hasOwn(EPIGRAPHS, type.key) && (
           <figure className="border-l-4 border-ludwig-red pl-4">
@@ -203,6 +220,7 @@ async function PuzzleList({
                         {puzzle.title}
                       </span>
                       <span className="flex items-center gap-3">
+                        {puzzle.isNew && <Badge>New</Badge>}
                         <Suspense fallback={null}>
                           <SolvedBadge puzzleId={puzzle.id} solved={solved} />
                         </Suspense>

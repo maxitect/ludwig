@@ -1,4 +1,4 @@
-import type { Answer, ClueParams, Payload } from "./schema";
+import type { Answer, ClueParams, Payload, Solution } from "./schema";
 
 type Worker = Payload["workers"][number];
 export type Square = Pick<Worker["squares"][number], "file" | "rank">;
@@ -16,6 +16,10 @@ const sameSquare = (a: Square, b: Square) =>
   a.file === b.file && a.rank === b.rank;
 
 const fileIndex = (square: Square) => FILES.indexOf(square.file);
+
+/** Zones between two squares, counting only moves across or up and down. */
+export const zoneDistance = (a: Square, b: Square) =>
+  Math.abs(fileIndex(a) - fileIndex(b)) + Math.abs(a.rank - b.rank);
 
 const squareOf = (placement: Placement, workerId: string) => {
   const square = placement[workerId];
@@ -82,10 +86,7 @@ const evaluators: { [K in ClueParams["kind"]]: Evaluator<K> } = {
     ),
   adjacent_only: (_clue, { steps }) =>
     steps.every(
-      ({ squareA, squareB }) =>
-        Math.abs(fileIndex(squareA) - fileIndex(squareB)) +
-          Math.abs(squareA.rank - squareB.rank) ===
-        1,
+      ({ squareA, squareB }) => zoneDistance(squareA, squareB) === 1,
     ),
   never_in_rank: (clue, { placements }) =>
     placements.every(
@@ -169,10 +170,7 @@ export function solve(
 export function openingGambit({
   swaps: [swap],
   instigatorWorkerId,
-}: {
-  swaps: Swap[];
-  instigatorWorkerId: string;
-}) {
+}: Pick<Solution, "instigatorWorkerId"> & { swaps: Swap[] }) {
   if (
     !swap ||
     (swap.workerAId !== instigatorWorkerId &&

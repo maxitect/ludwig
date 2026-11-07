@@ -25,7 +25,6 @@ function ToppledPiece({
 }) {
   return (
     <div aria-hidden="true" className={`seq-piece ${className}`}>
-      <div className="seq-cast" />
       <div className="seq-piece-body">
         <div className="size-full ink:hidden">
           <PieceGlyph colour="white" piece={piece} />

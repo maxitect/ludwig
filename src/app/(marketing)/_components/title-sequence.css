@@ -224,17 +224,6 @@
   transform-origin: 20% 90%;
 }
 
-.seq-cast {
-  position: absolute;
-  left: 10%;
-  bottom: 6%;
-  width: 210%;
-  height: 34%;
-  background: var(--color-shadow);
-  clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 100%);
-  opacity: 0.65;
-}
-
 .seq-piece-a {
   left: 2%;
   bottom: 12rem;
@@ -252,12 +241,6 @@
 .seq-piece-b .seq-piece-body {
   transform: rotate(-76deg);
   transform-origin: 80% 90%;
-}
-
-.seq-piece-b .seq-cast {
-  left: auto;
-  right: 10%;
-  transform: scaleX(-1);
 }
 
 .seq-piece-c {
@@ -391,30 +374,30 @@
     transform: rotateY(-16deg) rotateX(0deg) translateZ(0px);
   }
   6%,
-  26%,
-  40%,
-  58%,
-  72%,
-  86% {
+  26.5%,
+  33.01%,
+  58.5%,
+  67.01%,
+  86.5% {
     transform: rotateY(var(--seq-calm)) rotateX(0deg) translateZ(0px);
   }
+  31%,
   33%,
   65%,
-  88% {
-    transform: rotateY(var(--seq-peak)) rotateX(4deg) translateZ(260px);
-  }
+  67%,
+  88%,
   to {
-    transform: rotateY(-6deg) rotateX(-6deg) translateZ(520px);
+    transform: rotateY(calc(var(--seq-peak) * -1)) rotateX(4deg) translateZ(260px);
   }
 }
 
 @keyframes seq-hero-out {
   0%,
-  12% {
+  4% {
     opacity: 1;
     visibility: visible;
   }
-  28%,
+  12%,
   100% {
     opacity: 0;
     visibility: hidden;
@@ -423,10 +406,10 @@
 
 @keyframes seq-wall-grid {
   0%,
-  30% {
+  31.5% {
     opacity: 1;
   }
-  36%,
+  32.5%,
   100% {
     opacity: 0;
   }
@@ -434,14 +417,14 @@
 
 @keyframes seq-wall-board {
   0%,
-  30% {
+  31.5% {
     opacity: 0;
   }
-  36%,
-  62% {
+  32.5%,
+  65.5% {
     opacity: 1;
   }
-  68%,
+  66.5%,
   100% {
     opacity: 0;
   }
@@ -449,10 +432,10 @@
 
 @keyframes seq-wall-mirror {
   0%,
-  62% {
+  65.5% {
     opacity: 0;
   }
-  68%,
+  66.5%,
   100% {
     opacity: 1;
   }
@@ -504,11 +487,11 @@
 
 @keyframes seq-grid-ludwig {
   0%,
-  12% {
+  14% {
     clip-path: inset(0 0 100% 0);
     animation-timing-function: steps(6, end);
   }
-  24%,
+  26%,
   100% {
     clip-path: inset(0);
   }
@@ -516,11 +499,11 @@
 
 @keyframes seq-grid-ink {
   0%,
-  24% {
+  26% {
     clip-path: inset(0 66.667% 0 0);
     animation-timing-function: steps(2, end);
   }
-  28%,
+  30%,
   100% {
     clip-path: inset(0);
   }
@@ -578,7 +561,7 @@
   72% {
     opacity: 0;
   }
-  78%,
+  76%,
   100% {
     opacity: 1;
   }
@@ -586,10 +569,10 @@
 
 @keyframes seq-mirror-r5 {
   0%,
-  78% {
+  76% {
     opacity: 0;
   }
-  84%,
+  80%,
   100% {
     opacity: 1;
   }
@@ -597,10 +580,10 @@
 
 @keyframes seq-mirror-r6 {
   0%,
-  84% {
+  80% {
     opacity: 0;
   }
-  90%,
+  84%,
   100% {
     opacity: 1;
   }

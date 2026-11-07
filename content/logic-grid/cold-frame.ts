@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Someone has been at the allotments overnight. The committee has taken a statement from each of five gardeners, and between them they pin down every plot, crop and tool.",
   categories: [
     { name: "Gardener", items: ["Hettie", "Ivor", "Joan", "Kofi", "Lena"] },
     { name: "Plot", items: ["Oak corner", "Pond edge", "Hilltop", "Gate side", "Compost end"] },
@@ -23,20 +24,20 @@ export const content = {
     ["Joan", "Oak corner", "Kale", "Hoe"],
   ],
   clues: [
-    { content: "The file puts Rake together with Beetroot.", rule: { kind: "is", a: "Rake", b: "Beetroot" } },
-    { content: "Nothing in the file connects Fork and Ivor.", rule: { kind: "isNot", a: "Fork", b: "Ivor" } },
-    { content: "Beetroot and Compost end turn out to be connected.", rule: { kind: "is", a: "Beetroot", b: "Compost end" } },
-    { content: "A note in the file links Joan to Hoe.", rule: { kind: "is", a: "Joan", b: "Hoe" } },
-    { content: "The file puts Hettie together with Rake.", rule: { kind: "is", a: "Hettie", b: "Rake" } },
-    { content: "The file never puts Lena at Oak corner.", rule: { kind: "isNot", a: "Lena", b: "Oak corner" } },
-    { content: "The file rules out any link between Hilltop and Leeks.", rule: { kind: "isNot", a: "Hilltop", b: "Leeks" } },
-    { content: "Nothing in the file connects Kofi and Oak corner.", rule: { kind: "isNot", a: "Kofi", b: "Oak corner" } },
-    { content: "The file never puts Lena at Pond edge.", rule: { kind: "isNot", a: "Lena", b: "Pond edge" } },
-    { content: "The file rules out any link between Hilltop and Squash.", rule: { kind: "isNot", a: "Hilltop", b: "Squash" } },
-    { content: "Oak corner is connected to Hoe or to Fork.", rule: { kind: "either", a: "Oak corner", b: "Hoe", c: "Fork" } },
-    { content: "The file links Spade with Oak corner or with Gate side.", rule: { kind: "either", a: "Spade", b: "Oak corner", c: "Gate side" } },
-    { content: "Leeks and Lena turn out to be connected.", rule: { kind: "is", a: "Leeks", b: "Lena" } },
-    { content: "Nothing in the file connects Trowel and Hilltop.", rule: { kind: "isNot", a: "Trowel", b: "Hilltop" } },
-    { content: "A note in the file links Hoe to Kale.", rule: { kind: "is", a: "Hoe", b: "Kale" } },
+    { content: "The shed book has the Rake signed out for the Beetroot.", rule: { kind: "is", a: "Rake", b: "Beetroot" } },
+    { content: "I never touched the Fork.", speaker: "Ivor", rule: { kind: "isNot", a: "Fork", b: "Ivor" } },
+    { content: "The Beetroot is at the Compost end.", speaker: "Joan", rule: { kind: "is", a: "Beetroot", b: "Compost end" } },
+    { content: "The Hoe was mine.", speaker: "Joan", rule: { kind: "is", a: "Joan", b: "Hoe" } },
+    { content: "I had the Rake.", speaker: "Hettie", rule: { kind: "is", a: "Hettie", b: "Rake" } },
+    { content: "I never worked Oak corner.", speaker: "Lena", rule: { kind: "isNot", a: "Lena", b: "Oak corner" } },
+    { content: "The plot map never shows Leeks on Hilltop.", rule: { kind: "isNot", a: "Hilltop", b: "Leeks" } },
+    { content: "Oak corner was never my patch.", speaker: "Kofi", rule: { kind: "isNot", a: "Kofi", b: "Oak corner" } },
+    { content: "Lena was never down at Pond edge.", speaker: "Ivor", rule: { kind: "isNot", a: "Lena", b: "Pond edge" } },
+    { content: "The plot map never has Squash on Hilltop.", rule: { kind: "isNot", a: "Hilltop", b: "Squash" } },
+    { content: "At Oak corner they use the Hoe or the Fork.", speaker: "Kofi", rule: { kind: "either", a: "Oak corner", b: "Hoe", c: "Fork" } },
+    { content: "The shed book puts the Spade at Oak corner or Gate side.", rule: { kind: "either", a: "Spade", b: "Oak corner", c: "Gate side" } },
+    { content: "The Leeks are mine.", speaker: "Lena", rule: { kind: "is", a: "Leeks", b: "Lena" } },
+    { content: "The shed book never sends the Trowel to Hilltop.", rule: { kind: "isNot", a: "Trowel", b: "Hilltop" } },
+    { content: "The Hoe goes with the Kale.", speaker: "Joan", rule: { kind: "is", a: "Hoe", b: "Kale" } },
   ],
 } satisfies Content;

@@ -44,3 +44,16 @@ test("the Desk lists an unfinished puzzle until it is solved", async ({
   const stats = page.getByRole("region", { name: "Your stats" });
   await expect(stats.locator("dd").first()).toHaveText("1");
 });
+
+test("a stale session cookie gets the landing, not a broken Desk", async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  await context.addCookies([
+    { name: "better-auth.session_token", value: "stale.token", url: baseURL },
+  ]);
+  await page.goto("/");
+  await expect(page.locator(".title-sequence")).toBeVisible();
+  await expect(page.locator("main")).toHaveCount(1);
+});

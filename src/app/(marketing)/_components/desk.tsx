@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { Credit, Walker } from "@/components/brand";
+import { Credit, GridPaper, Walker } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -37,19 +37,34 @@ const touched = new Intl.DateTimeFormat("en-GB", {
 const puzzleHref = (puzzle: { typeKey: string; slug: string }) =>
   `/puzzles/${puzzle.typeKey}/${puzzle.slug}`;
 
-/** A stale session cookie lands here through the proxy rewrite, so it shows the landing instead of redirecting back. */
+/**
+ * A stale session cookie lands here through the proxy rewrite, so it shows the landing instead of redirecting back.
+ * Checks the session row as `getDesk` does, so a revoked session inside the cookie cache also gets the landing.
+ */
 export async function Desk() {
-  if (!(await getCurrentUser())) return <TitleSequence />;
+  if (!(await getCurrentUser({ disableCookieCache: true }))) {
+    return <TitleSequence />;
+  }
   const desk = await getDesk();
 
   return (
-    <>
+    <DeskFrame>
       <Credit level={1} top="Your desk" bottom={desk.name} />
       <ContinueShelf continuing={desk.continuing} />
       <TodayShelf today={desk.today} />
       <WeekShelf week={desk.week} />
       <Stats stats={desk.stats} />
-    </>
+    </DeskFrame>
+  );
+}
+
+export function DeskFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <GridPaper className="flex-1">
+      <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
+        {children}
+      </main>
+    </GridPaper>
   );
 }
 

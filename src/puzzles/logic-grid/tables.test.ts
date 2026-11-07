@@ -55,7 +55,7 @@ async function insertPuzzle(tx: Tx, typeKey: string, slug = "one") {
 /** A puzzle with one category of two items, returning the item ids. */
 async function insertTinyPuzzle(tx: Tx, slug: string) {
   const puzzleId = await insertPuzzle(tx, "logic-grid", slug);
-  await tx.insert(logicGridPuzzles).values({ puzzleId });
+  await tx.insert(logicGridPuzzles).values({ puzzleId, brief: "A case." });
   await tx
     .insert(logicGridCategories)
     .values({ puzzleId, position: 0, name: "Person" });
@@ -92,7 +92,7 @@ describe("logic grid schema", () => {
     expect(
       await pgErrorCode(async (tx) => {
         const puzzleId = await insertPuzzle(tx, "other");
-        await tx.insert(logicGridPuzzles).values({ puzzleId });
+        await tx.insert(logicGridPuzzles).values({ puzzleId, brief: "A case." });
       }),
     ).toBe("23503");
   });
@@ -126,6 +126,69 @@ describe("logic grid schema", () => {
           .values({ puzzleId, categoryPosition: 0, position: 0, label: "Cat" });
       }),
     ).toBe("23505");
+  });
+
+  it("rejects a brief that is empty or over 280 characters", async () => {
+    for (const brief of ["", "x".repeat(281)]) {
+      expect(
+        await pgErrorCode(async (tx) => {
+          const puzzleId = await insertPuzzle(tx, "logic-grid", "t165-brief");
+          await tx.insert(logicGridPuzzles).values({ puzzleId, brief });
+        }),
+      ).toBe("23514");
+    }
+  });
+
+  it("scopes a clue's speaker to its puzzle, and to the first category", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const { puzzleId, items } = await insertTinyPuzzle(tx, "t165-speaker");
+        await tx
+          .insert(logicGridClues)
+          .values({ puzzleId, position: 0, content: "a", speakerItemId: items[1] });
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+    expect(
+      await pgErrorCode(async (tx) => {
+        const { puzzleId } = await insertTinyPuzzle(tx, "t165-speaker-ghost");
+        await tx.insert(logicGridClues).values({
+          puzzleId,
+          position: 0,
+          content: "a",
+          speakerItemId: "00000000-0000-4000-8000-000000000999",
+        });
+        await forceDeferred(tx);
+      }),
+    ).toBe("23503");
+    expect(
+      await pgErrorCode(async (tx) => {
+        const { puzzleId } = await insertTinyPuzzle(tx, "t165-speaker-a");
+        const other = await insertTinyPuzzle(tx, "t165-speaker-b");
+        await tx.insert(logicGridClues).values({
+          puzzleId,
+          position: 0,
+          content: "a",
+          speakerItemId: other.items[0],
+        });
+        await forceDeferred(tx);
+      }),
+    ).toBe("23503");
+    const error = await pgError(async (tx) => {
+      const { puzzleId } = await insertTinyPuzzle(tx, "t165-speaker-place");
+      await tx
+        .insert(logicGridCategories)
+        .values({ puzzleId, position: 1, name: "Place" });
+      const [place] = await tx
+        .insert(logicGridItems)
+        .values({ puzzleId, categoryPosition: 1, position: 0, label: "Hull" })
+        .returning({ id: logicGridItems.id });
+      await tx
+        .insert(logicGridClues)
+        .values({ puzzleId, position: 0, content: "a", speakerItemId: place.id });
+      await forceDeferred(tx);
+    });
+    expect(error?.message).toMatch(/outside the first category/);
   });
 
   it("allows one false clue per puzzle and rejects a second", async () => {
@@ -265,7 +328,15 @@ describe("logic grid module", () => {
     expect(payload.variant).toBe(true);
     expect(payload.clues).toHaveLength(variant.clues.length);
     expect(JSON.stringify(payload)).not.toMatch(/isFalse|is_false|itemAId|links/);
-    expect(Object.keys(payload.clues[0]).sort()).toEqual(["content", "position"]);
+    expect(Object.keys(payload.clues[0]).sort()).toEqual([
+      "content",
+      "position",
+      "speakerItemId",
+    ]);
+    expect(payload.brief).toBe(variant.brief);
+    const [ann] = payload.categories[0].items;
+    expect(payload.clues[0].speakerItemId).toBe(ann.id);
+    expect(payload.clues[1].speakerItemId).toBeNull();
   });
 
   it("orders categories, items and clues by position", async () => {

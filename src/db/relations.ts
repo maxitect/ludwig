@@ -72,6 +72,10 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.puzzles.id,
       to: r.dailyPuzzles.puzzleId,
     }),
+    gearDaily: r.one.gearDaily({
+      from: r.puzzles.id,
+      to: r.gearDaily.puzzleId,
+    }),
   },
   dailyPuzzles: {
     puzzle: r.one.puzzles({

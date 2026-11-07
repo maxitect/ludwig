@@ -53,6 +53,7 @@ Take **4 to 6 tickets** through to merged, then wind down.
    - `notify <branch>` lines: `SendMessage` that ticket's agent to rebase before its one push.
    - `check production build and runtime logs`: do it (`vercel inspect <url> --logs`, Vercel MCP `get_runtime_logs`).
    - A `neon: kept` note is fine: the next merge or preflight deletes it. If a new preview fails with "Resource provisioning failed", the 10-branch Neon cap was hit: run `pnpm ticket:cleanup`, then `vercel redeploy <preview-url> --no-wait`.
+   - **Batch deploys.** Every push to `main` is a production build, and Hobby allows 200K ISR writes a cycle. Merge every reviewed PR of the session first and let the deploy happen once at the end, unless a merge needs production verification before the next. Verify production with a single `curl -I` of one page, not browser loads of several.
    - After the ticket that ends a milestone, give the user a short milestone summary, then carry on.
 6. **Interrupted agents.** Agents die together on usage limits. `pnpm ticket:status` shows what survived; resume as in step 1.
 7. **Escalate** to the user, rather than guess, when a ticket is `BLOCKED`, contradicts `SPEC.md`, or needs a decision that isn't in the docs. Before escalating anything about Vercel or Neon, investigate with the platform tools (INSTRUCTIONS §3.1) and bring only what needs the user's approval or access. Never stall the whole session on one ticket: park it, note it in `PROMPT.md` and move on.

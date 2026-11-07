@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/kakuro/schema";
 export const meta = {
   slug: "ledger-lines",
   title: "Ledger Lines",
-  difficulty: 2,
+  difficulty: 5,
   publishedAt: new Date("2026-10-01T00:00:00Z"),
 } satisfies ContentMeta;
 

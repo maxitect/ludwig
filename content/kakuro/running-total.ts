@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/kakuro/schema";
 export const meta = {
   slug: "running-total",
   title: "Running Total",
-  difficulty: 4,
+  difficulty: 2,
   publishedAt: new Date("2026-10-01T00:00:00Z"),
 } satisfies ContentMeta;
 

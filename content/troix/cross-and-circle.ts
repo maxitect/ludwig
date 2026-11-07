@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/troix/schema";
 export const meta = {
   slug: "cross-and-circle",
   title: "Cross and Circle",
-  difficulty: 2,
+  difficulty: 1,
   publishedAt: new Date("2026-10-15T00:00:00Z"),
 } satisfies ContentMeta;
 

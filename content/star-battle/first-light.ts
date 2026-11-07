@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/star-battle/schema";
 export const meta = {
   slug: "first-light",
   title: "First Light",
-  difficulty: 1,
+  difficulty: 2,
   publishedAt: new Date("2026-10-12T00:00:00Z"),
 } satisfies ContentMeta;
 

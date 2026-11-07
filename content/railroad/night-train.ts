@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/railroad/schema";
 export const meta = {
   slug: "night-train",
   title: "Night Train",
-  difficulty: 1,
+  difficulty: 3,
   publishedAt: new Date("2026-10-16T00:00:00Z"),
 } satisfies ContentMeta;
 

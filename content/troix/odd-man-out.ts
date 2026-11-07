@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/troix/schema";
 export const meta = {
   slug: "odd-man-out",
   title: "Odd Man Out",
-  difficulty: 2,
+  difficulty: 5,
   publishedAt: new Date("2026-10-16T00:00:00Z"),
 } satisfies ContentMeta;
 

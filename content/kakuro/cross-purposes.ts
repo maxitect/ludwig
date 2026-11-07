@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/kakuro/schema";
 export const meta = {
   slug: "cross-purposes",
   title: "Cross Purposes",
-  difficulty: 3,
+  difficulty: 5,
   publishedAt: new Date("2026-10-01T00:00:00Z"),
 } satisfies ContentMeta;
 

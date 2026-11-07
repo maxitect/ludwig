@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/sudoku/schema";
 export const meta = {
   slug: "broken-frame",
   title: "Broken Frame",
-  difficulty: 4,
+  difficulty: 3,
   publishedAt: new Date("2026-10-09T00:00:00Z"),
 } satisfies ContentMeta;
 

@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/norinori/schema";
 export const meta = {
   slug: "fine-print",
   title: "Fine Print",
-  difficulty: 2,
+  difficulty: 3,
   publishedAt: new Date("2026-10-15T00:00:00Z"),
 } satisfies ContentMeta;
 

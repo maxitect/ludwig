@@ -43,6 +43,7 @@ const files = text("git ls-files -z -co --exclude-standard -- '*.md' '.claude'",
   .filter((f) => f.endsWith(".md"));
 
 const ref = /((?:[\w.-]+\/)*)(T\d{3}-[a-z0-9-]+\.md)/g;
+const outgoing = /\]\((\.{0,2}\/?[\w.-][^)\s#:]*)/g;
 let rewritten = 0;
 for (const rel of files) {
   const file = path.join(root, rel);
@@ -50,16 +51,22 @@ for (const rel of files) {
   const beforeDir = path.dirname(origin.get(file) ?? file);
   const afterDir = path.dirname(file);
   const source = readFileSync(file, "utf8");
-  const next = source.replace(ref, (match, prefix: string, name: string) => {
-    const target = location.get(name);
-    if (!target) return match;
-    const rooted = prefix.startsWith("docs/");
-    const resolved = path.resolve(rooted ? root : beforeDir, prefix || ".");
-    if (resolved !== openDir && resolved !== doneDir) return match;
-    if (rooted) return `docs/tickets/${path.relative(openDir, target)}`;
-    const relative = path.relative(afterDir, target);
-    return relative.startsWith(".") ? relative : `./${relative}`;
-  });
+  const next = source
+    .replace(outgoing, (match, target: string) => {
+      if (beforeDir === afterDir || ticketName.test(path.basename(target))) return match;
+      const resolved = path.resolve(beforeDir, target);
+      return existsSync(resolved) ? `](${path.relative(afterDir, resolved)}` : match;
+    })
+    .replace(ref, (match, prefix: string, name: string) => {
+      const target = location.get(name);
+      if (!target) return match;
+      const rooted = prefix.startsWith("docs/");
+      const resolved = path.resolve(rooted ? root : beforeDir, prefix || ".");
+      if (resolved !== openDir && resolved !== doneDir) return match;
+      if (rooted) return `docs/tickets/${path.relative(openDir, target)}`;
+      const relative = path.relative(afterDir, target);
+      return relative.startsWith(".") ? relative : `./${relative}`;
+    });
   if (next !== source) {
     writeFileSync(file, next);
     rewritten++;

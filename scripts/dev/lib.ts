@@ -114,19 +114,13 @@ export function ticketDirs(root = mainCheckout()): string[] {
   return [dir, path.join(dir, "done")];
 }
 
-export function findTicketFile(id: string, root = mainCheckout()): string | undefined {
+export function ticketFile(id: string, root = mainCheckout()): string {
   for (const dir of ticketDirs(root)) {
     if (!existsSync(dir)) continue;
     const file = readdirSync(dir).find((f) => f.startsWith(`${id}-`) && f.endsWith(".md"));
     if (file) return path.join(dir, file);
   }
-  return undefined;
-}
-
-export function ticketFile(id: string, root = mainCheckout()): string {
-  const file = findTicketFile(id, root);
-  if (!file) die("TICKET", `no ticket file for ${id} in docs/tickets or docs/tickets/done`);
-  return file;
+  die("TICKET", `no ticket file for ${id} in docs/tickets or docs/tickets/done`);
 }
 
 export type GatesStamp = { tree: string; e2e: string | undefined };

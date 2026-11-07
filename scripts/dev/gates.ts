@@ -80,6 +80,7 @@ function e2e(): Result {
     sh(`lsof -tiTCP:${devPort} -sTCP:LISTEN | xargs kill`);
   };
   process.on("exit", stop);
+  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) process.on(signal, () => process.exit(1));
   try {
     const seeded = sh("pnpm db:seed");
     if (!seeded.ok) return seeded;

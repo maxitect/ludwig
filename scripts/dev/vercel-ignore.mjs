@@ -46,7 +46,8 @@ function wantsPreview() {
   try {
     const name = `${branch.slice("ticket/".length)}.md`;
     const file = [`docs/tickets/${name}`, `docs/tickets/done/${name}`].find((f) => existsSync(f));
-    const ticket = readFileSync(file ?? "", "utf8");
+    if (!file) return false;
+    const ticket = readFileSync(file, "utf8");
     return /^preview:\s*true\s*$/m.test(ticket.split("---")[1] ?? "");
   } catch {
     return false;

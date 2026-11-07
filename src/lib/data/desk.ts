@@ -8,7 +8,7 @@ import { isPublished } from "@/lib/data/puzzles";
 import { requireUser } from "@/lib/data/user";
 import { getWeeklySchedule } from "@/lib/data/weekly";
 import { registry } from "@/puzzles/registry";
-import { londonDate, londonWeekStart } from "@/utils/london-time";
+import { londonDate, londonMidnight, londonWeekStart } from "@/utils/london-time";
 
 const CONTINUE_LIMIT = 8;
 
@@ -70,7 +70,7 @@ export async function getDesk() {
     db
       .select({
         total: sql<number>`count(*)::integer`,
-        thisWeek: sql<number>`(count(*) filter (where ${userSolves.completedAt} >= date_trunc('week', now() at time zone 'Europe/London') at time zone 'Europe/London'))::integer`,
+        thisWeek: sql<number>`(count(*) filter (where ${userSolves.completedAt} >= ${londonMidnight(weekStart)}))::integer`,
       })
       .from(userSolves)
       .where(eq(userSolves.userId, userId)),

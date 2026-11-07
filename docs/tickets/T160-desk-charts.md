@@ -53,7 +53,7 @@ No human sign-off is in this ticket. The implementer renders the dashboard in a 
 ## Acceptance criteria
 
 - [ ] **AC1**: The views exist and nothing stores a stat.
-  - _Verify (db + code):_ `\dv` lists the three new views; the T023 AC1 "no stored counter" query still returns 0 rows.
+  - _Verify (db + code):_ `\dv` lists the three new views; the T023 AC1 "no stored counter" query, with the stat-specific pattern `(streak|solves|median|best_duration|avg_hints|hints_used|total_duration|solved)`, returns 0 rows. T023's original `(count|streak|total|hints_used|solved)` now matches puzzle-domain columns on `main` (`gear_train_inventory.count`, `word_ladder_puzzles.rung_count`, `account.account_id`), so it no longer isolates stat columns.
 - [ ] **AC2**: The views match hand-computed fixtures.
   - _Verify (unit):_ a `db` test seeds solves across days, types and difficulties and asserts each view's rows.
 - [ ] **AC3**: Every chart renders from the views, is interactive and reads without colour.

@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/star-battle/schema";
 export const meta = {
   slug: "night-shift",
   title: "Night Shift",
-  difficulty: 4,
+  difficulty: 5,
   publishedAt: new Date("2026-10-15T00:00:00Z"),
 } satisfies ContentMeta;
 

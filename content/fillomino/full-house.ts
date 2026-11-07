@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/fillomino/schema";
 export const meta = {
   slug: "full-house",
   title: "Full House",
-  difficulty: 5,
+  difficulty: 3,
   publishedAt: new Date("2026-10-20T00:00:00Z"),
 } satisfies ContentMeta;
 

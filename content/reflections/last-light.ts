@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/reflections/schema";
 export const meta = {
   slug: "last-light",
   title: "Last Light",
-  difficulty: 5,
+  difficulty: 1,
   publishedAt: new Date("2026-11-02T00:00:00Z"),
 } satisfies ContentMeta;
 

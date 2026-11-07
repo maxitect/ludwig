@@ -4,7 +4,7 @@ import type { Content } from "../../src/puzzles/norinori/schema";
 export const meta = {
   slug: "last-orders",
   title: "Last Orders",
-  difficulty: 4,
+  difficulty: 3,
   publishedAt: new Date("2026-10-17T00:00:00Z"),
 } satisfies ContentMeta;
 

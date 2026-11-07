@@ -1,4 +1,5 @@
 import type { ContentMeta } from "../../scripts/content-files";
+import type { Provenance } from "../../src/puzzles/generators";
 import type { Content } from "../../src/puzzles/circle9/schema";
 
 export const meta = {
@@ -10,14 +11,8 @@ export const meta = {
 
 export const content = {
   grid: [
-    ".6..3.87.",
-    "..62..4.8",
-    "...5..8..",
-    "7........",
-    ".....1.1.",
-    "8..4.214.",
-    "1.8.33...",
-    "..5.1.92.",
-    "72...1..9",
+    ".....94.1", "828.6.1..", ".2...5...", ".7..8.275", "....6...3", "..4.29...", ".523.6...", "9.6..1.7.", "8.....1..",
   ],
 } satisfies Content;
+
+export const generated = { generator: "circle9", version: 1, seed: "red-herrings" } satisfies Provenance;

@@ -11,6 +11,7 @@ import { type Provenance, regenerate } from "../src/puzzles/generators";
 import { dailySlug } from "../src/lib/data/daily-puzzles";
 import { type PuzzleRegistry, registry as appRegistry } from "../src/puzzles/registry";
 import { londonMidnight } from "../src/utils/london-time";
+import { reportWordAudit } from "./audit-words";
 import {
   type ContentFailure,
   loadContentFiles,
@@ -208,8 +209,14 @@ async function main() {
   console.log(
     `puzzles:verify: ${daily.checked - daily.failures.length}/${daily.checked} daily rows regenerate and are unique`,
   );
+  const sharedFill = reportWordAudit(files);
   process.exitCode =
-    failures.length || generated.failures.length || daily.failures.length ? 1 : 0;
+    failures.length ||
+    generated.failures.length ||
+    daily.failures.length ||
+    sharedFill
+      ? 1
+      : 0;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

@@ -1,4 +1,5 @@
 import type { ContentMeta } from "../../scripts/content-files";
+import type { Provenance } from "../../src/puzzles/generators";
 import type { Content } from "../../src/puzzles/star-battle/schema";
 
 export const meta = {
@@ -9,16 +10,11 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
-  size: 8,
+  size: 7,
   stars: 1,
   grid: [
-    "44000133",
-    "44400003",
-    "44555003",
-    "45555500",
-    "55555220",
-    "77722222",
-    "77222222",
-    "66222222",
+    "0000222", "1100222", "1222222", "1112223", "4115533", "4555536", "4556666",
   ],
 } satisfies Content;
+
+export const generated = { generator: "star-battle", version: 1, seed: "quiet-hours" } satisfies Provenance;

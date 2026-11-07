@@ -11,13 +11,19 @@ const coordinate = (schema: z.ZodNumber) => schema.min(0).max(14);
 const dimension = (schema: z.ZodNumber) => schema.min(3).max(15);
 const fovDeg = (schema: z.ZodNumber) => schema.min(1).max(360);
 
+const brief = (schema: z.ZodString) =>
+  schema.min(1).max(160).regex(/^[^\p{Cc}]*$/u);
+const name = (schema: z.ZodString) => schema.min(1).max(40);
+
 const puzzleSelect = createSelectSchema(sightlinesPuzzles, {
+  brief,
   rows: dimension,
   cols: dimension,
   targetRow: coordinate,
   targetCol: coordinate,
 });
 const puzzleInsert = createInsertSchema(sightlinesPuzzles, {
+  brief,
   rows: dimension,
   cols: dimension,
   targetRow: coordinate,
@@ -28,11 +34,13 @@ const obstacleSelect = createSelectSchema(sightlinesObstacles, {
   col: coordinate,
 });
 const observerSelect = createSelectSchema(sightlinesObservers, {
+  name,
   row: coordinate,
   col: coordinate,
   fovDeg,
 });
 const observerInsert = createInsertSchema(sightlinesObservers, {
+  name,
   row: coordinate,
   col: coordinate,
   fovDeg,
@@ -52,11 +60,12 @@ export const payloadSchema = z
       cols: true,
       targetRow: true,
       targetCol: true,
+      brief: true,
     }).shape,
     obstacles: z.array(cell.strict()),
     observers: z.array(
       observerSelect
-        .pick({ row: true, col: true, facing: true, fovDeg: true })
+        .pick({ row: true, col: true, facing: true, fovDeg: true, name: true })
         .strict(),
     ),
   })
@@ -80,14 +89,20 @@ export const attemptSchema = answerSchema;
 
 /** The pillars are written as one string per row, `#` for a pillar and `.` for open floor. */
 export const contentSchema = puzzleInsert
-  .pick({ targetRow: true, targetCol: true })
+  .pick({ brief: true, targetRow: true, targetCol: true })
   .extend({
     grid: z
       .array(z.string().regex(/^[.#]{3,15}$/))
       .min(3)
       .max(15),
     observers: z.array(
-      observerInsert.pick({ row: true, col: true, facing: true, fovDeg: true }),
+      observerInsert.pick({
+        row: true,
+        col: true,
+        facing: true,
+        fovDeg: true,
+        name: true,
+      }),
     ),
   });
 

@@ -23,15 +23,15 @@ export const sightlinesModule = {
     correct: check(payload, solution, answer).correct,
   }),
   verify: verifySightlines,
-  async upsertContent(tx, puzzleId, { grid, targetRow, targetCol, observers }) {
+  async upsertContent(tx, puzzleId, { grid, brief, targetRow, targetCol, observers }) {
     const rows = grid.length;
     const cols = grid[0].length;
     await tx
       .insert(sightlinesPuzzles)
-      .values({ puzzleId, rows, cols, targetRow, targetCol })
+      .values({ puzzleId, rows, cols, targetRow, targetCol, brief })
       .onConflictDoUpdate({
         target: sightlinesPuzzles.puzzleId,
-        set: { rows, cols, targetRow, targetCol },
+        set: { rows, cols, targetRow, targetCol, brief },
       });
     await tx
       .delete(sightlinesObstacles)

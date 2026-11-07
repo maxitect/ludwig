@@ -35,6 +35,26 @@ export function deriveBlindSpots({
   return blind;
 }
 
+const COMPASS_WORD = {
+  n: "north",
+  ne: "north-east",
+  e: "east",
+  se: "south-east",
+  s: "south",
+  sw: "south-west",
+  w: "west",
+  nw: "north-west",
+} as const satisfies Record<Payload["observers"][number]["facing"], string>;
+
+/** An observer by name, facing and view, for labels and accessible names. */
+export function describeObserver({
+  name,
+  facing,
+  fovDeg,
+}: Payload["observers"][number]) {
+  return `${name}, facing ${COMPASS_WORD[facing]}, ${fovDeg} degrees`;
+}
+
 /** What stands on a cell, for its accessible name. */
 export function describeCell(
   { obstacles, observers, targetRow, targetCol }: Payload,
@@ -47,9 +67,7 @@ export function describeCell(
   }
   const observer = observers.find((o) => o.row === row && o.col === col);
   if (observer) {
-    parts.push(
-      `observer facing ${observer.facing.toUpperCase()}, ${observer.fovDeg} degree view`,
-    );
+    parts.push(describeObserver(observer));
   }
   if (row === targetRow && col === targetCol) parts.push("the alcove");
   return parts.length ? parts.join(", ") : "floor";

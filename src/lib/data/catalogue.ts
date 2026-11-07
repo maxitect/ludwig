@@ -146,28 +146,33 @@ export async function getPuzzleSummary(typeKey: string, slug: string) {
   };
 }
 
-/** Prerenders curated puzzles and each type's shelf dailies. Other published dailies render on first request, and an unpublished one is never prerendered as a 404. */
+function newest<T extends { date: string }>(dailies: T[], count: number) {
+  return dailies.toSorted((a, b) => b.date.localeCompare(a.date)).slice(0, count);
+}
+
+/** Prerenders curated puzzles, each type's shelf dailies and today's gear daily. Other published dailies render on first request, and an unpublished one is never prerendered as a 404. */
 export async function getPuzzleStaticParams() {
   const rows = await db.query.puzzles.findMany({
     columns: { typeKey: true, slug: true },
     where: { RAW: isPublished },
-    with: { daily: { columns: { date: true } } },
+    with: {
+      daily: { columns: { date: true } },
+      gearDaily: { columns: { date: true } },
+    },
   });
-  const curated = rows.filter(({ daily }) => !daily);
-  const shelf = Array.from(
-    Map.groupBy(
-      rows.filter(({ daily }) => daily),
-      ({ typeKey }) => typeKey,
-    ).values(),
-  ).flatMap((dailies) =>
-    dailies
-      .toSorted((a, b) => (b.daily?.date ?? "").localeCompare(a.daily?.date ?? ""))
-      .slice(0, DAILY_SHELF_SIZE),
+  const curated = rows.filter(({ daily, gearDaily }) => !daily && !gearDaily);
+  const dailies = rows.flatMap(({ typeKey, slug, daily }) =>
+    daily ? [{ typeKey, slug, date: daily.date }] : [],
   );
-  return [...curated, ...shelf].map(({ typeKey, slug }) => ({
-    type: typeKey,
-    slug,
-  }));
+  const gearDailies = rows.flatMap(({ typeKey, slug, gearDaily }) =>
+    gearDaily ? [{ typeKey, slug, date: gearDaily.date }] : [],
+  );
+  const shelves = [
+    ...Map.groupBy(dailies, ({ typeKey }) => typeKey).values(),
+  ].flatMap((typeDailies) => newest(typeDailies, DAILY_SHELF_SIZE));
+  return [...curated, ...shelves, ...newest(gearDailies, 1)].map(
+    ({ typeKey, slug }) => ({ type: typeKey, slug }),
+  );
 }
 
 export async function getTypeStaticParams() {

@@ -1068,7 +1068,7 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 
 **Hobby limits:** the plan allows 200K ISR writes, 1M CDN requests, 1M ISR reads and 4h Fluid Active CPU per cycle. In the cycle from 2026-10-08 ISR writes reached 363K, because writes exceeded reads and so came from builds: each build prerendered every `puzzles` row, including about 1,400 unpublished future dailies, and each prerender writes the page and its `use cache` entries. Rules that follow:
 
-- `getPuzzleStaticParams` returns published curated puzzles and the 14 newest published dailies per daily type (the shelf, plus today's gear daily). Every other puzzle renders on first request through the same cached functions. An unpublished daily is never prerendered, so the first visitor after midnight gets a 200, not a prerendered 404.
+- `getPuzzleStaticParams` returns published curated puzzles and the 14 newest published `daily_puzzles` per type (each type's shelf), and the newest published `gear_daily` (today's diagram, the only one `/gears` links). Every other puzzle renders on first request through the same cached functions. An unpublished daily is never prerendered, so the first visitor after midnight gets a 200, not a prerendered 404.
 - Merges to `main` are batched (`.claude/skills/ludwig-orchestrate/SKILL.md`), so production builds are few. Previews are opt-in.
 - Where to look: the Vercel Usage page (each resource by path and over time) and the Firewall page (traffic by user agent). Hobby has no usage API and keeps about 30 minutes of request logs.
 

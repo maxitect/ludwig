@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { puzzles } from "@/db/schema";
 import { registry } from "@/puzzles/registry";
 import { generateDailies } from "./daily-puzzles";
+import { generateDailies as generateGearDailies } from "./gear-dailies";
 import { getPuzzleStaticParams, getTypeCatalogue } from "./catalogue";
 
 vi.mock("next/cache", () => ({ cacheLife: () => {}, cacheTag: () => {} }));
@@ -41,14 +42,38 @@ describe("getTypeCatalogue", () => {
 });
 
 describe("getPuzzleStaticParams", () => {
-  it("prerenders at most the 14 newest published dailies per type", async () => {
-    const params = await getPuzzleStaticParams();
-    const sudokuDailies = params.filter(
-      ({ type, slug }) => type === "sudoku" && slug.startsWith("daily-"),
+  const cleanUpExtra = () =>
+    Promise.all(
+      ["daily-sudoku-2098-%", "daily-2001-%", "daily-2098-%"].map((slug) =>
+        db.delete(puzzles).where(like(puzzles.slug, slug)),
+      ),
     );
-    expect(sudokuDailies.length).toBeLessThanOrEqual(14);
-    expect(params.map(({ slug }) => slug)).not.toContain(
-      "daily-sudoku-2001-01-01",
+
+  beforeAll(async () => {
+    await cleanUpExtra();
+    await generateDailies(db, registry, {
+      typeKey: "sudoku",
+      from: "2098-01-01",
+      days: 1,
+    });
+    const cycle = ["easy"] as const;
+    await generateGearDailies(db, registry, { from: "2001-01-01", days: 3, cycle });
+    await generateGearDailies(db, registry, { from: "2098-01-01", days: 1, cycle });
+  }, 60_000);
+  afterAll(cleanUpExtra);
+
+  it("prerenders the 14 newest published dailies per type and one gear daily", async () => {
+    const slugs = (await getPuzzleStaticParams()).map(({ slug }) => slug);
+    const sudokuDailies = slugs.filter((slug) =>
+      slug.startsWith("daily-sudoku-"),
     );
+    expect(sudokuDailies).toHaveLength(14);
+    expect(slugs).not.toContain("daily-sudoku-2001-01-01");
+    expect(slugs).not.toContain("daily-sudoku-2098-01-01");
+
+    const gearDailies = slugs.filter((slug) => /^daily-\d{4}-/.test(slug));
+    expect(gearDailies).toHaveLength(1);
+    expect(gearDailies).not.toContain("daily-2001-01-01");
+    expect(gearDailies).not.toContain("daily-2098-01-01");
   });
 });

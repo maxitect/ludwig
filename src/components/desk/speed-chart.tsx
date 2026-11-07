@@ -33,21 +33,21 @@ export function SpeedChart({
               : `Difficulty ${level}: no solves yet`;
             const s = row ? side(row.medianDurationMs) : 0;
             return (
-              <li
-                key={level}
-                tabIndex={0}
-                role="img"
-                aria-label={text}
-                onFocus={(event) => show(event.currentTarget, text)}
-                onBlur={hide}
-                onPointerEnter={(event) => show(event.currentTarget, text)}
-                onPointerLeave={hide}
-                className="flex flex-col items-center gap-1 outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
-              >
+              <li key={level}>
+                <div
+                  tabIndex={0}
+                  role="img"
+                  aria-label={text}
+                  onFocus={(event) => show(event.currentTarget, text)}
+                  onBlur={hide}
+                  onPointerEnter={(event) => show(event.currentTarget, text)}
+                  onPointerLeave={hide}
+                  className="flex flex-col items-center gap-1 outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
                 <span className="font-display text-sm font-bold">
                   {row ? formatDuration(row.medianDurationMs) : "–"}
                 </span>
-                <svg viewBox={`0 0 ${BOX} ${BOX}`} className="w-full" aria-hidden="true">
+                <svg viewBox={`0 0 ${BOX} ${BOX}`} className="h-32 w-full" aria-hidden="true">
                   {row ? (
                     <rect
                       x={(BOX - s) / 2}
@@ -77,6 +77,7 @@ export function SpeedChart({
                   />
                 </svg>
                 <Badge variant="difficulty" level={level} className="max-sm:scale-75" />
+                </div>
               </li>
             );
           })}

@@ -162,7 +162,8 @@ export function DataTable({
   rows: (string | number)[][];
 }) {
   return (
-    <table className="sr-only">
+    <div className="sr-only">
+      <table>
       <caption>{caption}</caption>
       <thead>
         <tr>
@@ -188,6 +189,7 @@ export function DataTable({
           </tr>
         ))}
       </tbody>
-    </table>
+      </table>
+    </div>
   );
 }

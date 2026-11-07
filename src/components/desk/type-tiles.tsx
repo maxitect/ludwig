@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { max } from "d3-array";
 import { scaleLinear } from "d3-scale";
+import { Button } from "@/components/ui/button";
 import type { DeskCharts } from "@/lib/data/desk-charts";
 import { SPARK_SOLVES } from "@/config/desk";
 import { formatDuration } from "@/utils/format-duration";
@@ -11,6 +13,7 @@ import { plural } from "./chart-model";
 const SPARK_W = 120;
 const SPARK_H = 36;
 const GAP = 3;
+const COLLAPSED_TILES = 6;
 
 export function TypeTiles({
   types,
@@ -19,6 +22,8 @@ export function TypeTiles({
   types: DeskCharts["types"];
   categoryName: string | null;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const shown = expanded ? types : types.slice(0, COLLAPSED_TILES);
   return (
     <ChartFrame
       id="chart-types"
@@ -28,10 +33,21 @@ export function TypeTiles({
         <p>No solves in this category yet.</p>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {types.map((type) => (
+          {shown.map((type) => (
             <TypeTile key={type.key} type={type} />
           ))}
         </ul>
+      )}
+      {types.length > COLLAPSED_TILES && (
+        <Button
+          variant="secondary"
+          size="sm"
+          className="w-fit"
+          aria-expanded={expanded}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? "Show fewer types" : `Show all ${types.length} types`}
+        </Button>
       )}
       <p className="text-xs font-semibold">
         Bars are your last {SPARK_SOLVES} solve times, oldest first; the red bar is the latest. Taller is slower.

@@ -107,7 +107,13 @@ describe("verifyLogicGrid, voice", () => {
       verifyLogicGrid(
         withClue(variant, 4, { content: "Ann does not wear the Red hat.", speaker: undefined }),
       ),
-    ).toThrow(/the false clue needs a speaker/);
+    ).toThrow(/in the variant every clue needs a speaker.*unspoken: clue 5/);
+  });
+
+  it("rejects a variant with an unspoken true clue, which would be known true", () => {
+    expect(() =>
+      verifyLogicGrid(withClue(variant, 1, { speaker: undefined })),
+    ).toThrow(/in the variant every clue needs a speaker.*unspoken: clue 2/);
   });
 });
 

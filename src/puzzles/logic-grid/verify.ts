@@ -90,8 +90,11 @@ function structure({ categories, solution, clues }: Content) {
   if (!clues.some(({ speaker }) => speaker)) {
     problems.push("no clue is spoken by a person");
   }
-  if (clues.some(({ isFalse, speaker }) => isFalse && !speaker)) {
-    problems.push("the false clue needs a speaker, so the liar is a person");
+  const unspoken = clues.flatMap(({ speaker }, index) => (speaker ? [] : [index + 1]));
+  if (clues.some(({ isFalse }) => isFalse) && unspoken.length > 0) {
+    problems.push(
+      `in the variant every clue needs a speaker, so the liar is a person and no clue is known true (unspoken: clue ${unspoken.join(", ")})`,
+    );
   }
   return problems;
 }

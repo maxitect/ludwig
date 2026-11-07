@@ -53,12 +53,20 @@ const falseClue = {
   rule: { kind: "isNot", a: "Ann", b: "Red" },
 } as const;
 
+/** In a variant every clue is spoken, so no clue is known true before the liar is found. */
+const spokenClues: Content["clues"] = [
+  trueClues[0],
+  { ...trueClues[1], speaker: "Cat" },
+  { ...trueClues[2], speaker: "Bob" },
+  { ...trueClues[3], speaker: "Ann" },
+];
+
 /** Only dropping the false clue leaves one solution: dropping any other leaves none, or three when Ann's hat is freed. */
 export const variant: Content = {
   brief,
   categories,
   solution,
-  clues: [...trueClues, falseClue],
+  clues: [...spokenClues, falseClue],
 };
 
 /** With "Bob wears Green" as the false clue, dropping clue 3 or clue 4 also leaves exactly one solution, so three clue choices work. */
@@ -67,7 +75,7 @@ export const variantAmbiguous: Content = {
   categories,
   solution,
   clues: [
-    ...trueClues,
+    ...spokenClues,
     {
       content: "I wear the Green hat.",
       isFalse: true,

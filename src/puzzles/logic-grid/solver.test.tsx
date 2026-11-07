@@ -186,20 +186,28 @@ describe("logic grid Solver", () => {
   });
 
   it("shows the brief and renders a spoken clue with its speaker", () => {
-    renderSolver(variant);
+    renderSolver(classic);
     expect(screen.getByText("Case notes")).toBeTruthy();
-    expect(screen.getByText(variant.brief)).toBeTruthy();
-    expect(screen.getAllByText("Ann:")).toHaveLength(2);
+    expect(screen.getByText(classic.brief)).toBeTruthy();
+    expect(screen.getAllByText("Ann:")).toHaveLength(1);
     expect(screen.getByText(/“I own the Dog\.”/)).toBeTruthy();
     expect(screen.getByText("Cat does not wear the Blue hat.")).toBeTruthy();
   });
 
   it("labels the flag control by whether the clue has a speaker", () => {
-    renderSolver(variant);
-    expect(screen.getAllByText("Name the liar").length).toBe(2);
-    expect(screen.getAllByText("Mark the false statement").length).toBe(3);
+    renderSolver({
+      ...variant,
+      clues: variant.clues.map((clue, index) =>
+        index === 1 ? { ...clue, speaker: undefined } : clue,
+      ),
+    });
+    expect(screen.getAllByText("Name the liar").length).toBe(4);
+    expect(screen.getAllByText("Mark the false statement").length).toBe(1);
     expect(
       screen.getByRole("radio", { name: "Mark the false statement: clue 2" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("radio", { name: "Name the liar: Bob, clue 3" }),
     ).toBeTruthy();
   });
 });

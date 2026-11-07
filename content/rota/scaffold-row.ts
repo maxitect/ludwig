@@ -10,6 +10,8 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Rhys fell from the scaffold at **E2** just after noon. The rota had him on **F1**, at the foot of the stair.",
+  victimName: "Rhys",
   workers: [
     { name: "Odette", intended: { file: "e", rank: 1 }, final: { file: "e", rank: 1 } },
     { name: "Pru", intended: { file: "c", rank: 3 }, final: { file: "d", rank: 1 } },
@@ -19,17 +21,18 @@ export const content = {
     { name: "Tomos", intended: { file: "d", rank: 3 }, final: { file: "d", rank: 3 } },
   ],
   clues: [
-    { displayText: "Quinn never stood in a zone in row 1, at any point.", kind: "never_in_rank", rank: 1, workerName: "Quinn" },
-    { displayText: "Pru never stood in a zone in row 2, at any point.", kind: "never_in_rank", rank: 2, workerName: "Pru" },
-    { displayText: "Rhys never stood in a zone in row 3, at any point.", kind: "never_in_rank", rank: 3, workerName: "Rhys" },
+    { displayText: "I never took a turn in row 1, not once.", kind: "never_in_rank", rank: 1, workerName: "Quinn", speakerName: "Quinn" },
+    { displayText: "Row 2 is the top lift. I stayed away from it all day.", kind: "never_in_rank", rank: 2, workerName: "Pru", speakerName: "Pru" },
+    { displayText: "Rhys never set foot in row 3. He had lost his nerve on the high boards.", kind: "never_in_rank", rank: 3, workerName: "Rhys", speakerName: "Sian" },
     { displayText: "No more than 3 swaps were made.", kind: "max_swaps", maxSwaps: 3 },
+    { displayText: "I never ask for swaps. People ask me.", kind: "not_instigator", workerName: "Sian", speakerName: "Sian" },
   ],
   solution: {
     instigatorName: "Pru",
     swaps: [
-      { a: "Pru", b: "Sian" },
-      { a: "Quinn", b: "Sian" },
-      { a: "Rhys", b: "Sian" },
+      { a: "Pru", b: "Sian", excuse: "Pru said the sun was in her eyes on C3 and asked Sian to take it." },
+      { a: "Quinn", b: "Sian", excuse: "Quinn wanted the end of the row, near the tea urn." },
+      { a: "Rhys", b: "Sian", excuse: "Sian was feeling unwell and asked Rhys to take over the scaffold zone." },
     ],
   },
 } satisfies Content;

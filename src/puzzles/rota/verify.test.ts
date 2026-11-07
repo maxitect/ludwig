@@ -82,4 +82,106 @@ describe("verifyRota", () => {
       }),
     ).toThrow(/different zones/);
   });
+
+  const withClues = (clues: Content["clues"]): Content => ({
+    ...buildingSite,
+    clues,
+  });
+  const unvoiced = (clues: Content["clues"]) =>
+    clues.map(({ speakerName, ...clue }) => {
+      void speakerName;
+      return clue;
+    });
+
+  it("rejects a puzzle with no spoken clue", () => {
+    expect(() => verifyRota(withClues(unvoiced(buildingSite.clues)))).toThrow(
+      /no clue is spoken/,
+    );
+  });
+
+  it("rejects a puzzle with only spoken clues", () => {
+    expect(() =>
+      verifyRota(
+        withClues(
+          buildingSite.clues.map((clue) => ({ ...clue, speakerName: "Colm" })),
+        ),
+      ),
+    ).toThrow(/every clue is spoken/);
+  });
+
+  it("rejects a never_in_rank text that omits its rank", () => {
+    expect(() =>
+      verifyRota(
+        withClues(
+          buildingSite.clues.map((clue) =>
+            clue.kind === "never_in_rank"
+              ? { ...clue, displayText: "I never went up there." }
+              : clue,
+          ),
+        ),
+      ),
+    ).toThrow(/does not name row 5/);
+  });
+
+  it("rejects an unpowered_square text that omits its square", () => {
+    expect(() =>
+      verifyRota({
+        ...canteenQueue,
+        clues: canteenQueue.clues.map((clue) =>
+          clue.kind === "unpowered_square"
+            ? { ...clue, displayText: "One zone had no power." }
+            : clue,
+        ),
+      }),
+    ).toThrow(/does not name a5/);
+  });
+
+  it("rejects a brief that does not bold the hazard or pinned zone", () => {
+    expect(() =>
+      verifyRota({ ...buildingSite, brief: "Hobb was found in **D3**." }),
+    ).toThrow(/pinned zone/);
+    expect(() =>
+      verifyRota({
+        ...buildingSite,
+        brief: "Hobb was found in D3. The rota had him in **D2**.",
+      }),
+    ).toThrow(/hazard zone/);
+  });
+
+  it("rejects content whose not_instigator clues leave the instigator undecidable", () => {
+    expect(() =>
+      verifyRota(
+        withClues(buildingSite.clues.filter((c) => c.kind !== "not_instigator")),
+      ),
+    ).toThrow(/found 2 candidates/);
+  });
+
+  it("rejects a not_instigator clue that names the stored instigator", () => {
+    expect(() =>
+      verifyRota(
+        withClues(
+          buildingSite.clues.map((clue) =>
+            clue.kind === "not_instigator"
+              ? { ...clue, workerName: "Fenn" }
+              : clue,
+          ),
+        ),
+      ),
+    ).toThrow(/clears the stored instigator/);
+  });
+
+  it("rejects not_instigator clues that clear both workers of the first swap", () => {
+    expect(() =>
+      verifyRota(
+        withClues([
+          ...buildingSite.clues,
+          {
+            displayText: "Nobody asked.",
+            kind: "not_instigator",
+            workerName: "Fenn",
+          },
+        ]),
+      ),
+    ).toThrow(/found 0 candidates/);
+  });
 });

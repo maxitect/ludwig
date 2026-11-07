@@ -117,7 +117,9 @@ function SolveBoard({
   const [solvedMs, setSolvedMs] = useState<number | null>(
     completion ? (completion.durationMs ?? 0) : null,
   );
-  const [epilogue, setEpilogue] = useState<string | null>(null);
+  const [epilogue, setEpilogue] = useState<string | string[] | null>(
+    null,
+  );
   const [rungProblems, setRungProblems] = useState<RungProblem[]>();
   const [wrongParts, setWrongParts] = useState<WrongPart[]>();
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -468,7 +470,19 @@ function SolveBoard({
                 {formatDuration(solvedMs)}
               </span>
             </p>
-            {epilogue && <p data-testid="epilogue">{epilogue}</p>}
+            {typeof epilogue === "string" && (
+              <p data-testid="epilogue">{epilogue}</p>
+            )}
+            {Array.isArray(epilogue) && (
+              <ol
+                data-testid="epilogue"
+                className="flex max-w-prose list-none flex-col gap-1"
+              >
+                {epilogue.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ol>
+            )}
             {nextHref && (
               <Button asChild variant="secondary">
                 <Link href={nextHref}>Next in volume</Link>

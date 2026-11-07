@@ -6,6 +6,12 @@ import { type StackStep, zoneName } from "./stack";
 
 type Token = { id: string; name: string; label: string };
 
+export type Highlight = {
+  workerIds: readonly string[];
+  rank: number | null;
+  zone: string | null;
+};
+
 const fileIndex = (file: string) =>
   FILES.indexOf(file as (typeof FILES)[number]);
 const centre = ({ file, rank }: { file: string; rank: number }) => ({
@@ -58,6 +64,9 @@ export function RotaBoard({
   placement,
   steps,
   selectedId,
+  victim,
+  hazardZone,
+  highlight,
   disabled,
   onPick,
   onDropOn,
@@ -66,6 +75,9 @@ export function RotaBoard({
   placement: Placement;
   steps: readonly StackStep[];
   selectedId: string | null;
+  victim: Pick<Token, "id" | "name">;
+  hazardZone: string;
+  highlight: Highlight | null;
   disabled: boolean;
   onPick(workerId: string): void;
   onDropOn(fromId: string, toId: string): void;
@@ -96,10 +108,19 @@ export function RotaBoard({
             const zone = `${file.toUpperCase()}${rank}`;
             const token = at.get(zone);
             const dark = (column + rank) % 2 === 1;
+            const hazard = zone === hazardZone;
+            const marked =
+              highlight !== null &&
+              (highlight.rank === rank || highlight.zone === zone);
             return (
               <div
                 key={zone}
                 data-zone={zone}
+                role={hazard ? "group" : undefined}
+                aria-label={
+                  hazard ? `${zone}, where ${victim.name} was found` : undefined
+                }
+                data-marked={marked || undefined}
                 onDragOver={
                   token && !disabled ? (e) => e.preventDefault() : undefined
                 }
@@ -112,8 +133,15 @@ export function RotaBoard({
                       }
                     : undefined
                 }
-                className={`flex aspect-square items-center justify-center ${dark ? "bg-ink" : "bg-paper"}`}
+                className={`relative flex aspect-square items-center justify-center ${dark ? "bg-ink" : "bg-paper"} ${marked ? "z-10 shadow-[inset_0_0_0_3px_var(--color-ludwig-red)]" : ""}`}
               >
+                {hazard && (
+                  <span
+                    aria-hidden="true"
+                    data-testid="hazard-zone"
+                    className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(135deg,var(--color-ludwig-red)_0_2px,transparent_2px_7px)] opacity-80"
+                  />
+                )}
                 {token && (
                   <button
                     type="button"
@@ -126,8 +154,16 @@ export function RotaBoard({
                     onDragStart={(event) =>
                       event.dataTransfer.setData("text/plain", token.id)
                     }
+                    data-victim={token.id === victim.id || undefined}
+                    data-highlighted={
+                      highlight?.workerIds.includes(token.id) || undefined
+                    }
                     className={`relative z-10 flex size-[76%] touch:size-11 touch:shrink-0 cursor-grab items-center justify-center paper-sheet font-display text-[0.7rem] font-bold tracking-wide focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-default sm:text-sm ${
                       selectedId === token.id ? "bg-ludwig-red text-paper" : ""
+                    } ${token.id === victim.id ? "border-4! border-ludwig-red!" : ""} ${
+                      highlight?.workerIds.includes(token.id)
+                        ? "outline-4 outline-solid outline-ludwig-red"
+                        : ""
                     }`}
                   >
                     {token.label}

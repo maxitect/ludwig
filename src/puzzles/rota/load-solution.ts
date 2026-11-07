@@ -8,7 +8,7 @@ export async function loadSolution(puzzleId: string) {
     columns: { instigatorWorkerId: true },
     with: {
       swaps: {
-        columns: { workerAId: true, workerBId: true },
+        columns: { workerAId: true, workerBId: true, excuse: true },
         orderBy: { step: "asc" },
       },
     },

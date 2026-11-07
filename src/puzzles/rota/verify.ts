@@ -1,5 +1,6 @@
 import {
   applySwaps,
+  instigatorCandidates,
   openingGambit,
   placementFor,
   samePlacement,
@@ -14,14 +15,26 @@ const zoneKey = ({ file, rank }: { file: string; rank: number }) =>
 const pairKey = ({ workerAId, workerBId }: Swap) =>
   [workerAId, workerBId].sort().join("|");
 
-/** Throws unless the content has exactly one shortest valid swap sequence and it is the authored one. */
-export function verifyRota({ workers, clues, solution }: Content) {
+const mentions = (text: string, word: string) =>
+  new RegExp(`(?<![\\w])${word}(?![\\w])`, "i").test(text);
+
+/** Throws unless the content has exactly one shortest valid swap sequence, it is the authored one, and the instigator is decidable. */
+export function verifyRota({
+  brief,
+  victimName,
+  workers,
+  clues,
+  solution,
+}: Content) {
   const names = new Set(workers.map(({ name }) => name));
   if (names.size !== workers.length) throw new Error("duplicate worker name");
   const known = (name: string) => {
     if (!names.has(name)) throw new Error(`unknown worker: ${name}`);
     return name;
   };
+
+  known(victimName);
+  for (const { speakerName } of clues) if (speakerName) known(speakerName);
 
   const payloadWorkers: Payload["workers"] = workers.map(
     ({ name, intended, final }) => ({
@@ -48,6 +61,44 @@ export function verifyRota({ workers, clues, solution }: Content) {
   const finalZones = Object.values(final).map(zoneKey).sort();
   if (intendedZones.join() !== finalZones.join()) {
     throw new Error("the intended and final rotas use different zones");
+  }
+
+  const victim = workers.find(({ name }) => name === victimName);
+  if (victim) {
+    for (const [role, square] of [
+      ["hazard zone", victim.final],
+      ["pinned zone", victim.intended],
+    ] as const) {
+      if (!mentions(brief.replaceAll("**", ""), zoneKey(square))) {
+        throw new Error(`the brief does not name the ${role} ${zoneKey(square)}`);
+      }
+      if (!brief.includes(`**${zoneKey(square).toUpperCase()}**`)) {
+        throw new Error(`the brief does not bold the ${role} ${zoneKey(square)}`);
+      }
+    }
+  }
+
+  for (const clue of clues) {
+    if (
+      clue.kind === "never_in_rank" &&
+      !mentions(clue.displayText, String(clue.rank))
+    ) {
+      throw new Error(`a never_in_rank clue does not name row ${clue.rank}`);
+    }
+    if (
+      clue.kind === "unpowered_square" &&
+      !mentions(clue.displayText, zoneKey(clue))
+    ) {
+      throw new Error(
+        `an unpowered_square clue does not name ${zoneKey(clue)}`,
+      );
+    }
+  }
+  if (!clues.some(({ speakerName }) => speakerName)) {
+    throw new Error("no clue is spoken by a worker");
+  }
+  if (clues.every(({ speakerName }) => speakerName)) {
+    throw new Error("every clue is spoken: add a site log or site rule");
   }
 
   const swaps: Swap[] = solution.swaps.map(({ a, b }) => ({
@@ -79,12 +130,26 @@ export function verifyRota({ workers, clues, solution }: Content) {
     );
   }
 
-  const params = clues.map(({ displayText, ...clue }): ClueParams => {
-    void displayText;
-    if (clue.kind !== "never_in_rank") return clue;
-    const { workerName, ...rest } = clue;
-    return { ...rest, workerId: known(workerName) };
-  });
+  const params = clues.map(
+    ({ displayText, speakerName, ...clue }): ClueParams => {
+      void displayText;
+      void speakerName;
+      if (clue.kind !== "never_in_rank" && clue.kind !== "not_instigator") {
+        return clue;
+      }
+      const { workerName, ...rest } = clue;
+      return { ...rest, workerId: known(workerName) };
+    },
+  );
+  const candidates = instigatorCandidates(swaps, params);
+  if (candidates.length !== 1) {
+    throw new Error(
+      `the not_instigator clues must clear exactly one of the first swap's workers, found ${candidates.length} candidates`,
+    );
+  }
+  if (candidates[0] !== solution.instigatorName) {
+    throw new Error("a not_instigator clue clears the stored instigator");
+  }
   const found = solve(intended, final, params);
   if (found.length !== 1) {
     throw new Error(

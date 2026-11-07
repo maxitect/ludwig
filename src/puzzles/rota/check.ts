@@ -3,8 +3,11 @@ import {
   placementFor,
   samePlacement,
   validateClues,
+  zoneDistance,
 } from "./engine";
+import { hazardSquare } from "./derive";
 import type { Answer, Payload, Solution } from "./schema";
+import { zoneName } from "./stack";
 
 /** The clues the swaps break, applied forwards from the intended rota, in clue order. */
 export function brokenClues(payload: Payload, swaps: Answer["swaps"]) {
@@ -14,15 +17,43 @@ export function brokenClues(payload: Payload, swaps: Answer["swaps"]) {
   );
 }
 
+const zoneCount = (distance: number) =>
+  distance === 1 ? "one zone" : `${distance} zones`;
+
+/** The forward timeline, one line per authored swap, then the confession. Built only for a correct answer. */
+function timeline(payload: Payload, solution: Solution) {
+  const nameOf = (id: string) =>
+    payload.workers.find((worker) => worker.id === id)?.name ?? id;
+  const victim = payload.victimWorkerId;
+  const hazard = hazardSquare(payload);
+  let placement = placementFor(payload.workers, "intended");
+  const lines = solution.swaps.map((swap, index) => {
+    const before = placement[victim];
+    placement = applySwaps(placement, [swap]);
+    const after = placement[victim];
+    const left = zoneDistance(after, hazard);
+    const achieved =
+      left === 0
+        ? `${nameOf(victim)} is now on ${zoneName(hazard)}.`
+        : `${nameOf(victim)} is ${zoneDistance(before, after) ? "now" : "still"} ${zoneCount(left)} from ${zoneName(hazard)}.`;
+    return `Step ${index + 1}: ${nameOf(swap.workerAId)} and ${nameOf(swap.workerBId)} swap. ${swap.excuse} ${achieved}`;
+  });
+  const instigator = nameOf(solution.instigatorWorkerId);
+  return [
+    ...lines,
+    `${instigator} insisted on the first swap. From there, every favour fell the way ${instigator} needed it.`,
+  ];
+}
+
 /**
  * `violatedClue` depends only on the payload and the answer, so the result never hints at the solution.
- * The authored instigator is revealed in `epilogue` only for a correct answer.
+ * The accusation is judged after the sequence, and the epilogue is built only for a correct answer.
  */
 export function check(
   payload: Payload,
   solution: Solution,
   answer: Answer,
-): { correct: boolean; violatedClue?: number; epilogue?: string } {
+): { correct: boolean; violatedClue?: number; epilogue?: string[] } {
   const known = new Set(payload.workers.map((worker) => worker.id));
   if (
     !answer.swaps.every(
@@ -38,15 +69,11 @@ export function check(
   const correct =
     answer.swaps.length === solution.swaps.length &&
     samePlacement(applySwaps(intended, answer.swaps), final) &&
-    !broken;
-  const instigator = payload.workers.find(
-    ({ id }) => id === solution.instigatorWorkerId,
-  );
+    !broken &&
+    answer.instigatorWorkerId === solution.instigatorWorkerId;
   return {
     correct,
     violatedClue: broken?.position,
-    ...(correct && instigator
-      ? { epilogue: `Opening gambit: ${instigator.name} insisted on it.` }
-      : {}),
+    ...(correct ? { epilogue: timeline(payload, solution) } : {}),
   };
 }

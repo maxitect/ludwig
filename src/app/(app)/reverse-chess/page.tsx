@@ -77,10 +77,11 @@ const PROOF_GAME_HOW_IT_WORKS = [
 ];
 
 const ROTA_HOW_IT_WORKS = [
-  "You are shown where each worker ended up on the site, and where the rota meant them to be.",
+  "Read the incident sheet: it says where a worker was found, and where the rota had them.",
+  "The board shows where each worker ended up on the site, and where the rota meant them to be.",
   "Pick two workers to unswap them, one step at a time, until everyone is back on the intended rota.",
   "Every clue must hold for the whole sequence of swaps, and no longer sequence fits them.",
-  "Then name the opening gambit: which of the first two workers to swap started it.",
+  "Then accuse: of the first two workers to swap, name the one who insisted on it.",
 ];
 
 export default async function ReverseChessPage() {
@@ -171,8 +172,11 @@ export default async function ReverseChessPage() {
             className="[&>span:last-child]:text-3xl"
           />
           <p className="text-sm text-muted-foreground">
-            Unpick a swapped duty roster, one unswap at a time, from the clues
-            that remain.
+            A worker died in the wrong zone. Work the swaps backwards to find
+            who put them there.
+          </p>
+          <p className="font-display font-bold tracking-[0.04em] uppercase">
+            &ldquo;We start with the end-game and we work backwards.&rdquo;
           </p>
         </div>
         <Link

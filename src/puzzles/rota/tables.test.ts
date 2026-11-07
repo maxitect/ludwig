@@ -17,6 +17,7 @@ import {
   rotaAttempts,
   rotaClueMaxSwaps,
   rotaClueNeverInRank,
+  rotaClueNotInstigator,
   rotaClueUnpoweredSquare,
   rotaClues,
   rotaPuzzles,
@@ -63,9 +64,17 @@ async function insertWorker(tx: Tx, puzzleId: string, name: string) {
 async function withPuzzle(tx: Tx, slug = "one") {
   await ensureTypes(tx);
   const puzzleId = await insertPuzzle(tx, "rota", slug);
-  await tx.insert(rotaPuzzles).values({ puzzleId });
+  await tx.insert(rotaPuzzles).values({
+    puzzleId,
+    brief: "Marty was found in **B3**.",
+    victimWorkerId: sql`pg_catalog.gen_random_uuid()`,
+  });
   const marty = await insertWorker(tx, puzzleId, "Marty");
   const gary = await insertWorker(tx, puzzleId, "Gary");
+  await tx
+    .update(rotaPuzzles)
+    .set({ victimWorkerId: marty })
+    .where(eq(rotaPuzzles.puzzleId, puzzleId));
   return { puzzleId, marty, gary };
 }
 
@@ -241,7 +250,7 @@ describe("cross-puzzle worker references", () => {
           puzzleId: first.puzzleId,
           step: 1,
           workerAId: first.marty,
-          workerBId: second.gary,
+          workerBId: second.gary, excuse: "x"
         });
       }),
     ).toBe("23503");
@@ -271,7 +280,7 @@ describe("cross-puzzle worker references", () => {
           puzzleId,
           step: 1,
           workerAId: marty,
-          workerBId: gary,
+          workerBId: gary, excuse: "x"
         });
       }),
     ).toBeUndefined();
@@ -288,7 +297,7 @@ describe("cross-puzzle worker references", () => {
           puzzleId,
           step: 1,
           workerAId: marty,
-          workerBId: marty,
+          workerBId: marty, excuse: "x"
         });
       }),
     ).toBe("23514");
@@ -337,9 +346,9 @@ describe("trg_rota_instigator_in_first_swap", () => {
         puzzleId: ids.puzzleId,
         step: 1,
         workerAId: ids.marty,
-        workerBId: ids.gary,
+        workerBId: ids.gary, excuse: "x"
       },
-      { puzzleId: ids.puzzleId, step: 2, workerAId: ids.gary, workerBId: zara },
+      { puzzleId: ids.puzzleId, step: 2, workerAId: ids.gary, workerBId: zara, excuse: "x" },
     ]);
     return { ...ids, zara };
   }
@@ -507,9 +516,11 @@ describe("rota attempts puzzle_id", () => {
       const swap = { workerAId: marty, workerBId: gary };
       await rotaModule.replaceAttemptState(tx, attempt.id, {
         swaps: [swap, swap],
+        instigatorWorkerId: null,
       });
       await rotaModule.replaceAttemptState(tx, attempt.id, {
         swaps: [swap],
+        instigatorWorkerId: null,
       });
       return tx
         .select({ step: rotaAttemptSwaps.step })
@@ -533,6 +544,8 @@ describe("play payload", () => {
 
   it("contains no solution data", async () => {
     const content = contentSchema.parse({
+      brief: "Gary was found in **A1**. The rota had him in **A2**.",
+      victimName: "Gary",
       workers: [
         {
           name: "Marty",
@@ -547,6 +560,12 @@ describe("play payload", () => {
       ],
       clues: [
         { displayText: "Only neighbours swap", kind: "adjacent_only" },
+        {
+          displayText: "I never ask for swaps",
+          kind: "not_instigator",
+          workerName: "Gary",
+          speakerName: "Gary",
+        },
         {
           displayText: "G8 had no power",
           kind: "unpowered_square",
@@ -563,7 +582,7 @@ describe("play payload", () => {
       ],
       solution: {
         instigatorName: "Marty",
-        swaps: [{ a: "Marty", b: "Gary" }],
+        swaps: [{ a: "Marty", b: "Gary", excuse: "x-excuse" }],
       },
     });
     const puzzleId = await db.transaction(async (tx) => {
@@ -577,13 +596,24 @@ describe("play payload", () => {
 
     expect(payloadSchema.strict().safeParse(payload).success).toBe(true);
     expect(payload.workers).toHaveLength(2);
+    expect(payload.brief).toContain("**A1**");
+    expect(payload.victimWorkerId).toBe(
+      payload.workers.find((worker) => worker.name === "Gary")?.id,
+    );
     expect(payload.clues.map((clue) => clue.kind)).toEqual([
       "adjacent_only",
+      "not_instigator",
       "unpowered_square",
       "never_in_rank",
       "max_swaps",
     ]);
-    for (const key of ["instigator", 'swaps":[{"workerAId', "step"]) {
+    for (const key of [
+      "instigatorWorkerId",
+      'swaps":[{"workerAId',
+      "step",
+      "excuse",
+      "x-excuse",
+    ]) {
       expect(JSON.stringify(payload)).not.toContain(key);
     }
     expect(
@@ -596,10 +626,161 @@ describe("play payload", () => {
     expect(solution.instigatorWorkerId).toBe(marty?.id);
     expect(solution.swaps).toHaveLength(1);
     expect(
-      rotaModule.check(payload, solution, { swaps: solution.swaps }),
-    ).toEqual({
-      correct: true,
-      epilogue: "Opening gambit: Marty insisted on it.",
+      rotaModule.check(payload, solution, {
+        swaps: solution.swaps.map(({ workerAId, workerBId }) => ({
+          workerAId,
+          workerBId,
+        })),
+        instigatorWorkerId: solution.instigatorWorkerId,
+      }),
+    ).toMatchObject({ correct: true });
+  });
+});
+
+describe("the case: victim, brief, speaker and accusation", () => {
+  it("accepts the victim of its own puzzle at commit", async () => {
+    expect(
+      await pgError(async (tx) => {
+        await withPuzzle(tx);
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+  });
+
+  it("rejects a victim from another puzzle at commit", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const first = await withPuzzle(tx, "one");
+        const second = await withPuzzle(tx, "two");
+        await tx
+          .update(rotaPuzzles)
+          .set({ victimWorkerId: second.marty })
+          .where(eq(rotaPuzzles.puzzleId, first.puzzleId));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23503");
+  });
+
+  it("rejects an empty brief and one over 280 characters", async () => {
+    for (const brief of ["", "x".repeat(281)]) {
+      expect(
+        await pgErrorCode(async (tx) => {
+          const { puzzleId } = await withPuzzle(tx);
+          await tx
+            .update(rotaPuzzles)
+            .set({ brief })
+            .where(eq(rotaPuzzles.puzzleId, puzzleId));
+        }),
+      ).toBe("23514");
+    }
+  });
+
+  it("accepts a speaker of the same puzzle and rejects one of another at commit", async () => {
+    expect(
+      await pgError(async (tx) => {
+        const { puzzleId, marty } = await withPuzzle(tx);
+        const clueId = await insertClue(tx, puzzleId, "adjacent_only");
+        await tx
+          .update(rotaClues)
+          .set({ speakerWorkerId: marty })
+          .where(eq(rotaClues.id, clueId));
+        await forceDeferred(tx);
+      }),
+    ).toBeUndefined();
+    expect(
+      await pgErrorCode(async (tx) => {
+        const first = await withPuzzle(tx, "one");
+        const second = await withPuzzle(tx, "two");
+        const clueId = await insertClue(tx, first.puzzleId, "adjacent_only");
+        await tx
+          .update(rotaClues)
+          .set({ speakerWorkerId: second.marty })
+          .where(eq(rotaClues.id, clueId));
+        await forceDeferred(tx);
+      }),
+    ).toBe("23503");
+  });
+
+  it("pins a not_instigator row to a not_instigator clue and fills its puzzle_id", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const { puzzleId, marty } = await withPuzzle(tx);
+        const clueId = await insertClue(tx, puzzleId, "max_swaps");
+        await tx
+          .insert(rotaClueNotInstigator)
+          .values({ clueId, workerId: marty });
+      }),
+    ).toBe("23503");
+    const stored = await rolledBack(async (tx) => {
+      const { puzzleId, marty } = await withPuzzle(tx);
+      const clueId = await insertClue(tx, puzzleId, "not_instigator");
+      await tx
+        .insert(rotaClueNotInstigator)
+        .values({ clueId, workerId: marty });
+      const [row] = await tx
+        .select({ puzzleId: rotaClueNotInstigator.puzzleId })
+        .from(rotaClueNotInstigator);
+      return { stored: row.puzzleId, expected: puzzleId };
     });
+    expect(stored.stored).toBe(stored.expected);
+  });
+
+  it("rejects a not_instigator worker of another puzzle", async () => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const first = await withPuzzle(tx, "one");
+        const second = await withPuzzle(tx, "two");
+        const clueId = await insertClue(tx, first.puzzleId, "not_instigator");
+        await tx
+          .insert(rotaClueNotInstigator)
+          .values({ clueId, workerId: second.marty });
+      }),
+    ).toBe("23503");
+  });
+
+  it("requires a subtype row for a not_instigator clue at commit", async () => {
+    const error = await pgError(async (tx) => {
+      const { puzzleId } = await withPuzzle(tx);
+      await insertClue(tx, puzzleId, "not_instigator");
+      await forceDeferred(tx);
+    });
+    expect(error?.code).toBe("23000");
+  });
+
+  it("stores the accused worker on the attempt and rejects one from another puzzle at commit", async () => {
+    const userId = await createTestUser("t164");
+    async function attempt(tx: Tx, puzzleId: string) {
+      const [row] = await tx
+        .insert(attempts)
+        .values({ userId, puzzleId })
+        .returning({ id: attempts.id });
+      return row.id;
+    }
+    const state = await rolledBack(async (tx) => {
+      const { puzzleId, marty } = await withPuzzle(tx);
+      const attemptId = await attempt(tx, puzzleId);
+      await rotaModule.replaceAttemptState(tx, attemptId, {
+        swaps: [],
+        instigatorWorkerId: marty,
+      });
+      const [row] = await tx
+        .select({ id: rotaAttempts.instigatorWorkerId })
+        .from(rotaAttempts)
+        .where(eq(rotaAttempts.attemptId, attemptId));
+      return { saved: row.id, marty };
+    });
+    expect(state.saved).toBe(state.marty);
+    expect(
+      await pgErrorCode(async (tx) => {
+        const first = await withPuzzle(tx, "one");
+        const second = await withPuzzle(tx, "two");
+        const attemptId = await attempt(tx, first.puzzleId);
+        await rotaModule.replaceAttemptState(tx, attemptId, {
+          swaps: [],
+          instigatorWorkerId: second.marty,
+        });
+        await forceDeferred(tx);
+      }),
+    ).toBe("23503");
   });
 });

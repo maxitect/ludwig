@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import { createTestUser, deleteTestUsers } from "@/db/integrity/harness";
@@ -12,6 +12,7 @@ import {
   reverseChessPuzzles,
   reverseChessSolutionPlies,
   rotaPuzzles,
+  rotaWorkers,
 } from "@/db/schema";
 import { gearsModule } from "./gears/module";
 import { reverseChessModule } from "./reverse-chess/module";
@@ -25,6 +26,7 @@ const types = [
 
 const slug = "t019-loader";
 let userId: string;
+let rotaVictimId: string;
 const ids: Record<(typeof types)[number][0], string> = {
   "reverse-chess": "",
   gears: "",
@@ -111,7 +113,21 @@ beforeAll(async () => {
       halfWidthDeg: 45,
       isDriver: true,
     });
-    await tx.insert(rotaPuzzles).values({ puzzleId: await insert("rota") });
+    const rotaId = await insert("rota");
+    await tx.insert(rotaPuzzles).values({
+      puzzleId: rotaId,
+      brief: "Marty was found in **B3**.",
+      victimWorkerId: sql`pg_catalog.gen_random_uuid()`,
+    });
+    const [victim] = await tx
+      .insert(rotaWorkers)
+      .values({ puzzleId: rotaId, name: "Marty" })
+      .returning({ id: rotaWorkers.id });
+    rotaVictimId = victim.id;
+    await tx
+      .update(rotaPuzzles)
+      .set({ victimWorkerId: victim.id })
+      .where(eq(rotaPuzzles.puzzleId, rotaId));
   });
   userId = await createTestUser("t019ld");
 });
@@ -173,7 +189,7 @@ describe("rota loadAttemptState", () => {
   it("is null without saved state and returns the attempt row until cleared", async () => {
     const attemptId = await attemptFor(ids.rota);
     expect(await rotaModule.loadAttemptState(attemptId)).toBeNull();
-    const state = { swaps: [] };
+    const state = { swaps: [], instigatorWorkerId: rotaVictimId };
     await db.transaction((tx) =>
       rotaModule.replaceAttemptState(tx, attemptId, state),
     );

@@ -17,6 +17,10 @@ const sameSquare = (a: Square, b: Square) =>
 
 const fileIndex = (square: Square) => FILES.indexOf(square.file);
 
+/** Zones between two squares, counting only moves across or up and down. */
+export const zoneDistance = (a: Square, b: Square) =>
+  Math.abs(fileIndex(a) - fileIndex(b)) + Math.abs(a.rank - b.rank);
+
 const squareOf = (placement: Placement, workerId: string) => {
   const square = placement[workerId];
   if (!square) throw new Error(`Unknown worker: ${workerId}`);
@@ -82,16 +86,15 @@ const evaluators: { [K in ClueParams["kind"]]: Evaluator<K> } = {
     ),
   adjacent_only: (_clue, { steps }) =>
     steps.every(
-      ({ squareA, squareB }) =>
-        Math.abs(fileIndex(squareA) - fileIndex(squareB)) +
-          Math.abs(squareA.rank - squareB.rank) ===
-        1,
+      ({ squareA, squareB }) => zoneDistance(squareA, squareB) === 1,
     ),
   never_in_rank: (clue, { placements }) =>
     placements.every(
       (placement) => squareOf(placement, clue.workerId).rank !== clue.rank,
     ),
   max_swaps: (clue, { steps }) => steps.length <= clue.maxSwaps,
+  // A statement about the accusation, not the swaps: it never prunes a sequence.
+  not_instigator: () => true,
 };
 
 function evaluate(clue: ClueParams, run: Trace) {
@@ -167,7 +170,7 @@ export function solve(
 export function openingGambit({
   swaps: [swap],
   instigatorWorkerId,
-}: Pick<Solution, "swaps" | "instigatorWorkerId">) {
+}: Pick<Solution, "instigatorWorkerId"> & { swaps: Swap[] }) {
   if (
     !swap ||
     (swap.workerAId !== instigatorWorkerId &&
@@ -176,4 +179,18 @@ export function openingGambit({
     return undefined;
   }
   return { swap, instigator: instigatorWorkerId };
+}
+
+/** The workers of the first swap that no `not_instigator` clue clears of insisting on it. */
+export function instigatorCandidates(
+  [first]: Swap[],
+  clues: ClueParams[],
+) {
+  if (!first) return [];
+  const cleared = new Set(
+    clues.flatMap((clue) =>
+      clue.kind === "not_instigator" ? [clue.workerId] : [],
+    ),
+  );
+  return [first.workerAId, first.workerBId].filter((id) => !cleared.has(id));
 }

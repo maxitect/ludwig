@@ -297,10 +297,12 @@ export async function rotaAttemptFor(email: string) {
   try {
     const { rows } = await pool.query<{
       completed: boolean;
+      instigator: string | null;
       steps: number[];
       pairs: string[];
     }>(
       `select a.completed_at is not null as completed,
+              max(wi.name) as instigator,
               coalesce(array_agg(s.step order by s.step) filter (where s.step is not null), '{}') as steps,
               coalesce(array_agg(wa.name || '-' || wb.name order by s.step) filter (where s.step is not null), '{}') as pairs
          from attempts a
@@ -309,6 +311,8 @@ export async function rotaAttemptFor(email: string) {
          left join rota_attempt_swaps s on s.attempt_id = a.id
          left join rota_workers wa on wa.id = s.worker_a_id
          left join rota_workers wb on wb.id = s.worker_b_id
+         left join rota_attempts ra on ra.attempt_id = a.id
+         left join rota_workers wi on wi.id = ra.instigator_worker_id
         where u.email = $1 and p.type_key = 'rota'
         group by a.id`,
       [email],

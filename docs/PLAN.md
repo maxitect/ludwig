@@ -219,7 +219,13 @@ Plus **This Week**: the `weekly_pairs` seed and the `/this-week` page.
 
 **Native apps** stay out of scope. The open options (licence, a generic store app, or web only), the prerequisites (public HTTP API, token auth, account deletion) and the recommended stack (Expo / React Native sharing the pure engines) are recorded in `docs/research/native-app.md`. No native ticket is written until that decision is made.
 
-**Post-launch, unticketed:** the signed-in Desk (SPEC §3) and whole-answer reveal (SPEC §4.5), both cut from v1 on 2026-10-07. Wider daily gear tooth sizes are T139.
+**Post-launch:** the signed-in Desk (SPEC §3), cut from v1 on 2026-10-07, is now M8 (T153, with favourites in T154 and the favourites digest in T157). Whole-answer reveal (SPEC §4.5) stays unticketed. Wider daily gear tooth sizes are T139.
+
+### M8: Post-launch (the Desk and favourites)
+
+**Goal.** A signed-in home that picks up where the player left off (T153), a charts dashboard (T160), favourite types with New markers (T154), a recommendation shelf (T161), an opt-in email when a favourite type gets a new puzzle or a streak is about to break (T157), and a three.js set piece after a spike (T162). Alongside, the daily crons are retired in favour of a build-time top-up so release stays by date without scheduled functions (T155).
+
+**Exit criteria:** the tickets' acceptance criteria hold on production.
 
 **Exit criteria:** T118's acceptance criteria hold on production.
 

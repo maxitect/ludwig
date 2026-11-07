@@ -152,6 +152,10 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T147](./T147-repair-preview-e2e.md) | Repair the preview end-to-end suite that main broke | — | | | done |
 | [T148](./T148-extend-weekly-schedule.md) | Extend the weekly schedule through June 2027 with the newer puzzle types | T064 | | | done |
 | [T151](./T151-word-search-grid-lines.md) | Even grid lines on the word-search grid | T125 | | | todo |
+| [T152](./T152-spot-difference-desktop-size-and-ink.md) | Spot the difference: bigger scenes on desktop, and paper scenes in Ink | T146 | | | todo |
+| [T156](./T156-landing-sequence-fixes.md) | Landing: LUDWIG writes in the clear, rooms exit through the right wall, piece shadows | T140 | | ✔ | todo |
+| [T158](./T158-crossword-grid-standards.md) | Crossword grid standards: a Quick shelf of blocked grids, Mini for the open grids, word audit (high priority) | T135 | ✔ | ✔ | todo |
+| [T159](./T159-vercel-hobby-limits.md) | Vercel Hobby limits: diagnose ISR writes and CDN requests, fix the causes, keep the cache design (high priority) | T118 | | ✔ | todo |
 
 ## M6: Radio Times set
 
@@ -189,6 +193,7 @@ Not on the launch path (PLAN §3 M6).
 | [T111](./T111-daily-grid-puzzles.md) | Daily seeded grid puzzles | T100 | ✔ | | done |
 | [T149](./T149-more-daily-types.md) | Generate daily puzzles for more grid types | T111 | | | done |
 | [T150](./T150-retune-handwritten-difficulty.md) | Make hand-written puzzles agree with the difficulty grader | T100 | | | todo |
+| [T155](./T155-retire-daily-crons.md) | Retire the daily crons: top up dailies in the build, release by date | T149, T139 | | | todo |
 
 ## M7: Offline PWA (native deferred)
 
@@ -198,3 +203,16 @@ After launch (PLAN §3 M7). Native apps are not ticketed; the open options are i
 |---|---|---|---|---|---|
 | [T118](./T118-service-worker-offline.md) | Service worker and offline fallback (Serwist) | T112, T070 | | | done |
 | [T139](./T139-daily-gear-tooth-variety.md) | Widen the tooth sizes used by daily gear diagrams | T119, T070 | | | done |
+
+## M8: Post-launch (the Desk and favourites)
+
+User feedback after launch testing (2026-11-07). The signed-in Desk was cut from v1 on 2026-10-07 (T138) and is ticketed here. Order: T153, then T154 and T160 in parallel, then T161, T157 and T162. **T158 and T159 (M5) are high priority and come first.**
+
+| ID | Title | Depends on | Mig | Human | Status |
+|---|---|---|---|---|---|
+| [T153](./T153-desk-signed-in-home.md) | The Desk: a signed-in home page that picks up where you left off | T023, T067 | ✔ | | todo |
+| [T154](./T154-favourite-types-and-new-markers.md) | Favourite puzzle types, and New markers on recently added puzzles | T153 | ✔ | | todo |
+| [T160](./T160-desk-charts.md) | Desk charts: a stats dashboard in the house style, built with D3 | T153 | ✔ | | todo |
+| [T161](./T161-recommendations.md) | Recommended for you: a simple recommendation shelf on the Desk | T154, T160 | ✔ | | todo |
+| [T162](./T162-three-js-set-pieces.md) | Brand set pieces in three.js: a spike, then one piece on the Desk | T160, T156 | | | todo |
+| [T157](./T157-favourite-type-digest-email.md) | Email players when a favourite type gets a new puzzle, and when a streak is about to break | T154, T155 | ✔ | ✔ | todo |

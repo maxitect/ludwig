@@ -3,12 +3,13 @@ import { check } from "./check";
 import { answerSchema, type Payload } from "./schema";
 
 const payload: Payload = {
+  brief: "A brief.",
   rows: 1,
   cols: 5,
   targetRow: 0,
   targetCol: 4,
   obstacles: [{ row: 0, col: 2 }],
-  observers: [{ row: 0, col: 0, facing: "e", fovDeg: 90 }],
+  observers: [{ row: 0, col: 0, facing: "e", fovDeg: 90, name: "Observer 1" }],
 };
 const solution = [
   { row: 0, col: 3 },

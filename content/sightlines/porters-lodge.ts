@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Three people swear they saw the alcove. Mark every square none of them could have seen.",
   grid: [
     "........",
     ".##..#..",
@@ -22,8 +23,8 @@ export const content = {
   targetRow: 6,
   targetCol: 0,
   observers: [
-    { row: 0, col: 7, facing: "sw", fovDeg: 120 },
-    { row: 3, col: 0, facing: "e", fovDeg: 90 },
-    { row: 7, col: 5, facing: "nw", fovDeg: 60 },
+    { row: 0, col: 7, facing: "sw", fovDeg: 120, name: "The porter" },
+    { row: 3, col: 0, facing: "e", fovDeg: 90, name: "The student" },
+    { row: 7, col: 5, facing: "nw", fovDeg: 60, name: "The delivery driver" },
   ],
 } satisfies Content;

@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Two readers looked up at the wrong moment. Mark every square neither of them could have seen.",
   grid: [
     "......",
     "......",
@@ -19,7 +20,7 @@ export const content = {
   targetRow: 3,
   targetCol: 0,
   observers: [
-    { row: 0, col: 0, facing: "se", fovDeg: 60 },
-    { row: 4, col: 5, facing: "nw", fovDeg: 60 },
+    { row: 0, col: 0, facing: "se", fovDeg: 60, name: "The librarian" },
+    { row: 4, col: 5, facing: "nw", fovDeg: 60, name: "The archivist" },
   ],
 } satisfies Content;

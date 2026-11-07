@@ -14,7 +14,11 @@ const dimension = (schema: z.ZodNumber) => schema.min(3).max(15);
 const fovDeg = (schema: z.ZodNumber) => schema.min(1).max(360);
 const rangeCells = (schema: z.ZodNumber) => schema.min(1).max(30);
 
+const brief = (schema: z.ZodString) =>
+  schema.max(160).regex(/\S/).regex(/^[^\p{Cc}]*$/u);
+
 const layoutOverrides = {
+  brief,
   rows: dimension,
   cols: dimension,
   startRow: coordinate,
@@ -63,6 +67,7 @@ export const payloadSchema = z
       startCol: true,
       exitRow: true,
       exitCol: true,
+      brief: true,
     }).shape,
     walls: z.array(
       wallSelect.pick({ row: true, col: true, side: true }).strict(),
@@ -95,6 +100,7 @@ export const contentSchema = puzzleInsert
     startCol: true,
     exitRow: true,
     exitCol: true,
+    brief: true,
   })
   .extend({
     walls: z.array(wallInsert.pick({ row: true, col: true, side: true })),

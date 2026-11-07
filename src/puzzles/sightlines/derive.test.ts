@@ -11,7 +11,7 @@ describe("deriveBlindSpots", () => {
       rows: 1,
       cols: 5,
       obstacles: [{ row: 0, col: 2 }],
-      observers: [{ row: 0, col: 0, facing: "e" as const, fovDeg: 90 }],
+      observers: [{ row: 0, col: 0, facing: "e" as const, fovDeg: 90, name: "Observer 1" }],
     };
     expect(deriveBlindSpots(layout)).toEqual([
       { row: 0, col: 3 },
@@ -22,7 +22,7 @@ describe("deriveBlindSpots", () => {
         ...layout,
         observers: [
           ...layout.observers,
-          { row: 0, col: 4, facing: "e" as const, fovDeg: 90 },
+          { row: 0, col: 4, facing: "e" as const, fovDeg: 90, name: "Observer 2" },
         ],
       }),
     ).toEqual([{ row: 0, col: 3 }]);
@@ -35,7 +35,7 @@ describe("deriveBlindSpots", () => {
       rows: 3,
       cols: 3,
       obstacles: [],
-      observers: [{ row: 1, col: 1, facing: "n" as const, fovDeg: 90 }],
+      observers: [{ row: 1, col: 1, facing: "n" as const, fovDeg: 90, name: "Observer 3" }],
     };
     expect(deriveBlindSpots(layout)).toEqual([
       { row: 1, col: 0 },
@@ -47,7 +47,7 @@ describe("deriveBlindSpots", () => {
     expect(
       deriveBlindSpots({
         ...layout,
-        observers: [{ row: 1, col: 1, facing: "n" as const, fovDeg: 360 }],
+        observers: [{ row: 1, col: 1, facing: "n" as const, fovDeg: 360, name: "Observer 4" }],
       }),
     ).toEqual([]);
   });
@@ -57,7 +57,7 @@ describe("deriveBlindSpots", () => {
       rows: 1,
       cols: 4,
       obstacles: [{ row: 0, col: 1 }],
-      observers: [{ row: 0, col: 0, facing: "e", fovDeg: 90 }],
+      observers: [{ row: 0, col: 0, facing: "e", fovDeg: 90, name: "Observer 5" }],
     });
     expect(blind).toEqual([
       { row: 0, col: 2 },
@@ -68,17 +68,18 @@ describe("deriveBlindSpots", () => {
 
 describe("describeCell", () => {
   const payload: Payload = {
+    brief: "Mark the blind spots.",
     rows: 3,
     cols: 3,
     targetRow: 2,
     targetCol: 2,
     obstacles: [{ row: 1, col: 1 }],
-    observers: [{ row: 0, col: 0, facing: "ne", fovDeg: 90 }],
+    observers: [{ row: 0, col: 0, facing: "ne", fovDeg: 90, name: "Observer 6" }],
   };
 
   it("names what stands on a cell", () => {
     expect(describeCell(payload, 1, 1)).toBe("pillar");
-    expect(describeCell(payload, 0, 0)).toBe("observer facing NE, 90 degree view");
+    expect(describeCell(payload, 0, 0)).toBe("Observer 6, facing north-east, 90 degrees");
     expect(describeCell(payload, 2, 2)).toBe("the alcove");
     expect(describeCell(payload, 0, 2)).toBe("floor");
   });

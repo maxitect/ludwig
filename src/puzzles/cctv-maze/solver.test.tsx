@@ -16,6 +16,7 @@ afterEach(() => {
 });
 
 const payload: Payload = {
+  brief: "Cross the street unnoticed.",
   puzzleId: "00000000-0000-4000-8000-000000000000",
   rows: 3,
   cols: 3,
@@ -49,6 +50,11 @@ const reader = (registerCheck: ReturnType<typeof vi.fn>) =>
   registerCheck.mock.calls.at(-1)?.[0] as () => unknown;
 
 describe("cctv maze solver", () => {
+  it("shows the brief above the grid", () => {
+    renderSolver();
+    expect(screen.getByTestId("puzzle-brief").textContent).toBe(payload.brief);
+  });
+
   it("names the start, the exit and the player's place", () => {
     renderSolver();
     expect(screen.getAllByRole("gridcell")).toHaveLength(9);

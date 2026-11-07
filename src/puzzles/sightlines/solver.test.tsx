@@ -8,12 +8,13 @@ import { Solver } from "./solver";
 afterEach(cleanup);
 
 const payload: Payload = {
+  brief: "Mark the blind spots.",
   rows: 3,
   cols: 4,
   targetRow: 0,
   targetCol: 3,
   obstacles: [{ row: 0, col: 2 }],
-  observers: [{ row: 0, col: 0, facing: "ne", fovDeg: 90 }],
+  observers: [{ row: 0, col: 0, facing: "ne", fovDeg: 90, name: "Observer 1" }],
 };
 
 function renderSolver(initialState: AttemptState | null = null) {
@@ -43,10 +44,20 @@ describe("sightlines solver", () => {
     expect(screen.getAllByRole("gridcell")).toHaveLength(12);
     expect(cell(0, 2).getAttribute("aria-label")).toMatch(/pillar/);
     expect(cell(0, 0).getAttribute("aria-label")).toMatch(
-      /observer facing NE, 90 degree view/,
+      /Observer 1, facing north-east, 90 degrees/,
     );
     expect(cell(0, 3).getAttribute("aria-label")).toMatch(/the alcove/);
     expect(cell(1, 1).getAttribute("aria-label")).toMatch(/floor/);
+  });
+
+  it("shows the brief and names each observer", () => {
+    renderSolver();
+    expect(screen.getByTestId("puzzle-brief").textContent).toBe(
+      "Mark the blind spots.",
+    );
+    expect(
+      screen.getByRole("list", { name: "Observers" }).textContent,
+    ).toBe("Observer 1, facing north-east, 90 degrees");
   });
 
   it("marks and clears a cell with the keyboard", async () => {

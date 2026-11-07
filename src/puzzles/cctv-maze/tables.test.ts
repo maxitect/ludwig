@@ -30,6 +30,7 @@ import { cctvMazeModule } from "./module";
 import { payloadSchema } from "./schema";
 
 const content = {
+  brief: "Cross the street unnoticed.",
   rows: 3,
   cols: 3,
   startRow: 0,
@@ -74,6 +75,7 @@ async function insertPuzzle(tx: Tx, typeKey: string, slug = "one") {
 
 const subtype = (puzzleId: string) => ({
   puzzleId,
+  brief: "Cross the street unnoticed.",
   rows: 3,
   cols: 4,
   startRow: 0,
@@ -105,6 +107,22 @@ describe("cctv maze tables", () => {
       where t.typname = 'wall_side' order by e.enumsortorder
     `);
     expect(rows.rows.map((row) => row.enumlabel)).toEqual(["north", "west"]);
+  });
+
+  it.each([
+    ["an empty brief", ""],
+    ["a brief over 160 characters", "x".repeat(161)],
+    ["a blank brief", "   "],
+    ["a brief with a line break", "one\ntwo"],
+  ])("rejects %s", async (_, brief) => {
+    expect(
+      await pgErrorCode(async (tx) => {
+        const puzzleId = await insertPuzzle(tx, "cctv-maze");
+        await tx
+          .insert(cctvMazePuzzles)
+          .values({ ...subtype(puzzleId), brief });
+      }),
+    ).toBe("23514");
   });
 
   it("rejects a subtype row for a puzzle of another type", async () => {
@@ -368,7 +386,9 @@ describe("cctv maze module", () => {
   it("loads the layout only, with no path or seen cell", async () => {
     const payload = await load(puzzleId);
     expect(payloadSchema.strict().parse(payload)).toEqual(payload);
+    expect(payload.brief).toBe(content.brief);
     expect(Object.keys(payload).sort()).toEqual([
+      "brief",
       "cameras",
       "cols",
       "exitCol",

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { revealCameras } from "@/lib/actions/cctv-maze";
 import { cn } from "@/utils/cn";
+import { BriefSheet } from "../_shared/brief-sheet";
 import type { SolverProps } from "../solver-types";
 import { canStep, deriveSeen } from "./derive";
 import type * as schema from "./schema";
@@ -144,6 +145,7 @@ export function Solver({
 
   return (
     <div className="flex flex-col gap-4">
+      <BriefSheet brief={payload.brief} />
       <p>
         Walk from the start to the exit without entering a camera&apos;s view.
         The cameras are hidden: revealing them counts as a hint.

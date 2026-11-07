@@ -29,6 +29,7 @@ export const cctvMazePuzzles = pgTable(
     startCol: smallint("start_col").notNull(),
     exitRow: smallint("exit_row").notNull(),
     exitCol: smallint("exit_col").notNull(),
+    brief: text("brief").notNull(),
   },
   (table) => [
     foreignKey({
@@ -53,6 +54,10 @@ export const cctvMazePuzzles = pgTable(
     check(
       "cctv_maze_puzzles_exit_col_check",
       sql`${table.exitCol} between 0 and ${table.cols} - 1`,
+    ),
+    check(
+      "cctv_maze_puzzles_brief_check",
+      sql`char_length(${table.brief}) between 1 and 160 and btrim(${table.brief}) <> '' and ${table.brief} !~ '[[:cntrl:]]'`,
     ),
   ],
 );

@@ -5,14 +5,26 @@ import { payloadSchema } from "./schema";
 export async function load(puzzleId: string) {
   const puzzle = await db.query.sightlinesPuzzles.findFirst({
     where: { puzzleId },
-    columns: { rows: true, cols: true, targetRow: true, targetCol: true },
+    columns: {
+      rows: true,
+      cols: true,
+      targetRow: true,
+      targetCol: true,
+      brief: true,
+    },
     with: {
       obstacles: {
         columns: { row: true, col: true },
         orderBy: { row: "asc", col: "asc" },
       },
       observers: {
-        columns: { row: true, col: true, facing: true, fovDeg: true },
+        columns: {
+          row: true,
+          col: true,
+          facing: true,
+          fovDeg: true,
+          name: true,
+        },
         orderBy: { row: "asc", col: "asc" },
       },
     },

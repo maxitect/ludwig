@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Cross the market to the north-east corner while every camera watches the stalls.",
   rows: 7,
   cols: 8,
   startRow: 4,

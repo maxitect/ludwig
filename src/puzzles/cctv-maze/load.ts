@@ -13,6 +13,7 @@ export async function load(puzzleId: string) {
       startCol: true,
       exitRow: true,
       exitCol: true,
+      brief: true,
     },
     with: {
       walls: {

@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Find your way through the old lanes to the far side without entering any camera's view.",
   rows: 12,
   cols: 12,
   startRow: 7,

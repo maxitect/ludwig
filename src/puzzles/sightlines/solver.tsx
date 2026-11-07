@@ -10,8 +10,9 @@ import {
 } from "react";
 import { cn } from "@/utils/cn";
 import { cellRotation } from "../_shared/cell-grid/cell-grid";
+import { BriefSheet } from "../_shared/brief-sheet";
 import type { SolverProps } from "../solver-types";
-import { describeCell } from "./derive";
+import { describeCell, describeObserver } from "./derive";
 import type * as schema from "./schema";
 
 type Observer = schema.Payload["observers"][number];
@@ -139,6 +140,7 @@ export function Solver({
 
   return (
     <div className="flex flex-col gap-4">
+      <BriefSheet brief={payload.brief} />
       <p>
         Pillars block the view. Mark every floor cell that no observer can
         see, the alcove included.
@@ -250,6 +252,13 @@ export function Solver({
           cell. Pillars cannot be marked.
         </p>
       </div>
+      <ul aria-label="Observers" className="flex flex-col gap-1 text-sm">
+        {observers.map((observer) => (
+          <li key={key(observer.row, observer.col)}>
+            {describeObserver(observer)}
+          </li>
+        ))}
+      </ul>
       <p role="status" className="font-display text-sm uppercase">
         {marks.length} {marks.length === 1 ? "cell" : "cells"} marked
       </p>

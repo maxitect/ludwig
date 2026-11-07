@@ -43,6 +43,7 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
   },
   "cctv-maze": {
     puzzleId: ids[0],
+    brief: "Cross the street unnoticed.",
     rows: 5,
     cols: 5,
     startRow: 0,
@@ -277,14 +278,15 @@ export const samplePayloads: Record<PuzzleTypeKey, unknown> = {
     ],
   },
   sightlines: {
+    brief: "Two people say they saw the alcove.",
     rows: 6,
     cols: 6,
     targetRow: 3,
     targetCol: 3,
     obstacles: [{ row: 2, col: 2 }],
     observers: [
-      { row: 0, col: 0, facing: "se", fovDeg: 90 },
-      { row: 5, col: 5, facing: "n", fovDeg: 360 },
+      { row: 0, col: 0, facing: "se", fovDeg: 90, name: "Observer 1" },
+      { row: 5, col: 5, facing: "n", fovDeg: 360, name: "Observer 2" },
     ],
   },
   "spot-difference": {

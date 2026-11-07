@@ -36,6 +36,10 @@ export function verifySightlines({
     if (observers.findIndex((o) => o.row === row && o.col === col) !== i) {
       throw new Error(`two observers stand at (${row}, ${col})`);
     }
+    const { name } = observers[i];
+    if (observers.findIndex((o) => o.name === name) !== i) {
+      throw new Error(`two observers are called "${name}"`);
+    }
   }
   const obstacles = grid.flatMap((line, row) =>
     [...line].flatMap((ch, col) => (ch === "#" ? [{ row, col }] : [])),

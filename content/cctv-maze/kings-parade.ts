@@ -9,6 +9,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
+  brief: "Cross King's Parade to the far corner without being seen by any camera.",
   rows: 8,
   cols: 9,
   startRow: 0,

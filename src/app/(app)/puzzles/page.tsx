@@ -78,7 +78,7 @@ export default async function PuzzlesPage() {
                       typeKey={type.key}
                       favourites={favourites}
                       next={`/puzzles/${type.key}`}
-                      size="sm"
+                      compact
                       className="absolute top-6 right-6 bg-background"
                     />
                   </Suspense>

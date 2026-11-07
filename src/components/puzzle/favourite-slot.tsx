@@ -10,24 +10,24 @@ export async function FavouriteSlot({
   typeKey,
   favourites,
   next,
-  size,
+  compact,
   className,
 }: {
   typeKey: string;
   favourites: FavouriteKeys;
   next: string;
-  size?: "default" | "sm";
+  compact?: boolean;
   className?: string;
 }) {
   const keys = await favourites;
   if (!keys) {
-    return <FavouriteSignIn next={next} size={size} className={className} />;
+    return <FavouriteSignIn next={next} compact={compact} className={className} />;
   }
   return (
     <FavouriteToggle
       typeKey={typeKey}
       initial={keys.has(typeKey)}
-      size={size}
+      compact={compact}
       className={className}
     />
   );

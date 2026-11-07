@@ -10,12 +10,12 @@ import { cn } from "@/utils/cn";
 export function FavouriteToggle({
   typeKey,
   initial,
-  size,
+  compact,
   className,
 }: {
   typeKey: string;
   initial: boolean;
-  size?: "default" | "sm";
+  compact?: boolean;
   className?: string;
 }) {
   const [pressed, setPressed] = useState(initial);
@@ -25,7 +25,7 @@ export function FavouriteToggle({
     <Toggle
       pressed={pressed}
       disabled={pending}
-      size={size}
+      size={compact ? "sm" : "default"}
       className={cn(
         "data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground",
         className,
@@ -39,27 +39,32 @@ export function FavouriteToggle({
       }}
     >
       <Star aria-hidden="true" className={pressed ? "fill-current" : ""} />
-      Favourite
+      <Label compact={compact} />
     </Toggle>
   );
 }
 
 export function FavouriteSignIn({
   next,
-  size,
+  compact,
   className,
 }: {
   next: string;
-  size?: "default" | "sm";
+  compact?: boolean;
   className?: string;
 }) {
   return (
     <Link
       href={`/sign-in?next=${next}`}
-      className={cn(toggleVariants({ size }), className)}
+      className={cn(toggleVariants({ size: compact ? "sm" : "default" }), className)}
     >
       <Star aria-hidden="true" />
-      Favourite
+      <Label compact={compact} />
     </Link>
   );
+}
+
+/** A compact control shows only the star below `lg`, where it would cover the card's thumbnail. */
+function Label({ compact }: { compact?: boolean }) {
+  return <span className={compact ? "max-lg:sr-only" : undefined}>Favourite</span>;
 }

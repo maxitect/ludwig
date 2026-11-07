@@ -9,7 +9,7 @@ import {
   type PointerEvent,
 } from "react";
 import { cn } from "@/utils/cn";
-import { cellRotation } from "../cell-grid/cell-grid";
+import { FRAME, HAIRLINE, cellRotation, snappedCell } from "../cell-grid/cell-grid";
 import { selectionPath, type CellPosition } from "./path";
 
 export type FoundStroke = { start: CellPosition; end: CellPosition };
@@ -70,6 +70,7 @@ export function HighlightPathGrid({
   const [dragging, setDragging] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const helpId = useId();
+  const cell = snappedCell(cols, rows);
   const cellRefs = useRef(new Map<string, HTMLDivElement>());
   const focusCursor = useRef(false);
 
@@ -155,7 +156,10 @@ export function HighlightPathGrid({
         aria-label={label}
         aria-describedby={helpId}
         aria-disabled={disabled}
-        className="relative flex touch-none flex-col border-2 border-border bg-paper shadow-[3px_3px_0_var(--cast)] select-none"
+        className="relative mx-auto flex touch-none flex-col gap-px border-2 border-border bg-ink shadow-[3px_3px_0_var(--cast)] select-none forced-colors:bg-[CanvasText]"
+        style={{
+          width: `calc(${cell} * ${cols} + ${(cols - 1) * HAIRLINE + 2 * FRAME}px)`,
+        }}
         onKeyDown={onKeyDown}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -169,8 +173,8 @@ export function HighlightPathGrid({
           <div
             key={row}
             role="row"
-            className="grid"
-            style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+            className="grid grid-flow-col gap-px"
+            style={{ gridTemplateColumns: `repeat(${cols}, ${cell})` }}
           >
             {Array.from({ length: cols }, (_, col) => {
               const key = `${row},${col}`;
@@ -189,12 +193,14 @@ export function HighlightPathGrid({
                   aria-selected={pendingKeys.has(key)}
                   data-cursor={isCursor}
                   className={cn(
-                    "flex aspect-square items-center justify-center border border-paper-deep font-display font-bold text-ink outline-0",
+                    "flex aspect-square items-center justify-center bg-paper font-display font-bold text-ink outline-0",
                     pendingKeys.has(key) && "bg-paper-deep",
                     isStart && "underline decoration-2 underline-offset-4",
                     "focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                   )}
-                  style={{ fontSize: `${60 / cols}cqw` }}
+                  style={{
+                    fontSize: `min(${60 / cols}cqw, calc(var(--solver-height, 100000px) * 0.6 / ${rows}))`,
+                  }}
                   onFocus={() => {
                     focusCursor.current = true;
                     setCursor({ row, col });

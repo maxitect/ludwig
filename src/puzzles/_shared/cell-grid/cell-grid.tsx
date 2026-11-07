@@ -94,8 +94,8 @@ export function cellRotation(index: number) {
   return Number((mulberry32(index + 1)() * 4 - 2).toFixed(2));
 }
 
-const FRAME = 2;
-const HAIRLINE = 1;
+export const FRAME = 2;
+export const HAIRLINE = 1;
 
 /** CSS length of the largest whole-pixel cell that fits the grid's container, and in solve mode the height `--solver-height` leaves, so every hairline lands on a pixel boundary. */
 export function snappedCell(cols: number, rows = cols) {

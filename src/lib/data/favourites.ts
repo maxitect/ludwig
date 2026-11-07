@@ -3,6 +3,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { userFavouriteTypes, userTypeVisits } from "@/db/schema";
 import { NEW_WINDOW_DAYS } from "@/config/new-puzzles";
+import { isPublished } from "@/lib/data/puzzles";
 import { getCurrentUser, requireUser } from "@/lib/data/user";
 
 /** Null when signed out, so a caller can tell "no favourites" from "no user". */
@@ -61,8 +62,8 @@ export async function getFavouriteShelf(userId: string) {
         columns: { key: true, name: true },
         with: {
           puzzles: {
-            columns: { slug: true, title: true },
-            where: { RAW: (t) => sql`${t.publishedAt} <= now()` },
+            columns: { title: true },
+            where: { RAW: isPublished },
             orderBy: { publishedAt: "desc", title: "desc" },
             limit: 1,
           },
@@ -77,7 +78,7 @@ export async function getFavouriteShelf(userId: string) {
     join user_favourite_types f on f.type_key = p.type_key and f.user_id = ${userId}
     left join user_type_visits v on v.type_key = p.type_key and v.user_id = ${userId}
     where p.published_at <= now()
-      and p.published_at > coalesce(v.visited_at, now() - make_interval(days => ${NEW_WINDOW_DAYS}))
+      and p.published_at > coalesce(v.visited_at, now() - make_interval(hours => ${NEW_WINDOW_DAYS * 24}))
       and not exists (select 1 from daily_puzzles d where d.puzzle_id = p.id)
       and not exists (select 1 from gear_daily g where g.puzzle_id = p.id)
     group by p.type_key

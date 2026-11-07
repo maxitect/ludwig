@@ -53,7 +53,8 @@ Spec: `docs/SPEC.md` section 6. The look is the _Ludwig_ title sequence: texture
 ## Motion and accessibility
 
 - Every animation respects `prefers-reduced-motion`, and the user's `reduce_motion` setting.
-- Use `motion` only for gears and the solved stamp. Everything else is CSS transitions.
+- Use `motion` only for gears and the solved stamp. The Desk charts (`src/components/desk/`) may use D3 transitions (`d3-transition`) for their first-paint draw-in, about 500 ms and staggered; they run only when `useReduceMotion()` is false, otherwise the marks render fully drawn. Counting numbers is CSS (`.count-up`). Everything else is CSS transitions.
+- Charts are SVG in `ink` and `ludwig-red` (the highlighted series) with `grid-blue` grid lines, hard strokes, no filters or blur. Each has a visually hidden data table, keyboard-reachable marks with the tooltip text as their accessible name, and a legend or label so colour is never the only signal.
 - Every interaction is keyboard-operable.
 - Colour is never the only signal (e.g. Xs versus dots on gear sightlines).
 - Text contrast meets WCAG AA. `crayon` is only for large text.

@@ -9,6 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DeskCharts } from "@/components/desk/desk-charts";
+import { StatTiles } from "@/components/desk/stat-tiles";
+import { CHARTS_MIN_SOLVES } from "@/config/desk";
 import { getDesk } from "@/lib/data/desk";
 import { getCurrentUser } from "@/lib/data/user";
 import { TitleSequence } from "./title-sequence";
@@ -54,7 +57,7 @@ export async function Desk() {
       <FavouritesShelf favourites={desk.favourites} />
       <TodayShelf today={desk.today} />
       <WeekShelf week={desk.week} />
-      <Stats stats={desk.stats} />
+      <Stats stats={desk.stats} charts={desk.charts} />
     </DeskFrame>
   );
 }
@@ -252,42 +255,34 @@ function WeekShelf({ week }: { week: DeskData["week"] }) {
   );
 }
 
-function Stats({ stats }: { stats: DeskData["stats"] }) {
-  const days = (count: number) => `${count} ${count === 1 ? "day" : "days"}`;
+function Stats({
+  stats,
+  charts,
+}: {
+  stats: DeskData["stats"];
+  charts: DeskData["charts"];
+}) {
   return (
     <Shelf id="stats" title="Your stats">
-      {stats.total === 0 ? (
+      <StatTiles
+        stats={stats}
+        categories={charts.categories}
+        fastest={charts.fastest}
+      />
+      {stats.total < CHARTS_MIN_SOLVES ? (
         <div className="flex flex-col items-start gap-3">
           <Walker />
-          <p>No cases closed yet. Solve a puzzle and it will be filed here.</p>
+          <p>Solve a few more and the charts fill in.</p>
         </div>
       ) : (
-        <>
-          <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Tile label="Solved" value={String(stats.total)} />
-            <Tile label="This week" value={String(stats.thisWeek)} />
-            <Tile label="Current streak" value={days(stats.currentStreak)} />
-            <Tile label="Longest streak" value={days(stats.longestStreak)} />
-          </dl>
-          <Link
-            href="/casebook"
-            className="w-fit font-bold underline underline-offset-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
-          >
-            Open the Casebook
-          </Link>
-        </>
+        <DeskCharts charts={charts} currentStreak={stats.currentStreak} />
       )}
+      <Link
+        href="/casebook"
+        className="w-fit font-bold underline underline-offset-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >
+        Open the Casebook
+      </Link>
     </Shelf>
-  );
-}
-
-function Tile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col border-2 border-border bg-background p-4">
-      <dt className="font-display text-lg font-light tracking-[0.04em] uppercase">
-        {label}
-      </dt>
-      <dd className="font-display text-4xl font-bold">{value}</dd>
-    </div>
   );
 }

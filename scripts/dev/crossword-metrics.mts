@@ -13,7 +13,7 @@ for (const { slug, content } of files) {
   const { entries, checkedRatio, blackRatio } = measureGrid(grid);
   let verdict = "ok";
   try {
-    crosswordModule.verify?.(grid, {});
+    crosswordModule.verify?.(grid);
   } catch (error) {
     verdict = error instanceof Error ? error.message : String(error);
   }

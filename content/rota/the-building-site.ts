@@ -11,7 +11,7 @@ export const meta = {
 } satisfies ContentMeta;
 
 export const content = {
-  brief: "Hobb was found at the foot of the hoist in **D3** at 11:40. The generator there had been rewired and stood in a puddle. The rota pinned up at eight had him in **D2**.",
+  brief: "Hobb was found by the hoist in **D3** at 11:40, beside a rewired generator in a puddle. The rota had him in **D2**.",
   victimName: "Hobb",
   workers: [
     { name: "Bridget", intended: { file: "e", rank: 3 }, final: { file: "e", rank: 3 } },

@@ -8,6 +8,8 @@ import {
 } from "@/components/puzzle/solved-badge";
 import { TypeThumbnail } from "@/components/puzzle/puzzle-thumbnail";
 import { Badge } from "@/components/ui/badge";
+import { FavouriteSlot } from "@/components/puzzle/favourite-slot";
+import { getFavouriteTypeKeys } from "@/lib/data/favourites";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
 import { getCatalogue } from "@/lib/data/catalogue";
 
@@ -29,6 +31,8 @@ export default async function PuzzlesPage() {
   const solved = getSolvedPuzzleIds(
     categories.flatMap(({ types }) => types.flatMap(({ puzzleIds }) => puzzleIds)),
   );
+
+  const favourites = getFavouriteTypeKeys();
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-12 sm:px-8">
@@ -56,8 +60,9 @@ export default async function PuzzlesPage() {
           </h2>
           <ul className="grid gap-4 sm:grid-cols-2">
             {category.types.map((type) => (
-              <li key={type.key}>
+              <li key={type.key} className="relative">
                 {type.published > 0 ? (
+                  <>
                   <Link
                     href={`/puzzles/${type.key}`}
                     className="flex h-full flex-col gap-2 border-2 border-border p-4 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -68,6 +73,16 @@ export default async function PuzzlesPage() {
                       solved={solved}
                     />
                   </Link>
+                  <Suspense fallback={null}>
+                    <FavouriteSlot
+                      typeKey={type.key}
+                      favourites={favourites}
+                      next={`/puzzles/${type.key}`}
+                      size="sm"
+                      className="absolute top-6 right-6 bg-background"
+                    />
+                  </Suspense>
+                  </>
                 ) : (
                   <div
                     data-testid="coming-soon"
@@ -109,6 +124,7 @@ function TypeCardBody({
           <Suspense fallback={null}>
             <CompleteBadge puzzleIds={type.puzzleIds} solved={solved} />
           </Suspense>
+          {type.newCount > 0 && <Badge>{type.newCount} new</Badge>}
           <Badge variant="outline">{status}</Badge>
         </span>
       </span>

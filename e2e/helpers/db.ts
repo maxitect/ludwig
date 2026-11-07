@@ -566,3 +566,44 @@ export async function detectiveSceneAttemptFor(email: string) {
     await pool.end();
   }
 }
+
+/** Moves a puzzle's `published_at` and returns what it was, so the test can put it back. */
+export async function setPublishedAt(
+  typeKey: string,
+  slug: string,
+  publishedAtSql: string,
+) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ previous: Date }>(
+      `with old as (select published_at from puzzles where type_key = $1 and slug = $2)
+       update puzzles set published_at = ${publishedAtSql}
+        where type_key = $1 and slug = $2
+       returning (select published_at from old) as previous`,
+      [typeKey, slug],
+    );
+    return rows[0].previous;
+  } finally {
+    await pool.end();
+  }
+}
+
+export async function restorePublishedAt(
+  typeKey: string,
+  slug: string,
+  previous: Date,
+) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    await pool.query(
+      `update puzzles set published_at = $3 where type_key = $1 and slug = $2`,
+      [typeKey, slug, previous],
+    );
+  } finally {
+    await pool.end();
+  }
+}

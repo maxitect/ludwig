@@ -1,5 +1,6 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
+import { isNewlyPublished } from "@/config/new-puzzles";
 import { db } from "@/db";
 import { isPublished } from "./puzzles";
 
@@ -36,9 +37,18 @@ export async function getCatalogue() {
         orderBy: { sort: "asc" },
         with: {
           puzzles: {
-            columns: { id: true, slug: true, volumePosition: true },
+            columns: {
+              id: true,
+              slug: true,
+              volumePosition: true,
+              publishedAt: true,
+            },
             where: { RAW: isPublished },
-            with: { volume: { columns: { sort: true } } },
+            with: {
+              volume: { columns: { sort: true } },
+              daily: { columns: { date: true } },
+              gearDaily: { columns: { date: true } },
+            },
           },
         },
       },
@@ -49,6 +59,10 @@ export async function getCatalogue() {
     types: category.types.map(({ puzzles, ...type }) => ({
       ...type,
       published: puzzles.length,
+      newCount: puzzles.filter(
+        ({ publishedAt, daily, gearDaily }) =>
+          !daily && !gearDaily && isNewlyPublished(publishedAt),
+      ).length,
       puzzleIds: puzzles.map(({ id }) => id),
       representativeId: firstInVolumeOrder(puzzles)?.id ?? null,
     })),
@@ -65,21 +79,29 @@ export async function getTypeCatalogue(typeKey: string) {
     with: {
       category: { columns: { name: true } },
       puzzles: {
-        columns: { id: true, slug: true, title: true, difficulty: true },
+        columns: {
+          id: true,
+          slug: true,
+          title: true,
+          difficulty: true,
+          publishedAt: true,
+        },
         where: { RAW: isPublished },
         orderBy: { title: "asc" },
         with: {
           volume: { columns: { id: true, title: true, sort: true } },
           crossword: { columns: { style: true } },
           daily: { columns: { date: true } },
+          gearDaily: { columns: { date: true } },
         },
       },
     },
   });
   if (!type) return null;
   const { puzzles: rows, ...rest } = type;
-  const puzzles = rows.map(({ crossword, daily, ...puzzle }) => ({
+  const puzzles = rows.map(({ crossword, daily, gearDaily, publishedAt, ...puzzle }) => ({
     ...puzzle,
+    isNew: !daily && !gearDaily && isNewlyPublished(publishedAt),
     style: crossword?.style ?? (daily ? DAILY_STYLE : null),
   }));
   // A daily's title carries its ISO date, so the query's title order is date order.

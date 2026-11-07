@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { userSolves, userStreaks } from "@/db/schema";
 import { dailyTypes } from "@/config/daily-types";
 import { getSolvedPuzzleIds } from "@/lib/data/attempts";
+import { getDeskCharts } from "@/lib/data/desk-charts";
 import { getFavouriteShelf } from "@/lib/data/favourites";
 import { isPublished } from "@/lib/data/puzzles";
 import { requireUser } from "@/lib/data/user";
@@ -31,7 +32,7 @@ export async function getDesk() {
   const today = londonDate(now);
   const weekStart = londonWeekStart(now);
 
-  const [continuing, favourites, todays, weeks, totals, streaks] = await Promise.all([
+  const [continuing, favourites, todays, weeks, totals, streaks, charts] = await Promise.all([
     db.query.attempts.findMany({
       where: {
         userId,
@@ -83,6 +84,7 @@ export async function getDesk() {
       })
       .from(userStreaks)
       .where(eq(userStreaks.userId, userId)),
+    getDeskCharts(userId, weekStart),
   ]);
 
   const pair =
@@ -108,5 +110,6 @@ export async function getDesk() {
       currentStreak: streaks[0]?.current ?? 0,
       longestStreak: streaks[0]?.longest ?? 0,
     },
+    charts,
   };
 }

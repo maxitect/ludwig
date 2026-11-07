@@ -39,6 +39,10 @@ export async function replaceAttemptState(attemptId: string, state: unknown) {
       attemptId,
       state,
     );
+    await tx
+      .update(attempts)
+      .set({ lastSavedAt: sql`now()` })
+      .where(eq(attempts.id, attemptId));
   });
 }
 

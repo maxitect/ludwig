@@ -122,6 +122,7 @@ export const reflectionsModule = {
       .delete(reflectionsAttempts)
       .where(eq(reflectionsAttempts.attemptId, attemptId));
   },
+  attemptRoot: reflectionsAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.reflectionsAttempts.findFirst({
       where: { attemptId },

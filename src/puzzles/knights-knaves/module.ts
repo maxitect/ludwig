@@ -88,6 +88,7 @@ export const knightsKnavesModule = {
       .delete(knightsKnavesAttempts)
       .where(eq(knightsKnavesAttempts.attemptId, attemptId));
   },
+  attemptRoot: knightsKnavesAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.knightsKnavesAttempts.findFirst({
       where: { attemptId },

@@ -67,6 +67,7 @@ export const starBattleModule = {
       .delete(starBattleAttempts)
       .where(eq(starBattleAttempts.attemptId, attemptId));
   },
+  attemptRoot: starBattleAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.starBattleAttempts.findFirst({
       where: { attemptId },

@@ -35,6 +35,7 @@ export const caesarModule = {
       .delete(caesarAttempts)
       .where(eq(caesarAttempts.attemptId, attemptId));
   },
+  attemptRoot: caesarAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.caesarAttempts.findFirst({
       where: { attemptId },

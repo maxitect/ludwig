@@ -117,6 +117,7 @@ export const sudokuModule = {
       .delete(sudokuAttempts)
       .where(eq(sudokuAttempts.attemptId, attemptId));
   },
+  attemptRoot: sudokuAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.sudokuAttempts.findFirst({
       where: { attemptId },

@@ -67,6 +67,7 @@ export const wordLadderModule = {
       .delete(wordLadderAttempts)
       .where(eq(wordLadderAttempts.attemptId, attemptId));
   },
+  attemptRoot: wordLadderAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.wordLadderAttempts.findFirst({
       where: { attemptId },

@@ -102,6 +102,7 @@ export const reverseChessModule = {
       .delete(reverseChessAttempts)
       .where(eq(reverseChessAttempts.attemptId, attemptId));
   },
+  attemptRoot: reverseChessAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.reverseChessAttempts.findFirst({
       where: { attemptId },

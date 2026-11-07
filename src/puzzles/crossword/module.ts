@@ -118,6 +118,7 @@ export const crosswordModule = {
       .delete(crosswordAttempts)
       .where(eq(crosswordAttempts.attemptId, attemptId));
   },
+  attemptRoot: crosswordAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.crosswordAttempts.findFirst({
       where: { attemptId },

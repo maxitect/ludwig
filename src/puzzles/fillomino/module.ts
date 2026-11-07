@@ -68,6 +68,7 @@ export const fillominoModule = {
       .delete(fillominoAttempts)
       .where(eq(fillominoAttempts.attemptId, attemptId));
   },
+  attemptRoot: fillominoAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.fillominoAttempts.findFirst({
       where: { attemptId },

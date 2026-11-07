@@ -62,6 +62,7 @@ export const oddOneOutModule = {
       .delete(oddOneOutAttempts)
       .where(eq(oddOneOutAttempts.attemptId, attemptId));
   },
+  attemptRoot: oddOneOutAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.oddOneOutAttempts.findFirst({
       where: { attemptId },

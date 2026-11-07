@@ -60,6 +60,7 @@ export const nonogramModule = {
       .delete(nonogramAttempts)
       .where(eq(nonogramAttempts.attemptId, attemptId));
   },
+  attemptRoot: nonogramAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.nonogramAttempts.findFirst({
       where: { attemptId },

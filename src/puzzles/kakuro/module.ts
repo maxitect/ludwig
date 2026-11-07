@@ -62,6 +62,7 @@ export const kakuroModule = {
       .delete(kakuroAttempts)
       .where(eq(kakuroAttempts.attemptId, attemptId));
   },
+  attemptRoot: kakuroAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.kakuroAttempts.findFirst({
       where: { attemptId },

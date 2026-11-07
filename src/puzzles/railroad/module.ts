@@ -119,6 +119,7 @@ export const railroadModule = {
       .delete(railroadAttempts)
       .where(eq(railroadAttempts.attemptId, attemptId));
   },
+  attemptRoot: railroadAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.railroadAttempts.findFirst({
       where: { attemptId },

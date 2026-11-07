@@ -93,6 +93,7 @@ export const detectiveSceneModule = {
       .delete(detectiveSceneAttempts)
       .where(eq(detectiveSceneAttempts.attemptId, attemptId));
   },
+  attemptRoot: detectiveSceneAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.detectiveSceneAttempts.findFirst({
       where: { attemptId },

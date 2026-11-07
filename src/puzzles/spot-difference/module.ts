@@ -74,6 +74,7 @@ export const spotDifferenceModule = {
       .delete(spotDifferenceAttempts)
       .where(eq(spotDifferenceAttempts.attemptId, attemptId));
   },
+  attemptRoot: spotDifferenceAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.spotDifferenceAttempts.findFirst({
       where: { attemptId },

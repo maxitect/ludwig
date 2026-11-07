@@ -55,6 +55,7 @@ export const chessProblemModule = {
       .delete(chessProblemAttempts)
       .where(eq(chessProblemAttempts.attemptId, attemptId));
   },
+  attemptRoot: chessProblemAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.chessProblemAttempts.findFirst({
       where: { attemptId },

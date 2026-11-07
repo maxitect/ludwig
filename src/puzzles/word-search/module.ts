@@ -81,6 +81,7 @@ export const wordSearchModule = {
       .delete(wordSearchAttempts)
       .where(eq(wordSearchAttempts.attemptId, attemptId));
   },
+  attemptRoot: wordSearchAttempts,
   async loadAttemptState(attemptId) {
     const attempt = await db.query.wordSearchAttempts.findFirst({
       where: { attemptId },

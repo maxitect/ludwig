@@ -30,13 +30,6 @@ const answerWords: Record<string, (content: unknown) => string[]> = {
   keyword: (c) => [keywordContent.pick({ keyword: true }).parse(c).keyword],
 };
 
-export type Repeat = {
-  word: string;
-  files: string[];
-  typeKeys: string[];
-  crosswordRepeat: boolean;
-};
-
 /** Every answer word of four or more letters that appears in more than one content file. */
 export function auditWords(
   files: Pick<ContentFile, "typeKey" | "slug" | "content">[],
@@ -55,18 +48,15 @@ export function auditWords(
       found.set(word, owners);
     }
   }
-  const repeats: Repeat[] = [];
-  for (const [word, owners] of [...found].sort(([a], [b]) => a.localeCompare(b))) {
-    if (owners.size < 2) continue;
-    const typeKeys = [...owners.values()];
-    repeats.push({
+  return [...found]
+    .filter(([, owners]) => owners.size > 1)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([word, owners]) => ({
       word,
       files: [...owners.keys()],
-      typeKeys,
-      crosswordRepeat: typeKeys.filter((key) => key === "crossword").length > 1,
-    });
-  }
-  return repeats;
+      crosswordRepeat:
+        [...owners.values()].filter((key) => key === "crossword").length > 1,
+    }));
 }
 
 /** Logs every repeat (crossword pairs as failures, the rest as warnings) and returns the failure count. */

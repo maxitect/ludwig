@@ -18,7 +18,13 @@ export async function load(puzzleId: string) {
         orderBy: { row: "asc", col: "asc" },
       },
       observers: {
-        columns: { row: true, col: true, facing: true, fovDeg: true, name: true },
+        columns: {
+          row: true,
+          col: true,
+          facing: true,
+          fovDeg: true,
+          name: true,
+        },
         orderBy: { row: "asc", col: "asc" },
       },
     },

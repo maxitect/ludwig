@@ -23,7 +23,11 @@ export const sightlinesModule = {
     correct: check(payload, solution, answer).correct,
   }),
   verify: verifySightlines,
-  async upsertContent(tx, puzzleId, { grid, brief, targetRow, targetCol, observers }) {
+  async upsertContent(
+    tx,
+    puzzleId,
+    { grid, brief, targetRow, targetCol, observers },
+  ) {
     const rows = grid.length;
     const cols = grid[0].length;
     await tx

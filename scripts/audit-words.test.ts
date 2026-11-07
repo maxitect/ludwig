@@ -35,6 +35,20 @@ describe("auditWords", () => {
     ]);
   });
 
+  it("checks each word of a phrase answer", () => {
+    const repeats = auditWords([
+      { typeKey: "anagram", slug: "one", content: { answer: "ink and paper" } },
+      {
+        typeKey: "word-search",
+        slug: "two",
+        content: { grid: [], words: ["PAPER"] },
+      },
+    ]);
+    expect(repeats).toEqual([
+      expect.objectContaining({ word: "PAPER", files: ["anagram/one", "word-search/two"] }),
+    ]);
+  });
+
   it("ignores words shorter than four letters", () => {
     const repeats = auditWords([
       { typeKey: "anagram", slug: "one", content: { answer: "ear" } },

@@ -1,31 +1,33 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { deriveMessage } from "../src/puzzles/acrostic/derive";
+import { contentSchema as acrosticContent } from "../src/puzzles/acrostic/schema";
+import { contentSchema as anagramContent } from "../src/puzzles/anagram/schema";
+import { contentSchema as crosswordContent } from "../src/puzzles/crossword/schema";
 import { gridWords } from "../src/puzzles/crossword/standards";
+import { contentSchema as keywordContent } from "../src/puzzles/keyword/schema";
 import { registry } from "../src/puzzles/registry";
+import { contentSchema as wordLadderContent } from "../src/puzzles/word-ladder/schema";
+import { contentSchema as wordSearchContent } from "../src/puzzles/word-search/schema";
+import { contentSchema as wordWheelContent } from "../src/puzzles/word-wheel/schema";
 import { type ContentFile, loadContentFiles } from "./content-files";
 
 const MIN_LENGTH = 4;
 
-type Contents = Record<string, Record<string, unknown>>;
-
-const answerWords: Record<string, (content: Contents[string]) => string[]> = {
-  crossword: (c) => gridWords(c.cells as Parameters<typeof gridWords>[0]),
-  anagram: (c) => [String(c.answer)],
-  "word-ladder": (c) => [
-    String(c.startWord),
-    String(c.endWord),
-    ...(c.rungs as string[]),
-  ],
-  "word-wheel": (c) => [String(c.targetWord)],
-  "word-search": (c) => c.words as string[],
-  acrostic: (c) => [
-    deriveMessage(
-      c.rule as Parameters<typeof deriveMessage>[0],
-      c.lines as string[],
-    ),
-  ],
-  keyword: (c) => [String(c.keyword)],
+const answerWords: Record<string, (content: unknown) => string[]> = {
+  crossword: (c) => gridWords(crosswordContent.pick({ cells: true }).parse(c).cells),
+  anagram: (c) => [anagramContent.pick({ answer: true }).parse(c).answer],
+  "word-ladder": (c) => {
+    const { startWord, endWord, rungs } = wordLadderContent.parse(c);
+    return [startWord, endWord, ...rungs];
+  },
+  "word-wheel": (c) => [wordWheelContent.pick({ targetWord: true }).parse(c).targetWord],
+  "word-search": (c) => wordSearchContent.pick({ words: true }).parse(c).words,
+  acrostic: (c) => {
+    const { rule, lines } = acrosticContent.parse(c);
+    return [deriveMessage(rule, lines)];
+  },
+  keyword: (c) => [keywordContent.pick({ keyword: true }).parse(c).keyword],
 };
 
 export type Repeat = {
@@ -43,8 +45,10 @@ export function auditWords(
   for (const { typeKey, slug, content } of files) {
     const derive = answerWords[typeKey];
     if (!derive) continue;
-    for (const raw of derive(content as Contents[string])) {
-      const word = raw.toUpperCase();
+    const words = derive(content).flatMap((answer) =>
+      answer.toUpperCase().split(/[^A-Z]+/),
+    );
+    for (const word of words) {
       if (word.length < MIN_LENGTH) continue;
       const owners = found.get(word) ?? new Map<string, string>();
       owners.set(`${typeKey}/${slug}`, typeKey);
@@ -65,8 +69,10 @@ export function auditWords(
   return repeats;
 }
 
-export async function reportWordAudit(contentDir: string) {
-  const { files } = await loadContentFiles(registry, contentDir);
+/** Logs every repeat (crossword pairs as failures, the rest as warnings) and returns the failure count. */
+export function reportWordAudit(
+  files: Pick<ContentFile, "typeKey" | "slug" | "content">[],
+) {
   const repeats = auditWords(files);
   for (const { word, files: owners, crosswordRepeat } of repeats) {
     const level = crosswordRepeat ? "FAIL" : "warn";
@@ -80,7 +86,8 @@ export async function reportWordAudit(contentDir: string) {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
-  reportWordAudit(path.resolve("content"))
+  loadContentFiles(registry, path.resolve("content"))
+    .then(({ files }) => reportWordAudit(files))
     .then((failures) => {
       process.exitCode = failures ? 1 : 0;
     })

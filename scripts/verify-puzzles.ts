@@ -1,7 +1,7 @@
 import { isDeepStrictEqual } from "node:util";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { eq } from "drizzle-orm";
+import { eq, max } from "drizzle-orm";
 import { db } from "../src/db";
 import { dailyPuzzles, gearDaily, gearPuzzles, puzzles } from "../src/db/schema";
 import { load } from "../src/puzzles/gears/load";
@@ -10,7 +10,7 @@ import { verifyStored } from "../src/puzzles/gears/verify-stored";
 import { type Provenance, regenerate } from "../src/puzzles/generators";
 import { dailySlug } from "../src/lib/data/daily-puzzles";
 import { type PuzzleRegistry, registry as appRegistry } from "../src/puzzles/registry";
-import { londonMidnight } from "../src/utils/london-time";
+import { addDays, londonDate, londonMidnight } from "../src/utils/london-time";
 import { reportWordAudit } from "./audit-words";
 import {
   type ContentFailure,
@@ -173,6 +173,28 @@ export async function verifyDailyRows() {
   return { checked: rows.length, failures };
 }
 
+export const MIN_DAILY_WINDOW_DAYS = 180;
+
+/**
+ * Fails each daily table that has rows but whose latest date is under `MIN_DAILY_WINDOW_DAYS` ahead
+ * of `today`. A table with no rows is skipped, because CI's database has no dailies.
+ */
+export async function verifyDailyWindow(today = londonDate(new Date())) {
+  const grid = await db
+    .select({ key: dailyPuzzles.typeKey, latest: max(dailyPuzzles.date) })
+    .from(dailyPuzzles)
+    .groupBy(dailyPuzzles.typeKey);
+  const [gears] = await db.select({ latest: max(gearDaily.date) }).from(gearDaily);
+  const required = addDays(today, MIN_DAILY_WINDOW_DAYS);
+  const failures = [...grid, { key: "gears", latest: gears.latest }]
+    .filter(({ latest }) => latest !== null && latest < required)
+    .map(
+      ({ key, latest }) =>
+        `${key}: latest daily is ${latest}, needs at least ${required} (${MIN_DAILY_WINDOW_DAYS} days ahead); run pnpm puzzles:top-up-dailies`,
+    );
+  return { failures };
+}
+
 async function main() {
   const { registry, contentDir } = await resolveCliOptions(process.argv.slice(2));
   const { checked, failures, durations } = await verifyPuzzles(
@@ -209,11 +231,19 @@ async function main() {
   console.log(
     `puzzles:verify: ${daily.checked - daily.failures.length}/${daily.checked} daily rows regenerate and are unique`,
   );
+  const window = await verifyDailyWindow();
+  for (const failure of window.failures) {
+    console.error(`FAIL daily window: ${failure}`);
+  }
+  console.log(
+    `puzzles:verify: daily window ${window.failures.length ? "too short" : "ok"}`,
+  );
   const sharedFill = reportWordAudit(files);
   process.exitCode =
     failures.length ||
     generated.failures.length ||
     daily.failures.length ||
+    window.failures.length ||
     sharedFill
       ? 1
       : 0;

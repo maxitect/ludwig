@@ -19,9 +19,8 @@ const ROOMS = [
 ] as const;
 
 const SWAP_WINDOWS = [
-  [0.3, 0.32],
-  [0.64, 0.66],
-  [0.87, 0.9],
+  [0.31, 0.33],
+  [0.65, 0.67],
 ] as const;
 
 async function open(page: Page, viewport: (typeof VIEWPORTS)[number]) {
@@ -85,11 +84,10 @@ test.describe("landing walls", () => {
     page,
     browserName,
   }) => {
-    test.skip(browserName === "firefox", "pixel comparisons run in Chromium");
     test.setTimeout(240_000);
     for (const viewport of VIEWPORTS) {
       await open(page, viewport);
-      for (const { wall, from, to } of ROOMS) {
+      for (const { wall, from, to } of browserName === "firefox" ? [] : ROOMS) {
         for (let step = Math.round(from * 50); step <= Math.round(to * 50); step++) {
           const progress = step / 50;
           await seek(page, progress);
@@ -127,6 +125,7 @@ test.describe("landing walls", () => {
           visible / viewport.width,
           `side wall width at ${progress} in ${viewport.width}px`,
         ).toBeGreaterThanOrEqual(0.7);
+        if (browserName === "firefox") continue;
         await page.screenshot({
           path: `${SHOTS}/ac2-crossing-${viewport.width}-${Math.round(progress * 100)}.png`,
         });
@@ -153,13 +152,13 @@ test.describe("landing walls", () => {
   });
 
   test("T156 AC1 LUDWIG writes with nothing in front of it", async ({ page, browserName }) => {
-    test.skip(browserName === "firefox", "pixel comparisons run in Chromium");
     for (const viewport of [VIEWPORTS[2], VIEWPORTS[0]]) {
       await open(page, viewport);
       for (let step = 7; step <= 13; step++) {
         const progress = step / 50;
         await seek(page, progress);
         expect(await computed(page, ".seq-hero", "visibility"), `hero at ${progress}`).toBe("hidden");
+        if (browserName === "firefox") continue;
         const column = await box(page, ".seq-grid-ludwig");
         const x = Math.max(0, column.left);
         const y = Math.max(0, column.top);
@@ -182,7 +181,9 @@ test.describe("landing walls", () => {
       await seek(page, 0.26);
       expect(await computed(page, ".seq-grid-ludwig", "clip-path")).toMatch(/^inset\(0(px)?( 0(px)?)*\)$/);
       expect(await page.locator(".seq-grid-ludwig > span").count()).toBe(6);
-      await page.screenshot({ path: `${SHOTS}/ac1-ludwig-${viewport.width}.png` });
+      if (browserName !== "firefox") {
+        await page.screenshot({ path: `${SHOTS}/ac1-ludwig-${viewport.width}.png` });
+      }
     }
   });
 
@@ -194,19 +195,19 @@ test.describe("landing walls", () => {
         await seek(page, step / 50);
         const matrix = await computed(page, ".seq-world", "transform");
         const values = matrix.slice(matrix.indexOf("(") + 1, -1).split(",").map(parseFloat);
-        const [m11, , m31] = matrix.startsWith("matrix3d") ? [values[0], 0, values[2]] : [values[0], 0, 0];
-        yaws.push((Math.atan2(-m31, m11) * 180) / Math.PI);
+        const sinYaw = matrix.startsWith("matrix3d") ? -values[2] : 0;
+        yaws.push((Math.atan2(sinYaw, values[0]) * 180) / Math.PI);
       }
       const at = (progress: number) => yaws[Math.round(progress * 50)];
       const calm = at(0.1);
       const peak = Math.min(...yaws);
       expect(peak, `peak yaw in ${viewport.width}px`).toBeLessThan(-20);
-      for (const [from, to] of [[0.06, 0.24], [0.34, 0.56], [0.68, 0.84]]) {
+      for (const [from, to] of [[0.06, 0.26], [0.34, 0.58], [0.68, 0.86]]) {
         for (let step = Math.round(from * 50); step <= Math.round(to * 50); step++) {
           expect(at(step / 50), `dwell yaw at ${step / 50}`).toBeCloseTo(calm, 1);
         }
       }
-      for (const [from, to] of [[0.26, 0.3], [0.58, 0.64], [0.86, 0.88]]) {
+      for (const [from, to] of [[0.26, 0.32], [0.58, 0.66], [0.86, 0.88]]) {
         for (let step = Math.round(from * 50); step < Math.round(to * 50); step++) {
           expect(at((step + 1) / 50), `yaw falls through ${step / 50}`).toBeLessThan(at(step / 50));
         }
@@ -214,6 +215,9 @@ test.describe("landing walls", () => {
       }
       for (const progress of [0.34, 0.68]) {
         expect(at(progress), `calm again at ${progress}`).toBeCloseTo(calm, 1);
+      }
+      for (let step = 44; step <= 50; step++) {
+        expect(at(step / 50), `held at the peak into the finale at ${step / 50}`).toBeCloseTo(peak, 1);
       }
     }
   });
@@ -280,7 +284,7 @@ test.describe("landing walls", () => {
       )) {
         expect(opacityValue).toBe("0");
       }
-      await seek(page, 0.92);
+      await seek(page, 0.86);
       const shown = await digits.evaluateAll((all) =>
         all.map((element) => ({
           text: element.textContent,
@@ -294,7 +298,7 @@ test.describe("landing walls", () => {
         expect(transform).toMatch(/^-1( 1)?$/);
       }
       if (browserName === "firefox") continue;
-      for (const progress of [0.12, 0.2, 0.31, 0.71, 0.92]) {
+      for (const progress of [0.12, 0.2, 0.31, 0.71, 0.86]) {
         await seek(page, progress);
         await page.screenshot({
           path: `${SHOTS}/ac4-${viewport.width}-${Math.round(progress * 100)}.png`,

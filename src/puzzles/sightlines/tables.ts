@@ -7,6 +7,7 @@ import {
   primaryKey,
   smallint,
   text,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 import { puzzles } from "../../db/schema/core";
@@ -34,6 +35,7 @@ export const sightlinesPuzzles = pgTable(
     cols: smallint("cols").notNull(),
     targetRow: smallint("target_row").notNull(),
     targetCol: smallint("target_col").notNull(),
+    brief: text("brief").notNull(),
   },
   (table) => [
     foreignKey({
@@ -50,6 +52,10 @@ export const sightlinesPuzzles = pgTable(
     check(
       "sightlines_puzzles_target_col_check",
       sql`${table.targetCol} between 0 and ${table.cols} - 1`,
+    ),
+    check(
+      "sightlines_puzzles_brief_check",
+      sql`char_length(${table.brief}) between 1 and 160 and ${table.brief} !~ '[[:cntrl:]]'`,
     ),
   ],
 );
@@ -84,6 +90,7 @@ export const sightlinesObservers = pgTable(
     col: smallint("col").notNull(),
     facing: compass8Enum("facing").notNull(),
     fovDeg: smallint("fov_deg").notNull(),
+    name: text("name").notNull(),
   },
   (table) => [
     primaryKey({
@@ -95,6 +102,11 @@ export const sightlinesObservers = pgTable(
       columns: [table.puzzleId],
       foreignColumns: [sightlinesPuzzles.puzzleId],
     }).onDelete("cascade"),
+    unique("sightlines_observers_name_key").on(table.puzzleId, table.name),
+    check(
+      "sightlines_observers_name_check",
+      sql`char_length(${table.name}) between 1 and 40`,
+    ),
     check("sightlines_observers_row_check", sql`${table.row} >= 0`),
     check("sightlines_observers_col_check", sql`${table.col} >= 0`),
     check(

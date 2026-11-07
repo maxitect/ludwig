@@ -189,6 +189,22 @@ describe("logic grid schema", () => {
       await forceDeferred(tx);
     });
     expect(error?.message).toMatch(/outside the first category/);
+    const moved = await pgError(async (tx) => {
+      const { puzzleId, items } = await insertTinyPuzzle(tx, "t165-speaker-moved");
+      await tx
+        .insert(logicGridCategories)
+        .values({ puzzleId, position: 1, name: "Place" });
+      await tx
+        .insert(logicGridClues)
+        .values({ puzzleId, position: 0, content: "a", speakerItemId: items[0] });
+      await forceDeferred(tx);
+      await tx
+        .update(logicGridItems)
+        .set({ categoryPosition: 1 })
+        .where(eq(logicGridItems.id, items[0]));
+      await forceDeferred(tx);
+    });
+    expect(moved?.message).toMatch(/no longer in the first category/);
   });
 
   it("allows one false clue per puzzle and rejects a second", async () => {
@@ -320,6 +336,7 @@ describe("logic grid module", () => {
     expect(payload.categories.map(({ items }) => items.length)).toEqual([3, 3, 3]);
     expect(payload.clues).toHaveLength(classic.clues.length);
     expect(JSON.stringify(payload)).not.toMatch(/isFalse|is_false|itemAId|links/);
+    expect(payload.clues[1].speakerItemId).toBeNull();
   });
 
   it("loads a variant payload that says only that a clue is false", async () => {
@@ -334,9 +351,9 @@ describe("logic grid module", () => {
       "speakerItemId",
     ]);
     expect(payload.brief).toBe(variant.brief);
-    const [ann] = payload.categories[0].items;
+    const [ann, , cat] = payload.categories[0].items;
     expect(payload.clues[0].speakerItemId).toBe(ann.id);
-    expect(payload.clues[1].speakerItemId).toBeNull();
+    expect(payload.clues[1].speakerItemId).toBe(cat.id);
   });
 
   it("orders categories, items and clues by position", async () => {

@@ -1,10 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": ["lhr1"],
-  "buildCommand": "pnpm db:migrate && pnpm db:seed && pnpm build",
-  "ignoreCommand": "node scripts/dev/vercel-ignore.mjs",
-  "crons": [
-    { "path": "/api/cron/daily-gears", "schedule": "5 0 * * *" },
-    { "path": "/api/cron/daily-puzzles", "schedule": "10 0 * * *" }
-  ]
+  "buildCommand": "pnpm db:migrate && pnpm db:seed && pnpm puzzles:top-up-dailies && pnpm build",
+  "ignoreCommand": "node scripts/dev/vercel-ignore.mjs"
 }

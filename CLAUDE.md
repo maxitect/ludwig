@@ -41,6 +41,7 @@ pnpm db:migrate       # Apply migrations (uses DATABASE_URL_UNPOOLED)
 pnpm db:seed          # Upsert lookups + content/ into the DB
 pnpm db:studio        # Drizzle Studio
 pnpm puzzles:verify   # Schema-parse, derive and uniqueness-check every content file
+pnpm puzzles:top-up-dailies  # Generate missing dailies (400-day window); runs in the Vercel build
 pnpm perf:lighthouse  # Lighthouse over the fixed URL list against `pnpm start --port 3069` (build first)
 ```
 

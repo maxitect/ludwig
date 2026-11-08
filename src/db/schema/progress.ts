@@ -1,6 +1,8 @@
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   check,
+  date,
   foreignKey,
   index,
   integer,
@@ -168,6 +170,62 @@ export const userStreaks = pgView("user_streaks", {
     max(length)::integer as longest_streak
   from runs
   group by user_id
+`);
+
+export const userDailySolves = pgView("user_daily_solves", {
+  userId: uuid("user_id").notNull(),
+  day: date("day", { mode: "string" }).notNull(),
+  solves: integer("solves").notNull(),
+  totalDurationMs: bigint("total_duration_ms", { mode: "number" }).notNull(),
+}).as(sql`
+  select
+    user_id,
+    (completed_at at time zone 'Europe/London')::date as day,
+    count(*)::integer as solves,
+    sum(duration_ms)::bigint as total_duration_ms
+  from user_solves
+  group by user_id, (completed_at at time zone 'Europe/London')::date
+`);
+
+export const userTypeStats = pgView("user_type_stats", {
+  userId: uuid("user_id").notNull(),
+  typeKey: text("type_key").notNull(),
+  typeName: text("type_name").notNull(),
+  categoryKey: text("category_key").notNull(),
+  solves: integer("solves").notNull(),
+  medianDurationMs: integer("median_duration_ms").notNull(),
+  bestDurationMs: integer("best_duration_ms").notNull(),
+  avgHints: numeric("avg_hints", { precision: 10, scale: 2 }).notNull(),
+  lastSolvedAt: timestamp("last_solved_at", { withTimezone: true }).notNull(),
+}).as(sql`
+  select
+    user_id,
+    type_key,
+    type_name,
+    category_key,
+    count(*)::integer as solves,
+    round(percentile_cont(0.5) within group (order by duration_ms))::integer as median_duration_ms,
+    min(duration_ms) as best_duration_ms,
+    round(avg(hints), 2) as avg_hints,
+    max(completed_at) as last_solved_at
+  from user_solves
+  group by user_id, type_key, type_name, category_key
+`);
+
+export const userDifficultyStats = pgView("user_difficulty_stats", {
+  userId: uuid("user_id").notNull(),
+  difficulty: smallint("difficulty").notNull(),
+  solves: integer("solves").notNull(),
+  medianDurationMs: integer("median_duration_ms").notNull(),
+}).as(sql`
+  select
+    s.user_id,
+    p.difficulty,
+    count(*)::integer as solves,
+    round(percentile_cont(0.5) within group (order by s.duration_ms))::integer as median_duration_ms
+  from user_solves s
+  join puzzles p on p.id = s.puzzle_id
+  group by s.user_id, p.difficulty
 `);
 
 export const userFavouriteTypes = pgTable(

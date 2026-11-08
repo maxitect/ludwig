@@ -20,7 +20,7 @@ Spec: `docs/SPEC.md` section 6. The look is the _Ludwig_ title sequence: texture
   - `shadow`, `shadow-soft`;
   - `grid-blue`, `book-blue`.
 - Never use raw hex values, Tailwind palette colours (`red-600` and so on) or `#fff`/`white`.
-- **Red is the only accent.** Blue appears only as shadow, focus rings and book covers (`book-blue`).
+- **Red is the only accent.** Blue appears only as shadow, focus rings, book covers (`book-blue`) and chart grid lines (`grid-blue`).
 - `--radius: 0`, so nothing has rounded corners, including shadcn defaults, focus rings, avatars and toasts.
 - Borders are 2px semantic `border` (never `border-ink`). Shadows are hard offsets in the `--cast` token (`shadow-[3px_3px_0_var(--cast)]`). Board pieces are the one exception: their long shadow is a stack of hard `drop-shadow` steps in `var(--color-shadow)`, allowlisted in `raw-tokens.test.ts`.
 - **Clinical, never soft.** No fades: no blurred shadows, no gradient that blends one colour into another, no shadow that fades out along its length. Gradients are allowed only as hard-stop patterns (grid lines, checks, raking stripes).
@@ -53,7 +53,8 @@ Spec: `docs/SPEC.md` section 6. The look is the _Ludwig_ title sequence: texture
 ## Motion and accessibility
 
 - Every animation respects `prefers-reduced-motion`, and the user's `reduce_motion` setting.
-- Use `motion` only for gears and the solved stamp. Everything else is CSS transitions.
+- Use `motion` only for gears and the solved stamp. The Desk charts (`src/components/desk/`) may use D3 transitions (`d3-transition`) for their first-paint draw-in, about 500 ms and staggered; they run only when `useReduceMotion()` is false, otherwise the marks render fully drawn. Counting numbers is CSS (`.count-up`). Everything else is CSS transitions.
+- Charts are SVG in `ink` and `ludwig-red` (the highlighted series) with `grid-blue` grid lines (`ink:stroke-muted` on Ink, where `grid-blue` vanishes into the surface), hard strokes, no filters or blur. Each has a visually hidden data table, keyboard-reachable marks with the tooltip text as their accessible name, and a legend or label so colour is never the only signal.
 - Every interaction is keyboard-operable.
 - Colour is never the only signal (e.g. Xs versus dots on gear sightlines).
 - Text contrast meets WCAG AA. `crayon` is only for large text.

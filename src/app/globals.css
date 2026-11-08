@@ -329,3 +329,29 @@
     animation: none;
   }
 }
+
+@property --count {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes count-up {
+  from {
+    --count: 0;
+  }
+}
+
+.count-up {
+  counter-reset: count var(--count);
+
+  &::before {
+    content: counter(count);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-reduce-motion]) .count-up {
+    animation: count-up 700ms steps(24, end) backwards;
+  }
+}

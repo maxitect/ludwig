@@ -15,7 +15,7 @@ skills: ["/zod4"]
 
 ## Context
 
-The two visibility puzzles come from scenes with a clear story (S1E3: who could have seen the alcove past the pillars; S2E3: a route through Cambridge past the cameras) and present as bare grids. One line each is enough; the grid is the story. See [`docs/research/narrative.md`](../research/narrative.md) §5. This is the smallest of the three narrative tickets and can follow T164 and T165 or run alongside them.
+The two visibility puzzles come from scenes with a clear story (S1E3: who could have seen the alcove past the pillars; S2E3: a route through Cambridge past the cameras) and present as bare grids. One line each is enough; the grid is the story. See [`docs/research/narrative.md`](../../research/narrative.md) §5. This is the smallest of the three narrative tickets and can follow T164 and T165 or run alongside them.
 
 ## Scope
 

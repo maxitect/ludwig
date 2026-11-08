@@ -153,7 +153,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T148](./done/T148-extend-weekly-schedule.md) | Extend the weekly schedule through June 2027 with the newer puzzle types | T064 | | | done |
 | [T151](./done/T151-word-search-grid-lines.md) | Even grid lines on the word-search grid | T125 | | | done |
 | [T152](./done/T152-spot-difference-desktop-size-and-ink.md) | Spot the difference: bigger scenes on desktop, and paper scenes in Ink | T146 | | | done |
-| [T156](./T156-landing-sequence-fixes.md) | Landing: LUDWIG writes in the clear, rooms exit through the right wall, piece shadows | T140 | | ✔ | todo |
+| [T156](./done/T156-landing-sequence-fixes.md) | Landing: LUDWIG writes in the clear, rooms exit through the right wall, piece shadows | T140 | | ✔ | done |
 | [T158](./done/T158-crossword-grid-standards.md) | Crossword grid standards: a Quick shelf of blocked grids, Mini for the open grids, word audit (high priority) | T135 | ✔ | ✔ | done |
 | [T159](./T159-vercel-hobby-limits.md) | Vercel Hobby limits: diagnose ISR writes and CDN requests, fix the causes, keep the cache design (high priority) | T118 | | ✔ | in-progress |
 
@@ -192,8 +192,8 @@ Not on the launch path (PLAN §3 M6).
 | [T110](./done/T110-circle9-generator.md) | Circle9 generator | T100, T089 | | | done |
 | [T111](./done/T111-daily-grid-puzzles.md) | Daily seeded grid puzzles | T100 | ✔ | | done |
 | [T149](./done/T149-more-daily-types.md) | Generate daily puzzles for more grid types | T111 | | | done |
-| [T150](./T150-retune-handwritten-difficulty.md) | Make hand-written puzzles agree with the difficulty grader | T100 | | | todo |
-| [T155](./T155-retire-daily-crons.md) | Retire the daily crons: top up dailies in the build, release by date | T149, T139 | | | todo |
+| [T150](./done/T150-retune-handwritten-difficulty.md) | Make hand-written puzzles agree with the difficulty grader | T100 | | | done |
+| [T155](./done/T155-retire-daily-crons.md) | Retire the daily crons: top up dailies in the build, release by date | T149, T139 | | | done |
 
 ## M7: Offline PWA (native deferred)
 
@@ -210,12 +210,12 @@ User feedback after launch testing (2026-11-07). The signed-in Desk was cut from
 
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
-| [T153](./T153-desk-signed-in-home.md) | The Desk: a signed-in home page that picks up where you left off | T023, T067 | ✔ | | todo |
-| [T154](./T154-favourite-types-and-new-markers.md) | Favourite puzzle types, and New markers on recently added puzzles | T153 | ✔ | | todo |
-| [T160](./T160-desk-charts.md) | Desk charts: a stats dashboard in the house style, built with D3 | T153 | ✔ | | todo |
+| [T153](./done/T153-desk-signed-in-home.md) | The Desk: a signed-in home page that picks up where you left off | T023, T067 | ✔ | | done |
+| [T154](./done/T154-favourite-types-and-new-markers.md) | Favourite puzzle types, and New markers on recently added puzzles | T153 | ✔ | | done |
+| [T160](./done/T160-desk-charts.md) | Desk charts: a stats dashboard in the house style, built with D3 | T153 | ✔ | | done |
 | [T161](./T161-recommendations.md) | Recommended for you: a simple recommendation shelf on the Desk | T154, T160 | ✔ | | todo |
 | [T162](./T162-three-js-set-pieces.md) | Brand set pieces in three.js: a spike, then one piece on the Desk | T160, T156 | | | todo |
-| [T163](./T163-gate-runs-affected-e2e.md) | Run the affected end-to-end specs in the ticket gate, and archive done tickets | — | | | todo |
+| [T163](./done/T163-gate-runs-affected-e2e.md) | Run the affected end-to-end specs in the ticket gate, and archive done tickets | — | | | done |
 | [T157](./T157-favourite-type-digest-email.md) | Email players when a favourite type gets a new puzzle, and when a streak is about to break | T154, T155 | ✔ | ✔ | todo |
 
 ## M8: Narrative pass
@@ -224,6 +224,6 @@ User feedback after launch testing (2026-11-07): the Rota "is adding names to pe
 
 | ID | Title | Depends on | Mig | Human | Status |
 |---|---|---|---|---|---|
-| [T164](./T164-rota-the-case.md) | Rota: the case. Victim, incident sheet, voiced clues, the accusation and the summing-up | T063, T141 | ✔ | | todo |
-| [T165](./T165-logic-grid-witness-voice.md) | Logic grid: witness voice. A brief, a speaker per clue, and "Name the liar" | T048, T131 | ✔ | | todo |
-| [T166](./T166-briefs-sightlines-cctv.md) | One-line briefs for sightlines and the CCTV maze, and named witnesses in sightlines | T059, T060 | ✔ | | todo |
+| [T164](./done/T164-rota-the-case.md) | Rota: the case. Victim, incident sheet, voiced clues, the accusation and the summing-up | T063, T141 | ✔ | | done |
+| [T165](./done/T165-logic-grid-witness-voice.md) | Logic grid: witness voice. A brief, a speaker per clue, and "Name the liar" | T048, T131 | ✔ | | done |
+| [T166](./done/T166-briefs-sightlines-cctv.md) | One-line briefs for sightlines and the CCTV maze, and named witnesses in sightlines | T059, T060 | ✔ | | done |

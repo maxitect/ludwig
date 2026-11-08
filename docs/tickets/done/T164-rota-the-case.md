@@ -17,7 +17,7 @@ skills: ["/db-trigger", "/zod4"]
 
 User feedback (2026-11-07): the Rota "is adding names to people but there's absolutely no narrative to it, which is what made it good in the show". Today the board is a permutation with name tokens, the clues are unspoken constraints ("Colm never stood in a zone in row 5, at any point."), and the payoff is one footnote in the solved footer ("Opening gambit: Fenn insisted on it."). Nothing says who died, where, or why the swaps matter.
 
-The research and the design are in [`docs/research/narrative.md`](../research/narrative.md): §1.3 maps John's method in S1E4 (physical evidence, site process, statements, then the accusation) and §3 gives proposals R1 to R5. This ticket builds all five. The rule throughout is Color Gray's: nothing on the solve page that is neither required for the solution nor a deliberate misdirection. No prose longer than three lines before the solve.
+The research and the design are in [`docs/research/narrative.md`](../../research/narrative.md): §1.3 maps John's method in S1E4 (physical evidence, site process, statements, then the accusation) and §3 gives proposals R1 to R5. This ticket builds all five. The rule throughout is Color Gray's: nothing on the solve page that is neither required for the solution nor a deliberate misdirection. No prose longer than three lines before the solve.
 
 ## Scope
 

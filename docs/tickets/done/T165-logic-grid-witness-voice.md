@@ -15,7 +15,7 @@ skills: ["/db-trigger", "/zod4"]
 
 ## Context
 
-The same feedback as T164 applies to the logic grid: the clues speak as "the file" ("The file puts Rake together with Beetroot."), the categories are domestic, and the false-clue variant reads as a technicality. In S1E1 the puzzle is seven suspects' statements in an interview room, "a concatenation of syllogisms, one of which will be false", and John names the liar. Murdle shows the same grid works as a case when the clues are things people say and the setup is two lines. See [`docs/research/narrative.md`](../research/narrative.md) §2.2 and §4 (L1 to L3).
+The same feedback as T164 applies to the logic grid: the clues speak as "the file" ("The file puts Rake together with Beetroot."), the categories are domestic, and the false-clue variant reads as a technicality. In S1E1 the puzzle is seven suspects' statements in an interview room, "a concatenation of syllogisms, one of which will be false", and John names the liar. Murdle shows the same grid works as a case when the clues are things people say and the setup is two lines. See [`docs/research/narrative.md`](../../research/narrative.md) §2.2 and §4 (L1 to L3).
 
 ## Scope
 

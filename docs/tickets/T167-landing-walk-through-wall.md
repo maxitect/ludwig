@@ -1,6 +1,6 @@
 ---
 id: T167
-title: "Landing: three staged rooms and a continuous pan through two walls (rework of T156)"
+title: "Landing: staged rooms and a continuous pan through three walls into the finale (rework of T156)"
 milestone: M5
 epic: E10
 depends_on: [T156]
@@ -11,7 +11,7 @@ spec: ["SPEC §6.3"]
 skills: []
 ---
 
-# T167: Landing: three staged rooms and a continuous pan through two walls
+# T167: Landing: staged rooms and a continuous pan through three walls into the finale
 
 **Top priority for the next session. Run this first.**
 
@@ -19,23 +19,23 @@ skills: []
 
 User feedback (2026-11-08) on T156's camera, with the diagnosis. T156 has one room set up that is swapped for the next while the wall covers the view. Each crossing yaws to look sideways at the wall, holds, and then cuts to what is the same room with new contents. There is nothing on the other side of the wall, which is why the camera ends up looking back at it. The real fault is the lack of continuity: the viewer never travels from one room into another.
 
-What the user wants, in their words: the camera crosses the wall and the other room is **already staged** in there. It is a **pan**, left to right, through the wall (not a move forward into the wall). It stops once it is in the middle of the next room, the chess animation plays, and it pans through the wall again into the final room, stops, and that room's animation plays. All of it is continuous: there are no cuts, and each room is staged before the camera pans into it. **Set up all 3 rooms in the full scene, with 2 walls the camera goes through to get from one to the other.** Do not keep one room that transforms into each of the others.
+What the user wants, in their words: the camera crosses the wall and the other room is **already staged** in there. It is a **pan**, left to right, through the wall (not a move forward into the wall). It stops once it is in the middle of the next room, the chess animation plays, and it pans through the wall again into the final room, stops, and that room's animation plays. All of it is continuous: there are no cuts, and each room is staged before the camera pans into it. **Set up all the rooms in the full scene, with a wall between each pair that the camera goes through to get from one to the other.** Do not keep one room that transforms into each of the others. The pan into the finale is a third crossing, the same kind as the first two (user, 2026-11-08: the finale is entered by a pan too).
 
 ## Scope
 
 **In**
 
-- **One scene, three rooms, built side by side.** The Grid room, the Board room and the Mirror room all exist in the DOM and 3D space at once, laid out left to right along the camera's path. Each is fully staged (back wall, floor, props, its words, pieces or digits in their start state) before the camera reaches it. Nothing is created, swapped or re-skinned during a crossing. Replace the current single-room-with-swapped-contents structure.
-- **Two walls, one between each pair of rooms** (Grid|Board and Board|Mirror). The camera passes through each wall plane as part of one pan. The wall slides out of view behind the camera as it passes. The viewer sees the far room through and past the wall as the pan moves, not a wall filling the screen and a cut.
+- **One scene, every room built side by side.** The Grid room, the Board room, the Mirror room and the finale space all exist in the DOM and 3D space at once, laid out left to right along the camera's path. Each is fully staged (back wall, floor, props, its words, pieces or digits in their start state) before the camera reaches it. Nothing is created, swapped or re-skinned during a crossing. Replace the current single-room-with-swapped-contents structure.
+- **Three walls, one between each pair of neighbouring spaces** (Grid|Board, Board|Mirror and Mirror|finale). The camera passes through each wall plane as part of one pan. The wall slides out of view behind the camera as it passes. The viewer sees the far room through and past the wall as the pan moves, not a wall filling the screen and a cut.
 - **The move is a pan across,** left to right (a lateral travel with the matching view turn so the camera ends facing the next room's back wall, calm pose). It is not a dolly forward into the wall, and not a yaw to look at the wall's face. At no point does the camera face a wall it has already passed.
-- **Dwell, then pan, then dwell.** Grid dwell (LUDWIG writes, Grid words), pan 1, Board dwell (the chess game unwinds), pan 2, Mirror dwell (the digits), then the finale. Keep T140/T156 dwell windows as the starting timings (Grid 0.06 to 0.26, Board 0.41 to 0.58, Mirror 0.72 to 0.86); the pans fill the gaps and may be longer than T156's crossings, because the pan is the point.
+- **Dwell, then pan, then dwell.** Grid dwell (LUDWIG writes, Grid words), pan 1, Board dwell (the chess game unwinds), pan 2, Mirror dwell (the digits), pan 3, then the finale. Keep T140/T156 dwell windows as the starting timings (Grid 0.06 to 0.26, Board 0.41 to 0.58, Mirror 0.72 to 0.86); the pans fill the gaps and may be longer than T156's crossings, because the pan is the point. The third pan ends in the finale, staged as the others are.
 - **No cuts.** The camera position is continuous through the whole track (no discontinuous keyframe). Test: the sampled camera position and yaw have no jump larger than the per-step travel anywhere in 0 to 1.
-- **Finale.** The Mirror dwell hands over to the finale as T156 does today (the stage scrolls away). Do not add a third wall or a return to a previous room. If the finale needs its own pan, ask the user.
+- **Finale.** The finale is a staged space like the rooms, entered by pan 3 through a third wall, with no cut and no return to a previous room. Its content and what follows it (the page scrolling on) are unchanged; only how the camera gets there changes.
 - **Keep T156's fixes:** LUDWIG writes in the clear (hero hidden by 0.14), pieces carry the long hard drop-shadow stack, no `.seq-cast`.
 - **Performance and layout:** three staged rooms must not cost the scrub. Rooms that are far from the camera may be `content-visibility`/`will-change` managed or have their animations paused, but must be present in the DOM and fully painted when the camera arrives (no pop-in). Keep T140 AC9 (p95 frame delta at most 20 ms under 4x CPU throttle) and AC10 (zero layout shift).
 - **Both animation paths** (view-timeline block and `[data-seq-scroll]` fallback in `title-sequence.css`) and reduced motion (static composition, complete, no animations).
 - **e2e:** update `e2e/landing-walls.spec.ts`: all three rooms are present and painted at progress 0; the camera path has no discontinuity; at each dwell the camera is centred in that room; during each pan the camera passes the wall plane; the next room's content is already in its start state before the pan begins (not created or changed during it).
-- SPEC §6.3 "Title-sequence walls" bullet describes three staged rooms, two walls and a continuous pan.
+- SPEC §6.3 "Title-sequence walls" bullet describes the staged rooms and finale, three walls and a continuous pan.
 
 **Out**
 
@@ -43,20 +43,20 @@ What the user wants, in their words: the camera crosses the wall and the other r
 
 ## Notes
 
-- Self-assess by recording the scroll as a frame strip every 0.01 of progress through both pans (and the dwells either side) at 1280 and 390, both themes. Read the strips as a viewer would: the next room must be visible and already staged as the pan begins, the view moves continuously, and no frame shows the crossed wall from the side or the room contents changing. Save them under `.verification/T167/` and put them in the report. The user reviews on the preview.
+- Self-assess by recording the scroll as a frame strip every 0.01 of progress through all three pans (and the dwells either side) at 1280 and 390, both themes. Read the strips as a viewer would: the next room must be visible and already staged as the pan begins, the view moves continuously, and no frame shows the crossed wall from the side or the room contents changing. Save them under `.verification/T167/` and put them in the report. The user reviews on the preview.
 - This reworks the camera and scene structure, so it is the larger change; budget for it.
 - `preview: true`.
 
 ## Acceptance criteria
 
 - [ ] **AC1**: All three rooms are staged in one scene from the start.
-  - _Verify (browser):_ at progress 0, the Grid, Board and Mirror rooms are all in the DOM and 3D space, laid out left to right, each with its back wall and props painted; nothing is added to or swapped in a room during any pan (DOM and computed-style snapshots of the next room are identical immediately before and after the pan starts, apart from the camera).
+  - _Verify (browser):_ at progress 0, the Grid, Board and Mirror rooms and the finale space are all in the DOM and 3D space, laid out left to right, each with its back wall and props painted; nothing is added to or swapped in a room or the finale during any pan (DOM and computed-style snapshots of the next room are identical immediately before and after the pan starts, apart from the camera).
 - [ ] **AC2**: The camera path is continuous.
   - _Verify (browser):_ sampled every 0.01 across 0 to 1 at 1280 and 390, the camera position and yaw have no discontinuity larger than the neighbouring step.
-- [ ] **AC3**: Each crossing is a pan through a wall into the next, already staged room.
+- [ ] **AC3**: Each of the three crossings is a pan through a wall into the next, already staged space.
   - _Verify (browser):_ across each pan the camera moves laterally from one room's centre to the next room's centre and passes the wall plane between them; the destination room is visible through the opening before the camera enters it; the camera never faces the crossed wall after passing.
 - [ ] **AC4**: Frame strips read correctly.
-  - _Verify (browser):_ strips for both pans at 1280 and 390, Paper and Ink, are in the report and in `.verification/T167/`; no frame shows the crossed wall from the side or a room changing contents.
+  - _Verify (browser):_ strips for all three pans at 1280 and 390, Paper and Ink, are in the report and in `.verification/T167/`; no frame shows the crossed wall from the side or a room changing contents.
 - [ ] **AC5**: Dwells, LUDWIG reveal and piece shadows from T156 still hold.
   - _Verify (browser):_ `pnpm exec playwright test e2e/landing-walls.spec.ts --project=desktop --project=mobile` passes, including hero hidden by 0.14, LUDWIG complete by 0.26, and eight `drop-shadow` steps per piece.
 - [ ] **AC6**: Fallback and reduced motion match.

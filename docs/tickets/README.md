@@ -156,7 +156,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T156](./done/T156-landing-sequence-fixes.md) | Landing: LUDWIG writes in the clear, rooms exit through the right wall, piece shadows | T140 | | ✔ | done |
 | [T158](./done/T158-crossword-grid-standards.md) | Crossword grid standards: a Quick shelf of blocked grids, Mini for the open grids, word audit (high priority) | T135 | ✔ | ✔ | done |
 | [T159](./T159-vercel-hobby-limits.md) | Vercel Hobby limits: diagnose ISR writes and CDN requests, fix the causes, keep the cache design (high priority) | T118 | | ✔ | in-progress |
-| [T167](./T167-landing-walk-through-wall.md) | Landing: the camera walks through the right wall into the next room (rework of T156; high priority) | T156 | | | todo |
+| [T167](./T167-landing-walk-through-wall.md) | Landing: three staged rooms and a continuous pan through two walls (rework of T156; **top priority, run first**) | T156 | | | todo |
 
 ## M6: Radio Times set
 

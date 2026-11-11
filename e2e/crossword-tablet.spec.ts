@@ -41,10 +41,10 @@ const noPageScroll = (page: Page) =>
       document.scrollingElement!.scrollWidth === window.innerWidth,
   );
 
-async function expectCentred(locator: Locator, page: Page) {
+async function expectCentred(locator: Locator, page: Page, maxWidth = MAX_WIDTH) {
   const found = await box(locator);
   const { width } = page.viewportSize()!;
-  expect(found.width).toBeLessThanOrEqual(MAX_WIDTH);
+  expect(found.width).toBeLessThanOrEqual(maxWidth);
   expect(Math.abs(found.x + found.width / 2 - width / 2)).toBeLessThanOrEqual(2);
 }
 
@@ -92,6 +92,7 @@ for (const size of SIZES) {
       expect(clue.y + clue.height).toBeLessThanOrEqual(keys.y + 1);
       await expectCentred(pad(page), page);
       await expectCentred(bar(page), page);
+      await expectCentred(page.getByRole("grid"), page, width);
 
       for (const scheme of ["light", "dark"] as const) {
         await page.emulateMedia({ colorScheme: scheme });
@@ -112,6 +113,15 @@ for (const size of SIZES) {
       const keys = await box(pad(page));
       expect(grid.y + grid.height).toBeLessThanOrEqual(keys.y);
       await expectCentred(pad(page), page);
+      await expectCentred(
+        page.getByRole("grid", { name: "Sudoku" }),
+        page,
+        page.viewportSize()!.width,
+      );
+      await expectCentred(
+        page.getByRole("button", { name: "Check", exact: true }).locator(".."),
+        page,
+      );
       await page.screenshot({
         path: `.verification/T168/sudoku-${size.name}-light.png`,
       });
@@ -141,7 +151,13 @@ test.describe("typed solvers use the pad", () => {
 test.describe("other types", () => {
   test.use({ viewport: { width: 820, height: 1180 } });
 
-  for (const typeKey of ["fillomino", "caesar", "book-cipher"]) {
+  for (const typeKey of [
+    "fillomino",
+    "caesar",
+    "keyword",
+    "pictogram-cipher",
+    "book-cipher",
+  ]) {
     test(`${typeKey} shows the pad`, async ({ page }) => {
       await openPuzzle(page, { typeKey, slug: await firstPublishedSlug(typeKey) });
       await expect(pad(page)).toBeVisible();
@@ -152,16 +168,18 @@ test.describe("other types", () => {
     });
   }
 
-  test("troix taps cycle with no system keyboard", async ({ page }) => {
-    await openPuzzle(page, {
-      typeKey: "troix",
-      slug: await firstPublishedSlug("troix"),
+  for (const typeKey of ["troix", "word-wheel"]) {
+    test(`${typeKey} taps with no system keyboard`, async ({ page }) => {
+      await openPuzzle(page, {
+        typeKey,
+        slug: await firstPublishedSlug(typeKey),
+      });
+      await expect(
+        page.locator("input[inputmode=none]").first(),
+      ).toBeAttached();
+      expect(await noPageScroll(page)).toBe(true);
     });
-    await expect(
-      page.locator("input[inputmode=none]").first(),
-    ).toBeAttached();
-    expect(await noPageScroll(page)).toBe(true);
-  });
+  }
 });
 
 test.describe("hardware keyboard", () => {

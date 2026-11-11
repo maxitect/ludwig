@@ -44,17 +44,19 @@ async function accuse(page: Page, puzzle: GearPuzzle) {
   await expect(page.getByText(/Solved in/)).toBeVisible();
 }
 
-test("crank to the solution, scrub to the convergence, accuse and see the stamp", async ({
-  page,
-}) => {
-  const puzzle = await gearPuzzle(false);
-  await openPuzzle(page, puzzle);
+test(
+  "crank to the solution, scrub to the convergence, accuse and see the stamp",
+  { tag: "@smoke" },
+  async ({ page }) => {
+    const puzzle = await gearPuzzle(false);
+    await openPuzzle(page, puzzle);
 
-  await crankTo(page, puzzle.crank);
-  await scrubToConvergence(page, puzzle.convergence);
-  await expect(page.getByTestId("seeing-count")).toHaveText("1");
-  await accuse(page, puzzle);
-});
+    await crankTo(page, puzzle.crank);
+    await scrubToConvergence(page, puzzle.convergence);
+    await expect(page.getByTestId("seeing-count")).toHaveText("1");
+    await accuse(page, puzzle);
+  },
+);
 
 test("fix the diagram: swap the starting slots, then crank, scrub and accuse", async ({
   page,

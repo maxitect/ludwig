@@ -30,7 +30,8 @@
     "puzzles:gen-daily": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-daily.ts",
     "puzzles:top-up-dailies": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/top-up-dailies.ts",
     "puzzles:gen-gears": "tsx --conditions react-server --env-file-if-exists=.env.local scripts/generate-gears.ts",
-    "perf:lighthouse": "node scripts/dev/lighthouse.ts"
+    "perf:lighthouse": "node scripts/dev/lighthouse.ts",
+    "smoke": "node scripts/dev/smoke.mts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -63,6 +64,9 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@guidepup/guidepup": "^0.40.0",
+    "@guidepup/playwright": "^0.21.0",
+    "@guidepup/virtual-screen-reader": "^0.33.0",
     "@playwright/test": "^1.63.0",
     "@serwist/turbopack": "9.5.13",
     "@tailwindcss/postcss": "^4",

@@ -70,6 +70,10 @@ export const userSettings = pgTable("user_settings", {
     .notNull()
     .default("algebraic"),
   reduceMotion: boolean("reduce_motion").notNull().default(false),
+  notifyFavourites: boolean("notify_favourites").notNull().default(false),
+  notifyStreak: boolean("notify_streak").notNull().default(false),
+  favouritesDigestAt: timestamp("favourites_digest_at", { withTimezone: true }),
+  nudgeSentAt: timestamp("nudge_sent_at", { withTimezone: true }),
 });
 
 export const volumes = pgTable("volumes", {

@@ -235,6 +235,7 @@ describe("no stored stats", () => {
       where table_schema = 'public'
         and table_name not in (select table_name from information_schema.views where table_schema = 'public')
         and column_name ~ '(streak|solves|median|best_duration|avg_hints|hints_used|total_duration|solved)'
+        and column_name <> 'notify_streak'
     `);
     expect(rows).toEqual([]);
   });

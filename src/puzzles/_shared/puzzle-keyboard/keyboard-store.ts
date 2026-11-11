@@ -89,7 +89,7 @@ function subscribe(listener: () => void) {
 const padWanted = () =>
   touchMedia()?.matches === true && !getDeviceKeyboard() && !hardwareSeen;
 
-const onTouchPhone = () => touchMedia()?.matches === true;
+const onTouch = () => touchMedia()?.matches === true;
 
 const padActive = () => padMounts > 0 && padWanted();
 
@@ -103,14 +103,14 @@ export function registerPad() {
   };
 }
 
-/** Whether the on-screen pad is the input method: a touch phone, a pad mounted, no hardware key seen and the device-keyboard setting off. */
+/** Whether the on-screen pad is the input method: solve mode (the `touch` variant), a pad mounted, no hardware key seen and the device-keyboard setting off. */
 export function usePuzzleKeyboard() {
   return useSyncExternalStore(subscribe, padActive, () => false);
 }
 
-/** Whether the layout is the touch phone one, whatever input method is in use. */
-export function useTouchPhone() {
-  return useSyncExternalStore(subscribe, onTouchPhone, () => false);
+/** Whether the layout is solve mode (the `touch` variant), whatever input method is in use. */
+export function useTouch() {
+  return useSyncExternalStore(subscribe, onTouch, () => false);
 }
 
 /** Whether the pad would show if it were mounted. */

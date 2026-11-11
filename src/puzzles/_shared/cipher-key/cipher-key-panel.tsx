@@ -9,7 +9,7 @@ import {
   showPad,
   usePadWanted,
   usePuzzleKeyboard,
-  useTouchPhone,
+  useTouch,
 } from "../puzzle-keyboard";
 import { SolveSlot } from "../solve-slot";
 import {
@@ -56,7 +56,7 @@ export function CipherKeyPanel({
   const [active, setActive] = useState<string | null>(null);
   const padActive = usePuzzleKeyboard();
   const padWanted = usePadWanted();
-  const touch = useTouchPhone();
+  const touch = useTouch();
   const occurring = cipherLettersIn(ciphertext);
   const present = new Set(occurring);
   const duplicated = duplicatedGuesses(guesses);

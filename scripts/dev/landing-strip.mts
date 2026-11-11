@@ -10,12 +10,11 @@ for (const width of [1280, 390]) {
     const page = await browser.newPage({
       viewport: { width, height: width === 1280 ? 800 : 844 },
     });
+    await page.addInitScript((t) => localStorage.setItem("theme", t), theme);
     await page.goto(base);
     await page.locator(".title-sequence").waitFor();
-    await page.evaluate((t) => {
-      document.documentElement.dataset.theme = t;
-      return document.fonts.ready;
-    }, theme);
+    await page.waitForLoadState("networkidle");
+    await page.evaluate(() => document.fonts.ready);
     for (let p = Number(from); p <= Number(to) + 1e-9; p += Number(step)) {
       await page.evaluate(async (value) => {
         const track = document.querySelector<HTMLElement>(".seq-track")!;

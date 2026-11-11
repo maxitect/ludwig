@@ -817,6 +817,7 @@ drizzle.config.ts
 - An unverified sign-in (after the correct password) is refused with 403 `EMAIL_NOT_VERIFIED` and a fresh link is sent.
 - `/forgot-password` always replies with the same message. `/reset-password?token=` sets a new password and redirects to `/sign-in?reset=1`; every session is revoked. Settings has a Password section that calls `auth.api.changePassword` with `revokeOtherSessions: true`.
 - A migration sets `email_verified = true` on every user that existed before verification was required.
+- **Opt-in emails (T157).** Two more kinds, both off by default and sent only to verified addresses, from the same sender and layout, signed "Ludwig": a **favourites digest** (new curated puzzles of the player's favourite types since the last digest, never dailies; on the morning after a streak reaches 7, 30, 100 or 365 days it also carries a one-line milestone note, and is sent for that alone) and a **streak nudge** ("your N-day streak ends at midnight", sent to players with a streak of 2 or more and no solve today, linking to today's troix daily). Settings has a checkbox for each (`user_settings.notify_favourites`, `notify_streak`). Every email carries a link to `/api/unsubscribe?token=`, an HMAC of the user id and kind keyed by `BETTER_AUTH_SECRET` (`src/lib/email/unsubscribe.ts`), which clears that one setting without a session and redirects to `/unsubscribed`; a bad token gets 400, and no response reveals whether an address is registered. What was sent is two nullable timestamps on `user_settings`: `favourites_digest_at` is the digest cursor (set to now when the box is ticked, and to the run time after each run, so a user is handled at most once per London day and only puzzles published after it are listed) and `nudge_sent_at` is the last nudge. A failed send is not recorded, so the next call retries it.
 - On previews and in development, sign-ups at `@e2e.test` (`E2E_EMAIL_DOMAIN` in `src/config/email.ts`) are created verified by a `databaseHooks.user.create.before` hook, and the sign-up action signs a verified new user straight in, so Playwright needs no inbox and doesn't spend the sign-in rate limit. The hook is off in production, where sign-up never returns a verified user.
 
 **Sessions:**
@@ -887,7 +888,7 @@ puzzle_types           key text pk, category_key fk→puzzle_categories, name, d
                        subtype_table text unique, sort smallint
 
 // Settings
-user_settings          user_id pk fk→user, theme, chess_notation, reduce_motion bool
+user_settings          user_id pk fk→user, theme, chess_notation, reduce_motion bool, notify_favourites bool, notify_streak bool, favourites_digest_at timestamptz null, nudge_sent_at timestamptz null
 
 // Content
 volumes                id uuid pk, slug unique, title, cover book_cover, sort smallint
@@ -1032,7 +1033,7 @@ How this looks in code:
 | `DATABASE_URL_UNPOOLED` | same as `DATABASE_URL` | Neon **direct** URL, used only by drizzle-kit migrations |
 | `BETTER_AUTH_SECRET` | any random 32+ bytes | per environment, set in Vercel |
 | `BETTER_AUTH_URL` | `http://localhost:3000` | production domain. On previews, derive it from `VERCEL_URL` |
-| `CRON_SECRET` | optional, 16+ characters, reserved for scheduled routes (T157); no route uses it today | per environment, set in Vercel; a Vercel cron would send it as `Authorization: Bearer` |
+| `CRON_SECRET` | optional, 16+ characters, the bearer for the two email cron routes (T157); they return 401 without it | per environment, set in Vercel; a Vercel cron would send it as `Authorization: Bearer` |
 
 These are validated with Zod in `src/env.ts`. A local Postgres runs through `docker compose` (`compose.yaml` with `postgres:17`), and needs no Neon account.
 
@@ -1077,6 +1078,8 @@ These are validated with Zod in `src/env.ts`. A local Postgres runs through `doc
 - The rate-limit store is the database (section 7.3), which is required on serverless.
 
 **CI:** a GitHub Action runs typecheck, lint, Vitest and `puzzles:verify` on each PR. Vercel's git integration handles deploys. End-to-end Playwright tests run against the preview URL once it is ready.
+
+**Crons (T157):** the only scheduler is Vercel Cron, and these two are the only crons. `/api/cron/favourite-digest` (`0 8 * * *`) and `/api/cron/streak-nudge` (`0 17 * * *`), both authorised by `Authorization: Bearer $CRON_SECRET` and idempotent within a London day. Vercel crons run in UTC, so these are 09:00 and 18:00 in London in summer (BST) and 08:00 and 17:00 in winter (GMT); Hobby also fires a cron at any point within its hour. Both are acceptable for these emails, and "today" in the selection always means the London date, whatever the hour. Because opt-in is off by default, a deploy sends nothing until players opt in.
 
 **Hobby limits:** the plan allows 200K ISR writes, 1M CDN requests, 1M ISR reads and 4h Fluid Active CPU per cycle. In the cycle from 2026-10-08 ISR writes reached 363K, because writes exceeded reads and so came from builds: each build prerendered every `puzzles` row, including about 1,400 unpublished future dailies, and each prerender writes the page and its `use cache` entries. Rules that follow:
 

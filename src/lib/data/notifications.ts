@@ -32,14 +32,17 @@ export async function selectFavouriteDigests(now: Date): Promise<DigestRow[]> {
     name: string;
     milestone_days: number | null;
   }>(sql`
-    select u.id as user_id, u.email, u.name, m.current_streak as milestone_days
+    select u.id as user_id, u.email, u.name, m.days as milestone_days
     from user_settings s
     join "user" u on u.id = s.user_id
-    left join user_streaks m
-      on m.user_id = s.user_id
-      and m.current_streak in (${milestoneList})
-      and exists (select 1 from user_daily_solves d where d.user_id = s.user_id and d.day = ${yesterday}::date)
-      and not exists (select 1 from user_daily_solves d where d.user_id = s.user_id and d.day = ${today}::date)
+    left join lateral (
+      select k.current_streak - case when exists (
+        select 1 from user_daily_solves d where d.user_id = s.user_id and d.day = ${today}::date
+      ) then 1 else 0 end as days
+      from user_streaks k
+      where k.user_id = s.user_id
+        and exists (select 1 from user_daily_solves d where d.user_id = s.user_id and d.day = ${yesterday}::date)
+    ) m on m.days in (${milestoneList})
     where s.notify_favourites
       and u.email_verified
       and (s.favourites_digest_at at time zone 'Europe/London')::date < ${today}::date

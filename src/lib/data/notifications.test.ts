@@ -100,6 +100,7 @@ describe("favourite digest selection", () => {
   let off: string;
   let doneToday: string;
   let milestone: string;
+  let milestoneSolvedToday: string;
   let fresh: { id: string; slug: string };
   const all: string[] = [];
 
@@ -114,12 +115,14 @@ describe("favourite digest selection", () => {
       favouritesDigestAt: now,
     });
     milestone = await addUser("dig-ms", opted);
-    all.push(a, b, off, doneToday, milestone);
+    milestoneSolvedToday = await addUser("dig-ms-today", opted);
+    all.push(a, b, off, doneToday, milestone, milestoneSolvedToday);
     for (const id of [a, off, doneToday]) {
       await db.insert(userFavouriteTypes).values({ userId: id, typeKey: "troix" });
     }
     await db.insert(userFavouriteTypes).values({ userId: b, typeKey: "sudoku" });
     await solveOn(milestone, [1, 2, 3, 4, 5, 6, 7]);
+    await solveOn(milestoneSolvedToday, [0, 1, 2, 3, 4, 5, 6, 7]);
     fresh = await addPuzzle(hoursAgo(24));
     await addPuzzle(hoursAgo(24), true);
     await addPuzzle(hoursAgo(72));
@@ -129,7 +132,9 @@ describe("favourite digest selection", () => {
 
   it("lists only the new curated puzzles of a favourite type for the opted-in user", async () => {
     const rows = await selectFavouriteDigests(now);
-    expect(idsOf(rows, all).sort()).toEqual([a, b, milestone].sort());
+    expect(idsOf(rows, all).sort()).toEqual(
+      [a, b, milestone, milestoneSolvedToday].sort(),
+    );
     expect(rows.find((row) => row.userId === a)?.puzzles.map((p) => p.slug)).toEqual(
       [fresh.slug],
     );
@@ -139,6 +144,9 @@ describe("favourite digest selection", () => {
   it("notes a streak milestone reached yesterday", async () => {
     const rows = await selectFavouriteDigests(now);
     expect(rows.find((row) => row.userId === milestone)?.milestoneDays).toBe(7);
+    expect(
+      rows.find((row) => row.userId === milestoneSolvedToday)?.milestoneDays,
+    ).toBe(7);
     expect(rows.find((row) => row.userId === a)?.milestoneDays).toBeNull();
   });
 
@@ -146,8 +154,8 @@ describe("favourite digest selection", () => {
     sendEmail.mockClear();
     const first = await runFavouriteDigest(baseUrl, now);
     expect(first.failed).toBe(0);
-    expect(first.sent).toBe(2);
-    expect(sendEmail).toHaveBeenCalledTimes(2);
+    expect(first.sent).toBe(3);
+    expect(sendEmail).toHaveBeenCalledTimes(3);
     sendEmail.mockClear();
     const second = await runFavouriteDigest(baseUrl, now);
     expect(second).toEqual({ eligible: 0, sent: 0, failed: 0 });

@@ -1,4 +1,11 @@
-import { FRAME, project, type Screen, type Vec3 } from "@/components/three/iso";
+import {
+  AZIMUTH,
+  ELEVATION,
+  FRAME,
+  project,
+  type Screen,
+  type Vec3,
+} from "@/components/three/iso";
 import { PAWN_PATH } from "@/puzzles/_shared/chess-board/piece-paths";
 import {
   MAT,
@@ -52,7 +59,7 @@ type Prism = {
 };
 
 function corner(
-  { x, z, yaw = 0 }: Prism,
+  { x, z, yaw = 0 }: Pick<Prism, "x" | "z" | "yaw">,
   lx: number,
   lz: number,
 ): readonly [number, number] {
@@ -93,6 +100,64 @@ function PrismShape({
         className={`${faces.top} ${stroke}`}
         points={polygon([at(-hw, hd, h), at(hw, hd, h), at(hw, -hd, h), at(-hw, -hd, h)])}
       />
+    </g>
+  );
+}
+
+const VIEW: Vec3 = [
+  Math.cos(ELEVATION) * Math.sin(AZIMUTH),
+  Math.sin(ELEVATION),
+  Math.cos(ELEVATION) * Math.cos(AZIMUTH),
+];
+const minus = (a: Vec3, b: Vec3): Vec3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const dot = (a: Vec3, b: Vec3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a: Vec3, b: Vec3): Vec3 => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+];
+const scale = ([x, y, z]: Vec3, by: number): Vec3 => [x * by, y * by, z * by];
+const centroid = (points: Vec3[]): Vec3 =>
+  scale(
+    points.reduce<Vec3>((sum, p) => [sum[0] + p[0], sum[1] + p[1], sum[2] + p[2]], [0, 0, 0]),
+    1 / points.length,
+  );
+
+/** The scene's spatial wedge: a three-sided prism lying along its length, drawn face by face from the camera's side. */
+function WedgeShape({ x, z, y, yaw }: { x: number; z: number; y: number; yaw: number }) {
+  const section = [0, 1, 2].map((side) => {
+    const angle = (side * 2 * Math.PI) / 3;
+    return [0.4 * Math.sin(angle), 0.4 * Math.cos(angle)] as const;
+  });
+  const corners = [-0.45, 0.45].flatMap((along) =>
+    section.map(([up, out]): Vec3 => {
+      const [wx, wz] = corner({ x, z, yaw }, along, out);
+      return [wx, y + up, wz];
+    }),
+  );
+  const middle = centroid(corners);
+  const faces = [[0, 1, 2], [3, 4, 5], [0, 1, 4, 3], [1, 2, 5, 4], [2, 0, 3, 5]];
+  return (
+    <g strokeLinejoin="miter">
+      {faces.map((face) => {
+        const points = face.map((index) => corners[index]);
+        const normal = cross(minus(points[1], points[0]), minus(points[2], points[0]));
+        const facing = scale(normal, Math.sign(dot(normal, minus(centroid(points), middle))));
+        if (dot(facing, VIEW) <= 0) return null;
+        const fill =
+          facing[1] > Math.abs(facing[0]) && facing[1] > Math.abs(facing[2])
+            ? SHADE.top
+            : facing[2] > facing[0]
+              ? SHADE.left
+              : SHADE.right;
+        return (
+          <polygon
+            key={face.join()}
+            className={`${fill} stroke-ink stroke-[1.5]`}
+            points={polygon(points.map((point) => project(point)))}
+          />
+        );
+      })}
     </g>
   );
 }
@@ -204,7 +269,7 @@ function MarkerShapes({ stack }: { stack: Stack }) {
     case "numbers":
       return box({ y: top, width: 1.3, depth: 0.14, height: 0.14, yaw: 0.4 }, RED);
     case "spatial":
-      return box({ y: top, width: 0.9, depth: 0.7, height: 0.5, yaw: 0.2 }, SHADE);
+      return <WedgeShape x={x} z={z} y={top + 0.3} yaw={0.2} />;
     case "word":
       return (
         <>

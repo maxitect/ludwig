@@ -298,7 +298,11 @@ export function Solver({
         Type letters to fill the grid. Space switches between across and down,
         Tab moves to the next clue and Enter checks the grid.
       </p>
-      <p className="min-h-7 text-lg touch:sr-only" aria-live="polite">
+      <p
+        className="min-h-7 text-lg touch:sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {activeEntry && (
           <>
             <span className="font-display font-bold">{label(activeEntry)}</span>{" "}

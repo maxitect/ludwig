@@ -497,7 +497,7 @@ function SolveBoard({
           data-solve-slot
           inert={solved}
           style={{ marginBottom: keyboardInset }}
-          className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
+          className="hidden shrink-0 touch:mx-auto touch:block touch:w-full touch:max-w-xl touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
         />
       </section>
     </SolveSlotProvider>

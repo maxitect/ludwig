@@ -3,7 +3,8 @@ import { useSyncExternalStore } from "react";
 export const DEVICE_KEYBOARD_KEY = "ludwig:device-keyboard";
 export const PAD_LABEL = "Keyboard";
 
-const TOUCH_QUERY = "(pointer: coarse) and (max-width: 47.999rem)";
+export const TOUCH_QUERY =
+  "(pointer: coarse) and ((max-width: 47.999rem) or ((min-width: 48rem) and (min-height: 37.5rem)))";
 
 const listeners = new Set<() => void>();
 let hardwareSeen = false;

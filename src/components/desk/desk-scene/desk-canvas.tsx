@@ -7,6 +7,7 @@ import {
   CylinderGeometry,
   ExtrudeGeometry,
   type BufferGeometry,
+  type Camera,
 } from "three";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
 import { PAWN_PATH } from "@/puzzles/_shared/chess-board/piece-paths";
@@ -48,6 +49,15 @@ function pawnGeometry() {
 }
 
 const lying = (geometry: BufferGeometry) => geometry.rotateZ(Math.PI / 2);
+
+function place(camera: Camera, angle: number) {
+  camera.position.set(
+    30 * Math.cos(ELEVATION) * Math.sin(angle),
+    30 * Math.sin(ELEVATION),
+    30 * Math.cos(ELEVATION) * Math.cos(angle),
+  );
+  camera.lookAt(0, FRAME.targetY, 0);
+}
 
 function Markers({ stack, palette, pawn }: { stack: Stack; palette: Palette; pawn: BufferGeometry }) {
   const top = stackTop(stack);
@@ -157,26 +167,15 @@ function Rig({
   const invalidate = useThree((state) => state.invalidate);
   const azimuth = useRef(AZIMUTH);
 
-  const place = (angle: number) => {
-    const { camera } = get();
-    camera.position.set(
-      30 * Math.cos(ELEVATION) * Math.sin(angle),
-      30 * Math.sin(ELEVATION),
-      30 * Math.cos(ELEVATION) * Math.cos(angle),
-    );
-    camera.lookAt(0, FRAME.targetY, 0);
-  };
-
   useEffect(() => {
     const { camera } = get();
     camera.zoom = Math.min(size.width / FRAME.width, size.height / FRAME.height);
     camera.near = 0.1;
     camera.far = 80;
     camera.updateProjectionMatrix();
-    place(azimuth.current);
+    place(camera, azimuth.current);
     invalidate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [get, size.width, size.height]);
+  }, [get, invalidate, size.width, size.height]);
 
   useEffect(() => {
     onWake(invalidate);
@@ -192,7 +191,7 @@ function Rig({
     const gap = goal - azimuth.current;
     if (Math.abs(gap) < 0.0005) return;
     azimuth.current += gap * Math.min(1, delta * 12);
-    place(azimuth.current);
+    place(state.camera, azimuth.current);
     state.invalidate();
   });
   return null;

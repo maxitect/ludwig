@@ -589,6 +589,59 @@ export async function completeAttemptFor(
   }
 }
 
+export type SeededAttempt = {
+  startedDaysAgo: number;
+  savedDaysAgo?: number;
+  completedDaysAgo?: number;
+};
+
+/**
+ * Inserts one attempt per entry on distinct non-daily, non-weekly puzzles of the type (easiest first, then by
+ * slug), each timestamp at noon London time the given number of days ago. Completed attempts take 60 seconds.
+ */
+export async function seedAttemptsFor(
+  email: string,
+  typeKey: string,
+  seeded: SeededAttempt[],
+) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  const noon = (param: string) =>
+    `(((now() at time zone 'Europe/London')::date - ${param}::integer + time '12:00') at time zone 'Europe/London')`;
+  try {
+    for (const [index, attempt] of seeded.entries()) {
+      await pool.query(
+        `insert into attempts (user_id, puzzle_id, started_at, last_saved_at, completed_at, duration_ms)
+         select u.id, p.id, ${noon("$4")}, ${noon("$5")},
+                case when $6::integer is null then null else ${noon("$6")} end,
+                case when $6::integer is null then null else 60000 end
+           from "user" u,
+                (select id from puzzles p
+                  where p.type_key = $2 and p.published_at <= now()
+                    and not exists (select 1 from daily_puzzles d where d.puzzle_id = p.id)
+                    and not exists (select 1 from gear_daily g where g.puzzle_id = p.id)
+                    and not exists (select 1 from weekly_puzzles w where w.puzzle_id = p.id)
+                  order by p.difficulty, p.slug
+                  offset $3 limit 1) p
+          where u.email = $1`,
+        [
+          email,
+          typeKey,
+          index,
+          attempt.startedDaysAgo,
+          attempt.savedDaysAgo ??
+            attempt.completedDaysAgo ??
+            attempt.startedDaysAgo,
+          attempt.completedDaysAgo ?? null,
+        ],
+      );
+    }
+  } finally {
+    await pool.end();
+  }
+}
+
 /** Moves a puzzle's `published_at` (the database's `now()` when `at` is null) and returns what it was, so the test can put it back. */
 export async function setPublishedAt(
   typeKey: string,

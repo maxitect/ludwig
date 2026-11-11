@@ -4,6 +4,7 @@ import {
   completeAttemptFor,
   databaseAvailable,
   publishedPuzzles,
+  seedAttemptsFor,
 } from "./helpers/db";
 import { hydrated } from "./helpers/solve";
 
@@ -11,6 +12,13 @@ const shelf = (page: Page) =>
   page.getByRole("region", { name: "Recommended for you" });
 
 const cards = (page: Page) => shelf(page).getByRole("listitem");
+
+const shelfTypes = async (page: Page) =>
+  (
+    await shelf(page)
+      .getByRole("link")
+      .evaluateAll((links) => links.map((link) => link.getAttribute("href")))
+  ).map((href) => href!.split("/")[2]);
 
 const isPost = (response: { request(): { method(): string } }) =>
   response.request().method() === "POST";
@@ -69,4 +77,48 @@ test("a favourite type is recommended with its reason, and a solved puzzle drops
   await completeAttemptFor(email, typeKey, slug);
   await page.reload();
   await expect(shelf(page).locator(`a[href="${href}"]`)).toHaveCount(0);
+});
+
+test("three unfinished attempts rank a type below an untried type of its category", async ({
+  page,
+}) => {
+  test.skip(!databaseAvailable, "needs the local database");
+  const email = uniqueEmail("recommend-unfinished");
+  await signUp(page, email);
+  await seedAttemptsFor(email, "kakuro", [
+    { startedDaysAgo: 1 },
+    { startedDaysAgo: 1 },
+    { startedDaysAgo: 1 },
+  ]);
+
+  await page.goto("/");
+  await expect(cards(page).first()).toContainText("Something new in Numbers");
+  const types = await shelfTypes(page);
+  expect(types[0]).toBe("napkin-maths");
+  const kakuro = types.indexOf("kakuro");
+  expect(kakuro === -1 || kakuro > types.indexOf("napkin-maths")).toBe(true);
+});
+
+test("a type returned to on five days ranks above one tried once", async ({
+  page,
+}) => {
+  test.skip(!databaseAvailable, "needs the local database");
+  const email = uniqueEmail("recommend-comeback");
+  await signUp(page, email);
+  await seedAttemptsFor(email, "fillomino", [
+    { startedDaysAgo: 10, savedDaysAgo: 8, completedDaysAgo: 6 },
+    { startedDaysAgo: 7, savedDaysAgo: 4, completedDaysAgo: 1 },
+  ]);
+  await seedAttemptsFor(email, "futoshiki", [
+    { startedDaysAgo: 10 , completedDaysAgo: 10 },
+    { startedDaysAgo: 10, completedDaysAgo: 10 },
+  ]);
+
+  await page.goto("/");
+  await expect(cards(page).first()).toContainText(
+    "You keep coming back to Fillomino",
+  );
+  const types = await shelfTypes(page);
+  expect(types.slice(0, 2)).toEqual(["fillomino", "fillomino"]);
+  expect(types.indexOf("futoshiki")).toBeGreaterThan(1);
 });

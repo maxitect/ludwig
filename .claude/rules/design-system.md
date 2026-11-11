@@ -28,6 +28,17 @@ Spec: `docs/SPEC.md` section 6. The look is the _Ludwig_ title sequence: texture
 - Show something only in one theme with the `ink:` variant (`ink:hidden`, `hidden ink:block`), never with hand-written `[data-theme]` selectors.
 - Both themes (Paper and Ink) must work. Check `/dev/kitchen-sink` after changing any component.
 
+## Three.js scenes
+
+Spike and decision: `docs/research/three-js-set-pieces.md`. The Desk hero (`src/components/desk/desk-scene/`) is the first scene; shared parts live in `src/components/three/`.
+
+- A scene is a lazy chunk: nothing from `three` or `@react-three/fiber` is imported statically by a page, and it loads only after hydration and the first shelves have painted. Without JavaScript, with reduced motion (`useReduceMotion()`), or if WebGL fails, the page shows a static SVG of the same composition.
+- Materials are flat or toon only: `MeshToonMaterial` with a three-band `NearestFilter` gradient map (`Solid`, `Block`). No PBR, no environment maps, no bloom, fog, glow or post-processing.
+- One directional light with a hard shadow: `BasicShadowMap`, never a blurred or soft shadow type. The ground shadow is a `ShadowMaterial` in the `--cast` token, so it is blue-grey on Paper and light on Ink.
+- Every solid has an ink outline (`EdgesGeometry` lines in `--color-ink`; `--border` for the desk mat).
+- Colours are read from the CSS variables at mount with `readPalette()` / `usePalette()` and re-read when the theme changes. Never write hex or `new Color("#...")`.
+- Render on demand (`frameloop="demand"`), cap `dpr` at 2, and keep keyboard and pointer control with an accessible name and a hidden text description. Pieces are extruded from the shared cburnett paths (`piece-paths.ts`), never imported as models.
+
 ## Typography
 
 - **Headings:** always UPPERCASE `font-display` (Josefin Sans) in the credits pattern, a small light line over a large bold line. Use the `<Credit top bottom />` component; don't hand-roll it.

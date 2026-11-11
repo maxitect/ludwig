@@ -189,7 +189,7 @@ Plus **This Week**: the `weekly_pairs` seed and the `/this-week` page.
   Both land before the accessibility audit and the performance pass.
 - **Landing wall motion** (T140, nice-to-have, research in `docs/research/landing-wall-animation.md`): a game unwinding on The Board, letters filling The Grid and digits in The Mirror, scrubbed by scroll, plus the camera fix that keeps The Board visible on phones. It does not block the audit, the performance pass or launch.
 - **Footer** with the cburnett attribution and the not-affiliated note.
-- **Production domain,** a final seed, launch.
+- **Production verification** on `https://ludwigpuzzles.com` (T070): the site has been live there since October, so this proves spec section 8 on production with `pnpm smoke <url>`, the axe audit, automated screen-reader checks and Lighthouse.
 
 **Exit criteria:** the whole of spec section 8 passes on production.
 
@@ -314,7 +314,7 @@ Each epic below becomes a set of tickets. The candidate tickets are only a start
 | **E7 Gear Puzzle** | M3 (Mode B in M4) | Engine core. Generator. Fix the Diagram generator. Gen script and daily seeds. SVG board. Crank. Scrubber and animation. Accuse and check. Fix the Diagram UI. State table. Hub. Content ×12. Gear train engine. Gear train UI and content |
 | **E8 Library** | M4 | One ticket per type (section 3, M4 table), plus a shared-piece ticket per group and content tickets |
 | **E9 This Week** | M4 | `weekly_pairs` seed and page |
-| **E10 Polish and launch** | M5 | View transitions. Landing sequence. Settings page. Look and feel fixes. Puzzle previews. Accessibility audit. Performance pass. Footer and attribution. Production domain and launch |
+| **E10 Polish and launch** | M5 | View transitions. Landing sequence. Settings page. Look and feel fixes. Puzzle previews. Accessibility audit. Performance pass. Footer and attribution. Production verification on `ludwigpuzzles.com` |
 | **E11 Radio Times set** | M6 | Sudoku region variants. Chess problem. Railroad. Star battle. Troix. Circle9. Word wheel. Detective scene engine and UI. Detective scene artwork and content. Killer and XV sudoku. Nonogram. Kakuro. Fillomino. Norinori. Reflections. Generator research (KrazyDad blog). Deterministic generator pipeline |
 | **E12 Mobile and PWA** | M5, M7 | PWA baseline. Solve mode. `PuzzleKeyboard`. Crossword on phones. Keyboard for the other typed types. Touch pass. Service worker and offline |
 

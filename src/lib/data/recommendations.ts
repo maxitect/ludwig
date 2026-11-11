@@ -10,11 +10,15 @@ import {
 } from "@/db/schema";
 import { isPublished } from "@/lib/data/puzzles";
 import { requireUser } from "@/lib/data/user";
-import { recommend, type Candidate } from "@/lib/recommend";
+import {
+  recommend,
+  type Candidate,
+  type TypeDifficultyStats,
+} from "@/lib/recommend";
 import { londonDate } from "@/utils/london-time";
 
 /** Every published puzzle that is not a daily or in a weekly pair, with its type and category names. Same for everyone. */
-export async function getCandidates(): Promise<Candidate[]> {
+async function getCandidates(): Promise<Candidate[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("puzzles");
@@ -58,12 +62,7 @@ async function getPopularTypeKeys() {
 
 /** Medians per type and difficulty, for the step-up and the speed comparisons. */
 async function getTypeDifficultyStats(userId: string) {
-  const { rows } = await db.execute<{
-    typeKey: string;
-    difficulty: number;
-    solves: number;
-    medianDurationMs: number;
-  }>(sql`
+  const { rows } = await db.execute<TypeDifficultyStats>(sql`
     select
       s.type_key as "typeKey",
       p.difficulty,

@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
+  firstPublishedSlug,
   futoshikiPuzzle,
   kakuroPuzzle,
   quickCrosswordPuzzle,
@@ -135,6 +136,32 @@ test.describe("typed solvers use the pad", () => {
       expect(await noPageScroll(page)).toBe(true);
     });
   }
+});
+
+test.describe("other types", () => {
+  test.use({ viewport: { width: 820, height: 1180 } });
+
+  for (const typeKey of ["fillomino", "caesar", "book-cipher"]) {
+    test(`${typeKey} shows the pad`, async ({ page }) => {
+      await openPuzzle(page, { typeKey, slug: await firstPublishedSlug(typeKey) });
+      await expect(pad(page)).toBeVisible();
+      await expect(
+        page.locator("input[inputmode=none]").first(),
+      ).toBeAttached();
+      expect(await noPageScroll(page)).toBe(true);
+    });
+  }
+
+  test("troix taps cycle with no system keyboard", async ({ page }) => {
+    await openPuzzle(page, {
+      typeKey: "troix",
+      slug: await firstPublishedSlug("troix"),
+    });
+    await expect(
+      page.locator("input[inputmode=none]").first(),
+    ).toBeAttached();
+    expect(await noPageScroll(page)).toBe(true);
+  });
 });
 
 test.describe("hardware keyboard", () => {

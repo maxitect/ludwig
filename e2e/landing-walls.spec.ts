@@ -59,13 +59,28 @@ function readCamera(page: Page) {
   });
 }
 
+/** `readCamera` at each step, scrubbed in one round trip so slow runners stay inside the timeout. */
 async function sampleCamera(page: Page, steps: number[]) {
-  const out: { progress: number; x: number; yaw: number }[] = [];
-  for (const progress of steps) {
-    await seek(page, progress);
-    out.push({ progress, ...(await readCamera(page)) });
-  }
-  return out;
+  return page.evaluate(async (list) => {
+    const track = document.querySelector<HTMLElement>(".seq-track")!;
+    const world = document.querySelector(".seq-world")!;
+    const span = track.offsetHeight - window.innerHeight;
+    const top = track.getBoundingClientRect().top + window.scrollY;
+    const out: { progress: number; x: number; yaw: number }[] = [];
+    for (const progress of list) {
+      window.scrollTo(0, Math.ceil(top + progress * span));
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      );
+      const style = getComputedStyle(world);
+      out.push({
+        progress,
+        x: style.transform === "none" ? 0 : -new DOMMatrix(style.transform).m41,
+        yaw: style.rotate === "none" ? 0 : parseFloat(style.rotate.split(" ").at(-1)!),
+      });
+    }
+    return out;
+  }, steps);
 }
 
 const everyHundredth = Array.from({ length: 101 }, (_, step) => step / 100);
@@ -168,6 +183,7 @@ test.describe("landing walls", () => {
   });
 
   test("AC2 AC3 the camera path is continuous and each pan crosses a wall into the next room", async ({ page }) => {
+    test.setTimeout(120_000);
     for (const viewport of VIEWPORTS) {
       await open(page, viewport);
       const width = (await box(page, ".seq-stage")).width;

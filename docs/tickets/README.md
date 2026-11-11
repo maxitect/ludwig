@@ -156,8 +156,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T156](./done/T156-landing-sequence-fixes.md) | Landing: LUDWIG writes in the clear, rooms exit through the right wall, piece shadows | T140 | | ✔ | done |
 | [T158](./done/T158-crossword-grid-standards.md) | Crossword grid standards: a Quick shelf of blocked grids, Mini for the open grids, word audit (high priority) | T135 | ✔ | ✔ | done |
 | [T159](./T159-vercel-hobby-limits.md) | Vercel Hobby limits: diagnose ISR writes and CDN requests, fix the causes, keep the cache design (high priority) | T118 | | ✔ | in-progress |
-| [T167](./T167-landing-walk-through-wall.md) | Landing: staged rooms and a continuous pan through three walls into the finale (rework of T156; **top priority, run first**) | T156 | | | todo |
-| [T168](./T168-solve-mode-on-tablets.md) | Solve mode on tablets (iPad): our keyboard and the clue bar, no system keyboard | T115, T116 | | | todo |
+| [T167](./done/T167-landing-walk-through-wall.md) | Landing: staged rooms and a continuous pan through three walls into the finale (rework of T156; **top priority, run first**) | T156 | | | done |
+| [T168](./done/T168-solve-mode-on-tablets.md) | Solve mode on tablets (iPad): our keyboard and the clue bar, no system keyboard | T115, T116 | | | done |
 
 ## M6: Radio Times set
 
@@ -215,10 +215,10 @@ User feedback after launch testing (2026-11-07). The signed-in Desk was cut from
 | [T153](./done/T153-desk-signed-in-home.md) | The Desk: a signed-in home page that picks up where you left off | T023, T067 | ✔ | | done |
 | [T154](./done/T154-favourite-types-and-new-markers.md) | Favourite puzzle types, and New markers on recently added puzzles | T153 | ✔ | | done |
 | [T160](./done/T160-desk-charts.md) | Desk charts: a stats dashboard in the house style, built with D3 | T153 | ✔ | | done |
-| [T161](./T161-recommendations.md) | Recommended for you: a simple recommendation shelf on the Desk | T154, T160 | ✔ | | todo |
-| [T162](./T162-three-js-set-pieces.md) | Brand set pieces in three.js: a spike, then one piece on the Desk | T160, T156 | | | todo |
+| [T161](./done/T161-recommendations.md) | Recommended for you: a simple recommendation shelf on the Desk | T154, T160 | ✔ | | done |
+| [T162](./done/T162-three-js-set-pieces.md) | Brand set pieces in three.js: a spike, then one piece on the Desk | T160, T156 | | | done |
 | [T163](./done/T163-gate-runs-affected-e2e.md) | Run the affected end-to-end specs in the ticket gate, and archive done tickets | — | | | done |
-| [T157](./T157-favourite-type-digest-email.md) | Email players when a favourite type gets a new puzzle, and when a streak is about to break | T154, T155 | ✔ | ✔ | todo |
+| [T157](./done/T157-favourite-type-digest-email.md) | Email players when a favourite type gets a new puzzle, and when a streak is about to break | T154, T155 | ✔ | ✔ | done |
 
 ## M8: Narrative pass
 

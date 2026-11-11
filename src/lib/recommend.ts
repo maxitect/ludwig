@@ -8,6 +8,16 @@
  * deletes the attempt rows, so there is nothing left to read.
  */
 
+import type {
+  puzzleCategories,
+  puzzleTypes,
+  puzzles,
+  userDifficultyStats,
+  userSolves,
+  userTypeActivity,
+  userTypeStats,
+} from "@/db/schema";
+
 export const WEIGHTS = {
   favourite: 40,
   playedPerSolve: 4,
@@ -41,43 +51,31 @@ export const THRESHOLDS = {
   coldStartMaxDifficulty: 2,
 } as const;
 
-export type TypeActivity = {
-  typeKey: string;
-  categoryKey: string;
-  firstDay: string;
-  lastDay: string;
-  activeDays: number;
-  started: number;
-  completed: number;
-  unfinished: number;
-  staleUnfinished: number;
-  returnsAfterSolve: number;
-};
+type PuzzleType = typeof puzzleTypes.$inferSelect;
+type PuzzleCategory = typeof puzzleCategories.$inferSelect;
 
-export type TypeStats = {
-  typeKey: string;
-  categoryKey: string;
-  solves: number;
-  medianDurationMs: number;
-  avgHints: number;
-};
+export type TypeActivity = Omit<typeof userTypeActivity.$inferSelect, "userId"> &
+  Pick<PuzzleType, "categoryKey">;
 
-export type TypeDifficultyStats = {
-  typeKey: string;
-  difficulty: number;
-  solves: number;
-  medianDurationMs: number;
-};
+export type TypeStats = Pick<
+  typeof userTypeStats.$inferSelect,
+  "typeKey" | "categoryKey" | "solves" | "medianDurationMs"
+> & { avgHints: number };
 
-export type Candidate = {
-  id: string;
-  typeKey: string;
-  typeName: string;
-  categoryKey: string;
-  categoryName: string;
-  slug: string;
-  title: string;
-  difficulty: number;
+export type TypeDifficultyStats = Omit<
+  typeof userDifficultyStats.$inferSelect,
+  "userId"
+> &
+  Pick<typeof userSolves.$inferSelect, "typeKey">;
+
+export type Candidate = Pick<
+  typeof puzzles.$inferSelect,
+  "id" | "slug" | "title" | "difficulty"
+> & {
+  typeKey: PuzzleType["key"];
+  typeName: PuzzleType["name"];
+  categoryKey: PuzzleCategory["key"];
+  categoryName: PuzzleCategory["name"];
 };
 
 export type Recommendation = Candidate & { reason: string; score: number };
@@ -152,12 +150,14 @@ function mostPlayedCategory(activity: TypeActivity[]) {
   )[0]?.[0];
 }
 
-/** Hints per solve across the player's other types in the category, weighted by solves. */
-function categoryAvgHints(categoryKey: string, stats: TypeStats[]) {
-  const rows = stats.filter((row) => row.categoryKey === categoryKey);
+/** Hints per solve across the player's other types in the category, weighted by solves. Null without one. */
+function otherTypesAvgHints(typeKey: string, categoryKey: string, stats: TypeStats[]) {
+  const rows = stats.filter(
+    (row) => row.categoryKey === categoryKey && row.typeKey !== typeKey,
+  );
   const solves = rows.reduce((sum, row) => sum + row.solves, 0);
   return solves === 0
-    ? 0
+    ? null
     : rows.reduce((sum, row) => sum + row.avgHints * row.solves, 0) / solves;
 }
 
@@ -205,10 +205,15 @@ function typeSignals(
     if (ratio !== null && ratio > THRESHOLDS.slowRatio) {
       add(-WEIGHTS.slow, null);
     }
-    const categoryAverage = categoryAvgHints(candidate.categoryKey, stats);
+    const othersAverage = otherTypesAvgHints(
+      candidate.typeKey,
+      candidate.categoryKey,
+      stats,
+    );
     if (
+      othersAverage !== null &&
       typeStats.avgHints >= 1 &&
-      typeStats.avgHints > categoryAverage * THRESHOLDS.hintyRatio
+      typeStats.avgHints > othersAverage * THRESHOLDS.hintyRatio
     ) {
       add(-WEIGHTS.hinty, null);
     }
@@ -295,16 +300,20 @@ export function recommend(
   }
 
   const favourites = new Set(input.favouriteTypeKeys);
+  const played = new Set(input.activity.map(({ typeKey }) => typeKey));
   const ranked = candidates
     .map((candidate): Recommendation => {
       const signals = typeSignals(candidate, input, favourites);
       const top = signals
         .filter(({ reason }) => reason !== null)
         .toSorted((a, b) => b.points - a.points)[0];
+      const fallback = played.has(candidate.typeKey)
+        ? `Another ${candidate.typeName} to try`
+        : `Something new in ${candidate.categoryName}`;
       return {
         ...candidate,
         score: signals.reduce((sum, { points }) => sum + points, 0),
-        reason: top?.reason ?? `Something new in ${candidate.categoryName}`,
+        reason: top?.reason ?? fallback,
       };
     })
     .toSorted((a, b) => b.score - a.score || bySlug(a, b));

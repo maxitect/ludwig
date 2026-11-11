@@ -223,6 +223,24 @@ describe("negative signals", () => {
     expect(calm.score - hinty.score).toBe(10);
   });
 
+  it("hints are compared with the other types in the category, not the type itself", () => {
+    const input = {
+      activity: [activity("a"), activity("b")],
+      byDifficulty: [solvedAt("a", 1), solvedAt("b", 1)],
+    };
+    const hinty = scoreOf("a", {
+      ...input,
+      stats: [stats("a", { avgHints: 4 }), stats("b", { avgHints: 2 })],
+    });
+    const calm = scoreOf("a", {
+      ...input,
+      stats: [stats("a", { avgHints: 0 }), stats("b", { avgHints: 2 })],
+    });
+    expect(calm.score - hinty.score).toBe(10);
+    const alone = scoreOf("a", { ...baseline, stats: [stats("a", { avgHints: 4 })] });
+    expect(alone.score).toBe(scoreOf("a", baseline).score);
+  });
+
   it("a median over twice the other types at the same difficulty counts against", () => {
     const input = {
       activity: [activity("a"), activity("b")],
@@ -299,6 +317,23 @@ describe("exclusions and ordering", () => {
       candidates: [candidate("a", 3), candidate("a", 4)],
     });
     expect(picks.map((pick) => pick.id)).toEqual(["a-4"]);
+  });
+
+  it("a played type with no positive signal is not called new", () => {
+    const { picks } = shelf({
+      activity: [
+        activity("a", {
+          firstDay: "2026-06-01",
+          lastDay: "2026-06-01",
+          activeDays: 1,
+          started: 3,
+          completed: 0,
+          unfinished: 3,
+        }),
+      ],
+      candidates: [candidate("a", 3)],
+    });
+    expect(picks[0].reason).toBe("Another A to try");
   });
 
   it("breaks ties by slug", () => {

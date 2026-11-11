@@ -47,11 +47,11 @@ const clamp = (value: number) => Math.max(-MAX_ORBIT, Math.min(MAX_ORBIT, value)
 export function DeskHero({ stacks }: { stacks: Stack[] }) {
   const reduceMotion = useReduceMotion();
   const descriptionId = useId();
-  const orbit = useRef<Orbit>({ target: 0 })
-  const wake = useRef(() => {})
+  const orbit = useRef<Orbit>({ target: 0 });
+  const wake = useRef(() => {});
   const onWake = useCallback((next: () => void) => {
     wake.current = next;
-  }, []);;
+  }, []);
   const [Scene, setScene] = useState<ComponentType<CanvasProps> | null>(null);
   const [ready, setReady] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -60,9 +60,12 @@ export function DeskHero({ stacks }: { stacks: Stack[] }) {
     if (reduceMotion) return;
     let current = true;
     const start = () =>
-      import("./desk-canvas").then((module) => {
-        if (current) setScene(() => module.default);
-      });
+      import("./desk-canvas").then(
+        (module) => {
+          if (current) setScene(() => module.default);
+        },
+        () => {},
+      );
     const handle = window.setTimeout(start, 250);
     return () => {
       current = false;
@@ -75,11 +78,7 @@ export function DeskHero({ stacks }: { stacks: Stack[] }) {
 
   const onKeyDown = (event: KeyboardEvent) => {
     const direction =
-      event.key === "ArrowRight" || event.key === "ArrowUp"
-        ? 1
-        : event.key === "ArrowLeft" || event.key === "ArrowDown"
-          ? -1
-          : 0;
+      event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
     if (!direction) return;
     event.preventDefault();
     orbit.current.target = clamp(orbit.current.target + direction * ORBIT_STEP);
@@ -98,7 +97,7 @@ export function DeskHero({ stacks }: { stacks: Stack[] }) {
     <figure className="m-0">
       <div
         role="group"
-        aria-label="Your desk in three dimensions. Left and right arrow keys turn it."
+        aria-label={`Your desk in three dimensions.${showScene ? " Left and right arrow keys turn it." : ""}`}
         aria-describedby={descriptionId}
         tabIndex={showScene ? 0 : -1}
         data-desk-scene={showScene && ready ? "webgl" : "static"}

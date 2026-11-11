@@ -17,6 +17,12 @@ You review one ticket's PR and fix what you find. The brief gives you the PR URL
 3. **Repeat locally.** Commit fixes but **don't push between rounds**. Run `/pr-review` again on the local branch diff against `main` until a review has no findings. Stop after 3 rounds.
 4. **Report and push once.** Append a `## Review` section to the report (INSTRUCTIONS §4) and commit it. Rebase onto `origin/main` only if `main` gained a migration, a conflict or changes to files this PR touches, then run `pnpm ticket:gates` again. Push everything in **one** push and don't poll CI. The exception is a ticket that needs the preview (auth, env, config, routing, caching, migrations or content): check it after the push, and push again only if a fix is needed. A docs-only commit may stay unpushed to save a preview build; `pnpm ticket:merge` carries it onto `main`.
 
+## Finishing
+
+- **Never end a turn to wait for a notification.** Only a live background task can wake you, and the orchestrator can't tell a waiting agent from a dead one. If you are waiting on CI or a preview, wait inside one foreground command (an `until` loop on `gh pr checks`/`gh run view`, with a timeout of at most 10 minutes) and repeat it. Don't `TaskStop` a watcher and then stop.
+- **Your last action is always the hand-back.** Once the verdict is in the report and pushed, deliver the final reply (verdict, PR number, open findings). Don't stop first to wait for anything. If CI is still running and the rest of the review is clean, hand back `ALL CLEAR` and say which checks were still pending; the orchestrator reads CI itself.
+- Known unrelated red check: the `iphone` WebKit project fails on the runner (`libicudata.so.74` missing) and is red on `main`. Report it; don't try to fix the runner.
+
 Commits carry no AI attribution. Reply with only the verdict line, the PR number and any open findings:
 
 - `ALL CLEAR`: the last review had no findings, the gates are green and every AC still passes.

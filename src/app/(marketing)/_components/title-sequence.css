@@ -6,7 +6,7 @@
   --seq-rake: var(--color-shadow);
   --seq-calm: 4deg;
   --seq-rooms: 3;
-  --seq-dip: 8deg;
+  --seq-lead: 4deg;
   --seq-pitch: 70%;
 }
 
@@ -19,7 +19,7 @@
 @media (min-width: 64rem) {
   .title-sequence {
     --seq-calm: 16deg;
-    --seq-dip: 14deg;
+    --seq-lead: 6deg;
   }
 }
 
@@ -53,7 +53,7 @@
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 50% -300px;
-  transform: rotateY(-16deg);
+  rotate: y -16deg;
 }
 
 .seq-room {
@@ -76,7 +76,7 @@
 .seq-floor {
   left: -50%;
   top: 75%;
-  width: calc(200% + var(--seq-rooms) * 70%);
+  width: calc(200% + var(--seq-rooms) * var(--seq-pitch));
   height: 1400px;
   transform-origin: 50% 0;
   transform: translateZ(-600px) rotateX(90deg);
@@ -196,6 +196,7 @@
 
 .seq-wall-left {
   right: 85%;
+  border-inline-start: 2px solid var(--seq-line);
   transform-origin: 100% 50%;
   transform: translateZ(-600px) rotateY(90deg);
   background-image: conic-gradient(
@@ -209,6 +210,7 @@
 
 .seq-wall-right {
   left: 85%;
+  border-inline-end: 2px solid var(--seq-line);
   transform-origin: 0 50%;
   transform: translateZ(-600px) rotateY(-90deg);
   background-image:
@@ -382,43 +384,50 @@
   }
 }
 
-@keyframes seq-world {
-  from {
-    transform: rotateY(-16deg) translateX(0%);
-  }
-  6%,
+@keyframes seq-world-pan {
+  0%,
   26% {
-    transform: rotateY(var(--seq-calm)) translateX(0%);
-    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
-  }
-  33.5% {
-    transform: rotateY(calc(var(--seq-calm) - var(--seq-dip)))
-      translateX(calc(var(--seq-pitch) * -0.5));
-    animation-timing-function: cubic-bezier(0, 0, 0.6, 1);
+    transform: translateX(0%);
+    animation-timing-function: ease-in-out;
   }
   41%,
   58% {
-    transform: rotateY(var(--seq-calm)) translateX(calc(var(--seq-pitch) * -1));
-    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
-  }
-  65% {
-    transform: rotateY(calc(var(--seq-calm) - var(--seq-dip)))
-      translateX(calc(var(--seq-pitch) * -1.5));
-    animation-timing-function: cubic-bezier(0, 0, 0.6, 1);
+    transform: translateX(calc(var(--seq-pitch) * -1));
+    animation-timing-function: ease-in-out;
   }
   72%,
   86% {
-    transform: rotateY(var(--seq-calm)) translateX(calc(var(--seq-pitch) * -2));
-    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
-  }
-  91% {
-    transform: rotateY(calc(var(--seq-calm) - var(--seq-dip)))
-      translateX(calc(var(--seq-pitch) * -2.5));
-    animation-timing-function: cubic-bezier(0, 0, 0.6, 1);
+    transform: translateX(calc(var(--seq-pitch) * -2));
+    animation-timing-function: ease-in-out;
   }
   96%,
   to {
-    transform: rotateY(var(--seq-calm)) translateX(calc(var(--seq-pitch) * -3));
+    transform: translateX(calc(var(--seq-pitch) * -3));
+  }
+}
+
+@keyframes seq-world-yaw {
+  from {
+    rotate: y -16deg;
+  }
+  6%,
+  26%,
+  41%,
+  58%,
+  72%,
+  86% {
+    rotate: y var(--seq-calm);
+    animation-timing-function: ease-in-out;
+  }
+  33.5%,
+  65%,
+  91% {
+    rotate: y calc(var(--seq-calm) + var(--seq-lead));
+    animation-timing-function: ease-in-out;
+  }
+  96%,
+  to {
+    rotate: y var(--seq-calm);
   }
 }
 
@@ -648,8 +657,13 @@
       display: block;
     }
 
+    .seq-room + .seq-room .seq-wall-left,
+    .seq-room:not(:last-child) .seq-wall-right {
+      width: 700px;
+    }
+
     .seq-world {
-      animation-name: seq-world;
+      animation-name: seq-world-pan, seq-world-yaw;
     }
 
     .seq-hero {
@@ -738,7 +752,7 @@
 
       .seq-world,
       .seq-hero,
-            .seq-caption,
+      .seq-caption,
       .seq-walker .walker-figure,
       .seq-piece,
       .seq-grid-ludwig,

@@ -48,33 +48,24 @@ async function seek(page: Page, progress: number) {
   }, progress);
 }
 
-/** Camera lateral position (px along the room row) and yaw (deg), read from the world transform. */
+/** Camera lateral position (px along the room row) from the world's `transform`, and yaw (deg) from its `rotate`. */
+function readCamera(page: Page) {
+  return page.locator(".seq-world").evaluate((world) => {
+    const style = getComputedStyle(world);
+    return {
+      x: style.transform === "none" ? 0 : -new DOMMatrix(style.transform).m41,
+      yaw: style.rotate === "none" ? 0 : parseFloat(style.rotate.split(" ").at(-1)!),
+    };
+  });
+}
+
 async function sampleCamera(page: Page, steps: number[]) {
-  return page.evaluate(async (list) => {
-    const track = document.querySelector<HTMLElement>(".seq-track")!;
-    const world = document.querySelector<HTMLElement>(".seq-world")!;
-    const span = track.offsetHeight - window.innerHeight;
-    const top = track.getBoundingClientRect().top + window.scrollY;
-    const out: { progress: number; x: number; yaw: number }[] = [];
-    for (const progress of list) {
-      window.scrollTo(0, Math.ceil(top + progress * span));
-      await new Promise((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(resolve)),
-      );
-      const matrix = getComputedStyle(world).transform;
-      const values = matrix.slice(matrix.indexOf("(") + 1, -1).split(",").map(parseFloat);
-      const three = matrix.startsWith("matrix3d");
-      const cos = values[0];
-      const sin = three ? -values[2] : 0;
-      const shift = three ? values[12] : values[4];
-      out.push({
-        progress,
-        x: -shift / cos,
-        yaw: (Math.atan2(sin, cos) * 180) / Math.PI,
-      });
-    }
-    return out;
-  }, steps);
+  const out: { progress: number; x: number; yaw: number }[] = [];
+  for (const progress of steps) {
+    await seek(page, progress);
+    out.push({ progress, ...(await readCamera(page)) });
+  }
+  return out;
 }
 
 const everyHundredth = Array.from({ length: 101 }, (_, step) => step / 100);
@@ -202,6 +193,19 @@ test.describe("landing walls", () => {
         ).toBeLessThanOrEqual(6);
       });
 
+      const settled = samples.findIndex(({ progress }) => progress >= ROOMS[0].from);
+      samples.slice(settled + 2).forEach((sample, index) => {
+        const [before, previous] = [samples[settled + index], samples[settled + index + 1]];
+        expect(
+          Math.abs(sample.x - 2 * previous.x + before.x),
+          `no lurch in travel at ${sample.progress} in ${viewport.width}px`,
+        ).toBeLessThanOrEqual(pitch * 0.06);
+        expect(
+          Math.abs(sample.yaw - 2 * previous.yaw + before.yaw),
+          `no snap in yaw at ${sample.progress} in ${viewport.width}px`,
+        ).toBeLessThanOrEqual(2);
+      });
+
       [[0.06, 0.26, 0], [0.41, 0.58, 1], [0.72, 0.86, 2], [0.96, 1, 3]].forEach(([from, to, room]) => {
         for (let step = Math.round(from * 100); step <= Math.round(to * 100); step++) {
           const sample = samples[step];
@@ -218,15 +222,23 @@ test.describe("landing walls", () => {
         expect(inside[0].x).toBeLessThan(wallX);
         expect(inside.at(-1)!.x).toBeGreaterThan(wallX);
         for (const sample of inside) {
-          expect(sample.yaw, `never turns back toward the crossed wall at ${sample.progress}`).toBeLessThanOrEqual(calm + 0.1);
+          expect(sample.yaw, `never turns back toward the crossed wall at ${sample.progress}`).toBeGreaterThanOrEqual(calm - 0.1);
+          expect(sample.yaw, `leads only slightly toward the next room at ${sample.progress}`).toBeLessThanOrEqual(calm + 6.1);
         }
         const before = inside[crossing - 1].progress;
         await seek(page, before);
-        const next = await box(page, ROOMS[index + 1].wall);
+        const opening = await page.evaluate(
+          ({ divider, wall }) => {
+            const edge = document.querySelectorAll(".seq-wall-right")[divider].getBoundingClientRect().right;
+            const next = document.querySelector(wall)!.getBoundingClientRect();
+            return Math.min(next.right, window.innerWidth) - Math.max(next.left, edge, 0);
+          },
+          { divider: index, wall: ROOMS[index + 1].wall },
+        );
         expect(
-          next.left < viewport.width && next.left + next.width > 0,
-          `room ${index + 2} is visible before the camera passes the wall (pan ${index + 1}, ${before})`,
-        ).toBe(true);
+          opening,
+          `room ${index + 2} shows past the divider before the camera passes it (pan ${index + 1}, ${before}, ${viewport.width}px)`,
+        ).toBeGreaterThanOrEqual(viewport.width * 0.05);
       }
     }
   });
@@ -496,11 +508,14 @@ test.describe("landing walls", () => {
       }, fractions[index]);
       await expect
         .poll(async () => {
-          const matrix = await computed(forced, ".seq-world", "transform");
-          const values = matrix.slice(matrix.indexOf("(") + 1, -1).split(",").map(parseFloat);
-          return Math.abs(-values[12] / values[0] - reference[index].x);
+          const camera = await readCamera(forced);
+          return Math.abs(camera.x - reference[index].x);
         }, { message: `camera x at ${progress}` })
         .toBeLessThanOrEqual(1);
+      expect(
+        Math.abs((await readCamera(forced)).yaw - reference[index].yaw),
+        `camera yaw at ${progress}`,
+      ).toBeLessThanOrEqual(0.1);
     }
   });
 

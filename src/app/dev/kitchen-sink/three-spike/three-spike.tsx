@@ -22,7 +22,7 @@ const CANDIDATES = ["desk", "board-room", "gear-daily"] as const;
 
 /** The three.js spike: each candidate mounts only when chosen, so the page itself stays light. */
 export function ThreeSpike() {
-  const [candidate, setCandidate] = useState<(typeof CANDIDATES)[number]>("desk");
+  const [candidate, setCandidate] = useState<(typeof CANDIDATES)[number] | null>(null);
   return (
     <div data-dev="three-spike" className="flex flex-col gap-4">
       <div className="flex gap-2">

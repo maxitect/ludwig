@@ -143,7 +143,15 @@ function Markers({ stack, palette, pawn }: { stack: Stack; palette: Palette; paw
   }
 }
 
-function Rig({ orbit, onReady }: { orbit: RefObject<Orbit>; onReady: () => void }) {
+function Rig({
+  orbit,
+  onReady,
+  onWake,
+}: {
+  orbit: RefObject<Orbit>;
+  onReady: () => void;
+  onWake: (wake: () => void) => void;
+}) {
   const get = useThree((state) => state.get);
   const size = useThree((state) => state.size);
   const invalidate = useThree((state) => state.invalidate);
@@ -169,6 +177,10 @@ function Rig({ orbit, onReady }: { orbit: RefObject<Orbit>; onReady: () => void 
     invalidate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [get, size.width, size.height]);
+
+  useEffect(() => {
+    onWake(invalidate);
+  }, [onWake, invalidate]);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => requestAnimationFrame(onReady));
@@ -241,10 +253,13 @@ export default function DeskCanvas({
   stacks,
   orbit,
   onReady,
+  onWake,
 }: {
   stacks: Stack[];
   orbit: RefObject<Orbit>;
   onReady: () => void;
+  /** Hands the hero the function that renders a frame, since the scene renders only on demand. */
+  onWake: (wake: () => void) => void;
 }) {
   const palette = usePalette();
   if (!palette) return null;
@@ -259,7 +274,7 @@ export default function DeskCanvas({
       camera={{ position: [10, 10, 10], zoom: 60 }}
       style={{ position: "absolute", inset: 0 }}
     >
-      <Rig orbit={orbit} onReady={onReady} />
+      <Rig orbit={orbit} onReady={onReady} onWake={onWake} />
       <Scene stacks={stacks} palette={palette} />
     </Canvas>
   );

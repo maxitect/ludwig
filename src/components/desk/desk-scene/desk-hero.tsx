@@ -14,6 +14,7 @@ import {
 } from "react";
 import { MAX_ORBIT, ORBIT_STEP } from "@/components/three/iso";
 import { useReduceMotion } from "@/utils/use-reduce-motion";
+import type { Orbit } from "./desk-canvas";
 import { DeskStatic } from "./desk-static";
 import { describeDesk, HERO_HEIGHT, type Stack } from "./model";
 
@@ -46,7 +47,11 @@ const clamp = (value: number) => Math.max(-MAX_ORBIT, Math.min(MAX_ORBIT, value)
 export function DeskHero({ stacks }: { stacks: Stack[] }) {
   const reduceMotion = useReduceMotion();
   const descriptionId = useId();
-  const orbit = useRef({ target: 0 });
+  const orbit = useRef<Orbit>({ target: 0 })
+  const wake = useRef(() => {})
+  const onWake = useCallback((next: () => void) => {
+    wake.current = next;
+  }, []);;
   const [Scene, setScene] = useState<ComponentType<CanvasProps> | null>(null);
   const [ready, setReady] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -78,6 +83,7 @@ export function DeskHero({ stacks }: { stacks: Stack[] }) {
     if (!direction) return;
     event.preventDefault();
     orbit.current.target = clamp(orbit.current.target + direction * ORBIT_STEP);
+    wake.current();
   };
 
   const aim = (event: PointerEvent<HTMLDivElement>) => {
@@ -85,6 +91,7 @@ export function DeskHero({ stacks }: { stacks: Stack[] }) {
     orbit.current.target = clamp(
       ((event.clientX - box.left) / box.width - 0.5) * 2 * MAX_ORBIT,
     );
+    wake.current();
   };
 
   return (
@@ -116,7 +123,7 @@ export function DeskHero({ stacks }: { stacks: Stack[] }) {
         />
         {showScene && (
           <SceneBoundary onError={() => setScene(null)}>
-            <Scene stacks={stacks} orbit={orbit} onReady={markReady} />
+            <Scene stacks={stacks} orbit={orbit} onReady={markReady} onWake={onWake} />
           </SceneBoundary>
         )}
       </div>

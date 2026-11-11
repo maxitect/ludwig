@@ -8,11 +8,11 @@ import { Solid } from "@/components/three/solid";
 import { usePalette } from "@/components/three/use-palette";
 
 const GEARS = [
-  { teeth: 12, x: -2.4 },
-  { teeth: 18, x: 0.2 },
-  { teeth: 12, x: 2.8 },
+  { teeth: 12, x: -3.0 },
+  { teeth: 18, x: 0 },
+  { teeth: 12, x: 3.0 },
 ] as const;
-const MODULE = 0.28;
+const MODULE = 0.2;
 
 function gearGeometry(teeth: number) {
   const pitch = (teeth * MODULE) / 2;
@@ -103,7 +103,7 @@ export default function GearDaily() {
             dpr={[1, 2]}
             shadows={{ type: BasicShadowMap }}
             gl={{ alpha: true, antialias: true }}
-            camera={{ position: [0, 0, 20], zoom: 60 }}
+            camera={{ position: [0, 0, 20], zoom: 48 }}
           >
             <Gears tick={tick} palette={palette} />
           </Canvas>

@@ -161,3 +161,20 @@ for (const [label, register] of [
     expect(errors).toEqual([]);
   });
 }
+
+test("the precache list holds the app's chunks but never the three.js scene", async ({
+  request,
+}) => {
+  const worker = await (await request.get("/serwist/sw.js")).text();
+  const chunks = [
+    ...new Set(worker.match(/\/_next\/static\/chunks\/[\w.-]+\.js/g)),
+  ];
+  expect(chunks.length).toBeGreaterThan(10);
+  const three: string[] = [];
+  for (const chunk of chunks) {
+    if ((await (await request.get(chunk)).text()).includes("THREE.")) {
+      three.push(chunk);
+    }
+  }
+  expect(three).toEqual([]);
+});

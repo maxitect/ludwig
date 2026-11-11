@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @custom-variant touch {
-  @media (pointer: coarse) and (max-width: 47.999rem) {
+  @media (pointer: coarse) and ((max-width: 47.999rem) or ((min-width: 48rem) and (min-height: 37.5rem))) {
     @slot;
   }
 }
 
 @custom-variant touch-short {
-  @media (pointer: coarse) and (max-width: 47.999rem) and (max-height: 44.999rem) {
+  @media (pointer: coarse) and ((max-width: 47.999rem) or ((min-width: 48rem) and (min-height: 37.5rem))) and (max-height: 44.999rem) {
     @slot;
   }
 }

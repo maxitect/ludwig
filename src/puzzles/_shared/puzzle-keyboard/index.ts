@@ -6,6 +6,6 @@ export {
   useDeviceKeyboard,
   usePadWanted,
   usePuzzleKeyboard,
-  useTouchPhone,
+  useTouch,
 } from "./keyboard-store";
 export { useKeyboardInset } from "./use-keyboard-inset";

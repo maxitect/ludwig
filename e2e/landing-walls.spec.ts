@@ -318,7 +318,7 @@ test.describe("landing walls", () => {
         });
         expect(withHero.equals(without), `LUDWIG column at ${progress} in ${viewport.width}px`).toBe(true);
       }
-      await seek(page, 0.26);
+      await seek(page, 0.265);
       expect(await computed(page, ".seq-grid-ludwig", "clip-path")).toMatch(/^inset\(0(px)?( 0(px)?)*\)$/);
       expect(await page.locator(".seq-grid-ludwig > span").count()).toBe(6);
       if (browserName !== "firefox") {

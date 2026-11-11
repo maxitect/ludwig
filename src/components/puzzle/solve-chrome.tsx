@@ -25,7 +25,7 @@ import {
 import {
   useDeviceKeyboard,
   useKeyboardInset,
-  useTouchPhone,
+  useTouch,
 } from "@/puzzles/_shared/puzzle-keyboard";
 import { SolveSlotProvider } from "@/puzzles/_shared/solve-slot";
 import type { WrongPart } from "@/puzzles/registry";
@@ -123,7 +123,7 @@ function SolveBoard({
   const [rungProblems, setRungProblems] = useState<RungProblem[]>();
   const [wrongParts, setWrongParts] = useState<WrongPart[]>();
   const [notice, setNotice] = useState<Notice | null>(null);
-  const touchPhone = useTouchPhone();
+  const touch = useTouch();
   const [attempt, setAttempt] = useState(0);
   const [slot, setSlot] = useState<HTMLDivElement | null>(null);
   const [localState, setLocalState] = useState<unknown>(undefined);
@@ -360,9 +360,9 @@ function SolveBoard({
 
         <div
           key={attempt}
-          role={touchPhone ? "region" : undefined}
-          aria-label={touchPhone ? title : undefined}
-          tabIndex={touchPhone ? 0 : undefined}
+          role={touch ? "region" : undefined}
+          aria-label={touch ? title : undefined}
+          tabIndex={touch ? 0 : undefined}
           className="touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:px-4 touch:[--solver-height:100cqh] touch:[container-type:size]"
           onKeyDown={(event) => {
             if (
@@ -414,7 +414,7 @@ function SolveBoard({
           className={cn(
             "flex flex-wrap gap-3 touch:hidden",
             !ownsTouchControls.has(typeKey) &&
-              "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:shrink-0 touch:px-4 touch:py-1",
+              "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:mx-auto touch:w-full touch:max-w-xl touch:shrink-0 touch:px-4 touch:py-1",
           )}
         >
           <Button onClick={check} disabled={pending || solved}>
@@ -497,7 +497,7 @@ function SolveBoard({
           data-solve-slot
           inert={solved}
           style={{ marginBottom: keyboardInset }}
-          className="hidden shrink-0 touch:block touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
+          className="hidden shrink-0 touch:mx-auto touch:block touch:w-full touch:max-w-xl touch:pr-[max(0.5rem,env(safe-area-inset-right))] touch:pb-[max(0.5rem,env(safe-area-inset-bottom))] touch:pl-[max(0.5rem,env(safe-area-inset-left))]"
         />
       </section>
     </SolveSlotProvider>

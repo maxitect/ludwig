@@ -103,29 +103,46 @@ export function TitleSequence() {
           <div aria-hidden="true" className="seq-scene">
             <div className="seq-world">
               <div className="seq-plane seq-floor" />
-              <div className="seq-plane seq-wall-left" />
-              <div className="seq-plane seq-wall-right" />
-              <div className="seq-plane seq-wall seq-wall-grid">
-                <GridWord className="seq-grid-ludwig" letters="LUDWIG" />
-                <GridWord className="seq-grid-ink" letters="INK" seed={4} skip={1} />
+              <div className="seq-room" style={{ "--room": 0 } as CSSProperties}>
+                <div className="seq-plane seq-wall-left" />
+                <div className="seq-plane seq-wall-right" />
+                <div className="seq-plane seq-wall seq-wall-grid">
+                  <GridWord className="seq-grid-ludwig" letters="LUDWIG" />
+                  <GridWord className="seq-grid-ink" letters="INK" seed={4} skip={1} />
+                </div>
               </div>
-              <div className="seq-plane seq-wall seq-wall-board">
-                {WALL_START.filter(({ piece }) => piece !== "queen").map(
-                  (piece) => (
-                    <WallPieceGlyph key={piece.square} piece={piece} />
-                  ),
-                )}
-                {WALL_UN_MOVES.map(({ id, to, ...piece }) => (
-                  <WallPieceGlyph
-                    key={id}
-                    className={`seq-bpiece-${id}`}
-                    piece={piece}
-                    to={to}
-                  />
-                ))}
+              <div className="seq-room" style={{ "--room": 1 } as CSSProperties}>
+                <div className="seq-plane seq-wall-left" />
+                <div className="seq-plane seq-wall-right" />
+                <div className="seq-plane seq-wall seq-wall-board">
+                  {WALL_START.filter(({ piece }) => piece !== "queen").map(
+                    (piece) => (
+                      <WallPieceGlyph key={piece.square} piece={piece} />
+                    ),
+                  )}
+                  {WALL_UN_MOVES.map(({ id, to, ...piece }) => (
+                    <WallPieceGlyph
+                      key={id}
+                      className={`seq-bpiece-${id}`}
+                      piece={piece}
+                      to={to}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="seq-plane seq-wall seq-wall-mirror">
-                <MirroredSudoku className="size-full" writeIn />
+              <div className="seq-room" style={{ "--room": 2 } as CSSProperties}>
+                <div className="seq-plane seq-wall-left" />
+                <div className="seq-plane seq-wall-right" />
+                <div className="seq-plane seq-wall seq-wall-mirror">
+                  <MirroredSudoku className="size-full" writeIn />
+                </div>
+              </div>
+              <div className="seq-room" style={{ "--room": 3 } as CSSProperties}>
+                <div className="seq-plane seq-wall-left" />
+                <div className="seq-plane seq-wall-right" />
+                <div className="seq-plane seq-wall seq-wall-finale">
+                  <MirroredSudoku className="size-full" />
+                </div>
               </div>
             </div>
           </div>

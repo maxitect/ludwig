@@ -147,10 +147,7 @@ describe("favourite digest selection", () => {
     const first = await runFavouriteDigest(baseUrl, now);
     expect(first.failed).toBe(0);
     expect(first.sent).toBe(2);
-    const recipients = sendEmail.mock.calls.map(
-      ([email]) => (email as { to: string }).to,
-    );
-    expect(recipients).toHaveLength(2);
+    expect(sendEmail).toHaveBeenCalledTimes(2);
     sendEmail.mockClear();
     const second = await runFavouriteDigest(baseUrl, now);
     expect(second).toEqual({ eligible: 0, sent: 0, failed: 0 });

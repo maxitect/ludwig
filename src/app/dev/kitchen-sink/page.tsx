@@ -36,6 +36,7 @@ import { CellGridDemo } from "./cell-grid-demo";
 import { ChessBoardDemo } from "./chess-board-demo";
 import { FormDemo } from "./form-demo";
 import { OverlayDemos } from "./overlay-demos";
+import { ThreeSpike } from "./three-spike/three-spike";
 import { ThemeToggle } from "./theme-toggle";
 
 export const metadata: Metadata = {
@@ -345,6 +346,10 @@ export default function KitchenSinkPage() {
 
       <Section title="Cell grid">
         <CellGridDemo />
+      </Section>
+
+      <Section title="Three.js set pieces">
+        <ThreeSpike />
       </Section>
 
       <Section title="Overlays">

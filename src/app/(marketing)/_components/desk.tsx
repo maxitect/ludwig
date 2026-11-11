@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PuzzleThumbnail } from "@/components/puzzle/puzzle-thumbnail";
 import { DeskCharts } from "@/components/desk/desk-charts";
 import { StatTiles } from "@/components/desk/stat-tiles";
 import { CHARTS_MIN_SOLVES } from "@/config/desk";
@@ -57,6 +58,7 @@ export async function Desk() {
       <FavouritesShelf favourites={desk.favourites} />
       <TodayShelf today={desk.today} />
       <WeekShelf week={desk.week} />
+      <RecommendedShelf recommended={desk.recommended} />
       <Stats stats={desk.stats} charts={desk.charts} />
     </DeskFrame>
   );
@@ -251,6 +253,51 @@ function WeekShelf({ week }: { week: DeskData["week"] }) {
       ) : (
         <PuzzleList puzzles={week} />
       )}
+    </Shelf>
+  );
+}
+
+function RecommendedShelf({
+  recommended,
+}: {
+  recommended: DeskData["recommended"];
+}) {
+  if (recommended.picks.length === 0) return null;
+  return (
+    <Shelf id="recommended" title="Recommended for you">
+      {recommended.coldStart && (
+        <p>Popular starts: the puzzles most players begin with.</p>
+      )}
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {recommended.picks.map((pick) => (
+          <li key={pick.id}>
+            <Card variant="book" className="h-full">
+              <CardHeader className="flex-row items-start gap-3">
+                <PuzzleThumbnail
+                  typeKey={pick.typeKey}
+                  puzzleId={pick.id}
+                  className="w-20 sm:w-20"
+                />
+                <div className="flex min-w-0 flex-col gap-1">
+                  <CardTitle>
+                    <Link
+                      href={puzzleHref(pick)}
+                      className="after:absolute after:inset-0 focus-visible:outline-none"
+                    >
+                      {pick.title}
+                    </Link>
+                  </CardTitle>
+                  <CardDescription>{pick.typeName}</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="flex flex-col items-start gap-2">
+                <Badge variant="difficulty" level={pick.difficulty} />
+                <p className="text-sm font-semibold">{pick.reason}</p>
+              </CardContent>
+            </Card>
+          </li>
+        ))}
+      </ul>
     </Shelf>
   );
 }

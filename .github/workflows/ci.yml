@@ -133,7 +133,7 @@ jobs:
       !cancelled() && needs.changes.outputs.e2e == 'true' && needs.validate.result == 'success' &&
       contains(fromJSON('["success","skipped"]'), needs.unit.result) &&
       contains(fromJSON('["success","skipped"]'), needs.db.result)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Frame pacing under 4x CPU throttling depends on the runner's CPU, so perf reports without gating.
     continue-on-error: ${{ matrix.target == 'perf' }}

@@ -24,6 +24,8 @@ const valid = {
   theme: "ink",
   chessNotation: "descriptive",
   reduceMotion: true,
+  notifyFavourites: true,
+  notifyStreak: false,
 } as const;
 
 describe("updateUserSettings", () => {

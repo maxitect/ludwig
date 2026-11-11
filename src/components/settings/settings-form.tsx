@@ -80,6 +80,28 @@ function Choice<T extends string>({
   );
 }
 
+type TickProps = {
+  name: string;
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+};
+
+function Tick({ name, label, checked, onChange }: TickProps) {
+  return (
+    <label className="flex items-center gap-3">
+      <input
+        type="checkbox"
+        name={name}
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="size-5 shrink-0 accent-foreground"
+      />
+      <span>{label}</span>
+    </label>
+  );
+}
+
 type SettingsFormProps = { initial: SettingsInput };
 
 export function SettingsForm({ initial }: SettingsFormProps) {
@@ -91,6 +113,10 @@ export function SettingsForm({ initial }: SettingsFormProps) {
   const [theme, setTheme] = useState(initial.theme);
   const [chessNotation, setChessNotation] = useState(initial.chessNotation);
   const [reduceMotion, setReduceMotion] = useState(initial.reduceMotion);
+  const [notifyFavourites, setNotifyFavourites] = useState(
+    initial.notifyFavourites,
+  );
+  const [notifyStreak, setNotifyStreak] = useState(initial.notifyStreak);
   const nameErrors = state.fieldErrors.name;
 
   return (
@@ -140,6 +166,23 @@ export function SettingsForm({ initial }: SettingsFormProps) {
         value={reduceMotion ? "on" : "off"}
         onChange={(next) => setReduceMotion(next === "on")}
       />
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-2 font-display text-xs font-semibold tracking-[0.08em] uppercase">
+          Email
+        </legend>
+        <Tick
+          name="notifyFavourites"
+          label="Email me when a favourite type gets a new puzzle"
+          checked={notifyFavourites}
+          onChange={setNotifyFavourites}
+        />
+        <Tick
+          name="notifyStreak"
+          label="Remind me before my streak breaks"
+          checked={notifyStreak}
+          onChange={setNotifyStreak}
+        />
+      </fieldset>
       <div className="flex items-center gap-4">
         <Button type="submit" disabled={pending}>
           Save

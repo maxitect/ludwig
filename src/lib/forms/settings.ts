@@ -4,7 +4,7 @@ import { userSettings } from "@/db/schema";
 import { signUpSchema } from "./auth";
 
 export const settingsSchema = createUpdateSchema(userSettings)
-  .omit({ userId: true })
+  .omit({ userId: true, favouritesDigestAt: true, nudgeSentAt: true })
   .required()
   .extend(signUpSchema.pick({ name: true }).shape);
 

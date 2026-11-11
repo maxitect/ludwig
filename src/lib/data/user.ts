@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies, headers } from "next/headers";
 import { connection } from "next/server";
+import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { userSettings } from "@/db/schema";
 import { auth } from "@/lib/auth";
@@ -28,13 +29,21 @@ export async function requireUser() {
 export async function getUserSettings(userId: string) {
   const settings = await db.query.userSettings.findFirst({
     where: { userId },
-    columns: { theme: true, chessNotation: true, reduceMotion: true },
+    columns: {
+      theme: true,
+      chessNotation: true,
+      reduceMotion: true,
+      notifyFavourites: true,
+      notifyStreak: true,
+    },
   });
   return (
     settings ?? {
       theme: "system" as const,
       chessNotation: "algebraic" as const,
       reduceMotion: false,
+      notifyFavourites: false,
+      notifyStreak: false,
     }
   );
 }
@@ -74,7 +83,19 @@ export async function updateUserSettings({ name, ...settings }: SettingsInput) {
   const user = await requireUser();
   await db
     .insert(userSettings)
-    .values({ userId: user.id, ...settings })
-    .onConflictDoUpdate({ target: userSettings.userId, set: settings });
+    .values({
+      userId: user.id,
+      ...settings,
+      favouritesDigestAt: settings.notifyFavourites ? sql`now()` : null,
+    })
+    .onConflictDoUpdate({
+      target: userSettings.userId,
+      set: {
+        ...settings,
+        favouritesDigestAt: sql`case
+          when ${settings.notifyFavourites} and not ${userSettings.notifyFavourites} then now()
+          else ${userSettings.favouritesDigestAt} end`,
+      },
+    });
   await auth.api.updateUser({ headers: await headers(), body: { name } });
 }

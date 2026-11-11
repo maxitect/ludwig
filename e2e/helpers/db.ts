@@ -567,6 +567,28 @@ export async function detectiveSceneAttemptFor(email: string) {
   }
 }
 
+/** Records a finished attempt, as the check action would, so a test can solve a puzzle without playing it. */
+export async function completeAttemptFor(
+  email: string,
+  typeKey: string,
+  slug: string,
+) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    await pool.query(
+      `insert into attempts (user_id, puzzle_id, started_at, completed_at, duration_ms)
+       select u.id, p.id, now() - interval '1 minute', now(), 60000
+         from "user" u, puzzles p
+        where u.email = $1 and p.type_key = $2 and p.slug = $3`,
+      [email, typeKey, slug],
+    );
+  } finally {
+    await pool.end();
+  }
+}
+
 /** Moves a puzzle's `published_at` (the database's `now()` when `at` is null) and returns what it was, so the test can put it back. */
 export async function setPublishedAt(
   typeKey: string,

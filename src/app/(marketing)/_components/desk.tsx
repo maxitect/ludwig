@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/card";
 import { PuzzleThumbnail } from "@/components/puzzle/puzzle-thumbnail";
 import { DeskCharts } from "@/components/desk/desk-charts";
+import { DeskHero } from "@/components/desk/desk-scene/desk-hero";
+import { deskStacks } from "@/components/desk/desk-scene/model";
 import { StatTiles } from "@/components/desk/stat-tiles";
 import { CHARTS_MIN_SOLVES } from "@/config/desk";
 import { getDesk } from "@/lib/data/desk";
@@ -54,6 +56,7 @@ export async function Desk() {
   return (
     <DeskFrame>
       <Credit level={1} top="Your desk" bottom={desk.name} />
+      <DeskHero stacks={deskStacks(desk.charts.categories)} />
       <ContinueShelf continuing={desk.continuing} />
       <FavouritesShelf favourites={desk.favourites} />
       <TodayShelf today={desk.today} />

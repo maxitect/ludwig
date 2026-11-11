@@ -33,7 +33,7 @@ export function SiteHeader({
         ))}
       </nav>
       <div className="ml-auto flex items-center gap-3 md:ml-0">
-        <div className="flex min-w-28 items-center justify-end self-stretch">
+        <div className="flex min-w-28 items-center justify-end self-stretch touch:min-h-11">
           <Suspense fallback={<Walker className="h-8! w-28!" />}>
             <UserSlot />
           </Suspense>

@@ -8,7 +8,7 @@ import lighthouse from "lighthouse";
  * production server, writing one JSON report per page to .verification/$TICKET/ (T069 unless TICKET is set). A page below its target is
  * re-run twice more and judged on the median run, since a single simulated run varies by a few points.
  * Run `pnpm build && pnpm start --port 3069`, then `pnpm perf:lighthouse`. Set BASE to another origin, SHARE to a Vercel share token
- * for a protected preview, and THREE_RUNS to always take the median of three. Exits non-zero if a target is missed.
+ * for a protected preview, DESK_COOKIE (a full `Cookie` header from a signed-in account) to add the signed-in Desk, and THREE_RUNS to always take the median of three. Exits non-zero if a target is missed.
  */
 const base = process.env.BASE ?? "http://localhost:3069";
 const out = path.join(
@@ -33,6 +33,7 @@ const firstSlug = (type: string) =>
     .sort()[0]
     ?.replace(/\.ts$/, "");
 
+const deskCookie = process.env.DESK_COOKIE;
 const only = process.env.ONLY?.split(",");
 
 const allPages = [
@@ -40,6 +41,7 @@ const allPages = [
   { name: "puzzles", path: "/puzzles" },
   { name: "hub-reverse-chess", path: "/reverse-chess" },
   { name: "hub-gears", path: "/gears" },
+  ...(deskCookie ? [{ name: "desk-signed-in", path: "/" }] : []),
   ...solveTypes.flatMap((type) => {
     const slug = firstSlug(type);
     return slug
@@ -63,11 +65,16 @@ const settings = {
 
 type Run = { performance: number; accessibility: number; report: string };
 
-async function measure(port: number, url: string): Promise<Run> {
+async function measure(port: number, url: string, signedIn = false): Promise<Run> {
   const result = await lighthouse(
     url,
     { port, output: "json", onlyCategories: ["performance", "accessibility"] },
-    { extends: "lighthouse:default", settings },
+    {
+      extends: "lighthouse:default",
+      settings: signedIn && deskCookie
+        ? { ...settings, extraHeaders: { Cookie: deskCookie } }
+        : settings,
+    },
   );
   if (!result) throw new Error(`no Lighthouse result for ${url}`);
   return {
@@ -93,12 +100,13 @@ async function main() {
     }
     for (const page of pages) {
       const url = `${base}${page.path}`;
-      const runs = [await measure(chrome.port, url)];
+      const signedIn = page.name === "desk-signed-in";
+      const runs = [await measure(chrome.port, url, signedIn)];
       while (
         (process.env.THREE_RUNS || !meets(runs[0])) &&
         runs.length <= retries
       ) {
-        runs.push(await measure(chrome.port, url));
+        runs.push(await measure(chrome.port, url, signedIn));
       }
       const ranked = [...runs].sort((a, b) => a.performance - b.performance);
       const median = ranked[Math.floor(ranked.length / 2)];

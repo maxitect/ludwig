@@ -4,7 +4,7 @@ import { createUnsubscribeToken, readUnsubscribeToken } from "../unsubscribe";
 import { favouriteDigest } from "./favourite-digest";
 import { streakNudge } from "./streak-nudge";
 
-const unsubscribeUrl = "http://localhost:3000/api/unsubscribe?token=abc";
+const unsubscribeUrl = "http://localhost:3000/unsubscribe?token=abc";
 const puzzleUrl = "http://localhost:3000/puzzles/troix/one";
 
 describe("notification templates", () => {

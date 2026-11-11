@@ -36,5 +36,5 @@ export function unsubscribeUrl(
   userId: string,
   kind: UnsubscribeKind,
 ) {
-  return `${baseUrl}/api/unsubscribe?token=${createUnsubscribeToken(userId, kind)}`;
+  return `${baseUrl}/unsubscribe?token=${createUnsubscribeToken(userId, kind)}`;
 }

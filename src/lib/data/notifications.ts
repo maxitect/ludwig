@@ -2,6 +2,7 @@ import "server-only";
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { userSettings } from "@/db/schema";
+import type { UnsubscribeKind } from "@/lib/email/unsubscribe";
 import { addDays, londonDate } from "@/utils/london-time";
 
 export const STREAK_MILESTONES = [7, 30, 100, 365];
@@ -125,12 +126,14 @@ export async function markStreakNudgeSent(userId: string, now: Date) {
     .where(eq(userSettings.userId, userId));
 }
 
-export async function clearNotification(
-  userId: string,
-  column: "notifyFavourites" | "notifyStreak",
-) {
+const notificationColumns = {
+  favourites: "notifyFavourites",
+  streak: "notifyStreak",
+} as const;
+
+export async function clearNotification(userId: string, kind: UnsubscribeKind) {
   await db
     .update(userSettings)
-    .set({ [column]: false })
+    .set({ [notificationColumns[kind]]: false })
     .where(eq(userSettings.userId, userId));
 }

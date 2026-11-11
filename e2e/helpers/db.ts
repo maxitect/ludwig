@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { Pool } from "pg";
 import { verifyFullSsl } from "../../src/utils/verify-full-ssl";
 
@@ -660,6 +661,29 @@ export async function setPublishedAt(
       [typeKey, slug, at],
     );
     return rows[0].previous;
+  } finally {
+    await pool.end();
+  }
+}
+
+/** Signs a token the way `src/lib/email/unsubscribe.ts` does, so the spec can open a real unsubscribe link. */
+export async function unsubscribeToken(
+  email: string,
+  kind: "favourites" | "streak",
+) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{ id: string }>(
+      `select id from "user" where email = $1`,
+      [email],
+    );
+    const payload = Buffer.from(`${rows[0].id}.${kind}`).toString("base64url");
+    const signature = createHmac("sha256", process.env.BETTER_AUTH_SECRET!)
+      .update(`unsubscribe:${payload}`)
+      .digest("base64url");
+    return `${payload}.${signature}`;
   } finally {
     await pool.end();
   }

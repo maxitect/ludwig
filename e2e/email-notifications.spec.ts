@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 import { signUp, uniqueEmail } from "./helpers/auth";
-import { databaseAvailable, notificationSettings } from "./helpers/db";
+import {
+  databaseAvailable,
+  notificationSettings,
+  unsubscribeToken,
+} from "./helpers/db";
 
 test("email opt-ins are off by default and round-trip on /settings", async ({
   page,
@@ -32,12 +36,44 @@ test("email opt-ins are off by default and round-trip on /settings", async ({
 });
 
 test("an unsubscribe link with a bad or missing token is refused", async ({
-  request,
+  page,
 }) => {
-  for (const url of ["/api/unsubscribe?token=abc.def", "/api/unsubscribe"]) {
-    const response = await request.get(url, { maxRedirects: 0 });
-    expect(response.status()).toBe(400);
+  for (const url of ["/unsubscribe?token=abc.def", "/unsubscribe"]) {
+    await page.goto(url);
+    await expect(
+      page.getByRole("alert").filter({ hasText: "This link is not valid." }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Unsubscribe" }),
+    ).toHaveCount(0);
   }
+});
+
+test("opening an unsubscribe link changes nothing until the button is pressed, signed out", async ({
+  page,
+  browser,
+}) => {
+  test.skip(!databaseAvailable, "needs the app's database and secret");
+  const email = uniqueEmail("unsub");
+  await signUp(page, email);
+  await page.goto("/settings");
+  await page.getByLabel("Remind me before my streak breaks").check();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByRole("status").getByText("Saved.")).toBeVisible();
+
+  const signedOut = await browser.newContext();
+  const visitor = await signedOut.newPage();
+  const response = await visitor.goto(
+    `/unsubscribe?token=${await unsubscribeToken(email, "streak")}`,
+  );
+  expect(response?.status()).toBe(200);
+  await expect(visitor.getByText("Stop reminders before your streak breaks?")).toBeVisible();
+  expect((await notificationSettings(email)).notifyStreak).toBe(true);
+
+  await visitor.getByRole("button", { name: "Unsubscribe" }).click();
+  await expect(visitor).toHaveURL(/\/unsubscribed$/);
+  expect((await notificationSettings(email)).notifyStreak).toBe(false);
+  await signedOut.close();
 });
 
 test("both cron routes refuse a request without the bearer", async ({

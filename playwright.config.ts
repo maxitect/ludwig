@@ -48,6 +48,11 @@ export default defineConfig({
       use: { ...devices["iPhone 15"] },
     },
     {
+      name: "tablet",
+      testMatch: /-tablet\.spec\.ts$/,
+      use: { ...devices["iPad (gen 7)"] },
+    },
+    {
       name: "mobile-perf",
       grep: /@perf/,
       dependencies: ["desktop", "mobile", "landing-fallback", "iphone"],

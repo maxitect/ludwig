@@ -307,7 +307,7 @@ export function Solver({
           </>
         )}
       </p>
-      <div className="flex flex-col gap-6 touch:items-center">
+      <div className="flex flex-col gap-6">
         <CellGrid
           ref={grid}
           label="Crossword"

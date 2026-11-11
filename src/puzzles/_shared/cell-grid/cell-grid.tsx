@@ -276,7 +276,7 @@ export function CellGrid({
   return (
     <div
       ref={rootRef}
-      className="group relative w-full [container-type:inline-size]"
+      className="group relative w-full [container-type:inline-size] touch:mx-auto"
       style={{ maxWidth: `${cols * cellRem}rem` }}
       onKeyDown={onKeyDown}
       onKeyUp={onKeyUp}

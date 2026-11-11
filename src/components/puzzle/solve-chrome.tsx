@@ -414,7 +414,7 @@ function SolveBoard({
           className={cn(
             "flex flex-wrap gap-3 touch:hidden",
             !ownsTouchControls.has(typeKey) &&
-              "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:shrink-0 touch:px-4 touch:py-1",
+              "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:mx-auto touch:w-full touch:max-w-xl touch:shrink-0 touch:px-4 touch:py-1",
           )}
         >
           <Button onClick={check} disabled={pending || solved}>

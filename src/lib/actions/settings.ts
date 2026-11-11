@@ -24,6 +24,8 @@ export async function saveSettings(
     theme: formData.get("theme"),
     chessNotation: formData.get("chessNotation"),
     reduceMotion: formData.get("reduceMotion") === "on",
+    notifyFavourites: formData.get("notifyFavourites") === "on",
+    notifyStreak: formData.get("notifyStreak") === "on",
   });
   if (!parsed.success) {
     return {

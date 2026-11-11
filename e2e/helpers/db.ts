@@ -665,6 +665,28 @@ export async function setPublishedAt(
   }
 }
 
+export async function notificationSettings(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    const { rows } = await pool.query<{
+      notifyFavourites: boolean;
+      notifyStreak: boolean;
+      cursorSet: boolean;
+    }>(
+      `select s.notify_favourites as "notifyFavourites", s.notify_streak as "notifyStreak",
+              s.favourites_digest_at is not null as "cursorSet"
+         from user_settings s join "user" u on u.id = s.user_id
+        where u.email = $1`,
+      [email],
+    );
+    return rows[0];
+  } finally {
+    await pool.end();
+  }
+}
+
 export type PublishedPuzzleRow = {
   typeKey: string;
   slug: string;

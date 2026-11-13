@@ -57,13 +57,9 @@ async function dragBackwards(page: Page, from: string, to: string) {
   await (touch ? touchDrag : mouseDrag)(page, source, target);
 }
 
-test("sign up, solve a Reverse Chess uncapture and see it in the Casebook", async ({
-  page,
-}) => {
-  const email = uniqueEmail("flow3");
-  const puzzle = await uncapturePuzzle();
+type UncapturePuzzle = Awaited<ReturnType<typeof uncapturePuzzle>>;
 
-  await signUp(page, email);
+async function solveUncapture(page: Page, puzzle: UncapturePuzzle) {
   await openPuzzle(page, puzzle);
   await expect(page.getByTestId("side-to-move")).toBeVisible();
 
@@ -83,6 +79,24 @@ test("sign up, solve a Reverse Chess uncapture and see it in the Casebook", asyn
 
   await clickCheck(page);
   await expect(page.getByText(/Solved in/)).toBeVisible();
+}
+
+test(
+  "signed out, solve a Reverse Chess uncapture",
+  { tag: "@smoke" },
+  async ({ page }) => {
+    await solveUncapture(page, await uncapturePuzzle());
+  },
+);
+
+test("sign up, solve a Reverse Chess uncapture and see it in the Casebook", async ({
+  page,
+}) => {
+  const email = uniqueEmail("flow3");
+  const puzzle = await uncapturePuzzle();
+
+  await signUp(page, email);
+  await solveUncapture(page, puzzle);
 
   await page.goto("/casebook");
   await expect(

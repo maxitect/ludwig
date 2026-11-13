@@ -3,7 +3,14 @@ import { defineConfig, devices } from "@playwright/test";
 
 if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
-const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+
+/** The bypass secret goes only to this project's own Vercel origins, never to whatever base URL a run is given. */
+const bypass = /^(ludwigpuzzles\.com|ludwig-orcin\.vercel\.app|ludwig-[a-z0-9-]+-maxitects-projects\.vercel\.app)$/.test(
+  new URL(baseURL).hostname,
+)
+  ? process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+  : undefined;
 
 const phone = {
   ...devices["Desktop Chrome"],
@@ -15,7 +22,7 @@ const phone = {
 export default defineConfig({
   testDir: "./e2e",
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
+    baseURL,
     trace: "retain-on-failure",
     serviceWorkers: "block",
     extraHTTPHeaders: bypass

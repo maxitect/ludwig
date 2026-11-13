@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { launch } from "chrome-launcher";
 import lighthouse from "lighthouse";
@@ -8,9 +8,16 @@ import lighthouse from "lighthouse";
  * production server, writing one JSON report per page to .verification/$TICKET/ (T069 unless TICKET is set). A page below its target is
  * re-run twice more and judged on the median run, since a single simulated run varies by a few points.
  * Run `pnpm build && pnpm start --port 3069`, then `pnpm perf:lighthouse`. Set BASE to another origin, SHARE to a Vercel share token
- * for a protected preview, DESK_COOKIE (a full `Cookie` header from a signed-in account) to add the signed-in Desk, and THREE_RUNS to always take the median of three. Exits non-zero if a target is missed.
+ * for a protected preview, VERCEL_AUTOMATION_BYPASS_SECRET (read from `.env.local`, sent only to this project's Vercel origins) to pass Vercel's bot challenge on production, DESK_COOKIE (a full `Cookie` header from a signed-in account) to add the signed-in Desk, and THREE_RUNS to always take the median of three. Exits non-zero if a target is missed.
  */
+if (existsSync(".env.local")) process.loadEnvFile(".env.local");
+
 const base = process.env.BASE ?? "http://localhost:3069";
+const bypass = /^(ludwigpuzzles\.com|ludwig-orcin\.vercel\.app|ludwig-[a-z0-9-]+-maxitects-projects\.vercel\.app)$/.test(
+  new URL(base).hostname,
+)
+  ? process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+  : undefined;
 const out = path.join(
   process.cwd(),
   ".verification",
@@ -71,9 +78,13 @@ async function measure(port: number, url: string, signedIn = false): Promise<Run
     { port, output: "json", onlyCategories: ["performance", "accessibility"] },
     {
       extends: "lighthouse:default",
-      settings: signedIn && deskCookie
-        ? { ...settings, extraHeaders: { Cookie: deskCookie } }
-        : settings,
+      settings: {
+        ...settings,
+        extraHeaders: {
+          ...(bypass && { "x-vercel-protection-bypass": bypass }),
+          ...(signedIn && deskCookie && { Cookie: deskCookie }),
+        },
+      },
     },
   );
   if (!result) throw new Error(`no Lighthouse result for ${url}`);

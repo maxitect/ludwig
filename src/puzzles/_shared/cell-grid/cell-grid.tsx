@@ -44,6 +44,8 @@ export type CellGridProps = {
   onChange: (row: number, col: number, value: string) => void;
   /** Receives the typed character, uppercased. */
   accept: (char: string) => boolean;
+  /** What the entry line says for a typed character when the grid does not store it as the cell's value, such as a pencil note; an empty string says nothing. Defaults to the character. */
+  spokenEntry?: (row: number, col: number, entry: string) => string;
   /** Typing advances along it and Space toggles it. Omit it for grids where typing stays in the cell. */
   direction?: Direction;
   onDirectionChange?: (direction: Direction) => void;
@@ -110,6 +112,7 @@ export function CellGrid({
   value,
   onChange,
   accept,
+  spokenEntry,
   direction,
   onDirectionChange,
   readOnly,
@@ -143,6 +146,13 @@ export function CellGrid({
   const gridRef = useRef<HTMLDivElement>(null);
   const cellRefs = useRef(new Map<CellKey, HTMLDivElement>());
   const cell = snappedCell(cols, rows);
+  const [spoken, setSpoken] = useState("");
+
+  /** Focus on a cell reads the cell itself. From the hidden input or the pad nothing would be read, so the entry is spoken. */
+  const speak = (row: number, col: number, entry: string) => {
+    if (!entry || gridRef.current?.contains(document.activeElement)) return;
+    setSpoken(`${entry}, row ${row + 1}, column ${col + 1}`);
+  };
 
   const padActive = usePuzzleKeyboard();
 
@@ -167,6 +177,11 @@ export function CellGrid({
     const entry = char.toUpperCase();
     if (locked() || !accept(entry)) return;
     onChange(active.row, active.col, entry);
+    speak(
+      active.row,
+      active.col,
+      spokenEntry ? spokenEntry(active.row, active.col, entry) : entry,
+    );
     if (!direction) return;
     const next = stepToPlayable(bounds, active, DIRECTION_STEP[direction]);
     if (next) setActive(next);
@@ -176,12 +191,14 @@ export function CellGrid({
     if (locked()) return;
     if (!direction || value(active.row, active.col)) {
       onChange(active.row, active.col, "");
+      speak(active.row, active.col, "Erased");
       return;
     }
     const { row, col } = DIRECTION_STEP[direction];
     const back = stepToPlayable(bounds, active, { row: -row, col: -col });
     if (!back) return;
     onChange(back.row, back.col, "");
+    speak(back.row, back.col, "Erased");
     setActive(back);
   };
 
@@ -418,6 +435,9 @@ export function CellGrid({
         className="sr-only text-base"
         onInput={onInput}
       />
+      <p aria-live="polite" className="sr-only">
+        {spoken}
+      </p>
     </div>
   );
 }

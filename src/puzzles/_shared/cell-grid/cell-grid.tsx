@@ -44,6 +44,8 @@ export type CellGridProps = {
   onChange: (row: number, col: number, value: string) => void;
   /** Receives the typed character, uppercased. */
   accept: (char: string) => boolean;
+  /** What the entry line says for a typed character when the grid does not store it as the cell's value, such as a pencil note; an empty string says nothing. Defaults to the character. */
+  spokenEntry?: (row: number, col: number, entry: string) => string;
   /** Typing advances along it and Space toggles it. Omit it for grids where typing stays in the cell. */
   direction?: Direction;
   onDirectionChange?: (direction: Direction) => void;
@@ -110,6 +112,7 @@ export function CellGrid({
   value,
   onChange,
   accept,
+  spokenEntry,
   direction,
   onDirectionChange,
   readOnly,
@@ -147,7 +150,7 @@ export function CellGrid({
 
   /** Focus on a cell reads the cell itself. From the hidden input or the pad nothing would be read, so the entry is spoken. */
   const speak = (row: number, col: number, entry: string) => {
-    if (gridRef.current?.contains(document.activeElement)) return;
+    if (!entry || gridRef.current?.contains(document.activeElement)) return;
     setSpoken(`${entry}, row ${row + 1}, column ${col + 1}`);
   };
 
@@ -174,7 +177,11 @@ export function CellGrid({
     const entry = char.toUpperCase();
     if (locked() || !accept(entry)) return;
     onChange(active.row, active.col, entry);
-    speak(active.row, active.col, entry);
+    speak(
+      active.row,
+      active.col,
+      spokenEntry ? spokenEntry(active.row, active.col, entry) : entry,
+    );
     if (!direction) return;
     const next = stepToPlayable(bounds, active, DIRECTION_STEP[direction]);
     if (next) setActive(next);

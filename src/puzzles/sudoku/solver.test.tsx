@@ -106,6 +106,24 @@ describe("sudoku Solver", () => {
     });
   });
 
+  it("speaks a note typed from outside the grid as a note, not as an entry", async () => {
+    const user = userEvent.setup();
+    renderSolver();
+    await user.click(cell(1, 3));
+    await user.keyboard("n");
+    screen.getByRole("textbox").focus();
+    const spoken = () =>
+      document.querySelector('p.sr-only[aria-live="polite"]')?.textContent;
+    await user.keyboard("6");
+    expect(spoken()).toBe("Note 6 pencilled, row 1, column 3");
+    await user.keyboard("6");
+    expect(spoken()).toBe("Note 6 removed, row 1, column 3");
+    await user.keyboard("n4");
+    expect(spoken()).toBe("4, row 1, column 3");
+    await user.keyboard("n5");
+    expect(spoken()).toBe("4, row 1, column 3");
+  });
+
   it("restores saved digits and notes, dropping any on a given cell", () => {
     renderSolver({
       cells: [

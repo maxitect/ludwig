@@ -228,6 +228,12 @@ export function DigitGrid({
           }}
           onChange={change}
           accept={(char) => /^[1-9]$/.test(char) && Number(char) <= size}
+          spokenEntry={(row, col, entry) => {
+            if (!notesMode) return entry;
+            const key = cellKey(row, col);
+            if (digits.has(key)) return "";
+            return `Note ${entry} ${notes.get(key)?.has(Number(entry)) ? "removed" : "pencilled"}`;
+          }}
           readOnly={given}
           inputMode="numeric"
           wrong={wrong}

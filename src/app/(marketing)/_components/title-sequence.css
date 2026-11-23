@@ -1,5 +1,5 @@
 .title-sequence {
-  --seq-wall-height: 30rem;
+  --seq-wall-height: calc(46rem * 0.65);
   --seq-cell: min(80px, (var(--seq-wall-height) - 4px) / 6);
   --seq-line: var(--border);
   --seq-ink: color-mix(in srgb, var(--foreground) 88%, transparent);

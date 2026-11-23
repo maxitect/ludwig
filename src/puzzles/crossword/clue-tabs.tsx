@@ -52,8 +52,7 @@ export function ClueTabs({
         <TabsContent
           key={along}
           value={along}
-          forceMount={both || undefined}
-          hidden={both ? false : undefined}
+          {...(both ? { forceMount: true as const, hidden: false } : {})}
           className={cn(both && "flex min-h-0 flex-1 flex-col gap-1")}
         >
           {both && (

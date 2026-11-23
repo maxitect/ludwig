@@ -15,6 +15,7 @@ import { BulletHole, Credit } from "@/components/brand";
 import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { narrowPanelSolveTypes } from "@/config/solve-layout";
 import { cn } from "@/utils/cn";
 import {
   checkAnswer,
@@ -314,7 +315,12 @@ function SolveBoard({
       <section
         ref={solveMode}
         data-solve-mode
-        className="group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] panel:min-h-[30rem] panel:grid-cols-[minmax(0,1fr)_26rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-8 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-164px),24rem)] touch:h-full touch:min-h-0 touch:gap-0"
+        className={cn(
+          "group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] panel:min-h-[30rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-6 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-164px),24rem)] touch:h-full touch:min-h-0 touch:gap-0",
+          narrowPanelSolveTypes.has(typeKey)
+            ? "panel:grid-cols-[minmax(0,1fr)_20rem]"
+            : "panel:grid-cols-[minmax(0,1fr)_24rem]",
+        )}
       >
         <header className="flex flex-col gap-3 desk:flex-row desk:items-center desk:gap-4 desk:border-b-2 desk:border-border desk:py-2 panel:col-span-2 panel:row-start-1 panel:mb-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(1rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
           <div className="desk:hidden touch:hidden">

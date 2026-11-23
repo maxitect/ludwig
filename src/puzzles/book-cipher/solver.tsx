@@ -20,6 +20,7 @@ import {
   useTouch,
 } from "../_shared/puzzle-keyboard";
 import { SolveBarButton } from "../_shared/solve-bar-button";
+import { usePanelLayout } from "../_shared/use-panel-layout";
 import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { SolveSlot } from "../_shared/solve-slot";
 import { LINE_WIDTH, wordsOfLine } from "./derive";
@@ -117,6 +118,7 @@ export function Solver({
   const padActive = usePuzzleKeyboard();
   const padWanted = usePadWanted();
   const touch = useTouch();
+  const panel = usePanelLayout();
   const reader = touch && !padWanted;
 
   useEffect(() => {
@@ -207,7 +209,7 @@ export function Solver({
           <div
             role="region"
             aria-label="Page text"
-            tabIndex={touch && !reader ? 0 : undefined}
+            tabIndex={(touch && !reader) || panel ? 0 : undefined}
             className={cn(
               "@container/book-page panel:min-h-0 panel:overflow-y-auto touch:min-h-0 touch:overflow-y-auto",
               reader && "touch:min-h-auto touch:overflow-visible",

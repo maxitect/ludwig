@@ -213,6 +213,7 @@ async function PuzzleList({
                   <li key={puzzle.slug} className="border-b-2 border-border">
                     <Link
                       href={`/puzzles/${typeKey}/${puzzle.slug}`}
+                      prefetch={false}
                       className="flex items-center justify-between gap-4 py-3 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
                       <PuzzleThumbnail typeKey={typeKey} puzzleId={puzzle.id} />

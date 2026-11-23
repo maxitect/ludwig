@@ -41,6 +41,7 @@ export function MobileNavSheet({ collectionTransitionTypes }: MobileNavProps) {
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
+              prefetch={false}
               href={href}
               transitionTypes={
                 href === "/puzzles" ? collectionTransitionTypes : undefined

@@ -158,6 +158,9 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T159](./T159-vercel-hobby-limits.md) | Vercel Hobby limits: diagnose ISR writes and CDN requests, fix the causes, keep the cache design (high priority) | T118 | | ✔ | in-progress |
 | [T167](./done/T167-landing-walk-through-wall.md) | Landing: staged rooms and a continuous pan through three walls into the finale (rework of T156; **top priority, run first**) | T156 | | | done |
 | [T168](./done/T168-solve-mode-on-tablets.md) | Solve mode on tablets (iPad): our keyboard and the clue bar, no system keyboard | T115, T116 | | | done |
+| [T169](./T169-desktop-solve-layout-audit.md) | Audit the desktop solve page for every puzzle type: what fits, what scrolls, what belongs in a side panel | T152, T168 | | | todo |
+| [T170](./T170-desktop-board-and-panel-layout.md) | Desktop solve layout: board on the left, clues and controls on the right, no page scroll (built from T169's audit; not classic gears) | T169 | | | todo |
+| [T171](./T171-landing-one-room-per-shot.md) | Landing: fit the stage under the header, one room per shot, and end on the Mirror (fourth pass; tested against every requirement) | T167 | | | todo |
 
 ## M6: Radio Times set
 

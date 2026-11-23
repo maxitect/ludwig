@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { Input } from "@/components/ui/input";
 import type { SolverProps } from "../solver-types";
 import { normaliseDecimal } from "./decimal";
@@ -31,8 +32,11 @@ export function Solver({
   }, [registerCheck, text]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <p className="text-lg">{questionText}</p>
+    <SolveLayout className="flex flex-col gap-6">
+      <PanelCell part="head">
+        <p className="text-lg">{questionText}</p>
+      </PanelCell>
+      <BoardCell className="panel:overflow-y-auto panel:pr-1 panel:pb-1">
       <ol
         aria-label="Napkin workings"
         className="paper-sheet grid-paper m-0 flex list-none flex-col gap-3 p-6 sm:p-8"
@@ -43,6 +47,8 @@ export function Solver({
           </li>
         ))}
       </ol>
+      </BoardCell>
+      <PanelCell>
       <div className="flex max-w-sm flex-col gap-2">
         <label htmlFor={inputId} className="text-lg">
           Your answer
@@ -80,6 +86,7 @@ export function Solver({
             : "A number, with a decimal point if it needs one. Press Enter to check."}
         </p>
       </div>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

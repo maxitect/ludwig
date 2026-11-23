@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { SolverProps } from "../solver-types";
 import { RotaBoard, type Highlight } from "./board";
 import { brokenClues } from "./check";
+import { BoardCell, PanelCell } from "../_shared/solve-layout";
 import { hazardSquare } from "./derive";
 import { placementFor, samePlacement } from "./engine";
 import type * as schema from "./schema";
@@ -174,9 +175,9 @@ export function Solver({
   return (
     <section
       onKeyDown={onKeyDown}
-      className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,26rem)_minmax(15rem,1fr)]"
+      className="flex flex-col gap-3 panel:contents"
     >
-      <div className="flex flex-col gap-3">
+      <PanelCell part="head">
         <section
           aria-labelledby="rota-incident"
           className="paper-sheet flex flex-col gap-1 p-3"
@@ -195,6 +196,8 @@ export function Solver({
               )}
           </p>
         </section>
+      </PanelCell>
+      <BoardCell>
         <RotaBoard
           tokens={tokens}
           placement={placement}
@@ -207,6 +210,9 @@ export function Solver({
           onPick={pick}
           onDropOn={(from, to) => from !== to && !solved && unswap(from, to)}
         />
+      </BoardCell>
+      <PanelCell className="panel:flex panel:flex-col panel:gap-6">
+      <div className="flex flex-col gap-3">
         <section
           aria-labelledby="rota-pinned"
           className="paper-sheet flex flex-col gap-1 p-3"
@@ -239,7 +245,7 @@ export function Solver({
           </p>
         </details>
       </div>
-      <div className="flex flex-col gap-6">
+      <div className="mt-3 flex flex-col gap-6 panel:mt-0">
         <section aria-labelledby="rota-clues" className="flex flex-col gap-2">
           <h3
             id="rota-clues"
@@ -366,6 +372,7 @@ export function Solver({
           </fieldset>
         )}
       </div>
+      </PanelCell>
     </section>
   );
 }

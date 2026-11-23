@@ -86,7 +86,7 @@ export function RotaBoard({
     tokens.map((token) => [zoneName(placement[token.id]), token]),
   );
   return (
-    <div className="grid w-full max-w-lg grid-cols-[1.25rem_1fr] gap-x-1 pr-1">
+    <div className="grid w-full max-w-lg panel:max-w-[min(100cqw,var(--board-h))] grid-cols-[1.25rem_1fr] gap-x-1 pr-1">
       <div
         aria-hidden="true"
         className="flex flex-col justify-around py-0.5 text-sm font-bold"

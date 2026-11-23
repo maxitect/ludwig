@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/utils/cn";
 import type { RetroDrop } from "../_shared/chess-board";
 import { DeferredChessBoard } from "../_shared/chess-board/deferred-chess-board";
 import type { SolverProps } from "../solver-types";
@@ -195,7 +196,10 @@ export function Unwind({
       </div>
       </PanelCell>
 
-      <PanelCell part="foot" className="panel:flex panel:flex-col panel:gap-3">
+      <PanelCell
+        part="foot"
+        className={cn("panel:flex panel:flex-col panel:gap-3", solved && "panel:hidden")}
+      >
       <PlyChoices
         colour={fromFen(lastBase ?? fen).sideToMove}
         draft={last ? toDraft(last) : null}

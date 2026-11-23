@@ -1,7 +1,7 @@
 "use server";
 
 import { APIError } from "better-auth/api";
-import { revalidatePath } from "next/cache";
+import { refresh } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
@@ -34,7 +34,7 @@ export async function saveSettings(
     };
   }
   await updateUserSettings(parsed.data);
-  revalidatePath("/", "layout");
+  refresh();
   return { fieldErrors: {}, saved: true };
 }
 

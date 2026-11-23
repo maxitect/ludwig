@@ -4,6 +4,7 @@ import type { Ref } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/utils/cn";
 import type { Direction } from "../_shared/cell-grid";
+import { usePanelLayout } from "../_shared/use-panel-layout";
 import { DIRECTIONS, type Entry } from "./derive";
 
 export type ClueTabsProps = {
@@ -15,6 +16,8 @@ export type ClueTabsProps = {
   listRef?: Ref<HTMLOListElement>;
   className?: string;
   listClassName?: string;
+  /** In the desktop panel, show both lists at once and scroll each inside the panel. */
+  split?: boolean;
 };
 
 export function ClueTabs({
@@ -26,17 +29,19 @@ export function ClueTabs({
   listRef,
   className,
   listClassName,
+  split,
 }: ClueTabsProps) {
+  const both = usePanelLayout() && split;
   return (
     <Tabs
-      className={className}
+      className={cn(className, both && "min-h-0 flex-1")}
       value={direction}
       onValueChange={(value) => {
         const next = DIRECTIONS.find((along) => along === value);
         if (next) onDirection(next);
       }}
     >
-      <TabsList aria-label="Clue direction">
+      <TabsList aria-label="Clue direction" className={cn(both && "hidden")}>
         {DIRECTIONS.map((along) => (
           <TabsTrigger key={along} value={along}>
             {along}
@@ -44,10 +49,22 @@ export function ClueTabs({
         ))}
       </TabsList>
       {DIRECTIONS.map((along) => (
-        <TabsContent key={along} value={along}>
+        <TabsContent
+          key={along}
+          value={along}
+          forceMount={both || undefined}
+          hidden={both ? false : undefined}
+          className={cn(both && "flex min-h-0 flex-1 flex-col gap-1")}
+        >
+          {both && (
+            <h3 className="font-display text-sm uppercase">{along}</h3>
+          )}
           <ol
             ref={along === direction ? listRef : undefined}
-            className={cn("relative flex flex-col overflow-y-auto", listClassName)}
+            className={cn(
+              "relative flex flex-col overflow-y-auto",
+              both ? "min-h-0 flex-1" : listClassName,
+            )}
           >
             {entries
               .filter((entry) => entry.direction === along)

@@ -20,6 +20,7 @@ import {
 import { PuzzleKeyboard, usePadWanted } from "../_shared/puzzle-keyboard";
 import { SolveBarButton } from "../_shared/solve-bar-button";
 import { SolveSlot } from "../_shared/solve-slot";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import {
   deriveEntries,
@@ -293,7 +294,8 @@ export function Solver({
   );
 
   return (
-    <div className="flex flex-col gap-6 touch:gap-0">
+    <SolveLayout className="flex flex-col gap-6 touch:gap-0">
+      <PanelCell part="head" className="flex flex-col gap-3">
       <p className="sr-only">
         Type letters to fill the grid. Space switches between across and down,
         Tab moves to the next clue and Enter checks the grid.
@@ -311,7 +313,9 @@ export function Solver({
           </>
         )}
       </p>
-      <div className="flex flex-col gap-6">
+      </PanelCell>
+      <div className="flex flex-col gap-6 panel:contents">
+        <BoardCell>
         <CellGrid
           ref={grid}
           label="Crossword"
@@ -336,8 +340,11 @@ export function Solver({
           }}
           words={words}
         />
+        </BoardCell>
+        <PanelCell className="panel:flex panel:flex-col">
         <Suspense fallback={null}>
           <ClueTabs
+            split
             className="touch:hidden"
             entries={entries}
             direction={direction}
@@ -348,13 +355,16 @@ export function Solver({
             listClassName="max-h-80"
           />
         </Suspense>
+        </PanelCell>
       </div>
+      <PanelCell part="foot" className="panel:flex panel:flex-wrap panel:items-center panel:gap-3">
       <div className="flex flex-wrap items-center gap-3 touch:contents">
         <div className="contents touch:hidden">{actions}</div>
         <p role="status" aria-live="polite" className="touch:sr-only">
           {cellNotice}
         </p>
       </div>
+      </PanelCell>
       <SolveSlot
         fallback={
           <div className="hidden flex-col pt-2 touch:flex">{clueBar}</div>
@@ -400,6 +410,6 @@ export function Solver({
           </ClueSheet>
         </Suspense>
       )}
-    </div>
+    </SolveLayout>
   );
 }

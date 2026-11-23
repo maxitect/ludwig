@@ -74,8 +74,11 @@ export function Unwind({
   }, [registerCheck, plies, invalid, payload.plyCount]);
 
   useEffect(() => {
-    scrollWithin(chain.current?.lastElementChild);
-  }, [plies.length]);
+    scrollWithin(
+      chain.current?.querySelector("[data-flagged]") ??
+        chain.current?.lastElementChild,
+    );
+  }, [plies.length, checked]);
 
   function update(next: Ply[]) {
     setPlies(next);

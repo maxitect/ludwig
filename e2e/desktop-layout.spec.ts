@@ -45,8 +45,8 @@ type Representative = {
   board: (page: Page) => Locator;
   /** A sheet or list stands in for a board; no size floor applies. */
   sheet?: boolean;
-  /** The audit's smaller boards (section 7): the shorter side must still reach this. */
-  floors?: Partial<Record<1440 | 1280, number>>;
+  /** The audit's smaller boards (section 7): the shorter side is this size, not the usual floor. Railroad's grid includes its count band. */
+  sizes?: Partial<Record<1440 | 1280, number>>;
 };
 
 const grid = (page: Page) => page.locator("[role=grid]").first();
@@ -61,10 +61,10 @@ const REPRESENTATIVES: Representative[] = [
   { type: "chess-problem", slug: "a-quiet-word", board: (p) => p.locator("[aria-label='Chess board']") },
   { type: "circle9", slug: "false-trail", board: grid },
   { type: "crossword", slug: "stage-door", board: grid },
-  { type: "detective-scene", slug: "cambridge-night", floors: { 1440: 510 }, board: (p) => p.locator("[aria-label='The street scene']") },
+  { type: "detective-scene", slug: "cambridge-night", board: (p) => p.locator("[aria-label='The street scene']") },
   { type: "fillomino", slug: "borrowed-time", board: grid },
-  { type: "futoshiki", slug: "balance-sheet", floors: { 1440: 477 }, board: grid },
-  { type: "gear-train", slug: "big-wheel", floors: { 1440: 432 }, board: (p) => p.locator("[aria-label=Pegboard]") },
+  { type: "futoshiki", slug: "balance-sheet", sizes: { 1440: 477 }, board: grid },
+  { type: "gear-train", slug: "big-wheel", sizes: { 1440: 432 }, board: (p) => p.locator("[aria-label=Pegboard]") },
   { type: "kakuro", slug: "blind-sum", board: grid },
   { type: "keyword", slug: "blotting-paper", sheet: true, board: (p) => p.getByTestId("ciphertext").locator("..") },
   { type: "knights-knaves", slug: "by-the-fire", sheet: true, board: (p) => solver(p).locator("p.text-lg") },
@@ -74,18 +74,18 @@ const REPRESENTATIVES: Representative[] = [
   { type: "norinori", slug: "cold-case", board: grid },
   { type: "odd-one-out", slug: "concert-programme", sheet: true, board: (p) => solver(p).locator("fieldset") },
   { type: "pictogram-cipher", slug: "chalk-marks", sheet: true, board: (p) => p.getByTestId("ciphertext").locator("..") },
-  { type: "railroad", slug: "branch-line", floors: { 1440: 360, 1280: 360 }, board: grid },
-  { type: "reflections", slug: "double-take", floors: { 1440: 432 }, board: (p) => sheetOf(grid(p)) },
+  { type: "railroad", slug: "branch-line", sizes: { 1440: 402, 1280: 402 }, board: grid },
+  { type: "reflections", slug: "double-take", board: (p) => sheetOf(grid(p)) },
   { type: "reverse-chess", slug: "bishop-taken", board: (p) => p.locator("[aria-label='Chess board']") },
   { type: "reverse-chess", slug: "four-steps", board: (p) => p.locator("[aria-label='Chess board']") },
-  { type: "rota", slug: "canteen-queue", floors: { 1440: 388 }, board: (p) => p.getByTestId("rota-board") },
+  { type: "rota", slug: "canteen-queue", board: (p) => p.getByTestId("rota-board") },
   { type: "sightlines", slug: "chapel-aisle", board: grid },
   { type: "star-battle", slug: "double-bill", board: grid },
   { type: "sudoku", slug: "back-page", board: grid },
-  { type: "troix", slug: "cross-and-circle", floors: { 1440: 477 }, board: grid },
+  { type: "troix", slug: "cross-and-circle", sizes: { 1440: 477 }, board: grid },
   { type: "word-ladder", slug: "coin-toss", sheet: true, board: (p) => solver(p).locator("ol").first().locator("..") },
   { type: "word-search", slug: "long-vacation", board: grid },
-  { type: "word-wheel", slug: "dead-hours", floors: { 1440: 384 }, board: (p) => p.locator("[aria-label='Wheel letters']") },
+  { type: "word-wheel", slug: "dead-hours", board: (p) => p.locator("[aria-label='Wheel letters']") },
 ];
 
 const registryKeys = [
@@ -115,6 +115,47 @@ const chrome = (page: Page) => ({
 });
 
 const bottomOf = (b: Box) => b.y + b.height;
+
+/** Pairs of the solve grid's own items (through `display: contents` wrappers) that share space. */
+const overlappingCells = (page: Page) =>
+  page.locator("section[data-solve-mode]").evaluate((section) => {
+    const items = [...section.querySelectorAll<HTMLElement>("*")].filter(
+      (element) => {
+        const style = getComputedStyle(element);
+        if (["contents", "none"].includes(style.display)) return false;
+        if (["absolute", "fixed"].includes(style.position)) return false;
+        let parent = element.parentElement;
+        while (
+          parent &&
+          parent !== section &&
+          getComputedStyle(parent).display === "contents"
+        ) {
+          parent = parent.parentElement;
+        }
+        return parent === section;
+      },
+    );
+    const boxes = items
+      .map((element) => ({
+        name: (element.textContent ?? "").trim().slice(0, 30),
+        box: element.getBoundingClientRect(),
+      }))
+      .filter(({ box }) => box.width > 1 && box.height > 1);
+    return boxes.flatMap((a, index) =>
+      boxes
+        .slice(index + 1)
+        .filter(
+          (b) =>
+            Math.min(a.box.right, b.box.right) -
+              Math.max(a.box.left, b.box.left) >
+              1 &&
+            Math.min(a.box.bottom, b.box.bottom) -
+              Math.max(a.box.top, b.box.top) >
+              1,
+        )
+        .map((b) => `"${a.name}" over "${b.name}"`),
+    );
+  });
 
 for (const viewport of VIEWPORTS) {
   test.describe(`fits ${viewport.width}x${viewport.height}`, () => {
@@ -149,15 +190,22 @@ for (const viewport of VIEWPORTS) {
           );
         }
 
+        if (panelSolveTypes.has(rep.type)) {
+          expect(await overlappingCells(page), "grid cells overlap").toEqual([]);
+        }
+
         if (!rep.sheet) {
-          const floor =
-            rep.floors?.[viewport.width as 1440 | 1280] ??
-            (viewport.width === 1440 ? 520 : 400);
+          const width = viewport.width as 1440 | 1280;
           const shorter = Math.min(boardBox.width, boardBox.height);
-          expect(
-            shorter,
-            `${rep.type} board ${Math.round(boardBox.width)}x${Math.round(boardBox.height)}`,
-          ).toBeGreaterThanOrEqual(floor - 2);
+          const label = `${rep.type} board ${Math.round(boardBox.width)}x${Math.round(boardBox.height)}`;
+          const size = rep.sizes?.[width];
+          if (size) {
+            expect(Math.abs(shorter - size), label).toBeLessThanOrEqual(3);
+          } else {
+            expect(shorter, label).toBeGreaterThanOrEqual(
+              (width === 1440 ? 520 : 400) - 2,
+            );
+          }
         }
       });
     }

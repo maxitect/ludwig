@@ -102,6 +102,11 @@ async function translateOf(page: Page, selector: string) {
   return [x, y];
 }
 
+/** The wall cell in px: 80, or less where the wall is too short for six of them. */
+function cellSize(page: Page) {
+  return page.locator(".seq-bpiece").first().evaluate((piece) => parseFloat(getComputedStyle(piece).width));
+}
+
 async function opacity(page: Page, selector: string) {
   return Number(await computed(page, selector, "opacity"));
 }
@@ -126,35 +131,41 @@ const SIZES = [
   { width: 1280, height: 800 },
   { width: 1280, height: 650 },
   { width: 1024, height: 768 },
+  { width: 768, height: 1024 },
   { width: 390, height: 844 },
   { width: 430, height: 932 },
 ] as const;
 
 type Path = "timeline" | "fallback";
 
-/** Room-ownership helper: every plane of room n is painted one flat colour, the floor another and everything else on the stage is hidden, so a screenshot says which room owns each pixel (rectangles can't, they ignore what a nearer wall hides). */
-const ROOM_COLOURS = [
-  [255, 0, 0],
-  [0, 255, 0],
-  [0, 0, 255],
-  [255, 0, 255],
-] as const;
-const FLOOR_COLOUR = [128, 128, 128] as const;
+/** Room-ownership helper: every plane of room n is painted flat in colour channel n (the back wall at 255, the side walls and the room's part of the shared floor at 224) on a black stage with everything else hidden, so a screenshot says which room owns each pixel (rectangles can't, they ignore what a nearer wall hides). */
+const ROOM_CHANNELS = [0, 1, 2] as const;
+const BACK = 255;
+const SIDE = 224;
+/** The floor this many px either side of a dividing wall is under the wall and in neither room; it is painted grey. */
+const SEAM = 8;
+/** A pixel counts for a room when at least a third of it is that room. A gap one pixel wide counts; the antialiased pixel on an edge two rooms share does not, because the far room is at most a quarter of it. */
+const OWNED = 85;
 
 function ownershipStyle() {
-  const rgb = ([r, g, b]: readonly number[]) => `rgb(${r}, ${g}, ${b})`;
-  const paint = (selector: string, colour: readonly number[]) =>
-    `${selector} { background: ${rgb(colour)} !important; background-image: none !important; border-color: ${rgb(colour)} !important; }`;
-  const rooms = ROOM_COLOURS.map((colour, index) => {
-    const room = `.seq-room[data-room-index="${index}"]`;
-    return [paint(`${room} .seq-plane`, colour.map((channel) => channel / 2)), paint(`${room} .seq-wall`, colour)].join("\n");
+  const colour = (channel: number, level: number) =>
+    `rgb(${[0, 1, 2].map((index) => (index === channel ? level : 0)).join(", ")})`;
+  const paint = (selector: string, value: string) =>
+    `${selector} { --seq-line: ${value} !important; background: ${value} !important; border-color: ${value} !important; }`;
+  const rooms = ROOM_CHANNELS.map((channel) => {
+    const room = `.seq-room[data-room-index="${channel}"]`;
+    return [paint(`${room} .seq-plane`, colour(channel, SIDE)), paint(`${room} .seq-wall`, colour(channel, BACK))].join("\n");
   }).join("\n");
+  const floor = ROOM_CHANNELS.flatMap((channel) => {
+    const wall = `${channel + 1} * 100% / ${ROOM_CHANNELS.length}`;
+    return [`${colour(channel, SIDE)} 0 calc(${wall} - ${SEAM}px)`, `rgb(128, 128, 128) 0 calc(${wall} + ${SEAM}px)`];
+  }).join(", ");
   return `
 body::before { display: none !important; }
 .seq-stage { background: rgb(0, 0, 0) !important; }
 .seq-plane > * { visibility: hidden !important; }
-${paint(".seq-room[data-room-index] .seq-plane.seq-floor", FLOOR_COLOUR)}
 .seq-raking, .seq-hero, .seq-walker, .seq-captions, .seq-piece { visibility: hidden !important; }
+.seq-floor { background: linear-gradient(90deg, ${floor}) no-repeat !important; border-color: transparent !important; }
 ${rooms}`;
 }
 
@@ -196,13 +207,11 @@ async function openOn(page: Page, size: { width: number; height: number }, path:
 }
 
 type Ownership = {
-  /** Pixels per room: its back wall and its side walls. */
+  /** Pixels per room. */
   rooms: number[];
-  /** Pixels per room's back wall alone, the view into the room. */
-  backs: number[];
-  floor: number;
-  other: number;
-  /** The stage's left and right edge pixel columns top to bottom, as run-length strings like `other,room0,floor`. */
+  /** Per room, whether the middle of its back wall (its middle half each way) is all back wall, with nothing in front of it. */
+  clear: boolean[];
+  /** The stage's left and right edge pixel columns top to bottom, as run-length strings like `other,room0,seam,room0`; pixels on an antialiased edge are left out. */
   left: string;
   right: string;
   stage: { left: number; top: number; right: number; bottom: number };
@@ -212,7 +221,7 @@ type Ownership = {
 async function ownership(page: Page): Promise<Ownership> {
   const png = (await page.locator(".seq-stage").screenshot({ scale: "css" })).toString("base64");
   return page.evaluate(
-    async ({ data, rooms, floor }) => {
+    async ({ data, channels, owned, back, side }) => {
       const image = new Image();
       image.src = `data:image/png;base64,${data}`;
       await image.decode();
@@ -222,36 +231,28 @@ async function ownership(page: Page): Promise<Ownership> {
       const context = canvas.getContext("2d", { willReadFrequently: true })!;
       context.drawImage(image, 0, 0);
       const { data: pixels } = context.getImageData(0, 0, image.width, image.height);
-      const near = (index: number, colour: readonly number[]) =>
-        Math.abs(pixels[index] - colour[0]) <= 6 &&
-        Math.abs(pixels[index + 1] - colour[1]) <= 6 &&
-        Math.abs(pixels[index + 2] - colour[2]) <= 6;
-      const classify = (index: number) => {
-        for (const [room, colour] of rooms.entries()) {
-          if (near(index, colour)) return `room${room}`;
-          if (near(index, colour.map((channel) => channel / 2))) return `room${room}`;
-        }
-        return near(index, floor) ? "floor" : "other";
+      /** How much of the pixel is each room: its channel above the pixel's grey level. */
+      const shares = (index: number) => {
+        const grey = Math.min(pixels[index], pixels[index + 1], pixels[index + 2]);
+        return channels.map((channel) => pixels[index + channel] - grey);
       };
-      const counts = new Array<number>(rooms.length).fill(0);
-      const backCounts = new Array<number>(rooms.length).fill(0);
-      let floorCount = 0;
-      let other = 0;
+      const classify = (index: number) => {
+        const share = shares(index);
+        const room = share.findIndex((value) => value >= side - 6);
+        if (room >= 0) return `room${room}`;
+        if (share.some((value) => value > 6)) return "edge";
+        if (pixels[index] <= 6) return "other";
+        return Math.abs(pixels[index] - 128) <= 6 ? "seam" : "edge";
+      };
+      const counts = new Array<number>(channels.length).fill(0);
       for (let index = 0; index < pixels.length; index += 4) {
-        const name = classify(index);
-        if (name === "floor") floorCount++;
-        else if (name === "other") other++;
-        else {
-          const room = Number(name.slice(4));
-          counts[room]++;
-          if (near(index, rooms[room])) backCounts[room]++;
-        }
+        for (const [room, value] of shares(index).entries()) if (value >= owned) counts[room]++;
       }
       const column = (x: number) => {
         const runs: string[] = [];
         for (let y = 0; y < image.height; y++) {
           const name = classify((y * image.width + x) * 4);
-          if (runs.at(-1) !== name) runs.push(name);
+          if (name !== "edge" && runs.at(-1) !== name) runs.push(name);
         }
         return runs.join(",");
       };
@@ -259,18 +260,22 @@ async function ownership(page: Page): Promise<Ownership> {
         const { left, top, right, bottom } = element.getBoundingClientRect();
         return { left, top, right, bottom };
       };
-      return {
-        rooms: counts,
-        backs: backCounts,
-        floor: floorCount,
-        other,
-        left: column(0),
-        right: column(image.width - 1),
-        stage: rect(document.querySelector(".seq-stage")!),
-        walls: [...document.querySelectorAll(".seq-wall")].map(rect),
-      };
+      const stage = rect(document.querySelector(".seq-stage")!);
+      const walls = [...document.querySelectorAll(".seq-wall")].map(rect);
+      const clear = walls.map((wall, room) => {
+        const [width, height] = [wall.right - wall.left, wall.bottom - wall.top];
+        const from = { x: Math.ceil(wall.left + width * 0.25 - stage.left), y: Math.ceil(wall.top + height * 0.25 - stage.top) };
+        const to = { x: Math.floor(wall.right - width * 0.25 - stage.left), y: Math.floor(wall.bottom - height * 0.25 - stage.top) };
+        for (let y = Math.max(0, from.y); y < Math.min(image.height, to.y); y++) {
+          for (let x = Math.max(0, from.x); x < Math.min(image.width, to.x); x++) {
+            if (shares((y * image.width + x) * 4)[room] < back - 6) return false;
+          }
+        }
+        return true;
+      });
+      return { rooms: counts, clear, left: column(0), right: column(image.width - 1), stage, walls };
     },
-    { data: png, rooms: ROOM_COLOURS.map((colour) => [...colour]), floor: [...FLOOR_COLOUR] },
+    { data: png, channels: [...ROOM_CHANNELS], owned: OWNED, back: BACK, side: SIDE },
   );
 }
 
@@ -465,10 +470,13 @@ test.describe("landing walls", () => {
   }) => {
     for (const viewport of [VIEWPORTS[2], VIEWPORTS[0]]) {
       await open(page, viewport);
+      const cell = await cellSize(page);
       await seek(page, 0.4);
       expect(await translateOf(page, ".seq-bpiece-queen")).toEqual([0, 0]);
       await seek(page, 0.58);
-      expect(await translateOf(page, ".seq-bpiece-queen")).toEqual([0, -240]);
+      const [queenX, queenY] = await translateOf(page, ".seq-bpiece-queen");
+      expect(queenX).toBe(0);
+      expect(queenY, "the queen goes back three cells").toBeCloseTo(-3 * cell, 1);
       await seek(page, 0.46);
       expect(await opacity(page, ".seq-bpiece-black-pawn")).toBe(0);
       await seek(page, 0.5);
@@ -591,13 +599,14 @@ test.describe("landing walls", () => {
     expect(await page.evaluate(() => CSS.supports("animation-timeline: view()"))).toBe(false);
     await expect(page.locator(".title-sequence")).toHaveAttribute("data-seq-scroll", "");
     await seek(page, 0.5);
+    const cell = await cellSize(page);
     const queen = await translateOf(page, ".seq-bpiece-queen");
     expect(Math.abs(queen[0])).toBeLessThanOrEqual(1);
-    expect(Math.abs(queen[1] + 240)).toBeLessThanOrEqual(1);
+    expect(Math.abs(queen[1] + 3 * cell)).toBeLessThanOrEqual(1);
     const progress = Number(
       await computed(page, ".title-sequence", "--seq-progress"),
     );
-    const moved = Math.min(1, Math.max(0, (progress - 0.47) / 0.04)) * 80;
+    const moved = Math.min(1, Math.max(0, (progress - 0.47) / 0.04)) * cell;
     const pawn = await translateOf(page, ".seq-bpiece-white-pawn");
     expect(Math.abs(pawn[0] - moved)).toBeLessThanOrEqual(1);
     expect(Math.abs(pawn[1] - moved)).toBeLessThanOrEqual(1);
@@ -794,17 +803,6 @@ test.describe("landing walls", () => {
   });
 });
 
-/** Dwell and pan windows after T171: three rooms, two pans, the Mirror holds to the end of the track. */
-const DWELLS = [
-  { room: 0, from: 0.06, to: 0.26 },
-  { room: 1, from: 0.41, to: 0.58 },
-  { room: 2, from: 0.72, to: 1 },
-] as const;
-const PAN_WINDOWS = [
-  { from: 0.26, to: 0.41 },
-  { from: 0.58, to: 0.72 },
-] as const;
-
 function timelineProgress(page: Page) {
   return page.evaluate(
     () => document.querySelector(".seq-world")!.getAnimations()[0].effect!.getComputedTiming().progress!,
@@ -871,7 +869,7 @@ for (const path of ["timeline", "fallback"] as const) {
           const others = roomsInFrame(shot).filter((room) => room !== 0);
           if (others.length) failures.push(`opening ${progress}: rooms ${others} have ${others.map((room) => shot.rooms[room])} px`);
         }
-        for (const { room, from, to } of DWELLS) {
+        for (const [room, { from, to }] of ROOMS.entries()) {
           for (const progress of steps(from, to)) {
             await seek(page, progress);
             const shot = await ownership(page);
@@ -881,7 +879,8 @@ for (const path of ["timeline", "fallback"] as const) {
             if (wall.left < shot.stage.left - 1 || wall.right > shot.stage.right + 1 || wall.top < shot.stage.top - 1 || wall.bottom > shot.stage.bottom + 1) {
               failures.push(`room ${room} at ${progress}: back wall outside the stage ${JSON.stringify(wall)}`);
             }
-            const pattern = new RegExp(`^(other,)?room${room}(,other)?(,floor)?(,other)?$`);
+            if (!shot.clear[room]) failures.push(`room ${room} at ${progress}: something is in front of its back wall`);
+            const pattern = new RegExp(`^(other,)?room${room}(,seam,room${room})?$`);
             for (const [edge, column] of [["left", shot.left], ["right", shot.right]] as const) {
               if (!pattern.test(column)) failures.push(`room ${room} at ${progress}: ${edge} edge column reads ${column}`);
             }
@@ -896,23 +895,26 @@ for (const path of ["timeline", "fallback"] as const) {
         await openOn(page, size, path);
         await page.addStyleTag({ content: ownershipStyle() });
         const failures: string[] = [];
-        for (const [index, { from, to }] of PAN_WINDOWS.entries()) {
+        for (const [index, { from, to }] of PANS.entries()) {
           const [leaving, entering] = [index, index + 1];
           const shots: Ownership[] = [];
           for (const progress of steps(from, to)) {
             await seek(page, progress);
             const shot = await ownership(page);
             const extra = roomsInFrame(shot).filter((room) => room !== leaving && room !== entering);
-            if (extra.length) failures.push(`pan ${index + 1} at ${progress}: rooms ${extra} in frame`);
+            if (extra.length) failures.push(`pan ${index + 1} at ${progress}: rooms ${extra} have ${extra.map((room) => shot.rooms[room])} px`);
             shots.push(shot);
           }
-          const slack = 0.015 * (shots[0].stage.right - shots[0].stage.left) * (shots[0].stage.bottom - shots[0].stage.top);
-          const gone = shots.map((shot) => shot.backs[leaving]);
-          const peak = gone.indexOf(Math.max(...gone));
-          shots.forEach((shot, step) => {
+          const pixels = (room: number) => shots.map((shot) => shot.rooms[room]);
+          const [left, entered] = [pixels(leaving), pixels(entering)];
+          const share = shots.map((_, step) => entered[step] / (entered[step] + left[step]));
+          const peak = left.indexOf(Math.max(...left));
+          shots.forEach((_, step) => {
+            if (step === 0) return;
             const progress = steps(from, to)[step];
-            if (step > 0 && shot.backs[entering] < shots[step - 1].backs[entering] - slack) failures.push(`pan ${index + 1} at ${progress}: view into room ${entering} shrinks ${shots[step - 1].backs[entering]} to ${shot.backs[entering]}`);
-            if (step > peak && shot.backs[leaving] > shots[step - 1].backs[leaving] + slack) failures.push(`pan ${index + 1} at ${progress}: view into room ${leaving} grows again after its peak ${shots[step - 1].backs[leaving]} to ${shot.backs[leaving]}`);
+            if (share[step] < share[step - 1]) failures.push(`pan ${index + 1} at ${progress}: room ${entering}'s share falls ${share[step - 1]} to ${share[step]}`);
+            if (left[step] > 0 && entered[step] < entered[step - 1]) failures.push(`pan ${index + 1} at ${progress}: room ${entering} shrinks ${entered[step - 1]} to ${entered[step]} px with room ${leaving} still in frame`);
+            if (step > peak && left[step] > left[step - 1]) failures.push(`pan ${index + 1} at ${progress}: room ${leaving} grows again ${left[step - 1]} to ${left[step]} px`);
           });
           await seek(page, to);
           const arrived = await ownership(page);
@@ -938,8 +940,27 @@ test.describe("landing walls, three rooms", () => {
     });
     const intervals = moving.reduce((count, progress, index) => (index === 0 || progress - moving[index - 1] > 0.0101 ? count + 1 : count), 0);
     expect(intervals, `camera moves in ${intervals} intervals: ${moving}`).toBe(2);
-    const resting = samples.filter(({ progress }) => progress >= DWELLS[2].from);
+    const resting = samples.filter(({ progress }) => progress >= ROOMS[2].from);
     for (const { x } of resting) expect(x).toBeCloseTo(resting[0].x, 1);
+  });
+});
+
+test.describe("landing walls, what is written on them", () => {
+  test("AC8 AC10 the words and the written digits fit on their walls at every size", async ({ page }) => {
+    for (const size of SIZES) {
+      await open(page, size);
+      const below = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>(".seq-grid-word > span, .seq-mirror-digit")].flatMap((mark) => {
+          const wall = mark.closest<HTMLElement>(".seq-wall")!;
+          let bottom = mark.offsetHeight;
+          for (let box: HTMLElement | null = mark; box && box !== wall; box = box.offsetParent as HTMLElement | null) {
+            bottom += box.offsetTop;
+          }
+          return bottom > wall.clientHeight + 1 ? [`${mark.textContent} ends ${bottom - wall.clientHeight}px below ${wall.className}`] : [];
+        }),
+      );
+      expect(below, `${size.width}x${size.height}`).toEqual([]);
+    }
   });
 });
 

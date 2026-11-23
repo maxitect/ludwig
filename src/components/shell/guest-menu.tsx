@@ -10,7 +10,7 @@ const loadThemeMenu = () =>
 export function GuestMenu() {
   return (
     <div data-guest-menu="" className="flex items-center gap-3">
-      <Link href="/sign-in" className="underline underline-offset-4">
+      <Link href="/sign-in" prefetch={false} className="underline underline-offset-4">
         Sign in
       </Link>
       <Deferred load={loadThemeMenu} props={{}} fallback={<ThemeButton />} />

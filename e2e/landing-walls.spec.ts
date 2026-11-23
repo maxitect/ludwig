@@ -946,7 +946,7 @@ test.describe("landing walls, three rooms", () => {
 test.describe("landing walls, the Mirror ends the sequence", () => {
   test("AC8 the sequence ends on the Mirror, finished, before the closing section", async ({ page, browserName }) => {
     test.setTimeout(120_000);
-    await open(page, VIEWPORTS[2]);
+    await openOn(page, VIEWPORTS[2], "timeline");
     for (const progress of [0.98, 1]) {
       await seek(page, progress);
       const digits = await page.locator(".seq-mirror-digit").evaluateAll((all) =>

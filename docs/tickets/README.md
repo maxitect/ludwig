@@ -118,7 +118,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T067](./done/T067-landing-title-sequence.md) | Title-sequence landing | T015, T028 | | | done |
 | [T068](./done/T068-accessibility-audit.md) | Accessibility audit (axe and screen reader) | all M4, T112–T117, T120–T138 | | ✔ | done |
 | [T069](./done/T069-performance-pass.md) | Performance pass (Lighthouse targets) | all M4, T066, T067, T113–T116, T120–T138 | | | done |
-| [T070](./T070-production-launch.md) | Production verification on ludwigpuzzles.com (smoke, accessibility, automated screen-reader checks) | T068, T069, T143, T144, T146 | | | todo |
+| [T070](./done/T070-production-launch.md) | Production verification on ludwigpuzzles.com (smoke, accessibility, automated screen-reader checks) | T068, T069, T143, T144, T146 | | | done |
 | [T077](./done/T077-pg-sslmode.md) | Connect with an explicit `sslmode=verify-full` | — | | | done |
 | [T112](./done/T112-pwa-baseline.md) | PWA baseline (manifest, icons, viewport, safe areas, install hint) | T015 | | | done |
 | [T113](./done/T113-solve-mode-layout.md) | Solve mode, the full-height phone layout for the solve page | T018, T112 | | | done |
@@ -158,10 +158,10 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T159](./done/T159-vercel-hobby-limits.md) | Vercel Hobby limits: diagnose ISR writes and CDN requests, fix the causes, keep the cache design (high priority) | T118 | | ✔ | done |
 | [T167](./done/T167-landing-walk-through-wall.md) | Landing: staged rooms and a continuous pan through three walls into the finale (rework of T156; **top priority, run first**) | T156 | | | done |
 | [T168](./done/T168-solve-mode-on-tablets.md) | Solve mode on tablets (iPad): our keyboard and the clue bar, no system keyboard | T115, T116 | | | done |
-| [T169](./T169-desktop-solve-layout-audit.md) | Audit the desktop solve page for every puzzle type: what fits, what scrolls, what belongs in a side panel | T152, T168 | | | todo |
-| [T170](./T170-desktop-board-and-panel-layout.md) | Desktop solve layout: board on the left, clues and controls on the right, no page scroll (built from T169's audit; not classic gears) | T169 | | | todo |
-| [T171](./T171-landing-one-room-per-shot.md) | Landing: fit the stage under the header, one room per shot, and end on the Mirror (fourth pass; tested against every requirement) | T167 | | | todo |
-| [T172](./T172-isr-writes-per-visit.md) | ISR writes per visit: longer cache life, fewer prefetches, no site-wide purge on a settings save (high priority; T159 AC6 follow-up) | T159 | | ✔ | todo |
+| [T169](./done/T169-desktop-solve-layout-audit.md) | Audit the desktop solve page for every puzzle type: what fits, what scrolls, what belongs in a side panel | T152, T168 | | | done |
+| [T170](./done/T170-desktop-board-and-panel-layout.md) | Desktop solve layout: board on the left, clues and controls on the right, no page scroll (built from T169's audit; not classic gears) | T169 | | | done |
+| [T171](./done/T171-landing-one-room-per-shot.md) | Landing: fit the stage under the header, one room per shot, and end on the Mirror (fourth pass; tested against every requirement) | T167 | | | done |
+| [T172](./T172-isr-writes-per-visit.md) | ISR writes per visit: longer cache life, fewer prefetches, no site-wide purge on a settings save (high priority; T159 AC6 follow-up) | T159 | | ✔ | in-progress |
 
 ## M6: Radio Times set
 

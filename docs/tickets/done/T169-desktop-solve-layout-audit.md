@@ -44,7 +44,7 @@ This ticket is the audit. It measures every type and writes down, per type, what
   - Reverse Chess (both modes) and `chess-problem` are `panel`.
   - the crossword and every other type with many annotations or controls are `panel`.
   - `spot-difference` is `excluded` and keeps its two-up scenes (T152).
-- **Update T170** (`docs/tickets/T170-desktop-board-and-panel-layout.md`) where the audit contradicts it: its starting list of types, its board-size floors and its named test puzzles. The audit is the authority.
+- **Update T170** (`docs/tickets/done/T170-desktop-board-and-panel-layout.md`) where the audit contradicts it: its starting list of types, its board-size floors and its named test puzzles. The audit is the authority.
 
 **Out**
 

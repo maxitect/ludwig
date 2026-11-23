@@ -1,6 +1,6 @@
 # Desktop solve layout audit (T169)
 
-Audit of the solve page (`/puzzles/[type]/[slug]`) on a desktop, for every type in `src/puzzles/registry.ts`. It is the specification for T170 (`docs/tickets/T170-desktop-board-and-panel-layout.md`). Nothing under `src/`, `content/` or `e2e/` was changed.
+Audit of the solve page (`/puzzles/[type]/[slug]`) on a desktop, for every type in `src/puzzles/registry.ts`. It is the specification for T170 (`docs/tickets/done/T170-desktop-board-and-panel-layout.md`). Nothing under `src/`, `content/` or `e2e/` was changed.
 
 - **Script:** `scripts/dev/audit-desktop-layout.mts`. Headless Chromium with a fine pointer (so the `touch` variant never applies), against `pnpm build && pnpm start --port 3169`. Modes: default (every type at both sizes, open and solved, with screenshots), `--chrome` (the chrome blocks), `--grown` (the growing-panel cases), `--footer` (the solved footer at panel widths) and `--sweep` (every published puzzle at 1280×650, no screenshots); `--only <types>` limits the default run to the types named. Output and screenshots go to `.verification/T169/` (git-ignored); four are copied to `docs/research/desktop-solve-layout/` and embedded in section 11.
 - **Viewports:** 1440×800 and 1280×650. "Fits" means Check, Reset and the status line end inside the viewport at `scrollY` 0.

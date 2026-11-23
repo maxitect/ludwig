@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/utils/cn";
 import { PuzzleKeyboard, usePadWanted } from "./puzzle-keyboard";
+import { BoardCell, PanelCell, SolveLayout } from "./solve-layout";
 import { SolveSlot } from "./solve-slot";
 import {
   CellGrid,
@@ -213,9 +214,15 @@ export function DigitGrid({
   );
 
   return (
-    <div className="flex flex-col gap-6 touch:gap-0" onKeyDown={onKeyDown}>
+    <SolveLayout className="flex flex-col gap-6 touch:gap-0" onKeyDown={onKeyDown}>
       <p className="sr-only">{instructions}</p>
-      <div className={cn("mx-auto w-full max-w-xl p-4 touch:px-0", className)}>
+      <BoardCell>
+      <div
+        className={cn(
+          "mx-auto w-full max-w-xl p-4 panel:max-w-none panel:p-0 touch:px-0",
+          className,
+        )}
+      >
         <CellGrid
           {...gridProps}
           ref={grid}
@@ -264,12 +271,15 @@ export function DigitGrid({
           }}
         />
       </div>
+      </BoardCell>
+      <PanelCell part="foot" className="panel:flex panel:flex-wrap panel:items-center panel:gap-3">
       <div className="flex flex-wrap items-center gap-3 touch:contents">
         <div className="contents touch:hidden">{actions}</div>
         <p role="status" aria-live="polite" className="touch:sr-only">
           {notesMode ? "Notes on: digits are pencilled in." : ""}
         </p>
       </div>
+      </PanelCell>
       <SolveSlot>
         <div className="flex flex-col gap-1 pt-2">
           {!padWanted && (
@@ -290,6 +300,6 @@ export function DigitGrid({
           </PuzzleKeyboard>
         </div>
       </SolveSlot>
-    </div>
+    </SolveLayout>
   );
 }

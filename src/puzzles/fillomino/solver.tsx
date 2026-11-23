@@ -9,6 +9,7 @@ import {
 } from "../_shared/cell-grid";
 import { regionBorderClasses } from "../_shared/region-borders";
 import { PuzzleKeyboard } from "../_shared/puzzle-keyboard";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { SolveSlot } from "../_shared/solve-slot";
 import type { SolverProps } from "../solver-types";
 import { brokenIndexes } from "./engine";
@@ -133,7 +134,7 @@ export function Solver({
   );
 
   return (
-    <div className="flex flex-col gap-6 touch:gap-0">
+    <SolveLayout className="flex flex-col gap-6 touch:gap-0">
       <p className="sr-only">
         Type 1 to 9 to fill a cell and Backspace to clear it. Arrow keys move
         between cells. Every group of touching equal digits must hold as many
@@ -141,7 +142,8 @@ export function Solver({
         separate different digits, and a group of the wrong size is marked. The
         grid is checked when every cell is filled.
       </p>
-      <div className="mx-auto w-full max-w-xl p-4 touch:px-0">
+      <BoardCell>
+      <div className="mx-auto w-full max-w-xl p-4 panel:max-w-none panel:p-0 touch:px-0">
         <CellGrid
           ref={grid}
           label="Fillomino"
@@ -159,6 +161,8 @@ export function Solver({
           cellRem={4}
         />
       </div>
+      </BoardCell>
+      <PanelCell>
       <p
         role="status"
         aria-live="polite"
@@ -166,6 +170,7 @@ export function Solver({
       >
         {placed.size} of {rows * cols} cells filled
       </p>
+      </PanelCell>
       <SolveSlot>
         <div className="flex flex-col gap-1 pt-2">
           <PuzzleKeyboard
@@ -176,6 +181,6 @@ export function Solver({
           />
         </div>
       </SolveSlot>
-    </div>
+    </SolveLayout>
   );
 }

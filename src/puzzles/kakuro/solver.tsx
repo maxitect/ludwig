@@ -12,6 +12,7 @@ import {
   type Direction,
 } from "../_shared/cell-grid";
 import { PuzzleKeyboard, usePadWanted } from "../_shared/puzzle-keyboard";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { SolveSlot } from "../_shared/solve-slot";
 import type { SolverProps } from "../solver-types";
 import { clueRun, runCells } from "./derive";
@@ -184,14 +185,15 @@ export function Solver({
   );
 
   return (
-    <div className="flex flex-col gap-6 touch:gap-0">
+    <SolveLayout className="flex flex-col gap-6 touch:gap-0">
       <p className="sr-only">
         Type 1 to 9 to fill a cell and Backspace to clear it. Arrow keys move between
         cells and Space switches the typing direction. Each cell is read out with the
         sums of its across and down runs. A run that is full and does not add up, or
         repeats a digit, is marked.
       </p>
-      <div className="mx-auto w-full max-w-xl p-4 touch:px-0">
+      <BoardCell>
+      <div className="mx-auto w-full max-w-xl p-4 panel:max-w-none panel:p-0 touch:px-0">
         <CellGrid
           ref={grid}
           label="Kakuro"
@@ -235,6 +237,8 @@ export function Solver({
           }}
         />
       </div>
+      </BoardCell>
+      <PanelCell part="foot" className="panel:flex panel:flex-wrap panel:items-center panel:gap-3">
       <div className="flex flex-wrap items-center gap-3 touch:contents">
         <div className="contents touch:hidden">{actions}</div>
         {hints && (
@@ -253,6 +257,7 @@ export function Solver({
           </ul>
         )}
       </div>
+      </PanelCell>
       <SolveSlot>
         <div className="flex flex-col gap-1 pt-2">
           {!padWanted && (
@@ -273,6 +278,6 @@ export function Solver({
           </PuzzleKeyboard>
         </div>
       </SolveSlot>
-    </div>
+    </SolveLayout>
   );
 }

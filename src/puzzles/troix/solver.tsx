@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CellGrid, cellKey, type CellKey } from "../_shared/cell-grid";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { conflictingIndexes, SYMBOLS, symbolCode } from "./engine";
 import type * as schema from "./schema";
@@ -129,12 +130,15 @@ export function Solver({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p>
         Fill every cell with X, O or I. Each row and column holds {size / 3} of
         each symbol, and never three alike in a row.
       </p>
-      <div className="mx-auto w-full max-w-xl p-4 touch:px-0">
+      </PanelCell>
+      <BoardCell>
+      <div className="mx-auto w-full max-w-xl p-4 panel:max-w-none panel:p-0 touch:px-0">
         <CellGrid
           label="Troix"
           rows={size}
@@ -151,11 +155,13 @@ export function Solver({
           cellRem={5}
         />
       </div>
+      </BoardCell>
       <p className="sr-only">
         Tap a cell to cycle X, O, I and empty. Or press X, O or I to fill it,
         Backspace to clear, and the arrow keys to move between cells. The grid
         is checked when every cell is filled.
       </p>
+      <PanelCell>
       <p
         role="status"
         aria-live="polite"
@@ -163,6 +169,7 @@ export function Solver({
       >
         {placed.size} of {size * size} cells filled
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

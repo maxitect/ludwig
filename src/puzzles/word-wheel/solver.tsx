@@ -85,7 +85,7 @@ export function Solver({
   });
 
   return (
-    <SolveLayout className="flex flex-col gap-6">
+    <SolveLayout className="flex flex-col gap-6 touch:lg:grid touch:lg:grid-cols-[24rem_minmax(0,1fr)] touch:lg:grid-rows-[auto_1fr] touch:lg:items-start">
       <div className="flex flex-col gap-4 panel:contents">
         <p className="sr-only">
           Make words from the nine letters. Every word must use the centre
@@ -188,7 +188,7 @@ export function Solver({
             {message}
           </p>
         </div>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 touch:lg:col-start-2 touch:lg:row-span-2 touch:lg:row-start-1">
         <h2 className="font-display text-xl uppercase">
           Found <span className="font-mono tabular-nums">{found.length}</span>
         </h2>

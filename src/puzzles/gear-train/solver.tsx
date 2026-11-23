@@ -263,6 +263,7 @@ export function Solver({
         placed cog, returns it to the tray.
       </p>
       </PanelCell>
+      <div className="flex flex-col gap-4 panel:contents touch:lg:flex-row touch:lg:items-start">
       <BoardCell>
         <TrainBoard
           payload={payload}
@@ -283,7 +284,7 @@ export function Solver({
         <div
           role="group"
           aria-label="Cog tray"
-          className="flex flex-row flex-wrap gap-2"
+          className="flex flex-row flex-wrap gap-2 touch:lg:flex-col"
         >
           {payload.inventory.map(({ teeth }) => {
             const remaining = left(teeth);
@@ -318,6 +319,7 @@ export function Solver({
           })}
         </div>
       </PanelCell>
+      </div>
       {drag && (
         <div
           aria-hidden

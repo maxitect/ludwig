@@ -190,7 +190,7 @@ export function Solver({
         word, write it down, and read the message the words make together.
       </p>
       </PanelCell>
-      <div className="grid gap-6 panel:contents">
+      <div className="grid gap-6 panel:contents touch:lg:grid-cols-[minmax(0,1fr)_14rem]">
         <style>{BOOK_PAGE_STYLES}</style>
         <BoardCell>
         <section
@@ -198,7 +198,7 @@ export function Solver({
           tabIndex={0}
           onKeyDown={onReaderKeyDown}
           className={cn(
-            "paper-sheet order-2 flex flex-col panel:order-none gap-4 p-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 panel:max-h-(--board-h) panel:p-4 touch:order-1 touch:max-h-(--solver-height)",
+            "paper-sheet order-2 flex flex-col panel:order-none gap-4 p-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 panel:max-h-(--board-h) panel:p-4 touch:order-1 touch:lg:p-4 touch:max-h-(--solver-height)",
             reader && "touch:order-2 touch:max-h-none",
           )}
         >
@@ -311,12 +311,12 @@ export function Solver({
         <section
           aria-label="References"
           className={cn(
-            "paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 panel:p-4 touch:order-2",
+            "paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 panel:p-4 touch:order-2 touch:lg:p-4",
             reader && "touch:order-1",
           )}
         >
           <h2 className={panelTitle}>References</h2>
-          <ol className="grid grid-cols-1 gap-3 min-[30rem]:grid-cols-2 panel:grid-cols-1">
+          <ol className="grid grid-cols-1 gap-3 min-[30rem]:grid-cols-2 panel:grid-cols-1 touch:lg:grid-cols-1">
             {refs.map((ref, index) => (
               <li
                 key={ref.position}

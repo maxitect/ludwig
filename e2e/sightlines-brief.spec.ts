@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { content as maze } from "../content/cctv-maze/punt-lane";
 import { content as sightlines } from "../content/sightlines/porters-lodge";
 
-test("a sightlines puzzle shows its brief above the grid and names its observers", async ({
+test("a sightlines puzzle shows its brief in the panel beside the grid and names its observers", async ({
   page,
 }) => {
   await page.goto("/puzzles/sightlines/porters-lodge");
@@ -11,7 +11,11 @@ test("a sightlines puzzle shows its brief above the grid and names its observers
   const grid = page.getByRole("grid", { name: "Sightlines floor plan" });
   const briefBox = (await brief.boundingBox())!;
   const gridBox = (await grid.boundingBox())!;
-  expect(briefBox.y + briefBox.height).toBeLessThanOrEqual(gridBox.y);
+  if (test.info().project.use.hasTouch) {
+    expect(briefBox.y + briefBox.height).toBeLessThanOrEqual(gridBox.y);
+  } else {
+    expect(briefBox.x).toBeGreaterThanOrEqual(gridBox.x + gridBox.width);
+  }
   await expect(
     page.getByRole("list", { name: "Observers" }).getByRole("listitem"),
   ).toHaveText([

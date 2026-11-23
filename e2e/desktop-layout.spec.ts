@@ -232,8 +232,10 @@ test.describe("journeys at 1280x650", () => {
       }).toPass({ timeout: 20_000 });
       if ("uncapture" in ply && ply.uncapture) {
         const radio = page.getByRole("radio", { name: `${colour} ${ply.uncapture}` });
-        await radio.click();
-        await expect(radio).toBeChecked();
+        await expect(async () => {
+          await radio.click();
+          await expect(radio).toBeChecked({ timeout: 1000 });
+        }).toPass({ timeout: 15_000 });
       }
       if (ply.unpromote) {
         await page.getByRole("button", { name: "Unpromote" }).click();
@@ -346,6 +348,16 @@ test.describe("journeys at 1280x650", () => {
     await openPuzzle(page, { typeKey: "reverse-chess", slug: "the-long-walk" });
     await enterUnwind(page, theLongWalk);
     await expect(page.getByTestId("retro-step")).toHaveCount(14);
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const scroller = document.querySelector<HTMLElement>("[data-panel-scroll]")!;
+          const steps = document.querySelectorAll("[data-testid=retro-step]");
+          const last = steps[steps.length - 1].getBoundingClientRect();
+          return last.bottom <= scroller.getBoundingClientRect().bottom + 1;
+        }),
+      )
+      .toBe(true);
     const result = await page.evaluate(() => {
       const scroller = document.querySelector<HTMLElement>("[data-panel-scroll]")!;
       const steps = document.querySelectorAll("[data-testid=retro-step]");

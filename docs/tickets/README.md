@@ -155,7 +155,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T152](./done/T152-spot-difference-desktop-size-and-ink.md) | Spot the difference: bigger scenes on desktop, and paper scenes in Ink | T146 | | | done |
 | [T156](./done/T156-landing-sequence-fixes.md) | Landing: LUDWIG writes in the clear, rooms exit through the right wall, piece shadows | T140 | | ✔ | done |
 | [T158](./done/T158-crossword-grid-standards.md) | Crossword grid standards: a Quick shelf of blocked grids, Mini for the open grids, word audit (high priority) | T135 | ✔ | ✔ | done |
-| [T159](./T159-vercel-hobby-limits.md) | Vercel Hobby limits: diagnose ISR writes and CDN requests, fix the causes, keep the cache design (high priority) | T118 | | ✔ | in-progress |
+| [T159](./done/T159-vercel-hobby-limits.md) | Vercel Hobby limits: diagnose ISR writes and CDN requests, fix the causes, keep the cache design (high priority) | T118 | | ✔ | done |
 | [T167](./done/T167-landing-walk-through-wall.md) | Landing: staged rooms and a continuous pan through three walls into the finale (rework of T156; **top priority, run first**) | T156 | | | done |
 | [T168](./done/T168-solve-mode-on-tablets.md) | Solve mode on tablets (iPad): our keyboard and the clue bar, no system keyboard | T115, T116 | | | done |
 | [T169](./T169-desktop-solve-layout-audit.md) | Audit the desktop solve page for every puzzle type: what fits, what scrolls, what belongs in a side panel | T152, T168 | | | todo |

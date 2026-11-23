@@ -545,6 +545,7 @@ test.describe("AC9: no board shifts when it hydrates", () => {
       await bare.route(/\/_next\/static\/.*\.js/, (route) => route.abort());
       const staticPage = await bare.newPage();
       await staticPage.goto(`/puzzles/${typeKey}/${slug}`);
+      await expect(staticPage.locator(placeholder).first()).toBeVisible();
       const before = await box(staticPage.locator(placeholder).first());
       await bare.close();
 

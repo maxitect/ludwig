@@ -164,6 +164,17 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
+async function shotBothThemes(page: Page, name: string) {
+  if (!process.env.LAYOUT_SHOTS) return;
+  for (const theme of ["paper", "ink"]) {
+    await page.evaluate(
+      (value) => document.documentElement.setAttribute("data-theme", value),
+      theme,
+    );
+    await page.screenshot({ path: `.verification/T170/${name}-${theme}.png` });
+  }
+}
+
 test.describe("journeys at 1280x650", () => {
   test.use({ viewport: { width: 1280, height: 650 } });
 
@@ -268,8 +279,10 @@ test.describe("journeys at 1280x650", () => {
   test("Reverse Chess unwind: play, check, solved in view", async ({ page }) => {
     await openPuzzle(page, { typeKey: "reverse-chess", slug: "four-steps" });
     await enterUnwind(page, fourSteps);
+    await shotBothThemes(page, "unwind-midgame-1280x650");
     await clickCheck(page);
     await expectSolvedInView(page);
+    await shotBothThemes(page, "unwind-solved-1280x650");
   });
 
   test("chess problem: play, check, solved in view", async ({ page }) => {

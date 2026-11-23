@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/utils/cn";
 import type { RetroDrop } from "../_shared/chess-board";
 import { DeferredChessBoard } from "../_shared/chess-board/deferred-chess-board";
 import type { SolverProps } from "../solver-types";
@@ -9,6 +10,8 @@ import { fromFen, notateRetro, toFen } from "./derive";
 import { stepRetro, toRetro, type RetroRejection } from "./engine";
 import { NotationToggle, useChessNotation } from "../_shared/chess-board/notation-toggle";
 import { PlyChoices } from "./ply-choices";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
+import { scrollWithin } from "../_shared/scroll-within";
 import { SideToMove } from "../_shared/chess-board/side-to-move";
 import {
   REJECTION_TEXT,
@@ -55,6 +58,7 @@ export function Unwind({
   const [checked, setChecked] = useState(false);
   const { notation, choose, failed } = useChessNotation(chessNotation);
 
+  const chain = useRef<HTMLOListElement>(null);
   const { positions, invalid } = useMemo(() => walk(fen, plies), [fen, plies]);
   const board = positions[positions.length - 1];
   const last = plies[plies.length - 1];
@@ -68,6 +72,13 @@ export function Unwind({
       return invalid || plies.length === payload.plyCount ? { plies } : null;
     });
   }, [registerCheck, plies, invalid, payload.plyCount]);
+
+  useEffect(() => {
+    scrollWithin(
+      chain.current?.querySelector("[data-flagged]") ??
+        chain.current?.lastElementChild,
+    );
+  }, [plies.length, checked]);
 
   function update(next: Ply[]) {
     setPlies(next);
@@ -96,7 +107,8 @@ export function Unwind({
     (index % 2 === 0) === (startingSide === "white") ? "Black" : "White";
 
   return (
-    <div className="flex flex-col gap-6">
+    <SolveLayout className="flex flex-col gap-6">
+      <PanelCell part="head">
       <div className="flex flex-col gap-2">
         <p className="font-display text-2xl font-bold uppercase tracking-[0.04em]">
           Take back {payload.plyCount} half-moves
@@ -119,7 +131,9 @@ export function Unwind({
           </div>
         </div>
       </div>
+      </PanelCell>
 
+      <BoardCell>
       <DeferredChessBoard
         position={fromFen(board).pieces}
         onRetroDrop={drop}
@@ -129,12 +143,14 @@ export function Unwind({
         }
         highlights={last ? [endpoints(last).from, endpoints(last).to] : []}
       />
+      </BoardCell>
 
-      <div className="flex flex-col gap-3">
+      <PanelCell>
+      <div className="flex flex-col gap-3 panel:grid panel:grid-cols-[1fr_auto] panel:items-center panel:gap-x-3 panel:gap-y-2">
         <p className="font-display text-sm uppercase">
           Moves taken back ({plies.length} of {payload.plyCount})
         </p>
-        <ol className="flex flex-col gap-1" data-testid="retro-chain">
+        <ol ref={chain} className="flex flex-col gap-1 panel:col-span-2 panel:row-start-2" data-testid="retro-chain">
           {plies.map((entry, index) => {
             const flagged = checked && invalid?.index === index;
             const text =
@@ -169,7 +185,7 @@ export function Unwind({
             );
           })}
         </ol>
-        <div>
+        <div className="panel:col-start-2 panel:row-start-1">
           <Button
             type="button"
             variant="secondary"
@@ -181,15 +197,26 @@ export function Unwind({
           </Button>
         </div>
       </div>
+      </PanelCell>
 
+      <PanelCell
+        part="foot"
+        className={cn("panel:flex panel:flex-col panel:gap-3", solved && "panel:hidden")}
+      >
       <PlyChoices
         colour={fromFen(lastBase ?? fen).sideToMove}
         draft={last ? toDraft(last) : null}
         onChange={editLast}
       />
 
-      <NotationToggle notation={notation} failed={failed} onChoose={choose} />
-    </div>
+      <NotationToggle
+        notation={notation}
+        failed={failed}
+        onChoose={choose}
+        className="panel:flex-row panel:flex-wrap panel:items-center panel:gap-x-3"
+      />
+      </PanelCell>
+    </SolveLayout>
   );
 }
 

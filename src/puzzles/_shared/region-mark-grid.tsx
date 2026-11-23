@@ -1,5 +1,6 @@
 "use client";
 
+import { capWidth, heightWidth } from "./solve-layout";
 import {
   useEffect,
   useId,
@@ -111,7 +112,9 @@ export function RegionMarkGrid<M extends string>({
   }
 
   return (
-    <div className="relative w-full" style={{ maxWidth: `${cols * 3.5}rem` }}>
+    <div className="relative w-full panel:mx-auto" style={{
+        maxWidth: `min(${capWidth(cols, 3.5)}, ${heightWidth(cols, rows)})`,
+      }}>
       <div
         role="grid"
         aria-label={label}

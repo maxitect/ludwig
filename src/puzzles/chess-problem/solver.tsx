@@ -8,6 +8,7 @@ import type { RetroDrop, Square } from "../_shared/chess-board";
 import { DeferredChessBoard } from "../_shared/chess-board/deferred-chess-board";
 import { fromFen } from "../_shared/chess-fen";
 import { NotationToggle, useChessNotation } from "../_shared/chess-board/notation-toggle";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { SideToMove } from "../_shared/chess-board/side-to-move";
 import { toDescriptive } from "../_shared/chess-notation";
 import type { SolverProps } from "../solver-types";
@@ -163,7 +164,8 @@ export function Solver({
         : "That move doesn't give mate.";
 
   return (
-    <div className="flex flex-col gap-6">
+    <SolveLayout className="flex flex-col gap-6">
+      <PanelCell part="head">
       <div className="flex flex-col gap-2">
         <p className="font-display text-2xl font-bold uppercase tracking-[0.04em]">
           White to play and mate in {payload.mateIn}
@@ -185,13 +187,17 @@ export function Solver({
           </div>
         </div>
       </div>
+      </PanelCell>
 
+      <BoardCell>
       <DeferredChessBoard
         position={fromFen(fen).pieces}
         onMove={drop}
         highlights={last ? [last.from as Square, last.to as Square] : []}
       />
+      </BoardCell>
 
+      <PanelCell className="panel:flex panel:flex-col panel:gap-4">
       {promoting && (
         <div
           role="group"
@@ -251,6 +257,7 @@ export function Solver({
       <div role="status" aria-live="polite" className="min-h-6">
         <p data-testid="problem-message">{message ?? failure ?? announcement}</p>
       </div>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

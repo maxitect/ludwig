@@ -2,6 +2,7 @@
 
 import { cn } from "@/utils/cn";
 import { usePadWanted, useTouch } from "../_shared/puzzle-keyboard";
+import { PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { CipherKeyPanel } from "../_shared/cipher-key/cipher-key-panel";
 import { useCipherGuesses } from "../_shared/cipher-key/use-cipher-guesses";
 import type { SolverProps } from "../solver-types";
@@ -24,17 +25,19 @@ export function Solver({
   });
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p className={cn("text-lg touch:sr-only", keyboardOff && "touch:not-sr-only")}>
         Every letter has moved the same number of places along the alphabet.
         Find the shift, then write what each letter was before it moved.
       </p>
+      </PanelCell>
       <CipherKeyPanel
         ciphertext={ciphertext}
         guesses={guesses}
         onGuess={guess}
         onClear={clear}
       />
-    </div>
+    </SolveLayout>
   );
 }

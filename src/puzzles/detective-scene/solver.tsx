@@ -29,6 +29,7 @@ import {
   type Point,
   type View,
 } from "./view";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import type * as schema from "./schema";
 
@@ -409,7 +410,8 @@ export function Solver({
   ].sort((a, b) => a.position - b.position);
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p className="text-lg">
         Found{" "}
         <span className="font-mono tabular-nums">
@@ -417,13 +419,20 @@ export function Solver({
         </span>{" "}
         titles.
       </p>
+      </PanelCell>
       <p id={helpId} className="sr-only">
         Focus the scene, move the highlighted sector with the arrow keys, Shift
         and an arrow key moves five sectors, press Enter to pin the
         sector&rsquo;s centre, then type the title hidden there and press Enter
         again. Plus and minus zoom, and 0 resets the view.
       </p>
-      <div className="border-2 border-border bg-card text-card-foreground shadow-[3px_3px_0_var(--cast)]">
+      <BoardCell className="panel:flex panel:flex-col panel:gap-4">
+      <div
+        className="border-2 border-border bg-card text-card-foreground panel:mx-auto panel:w-full shadow-[3px_3px_0_var(--cast)]"
+        style={{
+          maxWidth: `calc((var(--board-h, 100000px) - 3.5rem) * ${width} / ${height})`,
+        }}
+      >
         <div
           ref={viewportRef}
           role="group"
@@ -572,6 +581,8 @@ export function Solver({
           </Button>
         )}
       </div>
+      </BoardCell>
+      <PanelCell className="panel:flex panel:flex-col panel:gap-4">
       <form onSubmit={submit} className="flex items-end gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={inputId} className="text-sm text-muted-foreground">
@@ -626,6 +637,7 @@ export function Solver({
           ))}
         </ol>
       )}
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

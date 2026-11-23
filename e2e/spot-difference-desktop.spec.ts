@@ -66,7 +66,7 @@ test("draws the scene as ink on a paper sheet in Ink", async ({ page }) => {
   expect(colours.sheet).toBe(colours.paper);
 });
 
-for (const type of ["crossword", "sudoku"]) {
+for (const type of ["gears"]) {
   test(`keeps the ${type} solve page in the reading column`, async ({
     page,
   }) => {

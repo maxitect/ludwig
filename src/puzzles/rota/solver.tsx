@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { Button } from "@/components/ui/button";
 import type { SolverProps } from "../solver-types";
 import { RotaBoard, type Highlight } from "./board";
 import { brokenClues } from "./check";
+import { scrollWithin } from "../_shared/scroll-within";
+import { BoardCell, PanelCell } from "../_shared/solve-layout";
 import { hazardSquare } from "./derive";
 import { placementFor, samePlacement } from "./engine";
 import type * as schema from "./schema";
@@ -73,6 +81,10 @@ export function Solver({
     payload.workers.find((worker) => worker.id === id)?.name ?? id;
   const restored = samePlacement(placement, intended);
   const broken = restored ? brokenClues(payload, swaps) : [];
+  const clueList = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    scrollWithin(clueList.current?.querySelector("[data-broken]"));
+  }, [broken.length]);
   const victim = {
     id: payload.victimWorkerId,
     name: nameOf(payload.victimWorkerId),
@@ -174,9 +186,9 @@ export function Solver({
   return (
     <section
       onKeyDown={onKeyDown}
-      className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,26rem)_minmax(15rem,1fr)]"
+      className="flex flex-col gap-3 panel:contents touch:lg:grid touch:lg:grid-cols-[minmax(0,26rem)_minmax(15rem,1fr)] touch:lg:grid-rows-[auto_auto_1fr] touch:lg:gap-x-6"
     >
-      <div className="flex flex-col gap-3">
+      <PanelCell part="head">
         <section
           aria-labelledby="rota-incident"
           className="paper-sheet flex flex-col gap-1 p-3"
@@ -195,6 +207,8 @@ export function Solver({
               )}
           </p>
         </section>
+      </PanelCell>
+      <BoardCell>
         <RotaBoard
           tokens={tokens}
           placement={placement}
@@ -207,6 +221,9 @@ export function Solver({
           onPick={pick}
           onDropOn={(from, to) => from !== to && !solved && unswap(from, to)}
         />
+      </BoardCell>
+      <PanelCell className="panel:flex panel:flex-col panel:gap-6">
+      <div className="flex flex-col gap-3">
         <section
           aria-labelledby="rota-pinned"
           className="paper-sheet flex flex-col gap-1 p-3"
@@ -239,7 +256,7 @@ export function Solver({
           </p>
         </details>
       </div>
-      <div className="flex flex-col gap-6">
+      <div className="mt-3 flex flex-col gap-6 panel:mt-0 touch:lg:col-start-2 touch:lg:row-span-3 touch:lg:row-start-1 touch:lg:mt-0">
         <section aria-labelledby="rota-clues" className="flex flex-col gap-2">
           <h3
             id="rota-clues"
@@ -247,7 +264,7 @@ export function Solver({
           >
             Clues
           </h3>
-          <ol className="flex flex-col gap-1">
+          <ol ref={clueList} className="flex flex-col gap-1">
             {payload.clues.map((clue) => {
               const isBroken = broken.includes(clue);
               const speaker = clue.speakerWorkerId
@@ -258,6 +275,7 @@ export function Solver({
                 <li
                   key={clue.position}
                   data-testid={`clue-${clue.position}`}
+                  data-broken={isBroken || undefined}
                   className={`flex items-start gap-2 ${isBroken ? "border-l-4 border-primary pl-2" : ""}`}
                 >
                   <span aria-hidden="true" className="w-5 shrink-0 text-right">
@@ -366,6 +384,7 @@ export function Solver({
           </fieldset>
         )}
       </div>
+      </PanelCell>
     </section>
   );
 }

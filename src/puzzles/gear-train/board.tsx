@@ -8,6 +8,7 @@ import {
 } from "react";
 import { cogPath, polar } from "../_shared/cog-path";
 import { type Peg, type Train, pegKey, radius } from "./engine";
+import { capWidth, heightWidth } from "../_shared/solve-layout";
 import "./gear-train.css";
 import type { Cog, Payload } from "./schema";
 
@@ -229,10 +230,10 @@ export function TrainBoard({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={onKeyDown}
-      className="group relative w-full cursor-pointer border-2 border-border bg-card outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="group relative w-full panel:mx-auto cursor-pointer border-2 border-border bg-card outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
       style={{
         aspectRatio: `${cols} / ${rows}`,
-        maxWidth: `${cols * 3.5}rem`,
+        maxWidth: `min(${capWidth(cols, 3.5)}, ${heightWidth(cols, rows)})`,
       }}
     >
       <svg

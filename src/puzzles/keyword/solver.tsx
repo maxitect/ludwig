@@ -2,6 +2,7 @@
 
 import { cn } from "@/utils/cn";
 import { usePadWanted, useTouch } from "../_shared/puzzle-keyboard";
+import { PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { CipherKeyPanel } from "../_shared/cipher-key/cipher-key-panel";
 import { useCipherGuesses } from "../_shared/cipher-key/use-cipher-guesses";
 import type { SolverProps } from "../solver-types";
@@ -24,18 +25,20 @@ export function Solver({
   });
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p className={cn("text-lg touch:sr-only", keyboardOff && "touch:not-sr-only")}>
         The alphabet has been rewritten behind a hidden keyword: its letters
         come first, then the rest in order. Work out which letter stands for
         which, and the keyword will show itself.
       </p>
+      </PanelCell>
       <CipherKeyPanel
         ciphertext={ciphertext}
         guesses={guesses}
         onGuess={guess}
         onClear={clear}
       />
-    </div>
+    </SolveLayout>
   );
 }

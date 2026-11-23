@@ -14,6 +14,7 @@ import {
   type SquareHandlerArgs,
 } from "react-chessboard";
 import { useReduceMotion } from "@/utils/use-reduce-motion";
+import { CHESS_BOARD_SIZE } from "./board-size";
 import { BOARD_PIECES } from "./pieces";
 import { RetroArrow } from "./retro-arrow";
 import {
@@ -181,7 +182,7 @@ export function ChessBoard({
           : undefined
       }
       onBlur={interactive ? () => setFocused(false) : undefined}
-      className="relative w-full max-w-lg border-2 border-border shadow-[3px_3px_0_var(--cast)] outline-none motion-reduce:[&_[data-piece]]:transition-none"
+      className={`relative ${CHESS_BOARD_SIZE} border-2 border-border shadow-[3px_3px_0_var(--cast)] outline-none motion-reduce:[&_[data-piece]]:transition-none`}
     >
       <Chessboard
         options={{

@@ -1,5 +1,6 @@
 "use client";
 
+import { capWidth } from "../solve-layout";
 import {
   useEffect,
   useImperativeHandle,
@@ -294,7 +295,7 @@ export function CellGrid({
     <div
       ref={rootRef}
       className="group relative w-full [container-type:inline-size] touch:mx-auto"
-      style={{ maxWidth: `${cols * cellRem}rem` }}
+      style={{ maxWidth: capWidth(cols, cellRem) }}
       onKeyDown={onKeyDown}
       onKeyUp={onKeyUp}
     >

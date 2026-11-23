@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LetterTiles } from "../_shared/letter-tiles/letter-tile";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { RungInput } from "../_shared/letter-tiles/rung-input";
 import type { SolverProps } from "../solver-types";
 import type * as schema from "./schema";
@@ -66,12 +67,13 @@ export function Solver({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
       <p className="sr-only">
         Fill each rung with a word of {length} letters that changes exactly one
         letter from the rung above. Type to fill a tile, use the arrow keys to
         move between tiles and press Enter to check the ladder.
       </p>
+      <PanelCell part="head">
       <p className="text-lg">
         Climb from{" "}
         <strong className="font-display uppercase">{startWord}</strong> to{" "}
@@ -79,8 +81,10 @@ export function Solver({
         {rungCount} {rungCount === 1 ? "rung" : "rungs"}, changing one letter
         at a time.
       </p>
-      <ol className="flex flex-col gap-4">
-        <li className="flex flex-col gap-1">
+      </PanelCell>
+      <BoardCell className="panel:overflow-y-auto panel:pr-1 panel:pb-1">
+      <ol className="flex flex-col gap-4 panel:grid panel:grid-cols-[auto_1fr] panel:content-start panel:gap-x-12">
+        <li className="flex flex-col gap-1 panel:col-start-2 panel:row-start-1">
           <span className="font-display text-sm uppercase">Start</span>
           <LetterTiles word={startWord} label="Start word" />
         </li>
@@ -88,7 +92,11 @@ export function Solver({
           const problem = problems.find((p) => p.position === position);
           const noteId = `rung-${position}-note`;
           return (
-            <li key={position} className="flex flex-col gap-1">
+            <li
+              key={position}
+              style={{ gridRow: position + 1 }}
+              className="flex flex-col gap-1 panel:col-start-1"
+            >
               <span className="font-display text-sm uppercase">
                 Rung {position + 1}
               </span>
@@ -116,7 +124,10 @@ export function Solver({
             </li>
           );
         })}
-        <li className="flex flex-col gap-1">
+        <li
+          style={{ gridRow: Math.max(2, rungCount) }}
+          className="flex flex-col gap-1 panel:col-start-2"
+        >
           <span className="font-display text-sm uppercase">End</span>
           <LetterTiles
             word={endWord}
@@ -125,6 +136,7 @@ export function Solver({
           />
         </li>
       </ol>
-    </div>
+      </BoardCell>
+    </SolveLayout>
   );
 }

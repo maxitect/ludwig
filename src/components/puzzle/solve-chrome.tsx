@@ -15,6 +15,7 @@ import { BulletHole, Credit } from "@/components/brand";
 import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { narrowPanelSolveTypes } from "@/config/solve-layout";
 import { cn } from "@/utils/cn";
 import {
   checkAnswer,
@@ -314,10 +315,15 @@ function SolveBoard({
       <section
         ref={solveMode}
         data-solve-mode
-        className="group/solve flex flex-col gap-6 touch:h-full touch:min-h-0 touch:gap-0"
+        className={cn(
+          "group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] panel:min-h-[30rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-6 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-164px),24rem)] touch:h-full touch:min-h-0 touch:gap-0",
+          narrowPanelSolveTypes.has(typeKey)
+            ? "panel:grid-cols-[minmax(0,1fr)_18rem]"
+            : "panel:grid-cols-[minmax(0,1fr)_24rem]",
+        )}
       >
-        <header className="flex flex-col gap-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(1rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
-          <div className="touch:hidden">
+        <header className="flex flex-col gap-3 desk:flex-row desk:items-center desk:gap-4 desk:border-b-2 desk:border-border desk:py-2 panel:col-span-2 panel:row-start-1 panel:mb-3 touch:-order-2 touch:flex-row touch:items-center touch:border-b-2 touch:border-border touch:pt-[max(0.5rem,env(safe-area-inset-top))] touch:pr-[max(1rem,env(safe-area-inset-right))] touch:pb-2 touch:pl-[max(0.5rem,env(safe-area-inset-left))]">
+          <div className="desk:hidden touch:hidden">
             <BackLink
               href={`/puzzles/${typeKey}`}
               label={`Back to ${typeName}`}
@@ -326,7 +332,7 @@ function SolveBoard({
           <Link
             href={`/puzzles/${typeKey}`}
             aria-label={`Back to ${typeName}`}
-            className="hidden size-11 shrink-0 items-center justify-center focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring touch:flex"
+            className="hidden size-11 shrink-0 items-center justify-center focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring desk:flex touch:flex"
           >
             <ChevronLeftIcon aria-hidden="true" />
           </Link>
@@ -334,9 +340,9 @@ function SolveBoard({
             level={1}
             top={category}
             bottom={title}
-            className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl touch:min-w-0 touch:flex-1 touch:[&>span:first-child]:hidden touch:[&>span:last-child]:truncate touch:[&>span:last-child]:text-lg"
+            className="[&>span:last-child]:text-4xl [&>span:last-child]:break-words sm:[&>span:last-child]:text-5xl desk:min-w-0 desk:flex-1 desk:[&>span:first-child]:hidden desk:[&>span:last-child]:truncate desk:[&>span:last-child]:text-3xl touch:min-w-0 touch:flex-1 touch:[&>span:first-child]:hidden touch:[&>span:last-child]:truncate touch:[&>span:last-child]:text-lg"
           />
-          <div className="flex items-center gap-4 touch:shrink-0">
+          <div className="flex items-center gap-4 desk:shrink-0 touch:shrink-0">
             <Badge
               variant="difficulty"
               level={difficulty}
@@ -363,7 +369,7 @@ function SolveBoard({
           role={touch ? "region" : undefined}
           aria-label={touch ? title : undefined}
           tabIndex={touch ? 0 : undefined}
-          className="touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:px-4 touch:[--solver-height:100cqh] touch:[container-type:size]"
+          className="panel:contents touch:min-h-0 touch:flex-1 touch:overflow-y-auto touch:px-4 touch:[--solver-height:100cqh] touch:[container-type:size]"
           onKeyDown={(event) => {
             if (
               event.key === "Enter" &&
@@ -412,7 +418,8 @@ function SolveBoard({
 
         <div
           className={cn(
-            "flex flex-wrap gap-3 touch:hidden",
+            "flex flex-wrap gap-3 panel:col-start-2 panel:row-start-5 panel:pb-3 touch:hidden",
+            solved && "panel:hidden",
             !ownsTouchControls.has(typeKey) &&
               "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:mx-auto touch:w-full touch:max-w-xl touch:shrink-0 touch:px-4 touch:py-1",
           )}
@@ -432,7 +439,7 @@ function SolveBoard({
         <div
           role="status"
           aria-live="polite"
-          className="min-h-6 touch:-order-1 touch:shrink-0 touch:truncate touch:px-4 touch:py-1 touch:empty:min-h-0 touch:empty:py-0"
+          className="min-h-6 panel:col-start-2 panel:row-start-6 touch:-order-1 touch:shrink-0 touch:truncate touch:px-4 touch:py-1 touch:empty:min-h-0 touch:empty:py-0"
         >
           {notice === "cell-sign-in" ? (
             <p className="touch:truncate">
@@ -458,9 +465,9 @@ function SolveBoard({
             ref={solvedFooter}
             tabIndex={-1}
             data-testid="solved-footer"
-            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
+            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none desk:gap-x-4 desk:gap-y-6 panel:col-start-2 panel:relative panel:row-start-7 panel:max-h-[calc(var(--solver-height)-2.5rem)] panel:overflow-y-auto touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
           >
-            <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] touch:[--hole-size:216px]">
+            <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] desk:[--hole-size:216px] touch:[--hole-size:216px]">
               <BulletHole data-testid="solved-hole" />
               <SolvedStamp delay={0.3} data-testid="solved-stamp" />
             </div>

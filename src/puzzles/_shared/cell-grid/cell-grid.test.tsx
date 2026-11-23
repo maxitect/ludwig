@@ -414,7 +414,7 @@ describe("CellGrid edges", () => {
       />,
     );
     expect((container.firstElementChild as HTMLElement).style.maxWidth).toBe(
-      "10rem",
+      "calc(2 * max(5rem, var(--cell-cap, 0rem)))",
     );
   });
 });

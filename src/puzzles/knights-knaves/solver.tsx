@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { StatementList } from "../_shared/statement-list/statement-list";
 import type { SolverProps } from "../solver-types";
 import type * as schema from "./schema";
@@ -42,12 +43,15 @@ export function Solver({
   }, [registerCheck, characters, roles]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <SolveLayout className="flex flex-col gap-6">
+      <BoardCell className="panel:flex panel:flex-col panel:gap-6">
       <p className="text-lg">{questionText}</p>
       <p className="text-muted-foreground">
         Knights always tell the truth. Knaves always lie. Everything a knave
         says is false.
       </p>
+      </BoardCell>
+      <PanelCell>
       <StatementList
         entries={characters.map(({ position, name, statements }) => ({
           id: position,
@@ -69,6 +73,7 @@ export function Solver({
           });
         }}
       />
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

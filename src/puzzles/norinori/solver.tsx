@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { RegionMarkGrid } from "../_shared/region-mark-grid";
 import type { SolverProps } from "../solver-types";
 import { conflictingIndexes, layoutOf } from "./engine";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type * as schema from "./schema";
 
 type Mark = schema.Mark;
@@ -87,12 +88,15 @@ export function Solver({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p>
         Shade two cells in every thick-bordered region. Each shaded cell must
         join exactly one other shaded cell to make a domino, and no two
         dominoes may touch along an edge.
       </p>
+      </PanelCell>
+      <BoardCell>
       <RegionMarkGrid
         label="Norinori grid"
         help="Move with the arrow keys. Press S to shade, a full stop for a dot, Backspace to clear, or Enter or Space to cycle through shade, dot and empty. The grid is checked when every cell is shaded."
@@ -121,9 +125,12 @@ export function Solver({
           )
         }
       />
+      </BoardCell>
+      <PanelCell>
       <p role="status" aria-live="polite" className="font-display text-sm uppercase">
         {shadedIndexes.length} of {total} cells shaded
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

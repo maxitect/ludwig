@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { Input } from "@/components/ui/input";
 import type { SolverProps } from "../solver-types";
 import { lettersOf } from "./derive";
@@ -23,7 +24,8 @@ export function Solver({
   }, [registerCheck, answer]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <SolveLayout className="flex flex-col gap-6">
+      <BoardCell className="panel:overflow-y-auto panel:pr-1 panel:pb-1">
       <figure
         aria-label="The letter"
         className="paper-sheet flex flex-col gap-3 p-4 sm:p-6"
@@ -36,6 +38,8 @@ export function Solver({
           ))}
         </ol>
       </figure>
+      </BoardCell>
+      <PanelCell>
       <div className="flex flex-col gap-2">
         <label
           htmlFor={inputId}
@@ -70,6 +74,7 @@ export function Solver({
           }}
         />
       </div>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

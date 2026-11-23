@@ -11,6 +11,7 @@ import {
   usePuzzleKeyboard,
   useTouch,
 } from "../puzzle-keyboard";
+import { BoardCell, PanelCell, SolveLayout } from "../solve-layout";
 import { SolveSlot } from "../solve-slot";
 import {
   ALPHABET,
@@ -194,7 +195,7 @@ export function CipherKeyPanel({
   );
 
   return (
-    <div className="paper-sheet flex flex-col gap-6 p-4 sm:p-6 touch:gap-3 touch-short:p-3">
+    <SolveLayout className="paper-sheet flex flex-col gap-6 p-4 sm:p-6 touch:gap-3 touch-short:p-3">
       <p className="sr-only">
         Each slot stands for one letter of the cipher. Type the letter you think
         it stands for, and Backspace clears it. The message below updates as you
@@ -215,6 +216,7 @@ export function CipherKeyPanel({
               .join("; ")
           : ciphertext
       }`}</p>
+      <BoardCell className="panel:paper-sheet panel:overflow-y-auto panel:p-4">
       <div
         aria-hidden="true"
         data-testid="ciphertext"
@@ -257,6 +259,7 @@ export function CipherKeyPanel({
           </span>
         ))}
       </div>
+      </BoardCell>
       <p className="sr-only" aria-live="polite">
         {`Decoded so far: ${words
           .map((word) =>
@@ -271,8 +274,10 @@ export function CipherKeyPanel({
           )
           .join(", ")}`}
       </p>
+      <PanelCell className="panel:paper-sheet panel:flex panel:flex-col panel:gap-4 panel:p-4">
       {!touch && <div className="touch:hidden">{keyGroup}</div>}
       <div className="touch:hidden">{clearButton}</div>
+      </PanelCell>
       {touch && (
         <SolveSlot>
           <div className="flex flex-col gap-1 pt-2">
@@ -295,6 +300,6 @@ export function CipherKeyPanel({
           </div>
         </SolveSlot>
       )}
-    </div>
+    </SolveLayout>
   );
 }

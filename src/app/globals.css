@@ -12,6 +12,23 @@
   }
 }
 
+/* Desktop solve layout: from 1024px up with a fine pointer, inside a `main[data-solve-layout]`. `desk` is the compact bar; `panel` adds the board-and-panel grid. */
+@custom-variant desk {
+  @media (min-width: 64rem) and (not ((pointer: coarse) and (min-height: 37.5rem))) {
+    &:where([data-solve-layout], [data-solve-layout] *) {
+      @slot;
+    }
+  }
+}
+
+@custom-variant panel {
+  @media (min-width: 64rem) and (not ((pointer: coarse) and (min-height: 37.5rem))) {
+    &:where([data-solve-layout="panel"], [data-solve-layout="panel"] *) {
+      @slot;
+    }
+  }
+}
+
 @custom-variant ink {
   &:where([data-theme="ink"] *) {
     @slot;

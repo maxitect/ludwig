@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { RegionMarkGrid } from "../_shared/region-mark-grid";
 import type { SolverProps } from "../solver-types";
 import { SIZE, boxOf, cellOf, clashingIndexes, layoutOf } from "./engine";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type * as schema from "./schema";
 
 const CIRCLED = "circled";
@@ -70,12 +71,15 @@ export function Solver({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p>
         This is not a Sudoku. Circle nine of the numbers: one of each digit
         from 1 to 9, with exactly one circle in every row, every column and
         every 3 by 3 box.
       </p>
+      </PanelCell>
+      <BoardCell>
       <RegionMarkGrid
         label="Circle9 grid"
         help="Move with the arrow keys. Press C, Enter or Space to circle a number, and Backspace to clear the circle. Empty cells cannot be circled. The grid is checked when nine numbers are circled."
@@ -125,9 +129,12 @@ export function Solver({
           />
         )}
       />
+      </BoardCell>
+      <PanelCell>
       <p role="status" aria-live="polite" className="font-display text-sm uppercase">
         {circles.size} of {SIZE} numbers circled
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

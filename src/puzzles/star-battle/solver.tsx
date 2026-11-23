@@ -5,6 +5,7 @@ import { cn } from "@/utils/cn";
 import { RegionMarkGrid } from "../_shared/region-mark-grid";
 import type { SolverProps } from "../solver-types";
 import { conflictingIndexes, layoutOf } from "./engine";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type * as schema from "./schema";
 
 type Mark = schema.Mark;
@@ -91,11 +92,14 @@ export function Solver({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p>
         Place {perUnit} {perUnit === 1 ? "star" : "stars"} in every row, column
         and thick-bordered region. No two stars may touch, even diagonally.
       </p>
+      </PanelCell>
+      <BoardCell>
       <RegionMarkGrid
         label="Star battle grid"
         help="Move with the arrow keys. Press S for a star, a full stop for a dot, Backspace to clear, or Enter or Space to cycle through dot, star and empty. The grid is checked when every star is placed."
@@ -126,9 +130,12 @@ export function Solver({
           )
         }
       />
+      </BoardCell>
+      <PanelCell>
       <p role="status" aria-live="polite" className="font-display text-sm uppercase">
         {starIndexes.length} of {total} stars placed
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

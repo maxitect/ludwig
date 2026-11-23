@@ -20,6 +20,7 @@ import {
   useTouch,
 } from "../_shared/puzzle-keyboard";
 import { SolveBarButton } from "../_shared/solve-bar-button";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { SolveSlot } from "../_shared/solve-slot";
 import { LINE_WIDTH, wordsOfLine } from "./derive";
 import type * as schema from "./schema";
@@ -180,19 +181,22 @@ export function Solver({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p className={cn("text-lg touch:sr-only", reader && "touch:not-sr-only")}>
         Each reference names a page, a line and a word in the book. Find the
         word, write it down, and read the message the words make together.
       </p>
-      <div className="grid gap-6 lg:-mx-24 lg:grid-cols-[minmax(0,1fr)_14rem]">
+      </PanelCell>
+      <div className="grid gap-6 panel:contents">
         <style>{BOOK_PAGE_STYLES}</style>
+        <BoardCell>
         <section
           aria-label={`${title}, page ${page} of ${pageCount}`}
           tabIndex={0}
           onKeyDown={onReaderKeyDown}
           className={cn(
-            "paper-sheet order-2 flex flex-col gap-4 p-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:order-1 lg:p-4 touch:order-1 touch:max-h-(--solver-height)",
+            "paper-sheet order-2 flex flex-col panel:order-none gap-4 p-4 focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 panel:max-h-(--board-h) panel:p-4 touch:order-1 touch:max-h-(--solver-height)",
             reader && "touch:order-2 touch:max-h-none",
           )}
         >
@@ -205,7 +209,7 @@ export function Solver({
             aria-label="Page text"
             tabIndex={touch && !reader ? 0 : undefined}
             className={cn(
-              "@container/book-page touch:min-h-0 touch:overflow-y-auto",
+              "@container/book-page panel:min-h-0 panel:overflow-y-auto touch:min-h-0 touch:overflow-y-auto",
               reader && "touch:min-h-auto touch:overflow-visible",
             )}
           >
@@ -300,15 +304,17 @@ export function Solver({
             {announcement}
           </p>
         </section>
+        </BoardCell>
+        <PanelCell>
         <section
           aria-label="References"
           className={cn(
-            "paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 lg:order-2 lg:p-4 touch:order-2",
+            "paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 panel:p-4 touch:order-2",
             reader && "touch:order-1",
           )}
         >
           <h2 className={panelTitle}>References</h2>
-          <ol className="grid grid-cols-1 gap-3 min-[30rem]:grid-cols-2 lg:grid-cols-1">
+          <ol className="grid grid-cols-1 gap-3 min-[30rem]:grid-cols-2 panel:grid-cols-1">
             {refs.map((ref, index) => (
               <li
                 key={ref.position}
@@ -348,6 +354,7 @@ export function Solver({
             ))}
           </ol>
         </section>
+        </PanelCell>
       </div>
       <SolveSlot>
         <div className="flex flex-col gap-1 pt-2">
@@ -385,6 +392,6 @@ export function Solver({
           />
         </div>
       </SolveSlot>
-    </div>
+    </SolveLayout>
   );
 }

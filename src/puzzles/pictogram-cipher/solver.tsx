@@ -8,6 +8,7 @@ import {
 } from "../_shared/cipher-key/cipher-key";
 import { cn } from "@/utils/cn";
 import { usePadWanted, useTouch } from "../_shared/puzzle-keyboard";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { CipherKeyPanel } from "../_shared/cipher-key/cipher-key-panel";
 import type { SolverProps } from "../solver-types";
 import { glyphCipher, symbolName } from "./derive";
@@ -99,11 +100,13 @@ export function Solver({
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p className={cn("text-lg touch:sr-only", keyboardOff && "touch:not-sr-only")}>
         Every stick figure stands for one letter, always the same one. A few are
         already filled in. Work out the rest from the words they make.
       </p>
+      </PanelCell>
       <CipherKeyPanel
         ciphertext={ciphertext}
         guesses={guesses}
@@ -117,6 +120,6 @@ export function Solver({
         }}
         onClear={() => update({})}
       />
-    </div>
+    </SolveLayout>
   );
 }

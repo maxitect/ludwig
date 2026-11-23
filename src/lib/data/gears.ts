@@ -13,7 +13,7 @@ const puzzleColumns = {
 /** Curated (unseeded) published diagrams, split into plain and Fix the Diagram. */
 export async function getGearsCatalogue() {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("hours");
   cacheTag("puzzles");
   const rows = await db.query.puzzles.findMany({
     where: {
@@ -43,7 +43,7 @@ export async function getGearsCatalogue() {
  */
 export async function getDailyDiagram(date: string) {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("hours");
   cacheTag("puzzles");
   const daily = await db.query.gearDaily.findFirst({
     where: { date },
@@ -56,7 +56,7 @@ export async function getDailyDiagram(date: string) {
 /** Published classic gear trains (Mode B), easiest first. */
 export async function getGearTrainCatalogue() {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("hours");
   cacheTag("puzzles");
   return db.query.puzzles.findMany({
     where: { typeKey: "gear-train", RAW: isPublished },

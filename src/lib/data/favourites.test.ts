@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { db } from "@/db";
@@ -8,6 +11,8 @@ import {
   userTypeVisits,
 } from "@/db/schema";
 import { createTestUser, deleteTestUsers } from "@/db/integrity/harness";
+import { registry } from "@/puzzles/registry";
+import { seed } from "../../../scripts/seed";
 import { getFavouriteShelf } from "./favourites";
 
 vi.mock("server-only", () => ({}));
@@ -19,8 +24,10 @@ vi.mock("@/lib/data/user", () => ({
 const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000);
 const slug = "zz-favourites-fixture";
 let userId: string;
+const contentDir = mkdtempSync(path.join(tmpdir(), "ludwig-empty-content-"));
 
 beforeAll(async () => {
+  await seed({ db, registry, contentDir });
   userId = await createTestUser("shelf");
   await db.transaction(async (tx) => {
     const [puzzle] = await tx
@@ -40,6 +47,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await db.delete(puzzles).where(eq(puzzles.slug, slug));
   await deleteTestUsers();
+  rmSync(contentDir, { recursive: true, force: true });
 });
 
 describe("getFavouriteShelf", () => {

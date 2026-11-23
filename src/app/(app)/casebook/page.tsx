@@ -114,6 +114,7 @@ async function Casebook() {
             <li key={solve.attemptId}>
               <Link
                 href={`/puzzles/${solve.typeKey}/${solve.puzzleSlug}`}
+                prefetch={false}
                 className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-2 border-border bg-background p-3 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 <span className="flex flex-col">

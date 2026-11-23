@@ -1,8 +1,12 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { like } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { db } from "@/db";
 import { puzzles } from "@/db/schema";
 import { registry } from "@/puzzles/registry";
+import { seed } from "../../../scripts/seed";
 import { generateDailies } from "./daily-puzzles";
 import { generateDailies as generateGearDailies } from "./gear-dailies";
 import { getPuzzleStaticParams, getTypeCatalogue } from "./catalogue";
@@ -12,7 +16,10 @@ vi.mock("next/cache", () => ({ cacheLife: () => {}, cacheTag: () => {} }));
 const pastDailies = "daily-sudoku-2001-%";
 const cleanUp = () => db.delete(puzzles).where(like(puzzles.slug, pastDailies));
 
+const contentDir = mkdtempSync(path.join(tmpdir(), "ludwig-empty-content-"));
+
 beforeAll(async () => {
+  await seed({ db, registry, contentDir });
   await cleanUp();
   await generateDailies(db, registry, {
     typeKey: "sudoku",
@@ -20,7 +27,10 @@ beforeAll(async () => {
     days: 15,
   });
 }, 60_000);
-afterAll(cleanUp);
+afterAll(async () => {
+  await cleanUp();
+  rmSync(contentDir, { recursive: true, force: true });
+});
 
 describe("getTypeCatalogue", () => {
   it("shelves the 14 newest dailies first and keeps every published id", async () => {

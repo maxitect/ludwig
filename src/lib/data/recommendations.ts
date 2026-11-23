@@ -20,7 +20,7 @@ import { londonDate } from "@/utils/london-time";
 /** Every published puzzle that is not a daily or in a weekly pair, with its type and category names. Same for everyone. */
 async function getCandidates(): Promise<Candidate[]> {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("hours");
   cacheTag("puzzles");
   const rows = await db.query.puzzles.findMany({
     where: {

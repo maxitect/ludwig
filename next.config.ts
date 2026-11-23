@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  cacheLife: {
+    unpublished: { stale: 60, revalidate: 60, expire: 300 },
+  },
   async headers() {
     return [
       {

@@ -65,6 +65,7 @@ export default async function PuzzlesPage() {
                   <>
                   <Link
                     href={`/puzzles/${type.key}`}
+                    prefetch={false}
                     className="flex h-full flex-col gap-2 border-2 border-border p-4 hover:bg-muted focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
                     <TypeCardBody

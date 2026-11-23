@@ -56,6 +56,7 @@ export function FavouriteSignIn({
   return (
     <Link
       href={`/sign-in?next=${next}`}
+      prefetch={false}
       className={cn(toggleVariants({ size: compact ? "sm" : "default" }), className)}
     >
       <Star aria-hidden="true" />

@@ -2,17 +2,17 @@
 
 Audit of the solve page (`/puzzles/[type]/[slug]`) on a desktop, for every type in `src/puzzles/registry.ts`. It is the specification for T170 (`docs/tickets/T170-desktop-board-and-panel-layout.md`). Nothing under `src/`, `content/` or `e2e/` was changed.
 
-- **Script:** `scripts/dev/audit-desktop-layout.mts`. Headless Chromium with a fine pointer (so the `touch` variant never applies), against `pnpm build && pnpm start --port 3169`. Modes: default (every type at both sizes, open and solved, with screenshots), `--chrome` (the chrome blocks), `--grown` (the growing-panel cases) and `--sweep` (every published puzzle at 1280×650, no screenshots). Output and screenshots go to `.verification/T169/` (git-ignored); four are copied to `docs/research/desktop-solve-layout/` and embedded in section 11.
+- **Script:** `scripts/dev/audit-desktop-layout.mts`. Headless Chromium with a fine pointer (so the `touch` variant never applies), against `pnpm build && pnpm start --port 3169`. Modes: default (every type at both sizes, open and solved, with screenshots), `--chrome` (the chrome blocks), `--grown` (the growing-panel cases), `--footer` (the solved footer at panel widths) and `--sweep` (every published puzzle at 1280×650, no screenshots); `--only <types>` limits the default run to the types named. Output and screenshots go to `.verification/T169/` (git-ignored); four are copied to `docs/research/desktop-solve-layout/` and embedded in section 11.
 - **Viewports:** 1440×800 and 1280×650. "Fits" means Check, Reset and the status line end inside the viewport at `scrollY` 0.
-- **Representative puzzle:** the first published puzzle of the type in volume order (`volumes.sort`, then `volume_position`). Reverse Chess has two rows, the first `last_move` and the first `unwind`. The content has no proof-game (Mode C) puzzle and Mode D is its own type, `rota`, so there are 35 targets for the registry's 34 types.
-- **Solved state:** measured signed in, with a completed `attempts` row inserted for the puzzle, so the page opens solved with no epilogue. An epilogue (nonogram caption, odd-one-out explanation, rota timeline) adds height; see section 3.
+- **Representative puzzle:** the first published puzzle of the type in volume order (`volumes.sort`, then `volume_position`), then by slug. Only five crosswords are in a volume, so the crossword's is `stage-door` and every other type's is its alphabetically first slug. Reverse Chess has two rows, the first `last_move` and the first `unwind`. The content has no proof-game (Mode C) puzzle and Mode D is its own type, `rota`, so there are 35 targets for the registry's 34 types.
+- **Solved state:** measured signed in, with a completed `attempts` row inserted for the puzzle, not by solving it. That is the page a returning player gets: the stamp, the time and "Next in volume", with the solver `inert`. It has no epilogue, because the epilogue only comes back from a check (`setEpilogue` in `solve-chrome.tsx`), so the epilogue heights in section 3 are estimates from the content, not measurements. The script signs up a throwaway `@e2e.test` account, marks it verified in the local database (a production build sends a link) and deletes it when it ends.
 
 ## 1. Headline findings
 
 1. **Every type overflows today, at both sizes.** The smallest page (anagram) is 12px over at 1440×800 and 162px over at 1280×650. The worst are the logic grid (1182 and 1332px over), the crossword (970 and 1120), knights and knaves (688 and 838), Reverse Chess `unwind` (756 and 906) and the `gears` page (624 and 774, excluded).
 2. **The chrome causes most of it.** Above the solver sit 310px (site header 66, `main` padding 48, title block 172, gap 24) and below it 112px (gap 24, Check and Reset 40, gap 24, status line 24), before the solved footer. That is 422px of a 650px viewport, leaving 228px (378px at 800) for the puzzle. The recommendation cuts it to 164px.
 3. **T170's starting list was wrong in both directions.** Several types in it have no board (`acrostic`, `knights-knaves`, `napkin-maths`, `word-ladder`, the ciphers). The types it called "probably board-only" (`nonogram`, `norinori`, `star-battle`, `circle9`, `railroad`, `reflections`) cannot fit in one column at 1280×650: with a one-line brief, Check and Reset and the status line under it, a one-column board gets about 314px. They go in the shared board-and-panel shell, with a panel that holds only the brief and the chrome. Only `anagram` and `odd-one-out` fit in one column once the chrome is compact.
-4. **Boards are small today because of caps, not height.** `CellGrid` already sizes cells as `min(container width / cols, --solver-height / rows)`, but callers cap cells at `cellRem` (3.5rem by default), `DigitGrid` wraps in `max-w-xl`, `RegionMarkGrid` caps at `cols * 3.5rem` and the chess board is `max-w-lg` (512px). T170 has to lift those caps to reach the sizes in section 7.
+4. **Boards are small today because of caps, not height.** `CellGrid` already sizes cells as `min(container width / cols, --solver-height / rows)`, but callers cap cells at `cellRem` (3.5rem by default), `DigitGrid` wraps in `max-w-xl`, `RegionMarkGrid` caps at `cols * 3.5rem` and the chess board is `max-w-lg` (512px). T170 has to lift those caps to reach the sizes in section 7. Only `CellGrid` is sized by height, though: every other board follows its width alone and needs a height bound as well (the list is in section 9).
 5. **`word-search` also splits in two already** (`md:flex-row`), which T170 did not list.
 
 ## 2. Measurements
@@ -94,7 +94,7 @@ One row per type and viewport. Doc height is `document.documentElement.scrollHei
 
 ### Largest puzzle of each type (sweep, 1280×650)
 
-`--sweep` opened all 265 published puzzles except spot-difference at 1280×650. Doc height of the largest, against the representative:
+`--sweep` opened 265 published puzzles at 1280×650: every one except the six spot-difference scenes. Doc height of the largest, against the representative:
 
 | Type | Largest | Doc height | Overflow | Note |
 |---|---|---|---|---|
@@ -111,7 +111,7 @@ One row per type and viewport. Doc height is `document.documentElement.scrollHei
 | reflections | `vanishing-point` (9×8) | 1356 | 706 | |
 | word-search | `opening-gambit` / `wound-up` (12×10, 10 words) | 1057 | 407 | |
 
-Every other type's puzzles differ by under 200px from the representative one.
+No other panel type has a puzzle more than 200px taller than its representative. Two that matter outside the table: `anagram`'s tallest, `looking-back`, is 948px against the representative's 812px, which under the compact bar puts its status line at 644 of 650 (it fits, by 6px); and `gears` (excluded) reaches 1712px at `crossed-wires`.
 
 ## 3. The solve chrome's cost
 
@@ -141,14 +141,16 @@ Use the touch header's shape on desktop (`lg` and up, fine pointer only).
 |---|---|---|
 | Site header | unchanged | 66 |
 | `main` padding top and bottom | 12 each (was 48) | 12 + 12 |
-| Title bar | one row across both columns: chevron back link (44px target, `aria-label` kept), the `Credit` large line only on one line (top line hidden as under touch), difficulty badge, timer, `PuzzleMenu` | 62 (44 + 2 × 8 padding + 2 border, as the touch header) |
+| Title bar | one row across both columns: chevron back link (44px target, `aria-label` kept), the `Credit` large line only on one line (top line hidden as under touch), difficulty badge, timer. `PuzzleMenu` stays hidden: its one item is "Use my device's keyboard" and it only shows under `touch` with a pad | 62 (44 + 2 × 8 padding + 2 border, as the touch header) |
 | Gap under the bar | | 12 |
-| Check and Reset, status line, solved footer | at the foot of the panel, not under the board | 40, 24, 248 |
+| Check and Reset, status line, solved footer | at the foot of the panel, not under the board | 40, 24, 248 (312 with "Next in volume") |
 
 That leaves 66 + 12 + 62 + 12 = 152px above the columns and 12px below: **a board column height budget of `100dvh − 164px`, which is 636px at 1440×800 and 486px at 1280×650.** The panel gets the same height.
 
 - Check and Reset (40), the status line (24) and two 12px gaps take 88px of the panel, leaving 548px (800) or 398px (650) for the type's own content.
-- **Solved footer in the panel:** use the touch stamp size (`--hole-size` 216px, so the footer is 248px, not 296) and let it replace the Check and Reset row (both are disabled once solved). The status line stays. That leaves 636 − 248 − 24 − 24 = 340px (800) and 190px (650) above it for the scrolling content, and the stamp and time are always inside the viewport. An epilogue (the rota timeline is about 9 lines or 216px; the nonogram caption and odd-one-out explanation are a sentence or two) goes inside the footer, which takes the touch rules (`max-h`, `overflow-y-auto`).
+- **Solved footer in the panel:** use the touch stamp size (`--hole-size` 216px) and gaps, and let it replace the Check and Reset row (both are disabled once solved). The status line stays. Measured with `--footer` (the footer held to the panel's width with the touch stamp and gaps): at 416px and at 384px it is **248px** with the stamp and the time on one row, and **312px** when "Next in volume" is there, because the button wraps to a second row (24px gap, 40px button). Today only the five volume crosswords have the button. Below about 370px the time wraps too (296px at 352px), so the panel should not go under 384px.
+  - That leaves 636 − 248 − 24 − 24 = 340px (800) and 190px (650) above the footer for the scrolling content, or 276px and 126px on a volume crossword, and the stamp and time are always inside the viewport.
+  - An epilogue is a row of its own under the stamp (estimated, not measured: the rota timeline is about 9 lines or 216px; the nonogram caption and odd-one-out explanation are a sentence or two). Let the footer scroll inside itself, but not with the touch rule as it stands: `touch:max-h-[35dvh]` is 227px at 650, less than the 248px stamp row. Cap the footer at the panel's height less the status line, so the stamp is whole and the epilogue scrolls under it.
 - Without the compact bar the board would get 800 − 310 − 160 = 330px at 1440×800 and 650 − 310 − 160 = 180px at 1280×650 (160 is the 112px below the solver plus the 48px `main` padding). The recommendation is not optional.
 - The site footer (98px) stays below the fold; the ticket allows that.
 
@@ -176,7 +178,7 @@ Where a type has no board, the "board" is its main sheet or list (what the playe
 | `sightlines` | panel | brief sheet, instructions, observer list and count |
 | `cctv-maze` | panel | brief, instructions, Reveal cameras and Restart path buttons |
 | `detective-scene` | panel | scene left; title entry form, status and found titles right |
-| `knights-knaves` | panel | no board; a 790px statement list needs its own scroll area, so the list is the panel and the question and rules sit on the left |
+| `knights-knaves` | panel | no board; a 792px statement list needs its own scroll area, so the list is the panel and the question and rules sit on the left |
 | `napkin-maths` | panel | workings sheet left; question and answer input right (374px over at 1280×650) |
 | `acrostic` | panel | letter sheet left; hidden-message input and rule right |
 | `word-search` | panel | already splits at `md`; the word list is the panel |
@@ -194,12 +196,14 @@ Where a type has no board, the "board" is its main sheet or list (what the playe
 | `circle9` | panel | as above, plus the brief |
 | `railroad` | panel | as above, plus the brief |
 | `reflections` | panel | as above, plus the brief and the beam note |
-| `anagram` | board-only | tiles 376×136, a prompt, Shuffle and Clear; fits in one column under the compact bar (status ends at 508 of 650) |
-| `odd-one-out` | board-only | one `fieldset` of choices; status ends at 564 of 650 under the compact bar |
+| `anagram` | board-only | tiles 376×136, a prompt, Shuffle and Clear; fits in one column under the compact bar (status ends at 508 of 650, and at 644 for the tallest, `looking-back`). Solved, see the note below |
+| `odd-one-out` | board-only | one `fieldset` of choices; status ends at 564 of 650 under the compact bar. Solved, see the note below |
 | `gears` | excluded | fixed by the user. Measured anyway: 624 and 774px over; the 576px floor, swap panel and state table stay |
 | `spot-difference` | excluded | fixed by the user (T152); two-up scenes in a `max-w-7xl` main, 315 and 465px over |
 
 Counts: 30 `panel`, 2 `board-only`, 2 `excluded`, 34 types.
+
+**The board-only types solved (derived from the table, not measured).** In one column the 248px footer takes the place of Check and Reset under the content, so the status line ends at 716 (`anagram`) and 772 (`odd-one-out`): inside 800, but 66px and 122px past the fold at 1280×650, before any epilogue. T170's AC2 covers the open state for these two and AC4 and AC5 name other types, so no AC fails. If the stamp has to be in view at 1280×650 for them too, the fix is the chrome-only rail the grid-only types get, which would make them `panel`. That is a decision for T170's owner; the group here stays `board-only`.
 
 ## 5. Panel contents per type
 
@@ -218,15 +222,15 @@ Counts: 30 `panel`, 2 `board-only`, 2 `excluded`, 34 types.
 
 ### Clue lists and grids
 
-- **`crossword`** (`solver.tsx`, `clue-tabs.tsx`). Board: `CellGrid` ("Crossword"). Panel, in order: the clue line (`<p aria-live>`, the single announcement; it may stay above the panel), `ClueTabs` (Across and Down `ol` lists), the `actions` row (Check cell and Reveal cell; `revealCell` is passed only by the crossword, so no other type renders Reveal), the cell notice `<p role=status>`. Not moved: `clueBar`, the pad and `ClueSheet` (touch only). **Grows: the clue lists.** They scroll inside `max-h-80` (320px) today; at `fine-print` the Across list is 576px and both lists about 1150px. Show both lists at once when the panel allows and scroll the active clue into view in its list; otherwise keep the tabs. Test: `fine-print` (15×15, 36 clues); `loose-ends` and `red-herring` (13×13 cryptic, 28 clues).
+- **`crossword`** (`solver.tsx`, `clue-tabs.tsx`). Board: `CellGrid` ("Crossword"). Panel, in order: the clue line (`<p aria-live>`, the single announcement; it may stay above the panel), `ClueTabs` (Across and Down `ol` lists), the `actions` row (Check cell and Reveal cell; `revealCell` is passed only by the crossword, so no other type renders Reveal cell), the cell notice `<p role=status>`. Not moved: `clueBar`, the pad and `ClueSheet` (touch only). **Grows: the clue lists.** They scroll inside `max-h-80` (320px) today; at `fine-print` the Across list is 576px and both lists about 1150px. Show both lists at once when the panel allows and scroll the active clue into view in its list; otherwise keep the tabs. Test: `fine-print` (15×15, 36 clues); `loose-ends` and `red-herring` (13×13 cryptic, 28 clues).
 - **`kakuro`** (`solver.tsx`). Board: `CellGrid` with `ClueCorner` annotations (507×570). Panel: the `actions` row (the Hints `Toggle`), then the hint readout `ul[aria-live=polite]` (sum, length and combinations of the active runs). Grows: the readout, two lines. Test: `last-column` (10×10, 61 cells), `cold-tally` (10×9).
-- **`sudoku`, `futoshiki`** (`DigitGrid`, `_shared/digit-grid.tsx`). Board: `CellGrid` ("Sudoku", "Futoshiki"). Panel: the `actions` row (the Notes `Toggle` and the Clear notes `Button`) and the notes status `<p role=status>`. Cages and region borders are drawn in the grid (`underlay`), not the panel. Test: `balance-sheet` (a killer, 22 cages) for sudoku; `long-odds` (7×7) for futoshiki.
+- **`sudoku`, `futoshiki`** (`DigitGrid`, `_shared/digit-grid.tsx`). Board: `CellGrid` ("Sudoku", "Futoshiki"). Panel: the `actions` row (the Notes `Toggle` and the Clear notes `Button`) and the notes status `<p role=status>`. Cages and region borders are drawn in the grid (`underlay`), not the panel. Test: `balance-sheet` (a killer, 22 cages; `ledger-line` has the most, 39) for sudoku; `long-odds` (7×7) for futoshiki.
 - **`logic-grid`** (`solver.tsx`). Board: the "Logic grid" matrix (668×674 at 4 categories × 5). Panel, in order: the "Case notes" section (`[data-testid=logic-grid-brief]` and the category `ul`), the "Clues" section (`ol` of clues, each with its strike control, and for the variant the "Which statement is false?" fieldset). **Grows: the clues, 572px for 15 clues.** A wrong clue is framed and must be scrolled into view. Test: `manifest` (15 clues, 2378px page) and `cold-frame` (15).
 - **`knights-knaves`** (`solver.tsx`). Left: the question `<p class=text-lg>` and the rules `<p>`. Panel: `StatementList` (`_shared/statement-list`). **Grows: 792px for four characters, about 1100px for `night-ferry`'s five.** Scroll inside; a wrong statement is framed and must be scrolled into view. Test: `night-ferry`.
 - **`rota`** (`solver.tsx`, `board.tsx`). Board: `RotaBoard` (`[data-testid=rota-board]`, 388px today). Panel, in order: the "Incident sheet" section (`rota-brief`), the pinned list (`rota-pinned`, one `now-<name>` each), `details[data-testid=rota-how-to-play]`, "Clues" (`ol`, `clue-<position>`), the stack (`rota-stack`, the Undo `Button`, `rota-status`), the accusation `fieldset[data-testid=rota-accusation]`. Today the left column holds the incident sheet and the board (416 × 744) and the right "Clues" (264); the shared layout moves the sheet right. **Grows: the stack and clues; the panel is about 744px.** Test: `the-long-shift` (9 workers), `canteen-queue` (8, the representative).
 - **`sightlines`** (`solver.tsx`). Board: the "Sightlines floor plan" grid. Panel: `BriefSheet`, the instruction `<p>`, `ul[aria-label=Observers]`, the marked-cells `<p role=status>`. Grows: observers (5 in `long-gallery`, 92px). Test: `long-gallery` (11×11).
 - **`cctv-maze`** (`solver.tsx`). Board: the "CCTV maze street plan" grid. Panel: `BriefSheet` (`puzzle-brief`), the instruction `<p>`, the buttons row (Reveal cameras with `aria-pressed`, Restart path), the status `<p>`. Grows: nothing. Test: `labyrinthos` (12×12).
-- **`detective-scene`** (`solver.tsx`). Board: the "The street scene" viewport and its Zoom in, Zoom out and Reset view buttons. Panel: the title entry `form` (`Input` and buttons), `[data-testid=scene-status]`, the `ol[aria-label=Titles]` of found titles. **Grows: found titles, up to 46.** Test: `cambridge-night` (the only one).
+- **`detective-scene`** (`solver.tsx`). Board: the "The street scene" viewport and the row under it (Zoom in, Zoom out, Reset view and, until every title is found, the scene's own Reveal `Button`). Panel: the title entry `form` (`Input` and buttons), `[data-testid=scene-status]`, the `ol[aria-label=Titles]` of found titles. **Grows: found titles, up to 46.** Test: `cambridge-night` (the only one).
 - **`fillomino`, `troix`, `nonogram`, `norinori`, `star-battle`, `circle9`, `railroad`, `reflections`.** Board: the grid (`CellGrid`, `RegionMarkGrid` or its own). Panel: the brief `<p>` where there is one (`troix`, `nonogram`, `norinori`, `circle9`, `railroad`, `reflections` with its `beam-note`) and the chrome; none has a control of its own. Test: the largest of each (`borrowed-time`, `curtain-call`, `bumps-in-the-night`, `last-orders`, `full-house`, any `circle9`, `buffer-stop`, `vanishing-point`).
 
 ### Words and ciphers
@@ -262,18 +266,18 @@ Everything else fits without scrolling.
 
 ## 7. Board sizes under the recommendation
 
-Board height budget: 636px at 1440×800, 486px at 1280×650. A board is `min(budget, column width, cap)`. The cap today is cells × `cellRem` (56px by default; `kakuro` and `fillomino` 64px; `futoshiki` and `troix` 80px) or a wrapper (`DigitGrid`'s `max-w-xl`, the chess board's `max-w-lg`, `lg:w-96`). To reach the budget, T170 lifts the cap to **72px a cell (4.5rem)** in `CellGrid`, `RegionMarkGrid`, `HighlightPathGrid` and `DigitGrid`'s wrapper, and to 640px for the chess board, and sets `--solver-height` on the board column to the budget. Width is not binding: at 1280px the board column is about 790px (a `max-w-7xl` main, a 416px panel, a 32px gap, 64px page padding), at 1024px about 528px.
+Board height budget: 636px at 1440×800, 486px at 1280×650. A board is `min(budget, column width, cap)`. The cap today is cells × `cellRem` (56px by default in `CellGrid` and `RegionMarkGrid`, 48px in `HighlightPathGrid`; `kakuro` and `fillomino` 64px; `futoshiki` and `troix` 80px) or a wrapper (the `max-w-xl` around `DigitGrid`, `kakuro`, `fillomino` and `troix`, the chess board's `max-w-lg`, the wheel's `lg:w-96` and `max-w-sm`). To reach the budget, T170 lifts the cap to **72px a cell (4.5rem)** in `CellGrid`, `RegionMarkGrid`, `HighlightPathGrid`, `TrainBoard` and the grids that set their own `maxWidth` (section 9 lists them), widens the `max-w-xl` wrappers, lifts the chess board to 640px, sets `--solver-height` on the board column to the budget and gives every board that follows its width alone a height bound. The sizes below are what that reaches; the boards with a clue band or a margin (`nonogram`, `reflections`, `railroad`) come out a little under. `futoshiki` and `troix` keep their 80px: 72px would make them smaller than they are today (432px against 477px). The board column is 768px wide from 1280px up (a `max-w-7xl` main, 1280px, less 64px page padding, a 416px panel and a 32px gap) and 512px at 1024px. Width binds only the street scene (3:2) and, at 1024px, the square boards and the book page.
 
-Cells are bounded below too. At 1280×650 a 15×15 crossword has 32px cells and a 13×13 one 37px (46px today); the letter size follows the cell (`70/cols cqw`), so keep it readable down to 30px.
+Cells are bounded below too. At 1280×650 a 15×15 crossword has 32px cells (46px today) and a 13×13 one 37px (53px today); the letter size follows the cell (`70/cols cqw`), so keep it readable down to 30px.
 
 | Type (representative) | Natural board today | 1440×800 | 1280×650 | Under 400px at 1280×650 |
 |---|---|---|---|---|
 | reverse-chess, chess-problem | 512×512 | 636×636 | 486×486 | no |
 | crossword `stage-door` 13×13 | 692×692 | 636 | 486 | no (largest 15×15: 636 and 486, 32px cells) |
 | sudoku 9×9 | 498 | 636 | 486 | no |
-| kakuro `blind-sum` 9 rows × 8 cols | 507×570 | 576×636 | 432×486 | no |
-| futoshiki `balance-sheet` 6×6 | 477 | 432 | 432 | no (under 520 at 1440) |
-| troix `cross-and-circle` 6×6 | 477 | 432 | 432 | no (under 520 at 1440) |
+| kakuro `blind-sum` 9 rows × 8 cols | 507×570 | 565×636 | 432×486 | no |
+| futoshiki `balance-sheet` 6×6 | 477 | 477 (80px cap kept) | 477 | no (under 520 at 1440) |
+| troix `cross-and-circle` 6×6 | 477 | 477 (80px cap kept) | 477 | no (under 520 at 1440) |
 | fillomino `borrowed-time` 10×10 | 543 | 636 | 486 | no (6×6 `first-footing`: 432) |
 | nonogram `blind-spot` 13×13 | 513×538 | 636 | 486 | no |
 | norinori `cold-case` 8×8 | 448 | 576 | 486 | no (6×6 `small-hours`: 432) |
@@ -281,42 +285,58 @@ Cells are bounded below too. At 1280×650 a 15×15 crossword has 32px cells and 
 | circle9 9×9 | 504 | 636 | 486 | no |
 | railroad `branch-line` 5×5 | 268×258 | 360 | 360 | **yes** (5 × 72; `buffer-stop` 10×10 reaches 636 and 486) |
 | reflections `double-take` 6 rows × 7 cols | 361×309 | 504×432 | 504×432 | no (shorter side 432) (`periscope` 4×4: 288) |
-| sightlines `chapel-aisle` 9×9 | 432 | 636 | 486 | no (`reading-room` 5×5: 360) |
+| sightlines `chapel-aisle` 9×9 | 432 | 636 | 486 | no (`reading-room`, 5 rows × 6 cols: 432×360) |
 | cctv-maze `backs-path` 10×10 | 480 | 636 | 486 | no (`punt-lane` 6×6: 432) |
 | word-search `long-vacation` 8×8 | 379 | 576 | 486 | no (`wound-up` 12×10: 636 and 486) |
 | gear-train `big-wheel` 9 cols × 6 rows | 504×336 | 648×432 | 648×432 | no (shorter side 432; `first-link` 7×5 is 504×360; `last-departure` 12×12 reaches 636 and 486) |
 | word-wheel | 384 (fixed `lg:w-96`) | grow to 480 | 480 | no once grown (384 today) |
 | rota | 388 (fixed 26rem column) | grow to 520 | 486 | no once grown (388 today) |
-| detective-scene | 700×467 | 800×533 | 730×486 | no |
-| logic-grid `cold-frame` | 668×674 | 636×636 | 486×486 | no, but the grid shrinks 28% at 650: labels need a smaller size; `manifest` is the worst case |
+| detective-scene | 700×467 | 768×512 (the column's width binds) | 729×486 | no (512 at 1440, under 520) |
+| logic-grid `cold-frame` | 668×674 | 630×636 | 482×486 | no, but only if `MarkGrid` is made to scale (section 9): it is a fixed size today. At 650 it shrinks 28%, to 26px cells and a 92px label band, so the labels need a smaller size; `manifest` is the same size with longer clues |
 | book-cipher page | 648×712 | 636 tall (scrolls inside) | 486 tall (scrolls inside) | no |
 | acrostic, caesar, keyword, pictogram-cipher, napkin-maths, knights-knaves, word-ladder | sheets 364 to 590 tall | the sheet, no resize | the sheet, no resize | n/a: the sheet fits or scrolls inside |
 | anagram, odd-one-out | tiles, choices | one column | one column | n/a |
 
-**Types under 400px at 1280×650:** only `railroad` (360px for the representative 5×5). It is small because the puzzle is small, not because the viewport is short; list it as exempt from the 400px floor in T170's AC3 (use `buffer-stop`, 10×10, if a test wants the floor). The 520px floor at 1440×800 is not reachable for 6×6 and smaller grids either (432px), so the types exempt there are `futoshiki`, `troix`, `railroad`, `reflections` and `gear-train` (432 on its shorter side), plus `word-wheel` and `rota` until their boards are allowed to grow. All other representative puzzles reach 520px at 1440×800 and 400px at 1280×650.
+**Types under 400px at 1280×650:** only `railroad` (360px for the representative 5×5). It is small because the puzzle is small, not because the viewport is short; list it as exempt from the 400px floor in T170's AC3 (use `buffer-stop`, 10×10, if a test wants the floor). The 520px floor at 1440×800 is not reachable for 6×6 and smaller grids either, so the types exempt there are `futoshiki` and `troix` (477px), `railroad` (360px), `reflections` and `gear-train` (432px on the shorter side) and `detective-scene` (512px, bound by the column's width), plus `word-wheel` and `rota` until their boards are allowed to grow. All other representative puzzles reach 520px at 1440×800 and 400px at 1280×650.
 
 ## 8. Types that already split in two
 
 | Type | Their own split | What moving to the shared layout changes |
 |---|---|---|
 | `rota` | `lg:grid lg:grid-cols-[minmax(0,26rem)_minmax(15rem,1fr)]` on the root `section`: incident sheet and `RotaBoard` left, "Clues" right | the incident sheet moves right with the rest; the board can grow from 388px; the grid classes go |
-| `word-wheel` | `lg:flex-row lg:items-start`, `lg:w-96`, `lg:flex-1` | the wheel can grow past 384px; the entry controls move to the panel; the classes go |
+| `word-wheel` | `lg:flex-row lg:items-start`, `lg:w-96`, `lg:flex-1` (and `max-w-sm` on the wheel) | the wheel can grow past 384px; the entry controls move to the panel; the classes go |
 | `gear-train` | `lg:flex-row` (board plus tray) and `lg:flex-col` on the tray | the tray goes to the panel and the board no longer shares the 704px column with it; the classes go |
 | `book-cipher` | `lg:grid-cols-[minmax(0,1fr)_14rem]`, `lg:-mx-24`, `lg:order-1` and `lg:order-2` | the negative margin only widened the column and goes with the `order-*` swap (the DOM already has the page first); the page needs a `max-h` from the board budget |
 | `word-search` (not in T170's list) | `md:flex-row md:items-start`, `md:w-56` | the split starts at 768px today, below `lg`; under the shared layout it starts at 1024px, so a 768 to 1023px window with a fine pointer goes back to stacked; the classes go |
 
-After T170, `grep -rn -E "(lg|md):(grid-cols|flex-row)" src/puzzles/*/solver.tsx` must show nothing (T170's AC10 only greps `lg`).
+After T170, `grep -rn -E "(lg|md):(grid-cols|flex-row)" src/puzzles/*/solver.tsx` must show nothing. Today it shows six lines: the five splits above and `lg:grid-cols-1` on `book-cipher`'s References `ol` (line 311), which is not a split but matches, so it has to be rewritten as well (the list is one column in the panel anyway).
 
 ## 9. Can T170 reuse solve mode's machinery?
 
-- **`--solver-height` and the size container: yes, for sizing.** `CellGrid` (`cellSize` in `cell-grid.tsx`), `HighlightPathGrid` (font size) and `book-cipher` already read `var(--solver-height, 100000px)`. Set it on the board column (`calc(100dvh - 164px)`) and every grid fits by height with no change to the grid code. Two things stop it: the caps (lift them, section 7) and the container: `cellSize` uses `100cqw`, which needs an ancestor with `container-type: inline-size` (touch uses `size`). `ChessBoard`, `TrainBoard` and `RotaBoard` do not read `--solver-height`: they need `max-w-lg`-style caps replaced by `min(var(--solver-height), 100cqw)`.
+- **`--solver-height` and the size container: yes, for sizing, but only `CellGrid` uses it today.** Set it on the board column (`calc(100dvh - 164px)`), with `container-type: inline-size` on an ancestor, because `cellSize` uses `100cqw` (touch uses `size`). What each board does now:
+
+  | Board | Types | Sized by today | What T170 changes |
+  |---|---|---|---|
+  | `CellGrid` (`snappedCell`) | `crossword`, `kakuro`, `fillomino`, `troix`; `sudoku` and `futoshiki` through `DigitGrid` | width and `--solver-height`, capped at `cols * cellRem` | lift the cap and the `max-w-xl` wrappers; no change to the sizing |
+  | `HighlightPathGrid` | `word-search` | width, capped at `cols * cellRem` (3rem); only its font size reads `--solver-height` | lift the cap, add the height bound |
+  | `RegionMarkGrid` | `circle9`, `norinori`, `star-battle` | width, capped at `cols * 3.5rem` | the same |
+  | own grid | `nonogram` (`cols * 2.25rem` plus the clue band), `reflections` (`(cols + 2) * 3.25rem`), `sightlines` and `cctv-maze` (`cols * 3rem`), `railroad` (`cols * 3rem + 3rem`) | width, capped by an inline `maxWidth` | the same |
+  | `TrainBoard` | `gear-train` | width, capped at `cols * 3.5rem` | the same |
+  | `ChessBoard`, `DeferredChessBoard` | `reverse-chess`, `chess-problem` | width, `max-w-lg` | `min(var(--solver-height), 100cqw)` on both |
+  | `RotaBoard` | `rota` | width, `max-w-lg` inside the 26rem column | the same |
+  | the wheel | `word-wheel` | `lg:w-96` and `max-w-sm` | the same |
+  | the street scene | `detective-scene` | `w-full` with an `aspect-ratio` | bound the width by the height budget × 3/2 |
+  | the page `section` | `book-cipher` | `touch:max-h-(--solver-height)` | apply the `max-h` on desktop too |
+  | `MarkGrid` (`logic-grid/mark-grid.tsx`) | `logic-grid` | fixed: `size-9` cells (36px) and `w-32`, `h-32` label bands (128px), in a `w-fit` box that scrolls sideways | derive the cell and the band from `--solver-height`. It is 674px tall for 15 rows, so it fits neither budget until then; this is the largest single piece of per-type work |
+
+  For a board that follows its width, the height bound is a width of `min(100cqw, var(--solver-height) × cols / rows)`, less whatever clue band or margin the board adds. Under `touch` these boards are not bound by height either; the solver area scrolls.
 - **`SolveSlot`: no, not for the panel.** It portals into one slot under the solver (the pad) and renders its `fallback` in place before hydration; for a panel that would put the panel under the board in the server HTML and move it on hydration (a layout shift against T069's CLS budget). It also takes content out of the solver's `inert` wrapper. Prefer CSS: the chrome's grid places the board and the panel, and each solver wraps its parts in two small layout components (board cell, panel cell) that are `display: contents` below `lg` and under `touch` and take grid areas above. The solver wrapper (`data-testid=solver`) is already `display: contents`, so a solver's wrappers can be direct grid items (nested wrappers such as the crossword's inner `div`s need `contents` too). That keeps DOM order (board, then panel) and the `inert` wrapper over both. The chrome's own Check, Reset, status and footer are further grid items in the panel column after the solver's panel items.
 - **The touch header** is the model for the compact bar (the `touch:` classes on the `<header>` in `solve-chrome.tsx`): give the same shape behind `lg:` and not `touch` (`TOUCH_QUERY`, T168).
 
 ## 10. Risks per type
 
 - **Placeholders.** `DeferredChessBoard`'s fallback is `aspect-square w-full max-w-lg` (512px) and `ChessBoard` is `max-w-lg` too: change both to the same expression or the page shifts on hydration. The other solvers render their grids on the server (no skeleton); the lazy solver chunk renders a `Walker` fallback in `page.tsx`, outside the shell, so the shell's grid must exist in the server HTML or the columns appear after the chunk loads.
-- **Wide content.** `logic-grid` (668px matrix; at 486px tall the labels are the problem, and `manifest` has 15 clues). `gears` (excluded) has the state table. `book-cipher`'s page is 648px wide, so the board column should not drop below about 560px at 1024px.
+- **Wide content.** `logic-grid` (668px matrix; at 486px tall the labels are the problem, and `manifest` has 15 clues). `gears` (excluded) has the state table. `book-cipher`'s page is 648px wide today and gets the 512px column at 1024px, so check its line length there.
 - **Reads worse in two columns.** `knights-knaves` and `word-ladder` have no board, so the left column is a sheet or a short list; check they do not look lopsided. `acrostic` and `napkin-maths` are a sheet beside one input.
 - **Alignment.** With the title bar over both columns every board starts at the same y; do not vertically centre text sheets.
 - **Focus and `inert`.** The solved footer receives focus on a fresh solve (`focusSolvedFooter`); it stays the last item of the panel and must be scrolled into view if the panel scrolls.
@@ -324,17 +344,23 @@ After T170, `grep -rn -E "(lg|md):(grid-cols|flex-row)" src/puzzles/*/solver.tsx
 - **The crossword's `aria-live` clue line** stays a single element; do not duplicate it into the clue list.
 - **`ownsTouchControls` types** (Reverse Chess, `chess-problem`) draw Check and Reset in their heading row (`hidden touch:flex`); they stay hidden at `lg`.
 - **Under `touch` and below 1024px** nothing changes. Landscape phones are under 1024px wide; tablets (T168) take the `touch` path.
-- **1024 to 1279px wide.** At 1024px the board column is about 528px and the panel 416px; below the panel's minimum (20rem) the stacked layout should take over. Other widths were not measured.
+- **1024 to 1279px wide.** At 1024px the board column is 512px and the panel 416px, so square boards are 512px at most there; below the panel's minimum (24rem, 384px: the solved footer wraps under that, section 3) the stacked layout should take over. Other widths were not measured.
 
 ## 11. Screenshots
 
-All 140 (35 targets × 2 sizes × open and solved) are in `.verification/T169/<key>-<w>x<h>-<open|solved>.png`, with `reverse-chess-last_move` and `reverse-chess-unwind` for the two modes. Four are embedded.
+All 140 (35 targets × 2 sizes × open and solved) are in `.verification/T169/<key>-<w>x<h>-<open|solved>.png`, with `reverse-chess-last_move` and `reverse-chess-unwind` for the two modes. Seven are embedded: the three fixed panel types at both sizes, and one solved.
 
 ![Reverse Chess unwind, 1280×650](desktop-solve-layout/reverse-chess-unwind-1280x650-open.png)
 
+![Reverse Chess unwind, 1440×800](desktop-solve-layout/reverse-chess-unwind-1440x800-open.png)
+
 ![Crossword, 1280×650](desktop-solve-layout/crossword-1280x650-open.png)
 
+![Crossword, 1440×800](desktop-solve-layout/crossword-1440x800-open.png)
+
 ![Gear train, 1280×650](desktop-solve-layout/gear-train-1280x650-open.png)
+
+![Gear train, 1440×800](desktop-solve-layout/gear-train-1440x800-open.png)
 
 Reverse Chess `unwind` solved at 1280×650, for the footer's cost:
 

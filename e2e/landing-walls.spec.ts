@@ -26,7 +26,7 @@ const PANS = [
 /** Room pitch is 70% of the stage width, so the divider sits half a pitch from the camera at a dwell. */
 const PITCH = 0.7;
 
-async function open(page: Page, viewport: (typeof VIEWPORTS)[number]) {
+async function open(page: Page, viewport: { width: number; height: number }) {
   await page.setViewportSize(viewport);
   await page.goto("/");
   await page.locator(".title-sequence").waitFor();

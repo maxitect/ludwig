@@ -132,7 +132,6 @@ export async function getTypeCatalogue(typeKey: string) {
 /** Includes the next published puzzle in the same volume, ordered by position. */
 export async function getPuzzleSummary(typeKey: string, slug: string) {
   "use cache";
-  cacheLife("hours");
   cacheTag("puzzles");
   const puzzle = await db.query.puzzles.findFirst({
     where: { typeKey, slug, RAW: isPublished },
@@ -154,7 +153,11 @@ export async function getPuzzleSummary(typeKey: string, slug: string) {
       },
     },
   });
-  if (!puzzle) return null;
+  if (!puzzle) {
+    cacheLife("unpublished");
+    return null;
+  }
+  cacheLife("hours");
   const position = puzzle.volumePosition ?? 0;
   return {
     title: puzzle.title,

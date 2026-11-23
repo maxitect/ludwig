@@ -30,7 +30,7 @@ export async function getPuzzleForPlay(typeKey: string, slug: string) {
       and(eq(puzzles.typeKey, typeKey), eq(puzzles.slug, slug), published),
     );
   if (!puzzle) {
-    cacheLife({ stale: 60, revalidate: 60, expire: 300 });
+    cacheLife("unpublished");
     return null;
   }
   cacheLife("hours");

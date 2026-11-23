@@ -5,8 +5,12 @@ import pg from "pg";
 /**
  * Measures the solve page of every puzzle type at the two desktop target sizes, with a fine pointer.
  * Run against a production build: `pnpm build && pnpm start --port 3169`, then
- * `pnpm tsx scripts/dev/audit-desktop-layout.mts [--sweep] [--base http://localhost:3169] [--out .verification/T169]`.
- * `--sweep` instead measures every published puzzle at 1280x650, without screenshots, to find the largest per type.
+ * `pnpm tsx scripts/dev/audit-desktop-layout.mts [--sweep|--chrome|--grown|--footer] [--only <types>] [--base http://localhost:3169] [--out .verification/T169]`.
+ * `--sweep` instead measures every published puzzle at 1280x650, without screenshots, to find the largest per type;
+ * `--chrome` the chrome blocks, `--grown` the growing-panel cases and `--footer` the solved footer at panel widths.
+ * `--only sudoku,crossword` limits the default run to those types.
+ * The solved runs sign up a throwaway account, write to the database in `DATABASE_URL` and delete the account afterwards.
+ * Each signs in once, and sign-in is limited to 5 in 15 minutes.
  */
 const args = process.argv.slice(2);
 const flag = (name: string, fallback: string) => {
@@ -51,8 +55,10 @@ for (const puzzle of puzzles.filter((p) => p.type_key === "reverse-chess")) {
 }
 
 type Target = { key: string; typeKey: string; slug: string; id: string };
+const only = flag("--only", "").split(",").filter(Boolean);
 const targets: Target[] = [];
 for (const typeKey of typeKeys) {
+  if (only.length && !only.includes(typeKey)) continue;
   const mine = puzzles.filter((p) => p.type_key === typeKey);
   if (typeKey === "reverse-chess") {
     for (const mode of ["last_move", "unwind"]) {
@@ -163,8 +169,9 @@ const measureInPage = () => {
   };
 };
 
+/** The network wait is capped: on a repeat visit the back link's RSC prefetch stays pending for about 26 seconds. */
 async function settle(page: Page) {
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("networkidle", { timeout: 2500 }).catch(() => undefined);
   await page.evaluate("document.fonts.ready");
   await page.waitForFunction(() => {
     const root = document.querySelector("[data-testid=solver]");
@@ -189,6 +196,43 @@ async function measure(page: Page, target: Target, viewport: { width: number; he
 }
 
 const browser = await chromium.launch();
+
+/** Signs up a throwaway account, verifies it in the local database (a production build sends a link instead) and signs in. */
+async function signIn() {
+  const context = await browser.newContext({ viewport: viewports[0] });
+  await context.addInitScript("window.__name = (f) => f");
+  const page = await context.newPage();
+  const email = `e2e-t169-${Date.now().toString(36)}@e2e.test`;
+  await page.goto(`${base}/sign-up`);
+  await page.getByLabel("Name").fill("Audit");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("correct-horse-battery");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByText("Check your inbox").waitFor();
+  await pool.query(`update "user" set email_verified = true where email = $1`, [email]);
+  await page.goto(`${base}/sign-in`);
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("correct-horse-battery");
+  const {
+    rows: [account],
+  } = await pool.query<{ id: string }>(`select id from "user" where email = $1`, [email]);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await page.waitForURL((url) => !url.pathname.startsWith("/sign-in"), { timeout: 15_000 }).catch(async () => {
+    await removeUser(account.id);
+    throw new Error("Sign-in did not go through. It is limited to 5 in 15 minutes, so wait and run the solved pass again.");
+  });
+  return { page, userId: account.id };
+}
+
+const complete = (userId: string, target: Target) =>
+  pool.query(
+    `insert into attempts (user_id, puzzle_id, type_key, completed_at, duration_ms)
+     select $1, $2, $3, now(), 187000 where not exists (select 1 from attempts where user_id = $1 and puzzle_id = $2)`,
+    [userId, target.id, target.typeKey],
+  );
+
+const removeUser = (userId: string) => pool.query(`delete from "user" where id = $1`, [userId]);
+
 const anon = await browser.newContext({ viewport: viewports[0] });
 await anon.addInitScript("window.__name = (f) => f");
 const anonPage = await anon.newPage();
@@ -292,6 +336,52 @@ if (args.includes("--grown")) {
   process.exit(0);
 }
 
+if (args.includes("--footer")) {
+  const { page, userId } = await signIn();
+  const {
+    rows: [followed],
+  } = await pool.query<{ id: string; type_key: string; slug: string }>(
+    `select p.id, p.type_key, p.slug from puzzles p
+     where p.published_at <= now() and exists (
+       select 1 from puzzles n where n.volume_id = p.volume_id and n.volume_position > p.volume_position and n.published_at <= now())
+     order by p.type_key, p.volume_position limit 1`,
+  );
+  const target = { key: followed.type_key, typeKey: followed.type_key, slug: followed.slug, id: followed.id };
+  await complete(userId, target);
+  await page.setViewportSize(viewports[1]);
+  await page.goto(`${base}/puzzles/${target.typeKey}/${target.slug}`);
+  await settle(page);
+  await page.getByTestId("solved-footer").waitFor();
+  const rows = [];
+  for (const width of [704, 416, 384, 352]) {
+    rows.push(
+      await page.evaluate(`((width) => {
+        const footer = document.querySelector("[data-testid=solved-footer]");
+        const hole = footer.firstElementChild;
+        if (width < 704) {
+          footer.style.width = width + "px";
+          footer.style.columnGap = "16px";
+          footer.style.rowGap = "24px";
+          hole.style.setProperty("--hole-size", "216px");
+        }
+        const top = footer.getBoundingClientRect().top;
+        return {
+          slug: ${JSON.stringify(target.slug)},
+          width,
+          height: Math.round(footer.getBoundingClientRect().height),
+          items: [...footer.children].map((el) => ({ text: el.textContent.trim().slice(0, 16) || "stamp", top: Math.round(el.getBoundingClientRect().top - top), height: Math.round(el.getBoundingClientRect().height) })),
+        };
+      })(${width})`),
+    );
+  }
+  await removeUser(userId);
+  writeFileSync(`${out}/footer.json`, JSON.stringify(rows, null, 1));
+  console.log(JSON.stringify(rows, null, 1));
+  await browser.close();
+  await pool.end();
+  process.exit(0);
+}
+
 const results: Measurement[] = [];
 for (const target of targets) {
   for (const viewport of viewports) {
@@ -300,35 +390,14 @@ for (const target of targets) {
 }
 
 writeFileSync(`${out}/measurements-open.json`, JSON.stringify(results, null, 1));
-const authed = await browser.newContext({ viewport: viewports[0] });
-await authed.addInitScript("window.__name = (f) => f");
-const authedPage = await authed.newPage();
-const email = `e2e-t169-${Date.now().toString(36)}@e2e.test`;
-await authedPage.goto(`${base}/sign-up`);
-await authedPage.getByLabel("Name").fill("Audit");
-await authedPage.getByLabel("Email").fill(email);
-await authedPage.getByLabel("Password").fill("correct-horse-battery");
-await authedPage.getByRole("button", { name: "Create account" }).click();
-await authedPage.getByText("Check your inbox").waitFor();
-await pool.query(`update "user" set email_verified = true where email = $1`, [email]);
-await authedPage.goto(`${base}/sign-in`);
-await authedPage.getByLabel("Email").fill(email);
-await authedPage.getByLabel("Password").fill("correct-horse-battery");
-await authedPage.getByRole("button", { name: "Sign in", exact: true }).click();
-await authedPage.waitForURL((url) => !url.pathname.startsWith("/sign-in"));
-const {
-  rows: [account],
-} = await pool.query<{ id: string }>(`select id from "user" where email = $1`, [email]);
+const { page: authedPage, userId } = await signIn();
 for (const target of targets) {
-  await pool.query(
-    `insert into attempts (user_id, puzzle_id, type_key, completed_at, duration_ms)
-     select $1, $2, $3, now(), 187000 where not exists (select 1 from attempts where user_id = $1 and puzzle_id = $2)`,
-    [account.id, target.id, target.typeKey],
-  );
+  await complete(userId, target);
   for (const viewport of viewports) {
     results.push(await measure(authedPage, target, viewport, "solved", true));
   }
 }
+await removeUser(userId);
 
 writeFileSync(`${out}/measurements.json`, JSON.stringify(results, null, 1));
 

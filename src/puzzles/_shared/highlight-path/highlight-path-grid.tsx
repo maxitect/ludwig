@@ -149,7 +149,7 @@ export function HighlightPathGrid({
 
   return (
     <div
-      className="relative w-full [container-type:inline-size]"
+      className="relative w-full [container-type:inline-size] panel:mx-auto"
       style={{ maxWidth: capWidth(cols, cellRem) }}
     >
       <div

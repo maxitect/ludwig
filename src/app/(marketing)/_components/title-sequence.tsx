@@ -101,9 +101,11 @@ export function TitleSequence() {
       <div className="seq-track">
         <div className="seq-stage">
           <div aria-hidden="true" className="seq-scene">
+            <div className="seq-ground">
+              <div className="seq-plane seq-floor" />
+            </div>
             <div className="seq-world">
               <div className="seq-room" style={{ "--room": 0 } as CSSProperties}>
-                <div className="seq-plane seq-floor" />
                 <div className="seq-plane seq-wall-left" />
                 <div className="seq-plane seq-wall-right" />
                 <div className="seq-plane seq-wall seq-wall-grid">
@@ -112,7 +114,6 @@ export function TitleSequence() {
                 </div>
               </div>
               <div className="seq-room" style={{ "--room": 1 } as CSSProperties}>
-                <div className="seq-plane seq-floor" />
                 <div className="seq-plane seq-wall-left" />
                 <div className="seq-plane seq-wall-right" />
                 <div className="seq-plane seq-wall seq-wall-board">
@@ -132,7 +133,6 @@ export function TitleSequence() {
                 </div>
               </div>
               <div className="seq-room" style={{ "--room": 2 } as CSSProperties}>
-                <div className="seq-plane seq-floor" />
                 <div className="seq-plane seq-wall-left" />
                 <div className="seq-plane seq-wall-right" />
                 <div className="seq-plane seq-wall seq-wall-mirror">

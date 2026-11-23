@@ -1,5 +1,6 @@
 .title-sequence {
-  --seq-cell: 80px;
+  --seq-wall-height: 30rem;
+  --seq-cell: min(80px, (var(--seq-wall-height) - 4px) / 6);
   --seq-line: var(--border);
   --seq-ink: color-mix(in srgb, var(--foreground) 88%, transparent);
   --seq-tile: color-mix(in srgb, var(--color-shadow) 70%, transparent);
@@ -64,6 +65,8 @@
   perspective-origin: 50% 40%;
 }
 
+/* The floor is painted in its own 3D context, before the walls, and the walls stand 2px into it: Chromium's depth sorting drops parts of a wall whose edge meets the floor, and a gap between them shows the next room under the dividing wall. */
+.seq-ground,
 .seq-world {
   position: absolute;
   inset: 0;
@@ -90,9 +93,9 @@
 }
 
 .seq-floor {
-  left: calc(15% + 2px);
-  top: calc(75% + 1px);
-  width: calc(70% - 4px);
+  left: 15%;
+  top: calc(75% - 2px);
+  width: 70%;
   height: 1400px;
   transform-origin: 50% 0;
   transform: translateZ(-600px) rotateX(90deg);
@@ -112,6 +115,7 @@
   width: calc(70% - 4px);
   height: 65%;
   transform: translateZ(-600px);
+  overflow: clip;
   border: 2px solid var(--seq-line);
 }
 
@@ -166,7 +170,6 @@
 }
 
 .seq-wall-board {
-  overflow: clip;
   background-image: conic-gradient(
     var(--seq-ink) 25%,
     transparent 0 50%,
@@ -191,7 +194,7 @@
 }
 
 .seq-wall-mirror {
-  font-size: clamp(1.5rem, 4vw, 3.5rem);
+  font-size: clamp(1.5rem, min(4vw, (var(--seq-wall-height) - 1.25rem) / 9), 3.5rem);
 }
 
 .seq-wall-left,
@@ -224,7 +227,6 @@
   background-image:
     linear-gradient(var(--seq-line) 2px, transparent 2px),
     linear-gradient(90deg, var(--seq-line) 2px, transparent 2px);
-  
   background-size: var(--seq-cell) var(--seq-cell);
 }
 
@@ -623,6 +625,10 @@
       height: 380dvh;
     }
 
+    .title-sequence {
+      --seq-wall-height: calc((100dvh - var(--seq-header)) * 0.65);
+    }
+
     .seq-stage {
       position: sticky;
       top: var(--seq-header);
@@ -630,6 +636,7 @@
       min-height: 0;
     }
 
+    .seq-ground,
     .seq-world,
     .seq-hero,
     .seq-caption,
@@ -653,6 +660,11 @@
       display: block;
     }
 
+    .seq-floor {
+      width: calc(70% + 2 * var(--seq-pitch));
+    }
+
+    .seq-ground,
     .seq-world {
       animation-name: seq-world-pan, seq-world-yaw;
     }
@@ -741,6 +753,7 @@
         view-timeline: --seq block;
       }
 
+      .seq-ground,
       .seq-world,
       .seq-hero,
       .seq-caption,

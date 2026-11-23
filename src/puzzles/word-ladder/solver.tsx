@@ -83,8 +83,8 @@ export function Solver({
       </p>
       </PanelCell>
       <BoardCell className="panel:overflow-y-auto panel:pr-1 panel:pb-1">
-      <ol className="flex flex-col gap-4">
-        <li className="flex flex-col gap-1">
+      <ol className="flex flex-col gap-4 panel:grid panel:grid-cols-[auto_1fr] panel:content-start panel:gap-x-12">
+        <li className="flex flex-col gap-1 panel:col-start-2 panel:row-start-1">
           <span className="font-display text-sm uppercase">Start</span>
           <LetterTiles word={startWord} label="Start word" />
         </li>
@@ -92,7 +92,11 @@ export function Solver({
           const problem = problems.find((p) => p.position === position);
           const noteId = `rung-${position}-note`;
           return (
-            <li key={position} className="flex flex-col gap-1">
+            <li
+              key={position}
+              style={{ gridRow: position + 1 }}
+              className="flex flex-col gap-1 panel:col-start-1"
+            >
               <span className="font-display text-sm uppercase">
                 Rung {position + 1}
               </span>
@@ -120,7 +124,10 @@ export function Solver({
             </li>
           );
         })}
-        <li className="flex flex-col gap-1">
+        <li
+          style={{ gridRow: Math.max(2, rungCount) }}
+          className="flex flex-col gap-1 panel:col-start-2"
+        >
           <span className="font-display text-sm uppercase">End</span>
           <LetterTiles
             word={endWord}

@@ -2,7 +2,7 @@
 
 import { cn } from "@/utils/cn";
 import { usePadWanted, useTouch } from "../_shared/puzzle-keyboard";
-import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
+import { PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { CipherKeyPanel } from "../_shared/cipher-key/cipher-key-panel";
 import { useCipherGuesses } from "../_shared/cipher-key/use-cipher-guesses";
 import type { SolverProps } from "../solver-types";

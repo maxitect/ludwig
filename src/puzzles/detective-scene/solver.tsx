@@ -428,7 +428,7 @@ export function Solver({
       </p>
       <BoardCell className="panel:flex panel:flex-col panel:gap-4">
       <div
-        className="border-2 border-border bg-card text-card-foreground shadow-[3px_3px_0_var(--cast)]"
+        className="border-2 border-border bg-card text-card-foreground panel:mx-auto panel:w-full shadow-[3px_3px_0_var(--cast)]"
         style={{
           maxWidth: `calc((var(--board-h, 100000px) - 3.5rem) * ${width} / ${height})`,
         }}

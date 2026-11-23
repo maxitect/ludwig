@@ -112,7 +112,7 @@ export function RegionMarkGrid<M extends string>({
   }
 
   return (
-    <div className="relative w-full" style={{
+    <div className="relative w-full panel:mx-auto" style={{
         maxWidth: `min(${capWidth(cols, 3.5)}, ${heightWidth(cols, rows)})`,
       }}>
       <div

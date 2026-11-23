@@ -176,7 +176,7 @@ export function Solver({
       </PanelCell>
       <BoardCell>
       <div
-        className="relative w-full"
+        className="relative w-full panel:mx-auto"
         style={{
           maxWidth: `min(${capWidth(cols, 3)}, ${heightWidth(cols, rows)})`,
         }}

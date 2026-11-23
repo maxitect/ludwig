@@ -6,7 +6,7 @@ import { isPublished } from "./puzzles";
 /** Weeks up to and including `currentWeekStart`, newest first, with only published puzzles. */
 export async function getWeeklySchedule(currentWeekStart: string) {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("hours");
   cacheTag("puzzles");
   const rows = await db.query.weeklyPuzzles.findMany({
     where: { weekStart: { lte: currentWeekStart } },

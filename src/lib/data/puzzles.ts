@@ -14,7 +14,6 @@ const published = isPublished(puzzles);
 /** The payload carries no solution and no session data, so it is cached for everyone and revalidated with the catalogue. */
 export async function getPuzzleForPlay(typeKey: string, slug: string) {
   "use cache";
-  cacheLife("minutes");
   cacheTag("puzzles");
   const [puzzle] = await db
     .select({
@@ -30,7 +29,11 @@ export async function getPuzzleForPlay(typeKey: string, slug: string) {
     .where(
       and(eq(puzzles.typeKey, typeKey), eq(puzzles.slug, slug), published),
     );
-  if (!puzzle) return null;
+  if (!puzzle) {
+    cacheLife({ stale: 60, revalidate: 60, expire: 300 });
+    return null;
+  }
+  cacheLife("hours");
   const payload = await getPuzzleModule(typeKey).load(puzzle.id);
   return { puzzle, payload };
 }

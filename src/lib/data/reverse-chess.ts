@@ -5,7 +5,7 @@ import { isPublished } from "./puzzles";
 
 export async function getReverseChessHub() {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("hours");
   cacheTag("puzzles");
   const rows = await db.query.puzzles.findMany({
     where: { typeKey: "reverse-chess", RAW: isPublished },

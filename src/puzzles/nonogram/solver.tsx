@@ -10,6 +10,7 @@ import {
   type PointerEvent,
 } from "react";
 import { cn } from "@/utils/cn";
+import { BoardCell, PanelCell, SolveLayout, capWidth } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { runsOf } from "./derive";
 import type * as schema from "./schema";
@@ -275,18 +276,25 @@ export function Solver({
     1,
   );
   const clueWidth = `calc(${rowClueChars}ch + 0.8em)`;
+  const clueBand = Math.max(1.5, Math.max(...colClues.map((clue) => clue.length)) * 1.5 + 0.25);
+  const cellFit = `(var(--board-h, 100000px) - ${clueBand}rem - 1rem) / ${rows}`;
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p>
         Shade the cells so each row and column holds runs of the lengths its
         clue lists, in order, with at least one empty cell between runs. Mark
         cells you know are empty with a cross. Solve it and the picture
         appears.
       </p>
+      </PanelCell>
+      <BoardCell>
       <div
         className="paper-sheet mx-auto w-full p-2 select-none"
-        style={{ maxWidth: `calc(${cols} * 2.25rem + ${clueWidth} + 1rem)` }}
+        style={{
+          maxWidth: `min(calc(${capWidth(cols, 2.25)} + ${clueWidth} + 1rem), calc(${cols} * (${cellFit}) + ${clueWidth} + 1rem))`,
+        }}
       >
         <div
           role="grid"
@@ -387,6 +395,7 @@ export function Solver({
           ))}
         </div>
       </div>
+      </BoardCell>
       <p id={helpId} className="sr-only">
         Move with the arrow keys. Press Space to fill a cell, X to cross it as
         empty, Backspace to clear it, or Enter to cycle through filled,
@@ -394,9 +403,11 @@ export function Solver({
         Tap or click a cell to cycle it, and drag along a line to paint a
         run. The grid is checked when every clue is met.
       </p>
+      <PanelCell>
       <p role="status" aria-live="polite" className="font-display text-sm uppercase">
         {done} of {rows + cols} clues met
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

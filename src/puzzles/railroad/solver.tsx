@@ -10,6 +10,7 @@ import {
   type PointerEvent,
 } from "react";
 import { cn } from "@/utils/cn";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { OPEN, OPPOSITE, SIDES, STEP, laidAlong } from "./engine";
 import type * as schema from "./schema";
@@ -343,7 +344,8 @@ export function Solver({
   ];
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p>
         Lay one track from the entry light (a black disc) to the exit light (a
         red square). It never branches or crosses itself, every piece of track
@@ -351,9 +353,13 @@ export function Solver({
         says. Drag across cells to lay track, or tap a cell to cycle through
         the pieces, a cross and empty.
       </p>
+      </PanelCell>
+      <BoardCell>
       <div
         className="paper-sheet mx-auto w-full p-2 select-none"
-        style={{ maxWidth: `calc(${cols} * 3rem + 3rem)` }}
+        style={{
+          maxWidth: `min(calc(${cols + 1} * max(3rem, var(--cell-cap, 0rem))), calc(${cols + 1} * ((var(--board-h, 100000px) - 1rem) / ${rows + 1}) + 1rem))`,
+        }}
       >
         <div
           role="grid"
@@ -492,6 +498,7 @@ export function Solver({
           ))}
         </div>
       </div>
+      </BoardCell>
       <p id={helpId} className="sr-only">
         Move with the arrow keys. Press 1 to 6 to lay a piece: 1 straight up
         and down, 2 straight left and right, 3 curving up and right, 4 curving
@@ -501,11 +508,13 @@ export function Solver({
         drag across cells to lay a track. The grid is checked when every count
         is met.
       </p>
+      <PanelCell>
       <p role="status" aria-live="polite" className="font-display text-sm uppercase">
         {rowTotals.filter((n, row) => n === rowCounts[row]).length +
           colTotals.filter((n, col) => n === colCounts[col]).length}{" "}
         of {rows + cols} counts met
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

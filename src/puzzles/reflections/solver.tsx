@@ -9,6 +9,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { cn } from "@/utils/cn";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { pairsOf, portKey, trace, unmatchedPorts } from "./engine";
 import type * as schema from "./schema";
@@ -300,16 +301,21 @@ export function Solver({
     : "Focus a camera to follow its beam.";
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
       <p>
         Put a mirror in every dashed square. A beam leaves each lettered
         camera, turns at every mirror and must arrive at the other camera with
         the same letter. Tap a square to cycle a forward slash, a backslash and
         empty.
       </p>
+      </PanelCell>
+      <BoardCell>
       <div
         className="paper-sheet mx-auto w-full p-2 select-none"
-        style={{ maxWidth: `calc(${cols + 2} * 3.25rem + 1rem)` }}
+        style={{
+          maxWidth: `min(calc(${cols + 2} * max(3.25rem, var(--cell-cap, 0rem)) + 1rem), calc(${cols + 2} * ((var(--board-h, 100000px) - 1rem) / ${rows + 2}) + 1rem))`,
+        }}
       >
         <div
           className="relative grid w-full"
@@ -475,6 +481,7 @@ export function Solver({
           </svg>
         </div>
       </div>
+      </BoardCell>
       <p id={helpId} className="sr-only">
         Move with the arrow keys. Press the forward slash key or the backslash
         key to put that mirror in a square, Space or Enter to cycle forward
@@ -482,12 +489,14 @@ export function Solver({
         to hear where its beam currently exits. The grid is checked when every
         pair is joined.
       </p>
+      <PanelCell className="panel:flex panel:flex-col panel:gap-4">
       <p role="status" aria-live="polite" className="font-display text-sm uppercase">
         {joinedPairs} of {pairs.length} pairs joined
       </p>
       <p aria-live="polite" data-testid="beam-note" className="min-h-[3lh] text-sm">
         {description}
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

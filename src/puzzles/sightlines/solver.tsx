@@ -11,6 +11,7 @@ import {
 import { cn } from "@/utils/cn";
 import { cellRotation } from "../_shared/cell-grid/cell-grid";
 import { BriefSheet } from "../_shared/brief-sheet";
+import { BoardCell, PanelCell, SolveLayout, capWidth, heightWidth } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { describeCell, describeObserver } from "./derive";
 import type * as schema from "./schema";
@@ -139,15 +140,20 @@ export function Solver({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head" className="panel:flex panel:flex-col panel:gap-4">
       <BriefSheet brief={payload.brief} />
       <p>
         Pillars block the view. Mark every floor cell that no observer can
         see, the alcove included.
       </p>
+      </PanelCell>
+      <BoardCell>
       <div
         className="relative w-full"
-        style={{ maxWidth: `${cols * 3}rem` }}
+        style={{
+          maxWidth: `min(${capWidth(cols, 3)}, ${heightWidth(cols, rows)})`,
+        }}
       >
         <div
           role="grid"
@@ -252,6 +258,8 @@ export function Solver({
           cell. Pillars cannot be marked.
         </p>
       </div>
+      </BoardCell>
+      <PanelCell className="panel:flex panel:flex-col panel:gap-4">
       <ul aria-label="Observers" className="flex flex-col gap-1 text-sm">
         {observers.map((observer) => (
           <li key={key(observer.row, observer.col)}>
@@ -262,6 +270,7 @@ export function Solver({
       <p role="status" className="font-display text-sm uppercase">
         {marks.length} {marks.length === 1 ? "cell" : "cells"} marked
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

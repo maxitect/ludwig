@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { revealCameras } from "@/lib/actions/cctv-maze";
 import { cn } from "@/utils/cn";
 import { BriefSheet } from "../_shared/brief-sheet";
+import { BoardCell, PanelCell, SolveLayout, capWidth, heightWidth } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { canStep, deriveSeen } from "./derive";
 import type * as schema from "./schema";
@@ -144,7 +145,8 @@ export function Solver({
     .join(" ");
 
   return (
-    <div className="flex flex-col gap-4">
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head" className="panel:flex panel:flex-col panel:gap-4">
       <BriefSheet brief={payload.brief} />
       <p>
         Walk from the start to the exit without entering a camera&apos;s view.
@@ -171,9 +173,13 @@ export function Solver({
           Restart path
         </Button>
       </div>
+      </PanelCell>
+      <BoardCell>
       <div
         className="relative w-full"
-        style={{ maxWidth: `${cols * 3}rem` }}
+        style={{
+          maxWidth: `min(${capWidth(cols, 3)}, ${heightWidth(cols, rows)})`,
+        }}
       >
         <div
           role="grid"
@@ -325,12 +331,15 @@ export function Solver({
           with Backspace or by moving onto the cell you came from.
         </p>
       </div>
+      </BoardCell>
+      <PanelCell>
       <p role="status" className="font-display text-sm uppercase">
         {atExit
           ? "At the exit. Check your path."
           : `${path.length - 1} ${path.length === 2 ? "step" : "steps"} taken`}
         {message ? ` · ${message}` : ""}
       </p>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

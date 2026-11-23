@@ -125,6 +125,7 @@ async function Schedule() {
                     <li key={puzzle.id}>
                       <Link
                         href={puzzleHref(puzzle)}
+                        prefetch={false}
                         className={`flex items-center justify-between gap-4 py-1 hover:bg-muted ${focusClass}`}
                       >
                         <span className="font-display text-lg font-semibold tracking-[0.04em] uppercase">

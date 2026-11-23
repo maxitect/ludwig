@@ -280,7 +280,7 @@ function EntryList({
     <ul className="flex flex-col">
       {entries.map((puzzle) => (
         <li key={puzzle.id} className="border-b-2 border-border">
-          <Link href={href(puzzle.slug)} className={linkClass}>
+          <Link href={href(puzzle.slug)} prefetch={false} className={linkClass}>
             <PuzzleThumbnail typeKey={typeKey} puzzleId={puzzle.id} />
             <span className="mr-auto font-display text-lg font-semibold tracking-[0.04em] uppercase">
               {puzzle.title}

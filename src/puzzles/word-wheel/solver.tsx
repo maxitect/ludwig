@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { submitWheelWord } from "@/lib/actions/word-wheel";
 import { cn } from "@/utils/cn";
 import { tileClass, tilt } from "../_shared/letter-tiles/letter-tile";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { fitFailure, ratingFor } from "./engine";
 import type * as schema from "./schema";
@@ -84,17 +85,18 @@ export function Solver({
   });
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-      <div className="flex flex-col gap-4 lg:w-96">
+    <SolveLayout className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 panel:contents">
         <p className="sr-only">
           Make words from the nine letters. Every word must use the centre
           letter and be at least {minLength} letters long. Type a word and press
           Enter. Finding the nine-letter word solves the puzzle.
         </p>
+        <BoardCell>
         <div
           role="group"
           aria-label="Wheel letters"
-          className="relative mx-auto aspect-square w-full max-w-sm"
+          className="relative mx-auto aspect-square w-full max-w-sm panel:max-w-[min(100cqw,var(--board-h))]"
         >
           {rimTiles.map(({ letter, left, top }, i) => (
             <button
@@ -125,7 +127,10 @@ export function Solver({
             {centre}
           </button>
         </div>
-        <div className="flex flex-col gap-2">
+        </BoardCell>
+      </div>
+      <PanelCell className="panel:flex panel:flex-col panel:gap-4">
+        <div className="-mt-2 flex flex-col gap-2 panel:mt-0">
           <label htmlFor="wheel-word" className="font-display text-sm uppercase">
             Your word
           </label>
@@ -183,8 +188,7 @@ export function Solver({
             {message}
           </p>
         </div>
-      </div>
-      <div className="flex flex-col gap-3 lg:flex-1">
+      <div className="flex flex-col gap-3">
         <h2 className="font-display text-xl uppercase">
           Found <span className="font-mono tabular-nums">{found.length}</span>
         </h2>
@@ -204,6 +208,7 @@ export function Solver({
           ))}
         </ul>
       </div>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

@@ -9,6 +9,7 @@ import {
   type PointerEvent,
 } from "react";
 import { cn } from "@/utils/cn";
+import { capWidth } from "../solve-layout";
 import { FRAME, HAIRLINE, cellRotation, snappedCell } from "../cell-grid/cell-grid";
 import { selectionPath, type CellPosition } from "./path";
 
@@ -149,7 +150,7 @@ export function HighlightPathGrid({
   return (
     <div
       className="relative w-full [container-type:inline-size]"
-      style={{ maxWidth: `${cols * cellRem}rem` }}
+      style={{ maxWidth: capWidth(cols, cellRem) }}
     >
       <div
         role="grid"

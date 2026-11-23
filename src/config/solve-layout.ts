@@ -35,7 +35,7 @@ export const panelSolveTypes: ReadonlySet<string> = new Set([
   "reflections",
 ]);
 
-/** Panel types whose board needs the width: the panel is 20rem instead of 24rem (the book page keeps a 56-character line at 1024px). */
+/** Panel types whose board needs the width: the panel is 18rem instead of 24rem (the book page keeps a 56-character line at 1024px). */
 export const narrowPanelSolveTypes: ReadonlySet<string> = new Set(["book-cipher"]);
 
 /** One column under the compact title bar. */

@@ -459,7 +459,7 @@ function SolveBoard({
             ref={solvedFooter}
             tabIndex={-1}
             data-testid="solved-footer"
-            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none desk:gap-x-4 desk:gap-y-6 panel:col-start-2 panel:row-start-7 panel:max-h-[calc(var(--solver-height)-2.5rem)] panel:overflow-y-auto touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
+            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none desk:gap-x-4 desk:gap-y-6 panel:col-start-2 panel:relative panel:row-start-7 panel:max-h-[calc(var(--solver-height)-2.5rem)] panel:overflow-y-auto touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
           >
             <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] desk:[--hole-size:216px] touch:[--hole-size:216px]">
               <BulletHole data-testid="solved-hole" />

@@ -12,6 +12,7 @@ import {
 } from "react";
 import { cogPath } from "../_shared/cog-path";
 import { useReduceMotion } from "@/utils/use-reduce-motion";
+import { BoardCell, PanelCell } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { TrainBoard, pegAt } from "./board";
 import { type Peg, pegKey, radius, trainOf } from "./engine";
@@ -250,7 +251,8 @@ export function Solver({
   const spinning = !reduceMotion;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4 panel:contents">
+      <PanelCell part="head" className="flex flex-col gap-4">
       <p>
         The driver turns <strong>clockwise</strong> (red handle). The target
         must turn <strong>{direction}</strong> (red arrow).
@@ -260,7 +262,8 @@ export function Solver({
         cursor with the arrow keys and press Enter. Delete, or a tap on a
         placed cog, returns it to the tray.
       </p>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+      </PanelCell>
+      <BoardCell>
         <TrainBoard
           payload={payload}
           placed={cogs}
@@ -275,10 +278,12 @@ export function Solver({
           onClick={onBoardClick}
           onKeyDown={onBoardKeyDown}
         />
+      </BoardCell>
+      <PanelCell>
         <div
           role="group"
           aria-label="Cog tray"
-          className="flex flex-row flex-wrap gap-2 lg:flex-col"
+          className="flex flex-row flex-wrap gap-2"
         >
           {payload.inventory.map(({ teeth }) => {
             const remaining = left(teeth);
@@ -312,7 +317,7 @@ export function Solver({
             );
           })}
         </div>
-      </div>
+      </PanelCell>
       {drag && (
         <div
           aria-hidden
@@ -322,6 +327,7 @@ export function Solver({
           {drag.teeth}
         </div>
       )}
+      <PanelCell part="foot" className="flex flex-col gap-4">
       <p
         aria-live="polite"
         data-testid="train-status"
@@ -337,6 +343,7 @@ export function Solver({
       >
         {notice?.text}
       </p>
+      </PanelCell>
       <p aria-live="polite" className="sr-only">
         {cursorNote}
       </p>

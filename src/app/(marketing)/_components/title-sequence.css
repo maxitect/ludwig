@@ -1,25 +1,42 @@
 .title-sequence {
-  --seq-cell: 80px;
+  --seq-wall-height: calc(46rem * 0.65);
+  --seq-cell: min(80px, (var(--seq-wall-height) - 4px) / 6);
   --seq-line: var(--border);
   --seq-ink: color-mix(in srgb, var(--foreground) 88%, transparent);
   --seq-tile: color-mix(in srgb, var(--color-shadow) 70%, transparent);
   --seq-rake: var(--color-shadow);
   --seq-calm: 4deg;
-  --seq-rooms: 3;
+  --seq-header: 4.13rem;
   --seq-lead: 4deg;
+  --seq-open: 0deg;
   --seq-pitch: 70%;
+}
+
+@media (pointer: coarse) {
+  .title-sequence {
+    --seq-header: 4.375rem;
+  }
 }
 
 @media (min-width: 48rem) {
   .title-sequence {
-    --seq-calm: 12deg;
+    --seq-calm: 8deg;
+    --seq-open: -8deg;
   }
 }
 
 @media (min-width: 64rem) {
   .title-sequence {
-    --seq-calm: 16deg;
+    --seq-calm: 12deg;
+    --seq-open: -12deg;
     --seq-lead: 6deg;
+  }
+}
+
+@media (min-width: 80rem) {
+  .title-sequence {
+    --seq-calm: 16deg;
+    --seq-open: -16deg;
   }
 }
 
@@ -48,12 +65,14 @@
   perspective-origin: 50% 40%;
 }
 
+/* The floor is painted in its own 3D context, before the walls, and the walls stand 2px into it: Chromium's depth sorting drops parts of a wall whose edge meets the floor, and a gap between them shows the next room under the dividing wall. */
+.seq-ground,
 .seq-world {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 50% -300px;
-  rotate: y -16deg;
+  rotate: y var(--seq-open);
 }
 
 .seq-room {
@@ -74,9 +93,9 @@
 }
 
 .seq-floor {
-  left: -50%;
-  top: 75%;
-  width: calc(200% + var(--seq-rooms) * var(--seq-pitch));
+  left: 15%;
+  top: calc(75% - 2px);
+  width: 70%;
   height: 1400px;
   transform-origin: 50% 0;
   transform: translateZ(-600px) rotateX(90deg);
@@ -91,11 +110,12 @@
 }
 
 .seq-wall {
-  left: 15%;
+  left: calc(15% + 2px);
   top: 10%;
-  width: 70%;
+  width: calc(70% - 4px);
   height: 65%;
   transform: translateZ(-600px);
+  overflow: clip;
   border: 2px solid var(--seq-line);
 }
 
@@ -150,7 +170,6 @@
 }
 
 .seq-wall-board {
-  overflow: clip;
   background-image: conic-gradient(
     var(--seq-ink) 25%,
     transparent 0 50%,
@@ -174,16 +193,8 @@
   opacity: 0;
 }
 
-.seq-wall-finale > * {
-  opacity: 0.2;
-}
-
-.seq-wall-finale {
-  font-size: clamp(1.5rem, 4vw, 3.5rem);
-}
-
 .seq-wall-mirror {
-  font-size: clamp(1.5rem, 4vw, 3.5rem);
+  font-size: clamp(1.5rem, min(4vw, (var(--seq-wall-height) - 1.25rem) / 9), 3.5rem);
 }
 
 .seq-wall-left,
@@ -327,7 +338,7 @@
   font-weight: 400;
 }
 
-.seq-finale {
+.seq-closing {
   position: relative;
   display: grid;
   min-height: 32rem;
@@ -337,7 +348,7 @@
   padding: 4rem 1rem;
 }
 
-.seq-finale-digits {
+.seq-closing-digits {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -348,7 +359,7 @@
   font-size: clamp(1.5rem, 5vw, 4rem);
 }
 
-.seq-finale-copy {
+.seq-closing-copy {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -396,36 +407,28 @@
     animation-timing-function: ease-in-out;
   }
   72%,
-  86% {
-    transform: translateX(calc(var(--seq-pitch) * -2));
-    animation-timing-function: ease-in-out;
-  }
-  96%,
   to {
-    transform: translateX(calc(var(--seq-pitch) * -3));
+    transform: translateX(calc(var(--seq-pitch) * -2));
   }
 }
 
 @keyframes seq-world-yaw {
   from {
-    rotate: y -16deg;
+    rotate: y var(--seq-open);
   }
   6%,
   26%,
   41%,
-  58%,
-  72%,
-  86% {
+  58% {
     rotate: y var(--seq-calm);
     animation-timing-function: ease-in-out;
   }
   33.5%,
-  65%,
-  91% {
+  65% {
     rotate: y calc(var(--seq-calm) + var(--seq-lead));
     animation-timing-function: ease-in-out;
   }
-  96%,
+  72%,
   to {
     rotate: y var(--seq-calm);
   }
@@ -482,14 +485,9 @@
     pointer-events: none;
   }
   72%,
-  86% {
+  100% {
     opacity: 1;
     pointer-events: auto;
-  }
-  89%,
-  100% {
-    opacity: 0;
-    pointer-events: none;
   }
 }
 
@@ -624,16 +622,21 @@
 @media (prefers-reduced-motion: no-preference) {
   :where(:root:not([data-reduce-motion])) {
     .seq-track {
-      height: 400dvh;
+      height: 380dvh;
+    }
+
+    .title-sequence {
+      --seq-wall-height: calc((100dvh - var(--seq-header)) * 0.65);
     }
 
     .seq-stage {
       position: sticky;
-      top: 0;
-      height: 100dvh;
+      top: var(--seq-header);
+      height: calc(100dvh - var(--seq-header));
       min-height: 0;
     }
 
+    .seq-ground,
     .seq-world,
     .seq-hero,
     .seq-caption,
@@ -657,11 +660,11 @@
       display: block;
     }
 
-    .seq-room + .seq-room .seq-wall-left,
-    .seq-room:not(:last-child) .seq-wall-right {
-      width: 700px;
+    .seq-floor {
+      width: calc(70% + 2 * var(--seq-pitch));
     }
 
+    .seq-ground,
     .seq-world {
       animation-name: seq-world-pan, seq-world-yaw;
     }
@@ -750,6 +753,7 @@
         view-timeline: --seq block;
       }
 
+      .seq-ground,
       .seq-world,
       .seq-hero,
       .seq-caption,

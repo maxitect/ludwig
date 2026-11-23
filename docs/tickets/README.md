@@ -161,6 +161,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T169](./T169-desktop-solve-layout-audit.md) | Audit the desktop solve page for every puzzle type: what fits, what scrolls, what belongs in a side panel | T152, T168 | | | todo |
 | [T170](./T170-desktop-board-and-panel-layout.md) | Desktop solve layout: board on the left, clues and controls on the right, no page scroll (built from T169's audit; not classic gears) | T169 | | | todo |
 | [T171](./T171-landing-one-room-per-shot.md) | Landing: fit the stage under the header, one room per shot, and end on the Mirror (fourth pass; tested against every requirement) | T167 | | | todo |
+| [T172](./T172-isr-writes-per-visit.md) | ISR writes per visit: longer cache life, fewer prefetches, no site-wide purge on a settings save (high priority; T159 AC6 follow-up) | T159 | | ✔ | todo |
 
 ## M6: Radio Times set
 

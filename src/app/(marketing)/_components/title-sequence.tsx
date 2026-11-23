@@ -102,8 +102,8 @@ export function TitleSequence() {
         <div className="seq-stage">
           <div aria-hidden="true" className="seq-scene">
             <div className="seq-world">
-              <div className="seq-plane seq-floor" />
               <div className="seq-room" style={{ "--room": 0 } as CSSProperties}>
+                <div className="seq-plane seq-floor" />
                 <div className="seq-plane seq-wall-left" />
                 <div className="seq-plane seq-wall-right" />
                 <div className="seq-plane seq-wall seq-wall-grid">
@@ -112,6 +112,7 @@ export function TitleSequence() {
                 </div>
               </div>
               <div className="seq-room" style={{ "--room": 1 } as CSSProperties}>
+                <div className="seq-plane seq-floor" />
                 <div className="seq-plane seq-wall-left" />
                 <div className="seq-plane seq-wall-right" />
                 <div className="seq-plane seq-wall seq-wall-board">
@@ -131,17 +132,11 @@ export function TitleSequence() {
                 </div>
               </div>
               <div className="seq-room" style={{ "--room": 2 } as CSSProperties}>
+                <div className="seq-plane seq-floor" />
                 <div className="seq-plane seq-wall-left" />
                 <div className="seq-plane seq-wall-right" />
                 <div className="seq-plane seq-wall seq-wall-mirror">
                   <MirroredSudoku className="size-full" writeIn />
-                </div>
-              </div>
-              <div className="seq-room" style={{ "--room": 3 } as CSSProperties}>
-                <div className="seq-plane seq-wall-left" />
-                <div className="seq-plane seq-wall-right" />
-                <div className="seq-plane seq-wall seq-wall-finale">
-                  <MirroredSudoku className="size-full" />
                 </div>
               </div>
             </div>
@@ -184,9 +179,9 @@ export function TitleSequence() {
           </nav>
         </div>
       </div>
-      <section className="seq-finale">
-        <MirroredSudoku className="seq-finale-digits" />
-        <div className="seq-finale-copy">
+      <section className="seq-closing">
+        <MirroredSudoku className="seq-closing-digits" />
+        <div className="seq-closing-copy">
           <Credit level={2} top="Take a seat" bottom="Begin" />
           <Button asChild size="lg">
             <Link href="/puzzles" transitionTypes={["bullet-hole"]}>Open the Collection</Link>

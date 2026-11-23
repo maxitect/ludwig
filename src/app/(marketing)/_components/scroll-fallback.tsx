@@ -2,15 +2,26 @@
 
 import { useEffect, useRef } from "react";
 
-/** Drives the title sequence from scroll in browsers without `animation-timeline: view()`. */
+/** Keeps the sticky stage under the site header, and drives the title sequence from scroll in browsers without `animation-timeline: view()`. */
 export function ScrollFallback() {
   const marker = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (CSS.supports("animation-timeline: view()")) return;
     const root = marker.current?.closest<HTMLElement>(".title-sequence");
-    const track = root?.querySelector<HTMLElement>(".seq-track");
-    if (!root || !track) return;
+    const header = document.querySelector<HTMLElement>("[data-site-header]");
+    if (!root) return;
+
+    const measureHeader = new ResizeObserver(() => {
+      if (header) root.style.setProperty("--seq-header", `${header.getBoundingClientRect().height}px`);
+    });
+    if (header) measureHeader.observe(header);
+    const stopMeasuring = () => {
+      measureHeader.disconnect();
+      root.style.removeProperty("--seq-header");
+    };
+
+    const track = root.querySelector<HTMLElement>(".seq-track");
+    if (!track || CSS.supports("animation-timeline: view()")) return stopMeasuring;
 
     root.dataset.seqScroll = "";
     let frame = 0;
@@ -34,6 +45,7 @@ export function ScrollFallback() {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
+      stopMeasuring();
       root.style.removeProperty("--seq-progress");
       delete root.dataset.seqScroll;
     };

@@ -3,7 +3,7 @@ import { expect, type Page, test } from "@playwright/test";
 
 /** CPU benchmark time on the dev machine. The GitHub runner is ~5x slower and software-rasterises, so scrub frames land on 30fps boundaries there whatever the throttle; a runner that slow is allowed one dropped vsync. */
 const REFERENCE_BENCH_MS = 96;
-const SHOTS = ".verification/T167";
+const SHOTS = ".verification/T171";
 mkdirSync(SHOTS, { recursive: true });
 
 const VIEWPORTS = [
@@ -15,14 +15,12 @@ const VIEWPORTS = [
 const ROOMS = [
   { wall: ".seq-wall-grid", from: 0.06, to: 0.26 },
   { wall: ".seq-wall-board", from: 0.41, to: 0.58 },
-  { wall: ".seq-wall-mirror", from: 0.72, to: 0.86 },
-  { wall: ".seq-wall-finale", from: 0.96, to: 1 },
+  { wall: ".seq-wall-mirror", from: 0.72, to: 1 },
 ] as const;
 
 const PANS = [
   { from: 0.26, to: 0.41 },
   { from: 0.58, to: 0.72 },
-  { from: 0.86, to: 0.96 },
 ] as const;
 
 /** Room pitch is 70% of the stage width, so the divider sits half a pitch from the camera at a dwell. */
@@ -41,7 +39,7 @@ async function seek(page: Page, progress: number) {
     const track = document.querySelector<HTMLElement>(".seq-track")!;
     const span = track.offsetHeight - window.innerHeight;
     const top = track.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo(0, Math.ceil(top + value * span));
+    window.scrollTo(0, Math.min(Math.ceil(top + value * span), Math.floor(top + span)));
     await new Promise((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(resolve)),
     );
@@ -121,6 +119,168 @@ async function setTheme(page: Page, theme: "paper" | "ink") {
   }, theme);
 }
 
+const SIZES = [
+  { width: 2000, height: 1245 },
+  { width: 1920, height: 1080 },
+  { width: 1440, height: 900 },
+  { width: 1280, height: 800 },
+  { width: 1280, height: 650 },
+  { width: 1024, height: 768 },
+  { width: 390, height: 844 },
+  { width: 430, height: 932 },
+] as const;
+
+type Path = "timeline" | "fallback";
+
+/** Room-ownership helper: every plane of room n is painted one flat colour, the floor another and everything else on the stage is hidden, so a screenshot says which room owns each pixel (rectangles can't, they ignore what a nearer wall hides). */
+const ROOM_COLOURS = [
+  [255, 0, 0],
+  [0, 255, 0],
+  [0, 0, 255],
+  [255, 0, 255],
+] as const;
+const FLOOR_COLOUR = [128, 128, 128] as const;
+
+function ownershipStyle() {
+  const rgb = ([r, g, b]: readonly number[]) => `rgb(${r}, ${g}, ${b})`;
+  const paint = (selector: string, colour: readonly number[]) =>
+    `${selector} { background: ${rgb(colour)} !important; background-image: none !important; border-color: ${rgb(colour)} !important; }`;
+  const rooms = ROOM_COLOURS.map((colour, index) => {
+    const room = `.seq-room[data-room-index="${index}"]`;
+    return [paint(`${room} .seq-plane`, colour.map((channel) => channel / 2)), paint(`${room} .seq-wall`, colour)].join("\n");
+  }).join("\n");
+  return `
+body::before { display: none !important; }
+.seq-stage { background: rgb(0, 0, 0) !important; }
+.seq-plane > * { visibility: hidden !important; }
+${paint(".seq-room[data-room-index] .seq-plane.seq-floor", FLOOR_COLOUR)}
+.seq-raking, .seq-hero, .seq-walker, .seq-captions, .seq-piece { visibility: hidden !important; }
+${rooms}`;
+}
+
+/** Opens `/` at `size`. The fallback path is forced in Chromium the way Firefox takes it: view timeline off, progress from scroll. */
+async function openOn(page: Page, size: { width: number; height: number }, path: Path) {
+  if (path === "fallback") {
+    await page.addInitScript(() => {
+      const style = document.createElement("style");
+      style.textContent =
+        ".title-sequence * { animation-timeline: auto !important; animation-duration: 1s !important; animation-play-state: paused !important; animation-delay: calc(var(--seq-progress, 0) * -1s) !important; animation-range: normal !important; }";
+      const update = () => {
+        const root = document.querySelector<HTMLElement>(".title-sequence");
+        const track = root?.querySelector<HTMLElement>(".seq-track");
+        if (!root || !track) return;
+        root.dataset.seqScroll = "";
+        const span = track.offsetHeight - window.innerHeight;
+        const progress =
+          span > 0
+            ? Math.min(1, Math.max(0, -track.getBoundingClientRect().top / span))
+            : 0;
+        root.style.setProperty("--seq-progress", progress.toFixed(4));
+      };
+      new MutationObserver((_, observer) => {
+        if (!document.head) return;
+        document.head.append(style);
+        observer.disconnect();
+      }).observe(document, { childList: true, subtree: true });
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      document.addEventListener("DOMContentLoaded", update);
+    });
+  }
+  await open(page, size);
+  await page.evaluate(() => {
+    document.querySelectorAll(".seq-room").forEach((room, index) => {
+      (room as HTMLElement).dataset.roomIndex = String(index);
+    });
+  });
+}
+
+type Ownership = {
+  /** Pixels per room: its back wall and its side walls. */
+  rooms: number[];
+  /** Pixels per room's back wall alone, the view into the room. */
+  backs: number[];
+  floor: number;
+  other: number;
+  /** The stage's left and right edge pixel columns top to bottom, as run-length strings like `other,room0,floor`. */
+  left: string;
+  right: string;
+  stage: { left: number; top: number; right: number; bottom: number };
+  walls: { left: number; top: number; right: number; bottom: number }[];
+};
+
+async function ownership(page: Page): Promise<Ownership> {
+  const png = (await page.locator(".seq-stage").screenshot({ scale: "css" })).toString("base64");
+  return page.evaluate(
+    async ({ data, rooms, floor }) => {
+      const image = new Image();
+      image.src = `data:image/png;base64,${data}`;
+      await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const context = canvas.getContext("2d", { willReadFrequently: true })!;
+      context.drawImage(image, 0, 0);
+      const { data: pixels } = context.getImageData(0, 0, image.width, image.height);
+      const near = (index: number, colour: readonly number[]) =>
+        Math.abs(pixels[index] - colour[0]) <= 6 &&
+        Math.abs(pixels[index + 1] - colour[1]) <= 6 &&
+        Math.abs(pixels[index + 2] - colour[2]) <= 6;
+      const classify = (index: number) => {
+        for (const [room, colour] of rooms.entries()) {
+          if (near(index, colour)) return `room${room}`;
+          if (near(index, colour.map((channel) => channel / 2))) return `room${room}`;
+        }
+        return near(index, floor) ? "floor" : "other";
+      };
+      const counts = new Array<number>(rooms.length).fill(0);
+      const backCounts = new Array<number>(rooms.length).fill(0);
+      let floorCount = 0;
+      let other = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        const name = classify(index);
+        if (name === "floor") floorCount++;
+        else if (name === "other") other++;
+        else {
+          const room = Number(name.slice(4));
+          counts[room]++;
+          if (near(index, rooms[room])) backCounts[room]++;
+        }
+      }
+      const column = (x: number) => {
+        const runs: string[] = [];
+        for (let y = 0; y < image.height; y++) {
+          const name = classify((y * image.width + x) * 4);
+          if (runs.at(-1) !== name) runs.push(name);
+        }
+        return runs.join(",");
+      };
+      const rect = (element: Element) => {
+        const { left, top, right, bottom } = element.getBoundingClientRect();
+        return { left, top, right, bottom };
+      };
+      return {
+        rooms: counts,
+        backs: backCounts,
+        floor: floorCount,
+        other,
+        left: column(0),
+        right: column(image.width - 1),
+        stage: rect(document.querySelector(".seq-stage")!),
+        walls: [...document.querySelectorAll(".seq-wall")].map(rect),
+      };
+    },
+    { data: png, rooms: ROOM_COLOURS.map((colour) => [...colour]), floor: [...FLOOR_COLOUR] },
+  );
+}
+
+const steps = (from: number, to: number) =>
+  Array.from({ length: Math.round((to - from) * 100) + 1 }, (_, index) => (Math.round(from * 100) + index) / 100);
+
+/** The rooms that have any pixels. */
+const roomsInFrame = (shot: Ownership) =>
+  shot.rooms.flatMap((count, index) => (count > 0 ? [index] : []));
+
 test.describe("landing walls", () => {
   test("AC1 every room is staged side by side and painted from the start", async ({ page }) => {
     for (const viewport of VIEWPORTS) {
@@ -138,7 +298,7 @@ test.describe("landing walls", () => {
         lefts.push(rect.left);
       }
       expect([...lefts].sort((a, b) => a - b), `rooms left to right in ${viewport.width}px`).toEqual(lefts);
-      expect(await page.locator(".seq-wall-right").count(), "a wall after each room").toBe(4);
+      expect(await page.locator(".seq-wall-right").count(), "a wall after each room").toBe(3);
       expect(await page.locator(".seq-bpiece").count()).toBeGreaterThan(10);
       expect(await page.locator(".seq-wall-mirror .seq-mirror-digit").count()).toBe(5);
     }
@@ -168,7 +328,6 @@ test.describe("landing walls", () => {
       for (const [wall, before, after] of [
         [".seq-wall-board", 0.26, 0.4],
         [".seq-wall-mirror", 0.58, 0.71],
-        [".seq-wall-finale", 0.86, 0.96],
       ] as const) {
         await seek(page, 0);
         const start = await snapshot(wall);
@@ -222,7 +381,7 @@ test.describe("landing walls", () => {
         ).toBeLessThanOrEqual(2);
       });
 
-      [[0.06, 0.26, 0], [0.41, 0.58, 1], [0.72, 0.86, 2], [0.96, 1, 3]].forEach(([from, to, room]) => {
+      [[0.06, 0.26, 0], [0.41, 0.58, 1], [0.72, 1, 2]].forEach(([from, to, room]) => {
         for (let step = Math.round(from * 100); step <= Math.round(to * 100); step++) {
           const sample = samples[step];
           expect(sample.x, `centred in room ${room} at ${sample.progress}`).toBeCloseTo(room * pitch, 0);
@@ -240,52 +399,6 @@ test.describe("landing walls", () => {
         for (const sample of inside) {
           expect(sample.yaw, `never turns back toward the crossed wall at ${sample.progress}`).toBeGreaterThanOrEqual(calm - 0.1);
           expect(sample.yaw, `leads only slightly toward the next room at ${sample.progress}`).toBeLessThanOrEqual(calm + 6.1);
-        }
-        const before = inside[crossing - 1].progress;
-        await seek(page, before);
-        const opening = await page.evaluate(
-          ({ divider, wall }) => {
-            const edge = document.querySelectorAll(".seq-wall-right")[divider].getBoundingClientRect().right;
-            const next = document.querySelector(wall)!.getBoundingClientRect();
-            return Math.min(next.right, window.innerWidth) - Math.max(next.left, edge, 0);
-          },
-          { divider: index, wall: ROOMS[index + 1].wall },
-        );
-        expect(
-          opening,
-          `room ${index + 2} shows past the divider before the camera passes it (pan ${index + 1}, ${before}, ${viewport.width}px)`,
-        ).toBeGreaterThanOrEqual(viewport.width * 0.05);
-      }
-    }
-  });
-
-  test("AC1 each room is unobstructed in its dwell window", async ({ page, browserName }) => {
-    test.skip(browserName === "firefox", "screenshots are taken in Chromium");
-    test.setTimeout(240_000);
-    for (const viewport of VIEWPORTS) {
-      await open(page, viewport);
-      for (const { wall, from, to } of ROOMS.slice(0, 3)) {
-        for (let step = Math.round(from * 50); step <= Math.round(to * 50); step += 2) {
-          const progress = step / 50;
-          await seek(page, progress);
-          const wallBox = await box(page, wall);
-          const clip = {
-            x: Math.max(0, wallBox.left + wallBox.width * 0.1),
-            y: Math.max(0, wallBox.top + wallBox.height * 0.1),
-            width: Math.min(viewport.width, wallBox.width * 0.8),
-            height: Math.min(viewport.height, wallBox.height * 0.8),
-          };
-          clip.width = Math.min(clip.width, viewport.width - clip.x);
-          clip.height = Math.min(clip.height, viewport.height - clip.y);
-          const withSide = await page.screenshot({ clip });
-          await page.locator(".seq-wall-right").evaluateAll((all) => {
-            for (const element of all) (element as HTMLElement).style.visibility = "hidden";
-          });
-          const without = await page.screenshot({ clip });
-          await page.locator(".seq-wall-right").evaluateAll((all) => {
-            for (const element of all) (element as HTMLElement).style.visibility = "";
-          });
-          expect(withSide.equals(without), `${wall} at ${progress} in ${viewport.width}px`).toBe(true);
         }
       }
     }
@@ -493,7 +606,7 @@ test.describe("landing walls", () => {
   test("AC6 the fallback timing puts the camera where the view timeline does", async ({ page, browserName }) => {
     test.skip(browserName === "firefox", "Firefox runs the real fallback in AC7");
     await open(page, VIEWPORTS[2]);
-    const wanted = [0.14, 0.31, 0.5];
+    const wanted = [0.14, 0.31, 0.5, 0.65, 0.9];
     const reference = await sampleCamera(page, wanted);
     const fractions: number[] = [];
     for (const progress of wanted) {
@@ -559,6 +672,9 @@ test.describe("landing walls", () => {
           .poll(() => computed(page, word, "clip-path"))
           .toBe("none");
       }
+      expect(await page.locator(".seq-room").count(), "three rooms, no fourth").toBe(3);
+      const header = await page.evaluate(() => document.querySelector("[data-site-header]")!.getBoundingClientRect().bottom);
+      expect((await box(page, ".seq-stage")).top, "stage clear of the header").toBeGreaterThanOrEqual(header - 1);
       expect(await page.locator(".seq-grid-ludwig").textContent()).toBe("LUDWIG");
       expect(await page.locator(".seq-grid-ink").textContent()).toBe("INK");
       if (browserName !== "firefox") {
@@ -675,5 +791,184 @@ test.describe("landing walls", () => {
       });
       expect(shift, `shifted: ${shifted.join(" | ")}`).toBe(0);
     });
+  });
+});
+
+/** Dwell and pan windows after T171: three rooms, two pans, the Mirror holds to the end of the track. */
+const DWELLS = [
+  { room: 0, from: 0.06, to: 0.26 },
+  { room: 1, from: 0.41, to: 0.58 },
+  { room: 2, from: 0.72, to: 1 },
+] as const;
+const PAN_WINDOWS = [
+  { from: 0.26, to: 0.41 },
+  { from: 0.58, to: 0.72 },
+] as const;
+
+function timelineProgress(page: Page) {
+  return page.evaluate(
+    () => document.querySelector(".seq-world")!.getAnimations()[0].effect!.getComputedTiming().progress!,
+  );
+}
+
+async function stageAndHeader(page: Page) {
+  return page.evaluate(() => {
+    const stage = document.querySelector(".seq-stage")!.getBoundingClientRect();
+    const header = document.querySelector("[data-site-header]")!.getBoundingClientRect();
+    const probe = (x: number) => {
+      const hit = document.elementFromPoint(x, stage.top + 1);
+      return hit?.closest(".seq-stage") ? "stage" : (hit?.tagName ?? "none");
+    };
+    return {
+      stageTop: stage.top,
+      stageBottom: stage.bottom,
+      headerBottom: header.bottom,
+      innerHeight: window.innerHeight,
+      hits: [stage.left + 1, (stage.left + stage.right) / 2, stage.right - 2].map(probe),
+    };
+  });
+}
+
+for (const path of ["timeline", "fallback"] as const) {
+  for (const size of SIZES) {
+    const label = `${path} ${size.width}x${size.height}`;
+
+    test.describe(`one room per shot, ${label}`, () => {
+      test(`AC2 AC3 the stage sits under the header for the whole track (${label})`, async ({ page }) => {
+        test.setTimeout(120_000);
+        await openOn(page, size, path);
+        expect(await page.evaluate(() => window.scrollY)).toBe(0);
+        const first = await stageAndHeader(page);
+        expect(Math.abs(first.stageTop - first.headerBottom), "stage top at the header's bottom").toBeLessThanOrEqual(1);
+        expect(Math.abs(first.stageBottom - first.innerHeight), "stage bottom at the viewport's bottom").toBeLessThanOrEqual(1);
+        const hero = await box(page, ".seq-hero");
+        expect(hero.top, "hero below the header").toBeGreaterThanOrEqual(first.headerBottom);
+        expect(hero.top + hero.height, "hero inside the viewport").toBeLessThanOrEqual(first.innerHeight);
+        const wordmark = await box(page, ".seq-hero svg");
+        expect(wordmark.top, "wordmark below the header").toBeGreaterThanOrEqual(first.headerBottom);
+        expect(await timelineProgress(page), "progress at the top").toBe(0);
+
+        for (const progress of steps(0, 1).filter((_, index) => index % 2 === 0)) {
+          await seek(page, progress);
+          const now = await stageAndHeader(page);
+          expect(Math.abs(now.stageTop - first.headerBottom), `stage top at ${progress}`).toBeLessThanOrEqual(1);
+          expect(Math.abs(now.stageBottom - now.innerHeight), `stage bottom at ${progress}`).toBeLessThanOrEqual(1);
+          expect(now.hits, `nothing of the header over the stage at ${progress}`).toEqual(["stage", "stage", "stage"]);
+        }
+        await seek(page, 1);
+        expect(await timelineProgress(page), "progress reaches 1 at the end of the track").toBeGreaterThan(0.999);
+      });
+
+      test(`AC4 AC6 one room at every dwell and in the opening (${label})`, async ({ page, browserName }) => {
+        test.skip(browserName === "firefox", "screenshots are taken in Chromium");
+        test.setTimeout(240_000);
+        await openOn(page, size, path);
+        await page.addStyleTag({ content: ownershipStyle() });
+        const failures: string[] = [];
+        for (const progress of steps(0, 0.05)) {
+          await seek(page, progress);
+          const shot = await ownership(page);
+          const others = roomsInFrame(shot).filter((room) => room !== 0);
+          if (others.length) failures.push(`opening ${progress}: rooms ${others} have ${others.map((room) => shot.rooms[room])} px`);
+        }
+        for (const { room, from, to } of DWELLS) {
+          for (const progress of steps(from, to)) {
+            await seek(page, progress);
+            const shot = await ownership(page);
+            const others = roomsInFrame(shot).filter((index) => index !== room);
+            if (others.length) failures.push(`room ${room} at ${progress}: rooms ${others} have ${others.map((index) => shot.rooms[index])} px`);
+            const wall = shot.walls[room];
+            if (wall.left < shot.stage.left - 1 || wall.right > shot.stage.right + 1 || wall.top < shot.stage.top - 1 || wall.bottom > shot.stage.bottom + 1) {
+              failures.push(`room ${room} at ${progress}: back wall outside the stage ${JSON.stringify(wall)}`);
+            }
+            const pattern = new RegExp(`^(other,)?room${room}(,other)?(,floor)?(,other)?$`);
+            for (const [edge, column] of [["left", shot.left], ["right", shot.right]] as const) {
+              if (!pattern.test(column)) failures.push(`room ${room} at ${progress}: ${edge} edge column reads ${column}`);
+            }
+          }
+        }
+        expect(failures, failures.slice(0, 12).join("\n")).toEqual([]);
+      });
+
+      test(`AC5 only the two rooms either side of the wall show during a pan (${label})`, async ({ page, browserName }) => {
+        test.skip(browserName === "firefox", "screenshots are taken in Chromium");
+        test.setTimeout(240_000);
+        await openOn(page, size, path);
+        await page.addStyleTag({ content: ownershipStyle() });
+        const failures: string[] = [];
+        for (const [index, { from, to }] of PAN_WINDOWS.entries()) {
+          const [leaving, entering] = [index, index + 1];
+          const shots: Ownership[] = [];
+          for (const progress of steps(from, to)) {
+            await seek(page, progress);
+            const shot = await ownership(page);
+            const extra = roomsInFrame(shot).filter((room) => room !== leaving && room !== entering);
+            if (extra.length) failures.push(`pan ${index + 1} at ${progress}: rooms ${extra} in frame`);
+            shots.push(shot);
+          }
+          const slack = 0.015 * (shots[0].stage.right - shots[0].stage.left) * (shots[0].stage.bottom - shots[0].stage.top);
+          const gone = shots.map((shot) => shot.backs[leaving]);
+          const peak = gone.indexOf(Math.max(...gone));
+          shots.forEach((shot, step) => {
+            const progress = steps(from, to)[step];
+            if (step > 0 && shot.backs[entering] < shots[step - 1].backs[entering] - slack) failures.push(`pan ${index + 1} at ${progress}: view into room ${entering} shrinks ${shots[step - 1].backs[entering]} to ${shot.backs[entering]}`);
+            if (step > peak && shot.backs[leaving] > shots[step - 1].backs[leaving] + slack) failures.push(`pan ${index + 1} at ${progress}: view into room ${leaving} grows again after its peak ${shots[step - 1].backs[leaving]} to ${shot.backs[leaving]}`);
+          });
+          await seek(page, to);
+          const arrived = await ownership(page);
+          if (arrived.rooms[leaving] !== 0) failures.push(`pan ${index + 1}: room ${leaving} still has ${arrived.rooms[leaving]} px when the next dwell starts`);
+        }
+        expect(failures, failures.slice(0, 12).join("\n")).toEqual([]);
+      });
+    });
+  }
+}
+
+test.describe("landing walls, three rooms", () => {
+  test("AC7 three rooms, two pans, no finale room", async ({ page }) => {
+    test.setTimeout(120_000);
+    await open(page, VIEWPORTS[2]);
+    expect(await page.locator(".seq-room").count()).toBe(3);
+    expect(await page.locator(".seq-wall-finale").count()).toBe(0);
+    expect(await page.getByRole("navigation", { name: "Rooms" }).getByRole("link").count()).toBe(3);
+    const samples = await sampleCamera(page, everyHundredth);
+    const moving: number[] = [];
+    samples.slice(1).forEach((sample, index) => {
+      if (Math.abs(sample.x - samples[index].x) > 0.01) moving.push(sample.progress);
+    });
+    const intervals = moving.reduce((count, progress, index) => (index === 0 || progress - moving[index - 1] > 0.0101 ? count + 1 : count), 0);
+    expect(intervals, `camera moves in ${intervals} intervals: ${moving}`).toBe(2);
+    const resting = samples.filter(({ progress }) => progress >= DWELLS[2].from);
+    for (const { x } of resting) expect(x).toBeCloseTo(resting[0].x, 1);
+  });
+});
+
+test.describe("landing walls, the Mirror ends the sequence", () => {
+  test("AC8 the sequence ends on the Mirror, finished, before the closing section", async ({ page, browserName }) => {
+    test.setTimeout(120_000);
+    await open(page, VIEWPORTS[2]);
+    for (const progress of [0.98, 1]) {
+      await seek(page, progress);
+      const digits = await page.locator(".seq-mirror-digit").evaluateAll((all) =>
+        all.map((element) => ({ text: element.textContent, opacity: getComputedStyle(element).opacity })),
+      );
+      expect(digits.map(({ text }) => text), `five digits at ${progress}`).toEqual(["7", "1", "5", "9", "4"]);
+      for (const { opacity: value } of digits) expect(value, `digit drawn at ${progress}`).toBe("1");
+    }
+    const closing = await page.evaluate(() => {
+      const track = document.querySelector(".seq-track")!.getBoundingClientRect();
+      const next = document.querySelector(".seq-track")!.nextElementSibling!;
+      return { next: next.className, afterTrack: next.getBoundingClientRect().top - track.bottom, button: next.textContent };
+    });
+    expect(closing.next).toContain("seq-closing");
+    expect(Math.abs(closing.afterTrack)).toBeLessThanOrEqual(1);
+    expect(closing.button).toContain("Open the Collection");
+    if (browserName === "firefox") return;
+    await page.addStyleTag({ content: ownershipStyle() });
+    for (const progress of [0.98, 1]) {
+      await seek(page, progress);
+      const shot = await ownership(page);
+      expect(roomsInFrame(shot), `only the Mirror at ${progress}`).toEqual([2]);
+    }
   });
 });

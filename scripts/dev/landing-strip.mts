@@ -5,10 +5,10 @@ import { chromium } from "@playwright/test";
 const [base, out, from, to, step] = process.argv.slice(2);
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
-for (const width of [1280, 390]) {
+for (const [width, height] of [[2000, 1245], [1280, 800], [1280, 650], [390, 844]]) {
   for (const theme of ["paper", "ink"]) {
     const page = await browser.newPage({
-      viewport: { width, height: width === 1280 ? 800 : 844 },
+      viewport: { width, height },
     });
     await page.addInitScript((t) => localStorage.setItem("theme", t), theme);
     await page.goto(base);
@@ -24,7 +24,7 @@ for (const width of [1280, 390]) {
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       }, p);
       await page.screenshot({
-        path: `${out}/${theme}-${width}-${String(Math.round(p * 100)).padStart(3, "0")}.png`,
+        path: `${out}/${theme}-${width}x${height}-${String(Math.round(p * 100)).padStart(3, "0")}.png`,
       });
     }
     await page.close();

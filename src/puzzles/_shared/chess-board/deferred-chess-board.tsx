@@ -1,6 +1,7 @@
 "use client";
 
 import { Deferred } from "@/components/after-hydration";
+import { CHESS_BOARD_SIZE } from "./board-size";
 import type { ChessBoardProps } from "./chess-board";
 
 const loadChessBoard = () =>
@@ -15,7 +16,7 @@ export function DeferredChessBoard(props: ChessBoardProps) {
       fallback={
         <div
           aria-hidden="true"
-          className="aspect-square w-full max-w-lg border-2 border-border shadow-[3px_3px_0_var(--cast)]"
+          className={`aspect-square ${CHESS_BOARD_SIZE} border-2 border-border shadow-[3px_3px_0_var(--cast)]`}
         />
       }
     />

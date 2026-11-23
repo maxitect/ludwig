@@ -8,6 +8,7 @@ import type { SolverProps } from "../solver-types";
 import { toFen } from "./derive";
 import { applyRetro, toRetro, type RetroRejection } from "./engine";
 import { PlyChoices } from "./ply-choices";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { SideToMove } from "../_shared/chess-board/side-to-move";
 import {
   DROP_VARIANTS,
@@ -77,7 +78,8 @@ export function LastMove({
   const needsChoice = message === "replay_mismatch" && draft !== null;
 
   return (
-    <div className="flex flex-col gap-6">
+    <SolveLayout className="flex flex-col gap-6">
+      <PanelCell part="head">
       <div className="flex flex-col gap-2">
         <p className="font-display text-2xl font-bold uppercase tracking-[0.04em]">
           What was the last move?
@@ -99,14 +101,18 @@ export function LastMove({
           </div>
         </div>
       </div>
+      </PanelCell>
 
+      <BoardCell>
       <DeferredChessBoard
         position={payload.pieces}
         onRetroDrop={drop}
         arrows={draft ? [{ from: draft.from, to: draft.to }] : []}
         highlights={draft ? [draft.from, draft.to] : []}
       />
+      </BoardCell>
 
+      <PanelCell>
       <div className="flex flex-col gap-3">
         <PlyChoices
           colour={payload.sideToMove}
@@ -135,6 +141,7 @@ export function LastMove({
           </p>
         )}
       </div>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

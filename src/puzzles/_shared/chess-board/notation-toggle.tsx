@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/utils/cn";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { saveChessNotation } from "@/lib/actions/chess-notation";
 import type { SolverProps } from "../../solver-types";
@@ -62,15 +63,17 @@ type NotationToggleProps = {
   notation: Notation;
   failed: boolean;
   onChoose: (notation: Notation) => void;
+  className?: string;
 };
 
 export function NotationToggle({
   notation,
   failed,
   onChoose,
+  className,
 }: NotationToggleProps) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className={cn("flex flex-col gap-2", className)}>
       <p className="font-display text-sm uppercase">Notation</p>
       <ToggleGroup
         type="single"

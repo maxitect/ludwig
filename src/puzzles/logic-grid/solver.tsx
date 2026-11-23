@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/utils/cn";
 import type { SolverProps } from "../solver-types";
 import { answerFromMarks } from "./derive";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
+import { scrollWithin } from "../_shared/scroll-within";
 import { MarkGrid, markKey } from "./mark-grid";
 import type * as schema from "./schema";
 
@@ -23,6 +25,10 @@ export function Solver({
       ),
     [payload.categories],
   );
+  const wrongList = useRef<HTMLUListElement>(null);
+  useEffect(() => {
+    scrollWithin(wrongList.current);
+  }, [wrongParts]);
   const [marks, setMarks] = useState<Marks>(
     () =>
       new Map(
@@ -76,11 +82,12 @@ export function Solver({
   }, [registerCheck, payload, marks, falseClue]);
 
   return (
-    <div className="flex flex-col gap-8">
+    <SolveLayout className="flex flex-col gap-8">
       <p id="logic-grid-help" className="sr-only">
         Each cell pairs two items. Press Space or Enter to cycle a cell through
         blank, no and yes, Backspace to clear it, and the arrow keys to move.
       </p>
+      <PanelCell part="head">
       <section
         aria-labelledby="logic-grid-case-notes"
         className="paper-sheet flex flex-col gap-1 p-3"
@@ -93,6 +100,8 @@ export function Solver({
         </h2>
         <p data-testid="logic-grid-brief">{payload.brief}</p>
       </section>
+      </PanelCell>
+      <BoardCell>
       <MarkGrid
         categories={payload.categories}
         marks={marks}
@@ -106,8 +115,10 @@ export function Solver({
           report(nextMarks, struck, falseClue);
         }}
       />
+      </BoardCell>
+      <PanelCell className="panel:flex panel:flex-col panel:gap-6">
       {wrongParts && wrongParts.length > 0 && (
-        <ul className="flex flex-col gap-1">
+        <ul ref={wrongList} className="flex flex-col gap-1">
           {wrongParts.map(({ first, second }) => (
             <li key={`${first}-${second}`}>
               At least one dot between{" "}
@@ -190,6 +201,7 @@ export function Solver({
           </ol>
         </div>
       </section>
-    </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

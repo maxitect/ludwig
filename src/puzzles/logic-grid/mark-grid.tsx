@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { cn } from "@/utils/cn";
 import type { AttemptState, Payload, WrongPart } from "./schema";
 
@@ -27,7 +27,7 @@ const NEXT: Record<Mark | "blank", Mark | undefined> = {
 
 const SYMBOL: Record<Mark, string> = { no: "✕", yes: "●" };
 
-const CELL = "size-9 shrink-0";
+const CELL = "size-(--mg-cell) shrink-0";
 
 /**
  * The staircase of every pair of categories: columns are the items of every category but the last, rows the items of every
@@ -119,7 +119,8 @@ export function MarkGrid({ categories, marks, wrongParts, onCycle }: MarkGridPro
     row === 0 || rows[row].category !== rows[row - 1].category;
 
   return (
-    <div className="w-fit max-w-full overflow-x-auto border-2 border-border bg-paper text-ink shadow-[3px_3px_0_var(--cast)]">
+    <div style={{ "--mg-cell": `min(2.25rem, calc((var(--board-h, 100000px) - 4px - var(--mg-band)) / ${rows.length}), calc((var(--board-w, 100000px) - 4px - var(--mg-band)) / ${columns.length}))` } as CSSProperties}
+      className="[--mg-band:8rem] panel:[--mg-band:6rem] w-fit max-w-full overflow-x-auto border-2 border-border bg-paper text-ink shadow-[3px_3px_0_var(--cast)]">
       <div
         ref={gridRef}
         role="grid"
@@ -129,19 +130,19 @@ export function MarkGrid({ categories, marks, wrongParts, onCycle }: MarkGridPro
         onKeyDown={onKeyDown}
       >
         <div role="row" className="flex">
-          <div role="columnheader" aria-label="Items" className="w-32 shrink-0" />
+          <div role="columnheader" aria-label="Items" className="w-(--mg-band) shrink-0" />
           {columns.map(({ item, category }, col) => (
             <div
               key={item.id}
               role="columnheader"
               className={cn(
                 CELL,
-                "flex h-32 items-end justify-start border-l border-ink pb-1",
+                "flex h-(--mg-band) items-end justify-start border-l border-ink pb-1",
                 (col === 0 || columns[col - 1].category !== category) &&
                   "border-l-2",
               )}
             >
-              <span className="font-display text-sm font-bold uppercase [writing-mode:vertical-rl] rotate-180">
+              <span className="font-display text-sm font-bold uppercase panel:text-xs [writing-mode:vertical-rl] rotate-180">
                 {item.label}
               </span>
             </div>
@@ -155,7 +156,7 @@ export function MarkGrid({ categories, marks, wrongParts, onCycle }: MarkGridPro
           >
             <div
               role="rowheader"
-              className="flex h-9 w-32 shrink-0 items-center px-2 font-display text-sm font-bold uppercase"
+              className="flex h-(--mg-cell) w-(--mg-band) shrink-0 items-center px-2 font-display text-sm font-bold uppercase panel:px-1 panel:text-xs panel:leading-none"
             >
               {item.label}
             </div>

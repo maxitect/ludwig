@@ -162,6 +162,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T170](./done/T170-desktop-board-and-panel-layout.md) | Desktop solve layout: board on the left, clues and controls on the right, no page scroll (built from T169's audit; not classic gears) | T169 | | | done |
 | [T171](./done/T171-landing-one-room-per-shot.md) | Landing: fit the stage under the header, one room per shot, and end on the Mirror (fourth pass; tested against every requirement) | T167 | | | done |
 | [T172](./T172-isr-writes-per-visit.md) | ISR writes per visit: longer cache life, fewer prefetches, no site-wide purge on a settings save (high priority; T159 AC6 follow-up) | T159 | | ✔ | in-progress |
+| [T173](./T173-solve-cls-hanging-prefetch-and-site-health-audit.md) | Fix the solve-page layout shift and the hanging type-page prefetch, then audit the whole site for runtime faults | T170, T172 | | | todo |
 
 ## M6: Radio Times set
 

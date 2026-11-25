@@ -296,12 +296,14 @@
   }
 }
 
-@utility panel-section {
-  &::details-content {
+@utility panel-section-flat {
+  :where(&)::details-content {
     content-visibility: visible;
     display: contents;
   }
+}
 
+@utility panel-section {
   @variant panel {
     &::details-content {
       display: flex;
@@ -321,7 +323,6 @@
 }
 
 @utility panel-caret {
-  display: inline-block;
   flex-shrink: 0;
   border-block: 5px solid transparent;
   border-left: 7px solid currentColor;

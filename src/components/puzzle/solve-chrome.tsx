@@ -15,7 +15,7 @@ import { BulletHole, Credit } from "@/components/brand";
 import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { narrowPanelSolveTypes } from "@/config/solve-layout";
+import { boardOnlySolveTypes, narrowPanelSolveTypes } from "@/config/solve-layout";
 import { cn } from "@/utils/cn";
 import {
   checkAnswer,
@@ -466,7 +466,11 @@ function SolveBoard({
             ref={solvedFooter}
             tabIndex={-1}
             data-testid="solved-footer"
-            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none desk:gap-x-4 desk:gap-y-6 panel:col-start-2 panel:relative panel:row-start-7 panel:max-h-[calc(var(--solver-height)-2.5rem)] panel:overflow-y-auto touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
+            className={cn(
+              "flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none desk:gap-x-4 desk:gap-y-6 panel:col-start-2 panel:relative panel:row-start-7 touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto",
+              boardOnlySolveTypes.has(typeKey) &&
+                "desk:[&>div:first-child]:[--hole-size:120px]",
+            )}
           >
             <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] desk:[--hole-size:216px] touch:[--hole-size:216px]">
               <BulletHole data-testid="solved-hole" />
@@ -484,7 +488,7 @@ function SolveBoard({
             {Array.isArray(epilogue) && (
               <ol
                 data-testid="epilogue"
-                className="flex max-w-prose list-none flex-col gap-1"
+                className="flex max-w-prose list-none flex-col gap-1 panel:order-last panel:max-h-[calc(var(--solver-height)-368px)] panel:basis-full panel:panel-scroll"
               >
                 {epilogue.map((line) => (
                   <li key={line}>{line}</li>

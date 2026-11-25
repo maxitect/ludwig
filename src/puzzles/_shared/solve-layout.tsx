@@ -36,16 +36,28 @@ const PART = {
   foot: "panel:row-start-4",
 } as const;
 
+/**
+ * Solved, the panel keeps only its head (prompt and status): the body and foot are tools, so they go with the
+ * Check row (SPEC §4.5). `keepSolved` keeps a body that holds more (gears' scrubber), `hideSolved` drops a head.
+ */
 export function PanelCell({
   part = "body",
   className,
+  keepSolved,
+  hideSolved,
   ...rest
-}: ComponentProps<"div"> & { part?: keyof typeof PART }) {
+}: ComponentProps<"div"> & {
+  part?: keyof typeof PART;
+  keepSolved?: boolean;
+  hideSolved?: boolean;
+}) {
   return (
     <div
       className={cn(
         "contents panel:col-start-2 panel:block panel:min-w-0",
         PART[part],
+        ((part !== "head" && !keepSolved) || hideSolved) &&
+          "panel:group-data-[solved]/solve:hidden",
         className,
       )}
       {...rest}

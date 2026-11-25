@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/utils/cn";
+import { useWholeRows } from "./use-whole-rows";
 
 type PanelSectionProps = {
   title: ReactNode;
@@ -15,6 +16,10 @@ type PanelSectionProps = {
   keepOpen?: boolean;
   /** The content is the panel's one scroll area, taking the room the other sections leave. */
   scroll?: boolean;
+  /** For a scroll area: a selector for its rows, so the area is cut at a whole row. */
+  rows?: string;
+  /** Below `lg` and under `touch` keep a plain disclosure (summary shown, closed by default) instead of always-visible content. */
+  disclosure?: boolean;
   className?: string;
   bodyClassName?: string;
   children: ReactNode;
@@ -32,11 +37,15 @@ export function PanelSection({
   onOpenChange,
   keepOpen,
   scroll,
+  rows,
+  disclosure,
   className,
   bodyClassName,
   children,
 }: PanelSectionProps) {
   const details = useRef<HTMLDetailsElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  useWholeRows(scroller, details, scroll ? rows : undefined);
   useEffect(() => {
     const element = details.current;
     if (element && open !== undefined && element.open !== open) {
@@ -51,7 +60,8 @@ export function PanelSection({
       onToggle={(event) => onOpenChange?.(event.currentTarget.open)}
       className={cn(
         "panel-section contents panel:flex panel:min-h-0 panel:flex-col",
-        scroll ? "panel:open:flex-1" : "panel:shrink-0",
+        !disclosure && "panel-section-flat",
+        scroll ? "panel:shrink-0 panel:open:shrink panel:open:flex-1" : "panel:shrink-0",
         className,
       )}
     >
@@ -63,12 +73,16 @@ export function PanelSection({
           )
             event.preventDefault();
         }}
-        className="hidden min-h-8 shrink-0 cursor-pointer list-none items-center gap-2 border-t-2 border-border font-display text-sm font-bold tracking-[0.08em] uppercase select-none panel:flex [&::-webkit-details-marker]:hidden"
+        className={cn(
+          "cursor-pointer panel:flex panel:min-h-8 panel:shrink-0 panel:list-none panel:items-center panel:gap-2 panel:border-t-2 panel:border-border panel:font-display panel:text-sm panel:font-bold panel:tracking-[0.08em] panel:uppercase panel:select-none panel:[&::-webkit-details-marker]:hidden",
+          disclosure ? "font-bold" : "hidden",
+        )}
       >
-        <span aria-hidden="true" className="panel-caret" />
+        <span aria-hidden="true" className="panel-caret hidden panel:inline-block" />
         {title}
       </summary>
       <div
+        ref={scroller}
         data-panel-scroll={scroll ? "" : undefined}
         className={cn(
           "panel:pt-2",

@@ -435,7 +435,7 @@ Section header height: **32px** (`min-h-8`, 2px border). The first-paint state i
 | `acrostic` | the letter figure | unchanged |
 | `word-ladder` | the ladder (rungs) | unchanged; panel holds 37px |
 
-**Heights still marked *est.*** are the rota's Unswaps list and its accusation in two columns (196px), the grown pictogram ciphertext, and in section 11 the crank stepper and Accuse sharing a row. T175 measures each as it builds it and records the figure. If one does not fit its budget, the block takes the one-scroller design of section 7 and the report says so; nothing else in the plan depends on them.
+**Heights still marked *est.*** are the rota's Unswaps list and its accusation in two columns (196px), the grown pictogram ciphertext, in section 11 the crank stepper and Accuse sharing a row, and in section 12 the odd one out's collapsed options. T175 measures each as it builds it and records the figure. If one does not fit its budget, the block takes the one-scroller design of section 7 and the report says so; nothing else in the plan depends on them.
 
 ## 10. The panel is not wider, the board is not smaller
 

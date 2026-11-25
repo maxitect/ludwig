@@ -12,6 +12,7 @@ import { NotationToggle, useChessNotation } from "../_shared/chess-board/notatio
 import { PlyChoices } from "./ply-choices";
 import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { scrollWithin } from "../_shared/scroll-within";
+import { useWholeRows } from "../_shared/use-whole-rows";
 import { SideToMove } from "../_shared/chess-board/side-to-move";
 import {
   REJECTION_TEXT,
@@ -59,6 +60,8 @@ export function Unwind({
   const { notation, choose, failed } = useChessNotation(chessNotation);
 
   const chain = useRef<HTMLOListElement>(null);
+  const chainArea = useRef<HTMLDivElement>(null);
+  useWholeRows(chain, chainArea, "li");
   const { positions, invalid } = useMemo(() => walk(fen, plies), [fen, plies]);
   const board = positions[positions.length - 1];
   const last = plies[plies.length - 1];
@@ -145,12 +148,14 @@ export function Unwind({
       />
       </BoardCell>
 
-      <PanelCell>
-      <div className="flex flex-col gap-3 panel:grid panel:grid-cols-[1fr_auto] panel:items-center panel:gap-x-3 panel:gap-y-2">
+      <PanelCell className="panel:h-full">
+      <div ref={chainArea} className="flex flex-col gap-3 panel:grid panel:h-full panel:grid-cols-[1fr_auto] panel:grid-rows-[auto_minmax(0,1fr)] panel:items-center panel:gap-x-3 panel:gap-y-2">
         <p className="font-display text-sm uppercase">
           Moves taken back ({plies.length} of {payload.plyCount})
         </p>
-        <ol ref={chain} className="flex flex-col gap-1 panel:col-span-2 panel:row-start-2" data-testid="retro-chain">
+        <ol ref={chain} data-panel-scroll
+          className="flex flex-col gap-1 panel:col-span-2 panel:row-start-2 panel:max-h-full panel:self-start panel:w-full panel:panel-scroll"
+          data-testid="retro-chain">
           {plies.map((entry, index) => {
             const flagged = checked && invalid?.index === index;
             const text =

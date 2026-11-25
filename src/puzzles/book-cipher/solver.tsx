@@ -21,6 +21,7 @@ import {
 } from "../_shared/puzzle-keyboard";
 import { SolveBarButton } from "../_shared/solve-bar-button";
 import { usePanelLayout } from "../_shared/use-panel-layout";
+import { PanelSection } from "../_shared/panel-section";
 import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { SolveSlot } from "../_shared/solve-slot";
 import { LINE_WIDTH, wordsOfLine } from "./derive";
@@ -184,7 +185,7 @@ export function Solver({
 
   return (
     <SolveLayout className="flex flex-col gap-4">
-      <PanelCell part="head">
+      <PanelCell part="head" className="panel:pb-3">
       <p className={cn("text-lg touch:sr-only", reader && "touch:not-sr-only")}>
         Each reference names a page, a line and a word in the book. Find the
         word, write it down, and read the message the words make together.
@@ -211,7 +212,7 @@ export function Solver({
             aria-label="Page text"
             tabIndex={(touch && !reader) || panel ? 0 : undefined}
             className={cn(
-              "@container/book-page panel:min-h-0 panel:overflow-y-auto touch:min-h-0 touch:overflow-y-auto",
+              "@container/book-page panel:min-h-0 panel:panel-scroll touch:min-h-0 touch:overflow-y-auto",
               reader && "touch:min-h-auto touch:overflow-visible",
             )}
           >
@@ -307,16 +308,20 @@ export function Solver({
           </p>
         </section>
         </BoardCell>
-        <PanelCell>
+        <PanelCell className="panel:flex panel:h-full panel:flex-col">
+        <PanelSection
+          title="References"
+          defaultOpen
+          scroll
+          rows="ol > li"
+          bodyClassName={cn("order-1 touch:order-2", reader && "touch:order-1")}
+        >
         <section
           aria-label="References"
-          className={cn(
-            "paper-sheet order-1 flex flex-col gap-3 p-4 sm:p-6 panel:p-4 touch:order-2 touch:lg:p-4",
-            reader && "touch:order-1",
-          )}
+          className="paper-sheet flex flex-col gap-3 p-4 sm:p-6 panel:border-0 panel:bg-transparent panel:p-0 panel:shadow-none touch:lg:p-4"
         >
-          <h2 className={panelTitle}>References</h2>
-          <ol className="grid grid-cols-1 gap-3 min-[30rem]:grid-cols-2 panel:grid-cols-1 touch:lg:grid-cols-1">
+          <h2 className={cn(panelTitle, "panel:sr-only")}>References</h2>
+          <ol className="grid grid-cols-1 gap-3 min-[30rem]:grid-cols-2 panel:grid-cols-1 panel:gap-2 touch:lg:grid-cols-1">
             {refs.map((ref, index) => (
               <li
                 key={ref.position}
@@ -356,6 +361,7 @@ export function Solver({
             ))}
           </ol>
         </section>
+        </PanelSection>
         </PanelCell>
       </div>
       <SolveSlot>

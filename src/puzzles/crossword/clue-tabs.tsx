@@ -83,6 +83,7 @@ export function ClueTabs({
             onOpenChange={(open) => open && onDirection(along)}
             keepOpen
             scroll
+            rows="li"
           >
             {list(along)}
           </PanelSection>

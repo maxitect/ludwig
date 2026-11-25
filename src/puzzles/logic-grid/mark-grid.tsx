@@ -120,7 +120,7 @@ export function MarkGrid({ categories, marks, wrongParts, onCycle }: MarkGridPro
 
   return (
     <div style={{ "--mg-cell": `min(2.25rem, calc((var(--board-h, 100000px) - 4px - var(--mg-band)) / ${rows.length}), calc((var(--board-w, 100000px) - 4px - var(--mg-band)) / ${columns.length}))` } as CSSProperties}
-      className="[--mg-band:8rem] panel:[--mg-band:6rem] w-fit max-w-full overflow-x-auto border-2 border-border bg-paper text-ink shadow-[3px_3px_0_var(--cast)]">
+      className="[--mg-band:8rem] panel:[--mg-band:6rem] panel:mx-auto w-fit max-w-full overflow-x-auto border-2 border-border bg-paper text-ink shadow-[3px_3px_0_var(--cast)]">
       <div
         ref={gridRef}
         role="grid"

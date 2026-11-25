@@ -83,18 +83,18 @@ export function Solver({
   const restored = samePlacement(placement, intended);
   const broken = restored ? brokenClues(payload, swaps) : [];
   const clueList = useRef<HTMLOListElement>(null);
-  useEffect(() => {
-    scrollWithin(clueList.current?.querySelector("[data-broken]"));
-  }, [broken.length]);
   const [section, setSection] = useState<string | null>(
-    restored ? (broken.length ? "clues" : null) : "incident",
+    restored ? (broken.length ? "clues" : "accusation") : "incident",
   );
   const sectionKey = `${restored}:${broken.length}`;
   const [seenKey, setSeenKey] = useState(sectionKey);
   if (sectionKey !== seenKey) {
     setSeenKey(sectionKey);
-    if (restored) setSection(broken.length ? "clues" : null);
+    if (restored) setSection(broken.length ? "clues" : "accusation");
   }
+  useEffect(() => {
+    scrollWithin(clueList.current?.querySelector("[data-broken]"));
+  }, [broken.length, section]);
   const sectionProps = (id: string) => ({
     name: "rota-sections",
     open: section === id,
@@ -144,12 +144,13 @@ export function Solver({
   }
 
   useEffect(() => {
-    registerCheck(() =>
-      restored && instigatorId
+    registerCheck(() => {
+      if (broken.length) setSection("clues");
+      return restored && instigatorId
         ? { swaps, instigatorWorkerId: instigatorId }
-        : null,
-    );
-  }, [registerCheck, restored, swaps, instigatorId]);
+        : null;
+    });
+  }, [registerCheck, restored, swaps, instigatorId, broken.length]);
 
   function unswap(a: string, b: string) {
     const swap = { workerAId: a, workerBId: b };
@@ -379,11 +380,15 @@ export function Solver({
             {announcement}
           </p>
           {restored && !solved && (
+            <PanelSection
+              title="Who insisted on the first swap?"
+              {...sectionProps("accusation")}
+            >
             <fieldset
               data-testid="rota-accusation"
-              className="flex flex-col gap-2 panel:shrink-0 panel:pt-2"
+              className="flex flex-col gap-2"
             >
-              <legend className="font-display text-lg font-bold tracking-[0.04em] uppercase">
+              <legend className="font-display text-lg font-bold tracking-[0.04em] uppercase panel:sr-only">
                 Who insisted on the first swap?
               </legend>
               <p className="text-sm">
@@ -409,6 +414,7 @@ export function Solver({
                 ))}
               </div>
             </fieldset>
+            </PanelSection>
           )}
         </div>
       </PanelCell>

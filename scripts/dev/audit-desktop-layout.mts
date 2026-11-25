@@ -7,7 +7,8 @@ import pg from "pg";
  * Run against a production build: `pnpm build && pnpm start --port 3169`, then
  * `pnpm tsx scripts/dev/audit-desktop-layout.mts [--sweep|--chrome|--grown|--footer] [--only <types>] [--base http://localhost:3169] [--out .verification/T169]`.
  * `--sweep` instead measures every published puzzle at 1280x650, without screenshots, to find the largest per type;
- * `--panel [--open-only] [--browsers]` the panel of every type and the largest growing cases (T174): scroll containers, clipped content, gaps, dead space and block heights, with Paper and Ink screenshots, open and solved; `--widths` content height of the largest cases at panel widths of 24 to 48rem; `--browsers` repeats four puzzles on Chromium and WebKit at 1280x650 and 1440x1000;
+ * `--panel [--open-only]` the panel of every type and the largest growing cases (T174): scroll containers, clipped content, gaps, dead space and block heights, with Paper and Ink screenshots, open and solved; `--panel --widths` content height of the largest cases at panel widths of 24 to 48rem; `--panel --browsers` repeats four puzzles on Chromium and WebKit at 1280x650 and 1440x1000;
+ * `--panel` prints whether the system drew classic or overlay scrollbars; only compare runs made in the same mode;
  * `--chrome` the chrome blocks, `--grown` the growing-panel cases and `--footer` the solved footer at panel widths.
  * `--only sudoku,crossword` limits the default run to those types.
  * The solved runs sign up a throwaway account, write to the database in `DATABASE_URL` and delete the account afterwards.
@@ -304,11 +305,11 @@ const measurePanelInPage = () => {
     return r.width > 150 && r.height > 150 && !el.closest("[aria-hidden=true]");
   });
   const largest = explicit ?? candidates.sort((a, b) => rect(b).width * rect(b).height - rect(a).width * rect(a).height)[0] ?? null;
-  const boxOf = (el: Element | null) => (el ? { w: Math.round(rect(el).width), h: Math.round(rect(el).height), top: Math.round(rect(el).top + scrollY), bottom: Math.round(rect(el).bottom + scrollY) } : null);
+  const boxOf = (el: Element | null) => (el ? { w: Math.round(rect(el).width), h: Math.round(rect(el).height), left: Math.round(rect(el).left), top: Math.round(rect(el).top + scrollY), bottom: Math.round(rect(el).bottom + scrollY) } : null);
   const cellBox = boxOf(boardCell);
   const boardBox = boxOf(largest);
 
-  const sheets = [...section.querySelectorAll(".paper-sheet")].filter(visible).map((el) => {
+  const sheets = [...section.querySelectorAll('[class*="paper-sheet"]')].filter((el) => visible(el) && getComputedStyle(el).boxShadow !== "none").map((el) => {
     const b = rect(el);
     return {
       selector: describe(el),
@@ -342,6 +343,7 @@ const measurePanelInPage = () => {
 
   return {
     docHeight: document.documentElement.scrollHeight,
+    pageScrollbar: innerWidth - document.documentElement.clientWidth,
     pageOverflow: document.documentElement.scrollHeight - innerHeight,
     section: { top: Math.round(sectionRect.top + scrollY), bottom: Math.round(sectionRect.bottom + scrollY), height: Math.round(sectionRect.height), right: Math.round(sectionRect.right) },
     scrollers,
@@ -356,7 +358,7 @@ const measurePanelInPage = () => {
     },
     boardCell: cellBox,
     board: boardBox,
-    deadSpace: cellBox && boardBox ? { w: cellBox.w - boardBox.w, h: cellBox.h - boardBox.h } : null,
+    deadSpace: cellBox && boardBox ? { w: cellBox.w - boardBox.w, h: cellBox.h - boardBox.h, left: boardBox.left - cellBox.left } : null,
     sheets,
     budget,
     natural,
@@ -528,7 +530,6 @@ if (args.includes("--panel")) {
   };
 
   if (args.includes("--widths")) {
-    const rem = 16;
     const widths = [24, 30, 36, 42, 48];
     const cases = panelTargets.filter((t) => ["rota", "logic-grid", "logic-grid~manifest", "knights-knaves", "knights-knaves~night-ferry", "crossword", "crossword~fine-print", "rota~the-long-shift", "book-cipher", "caesar", "keyword", "pictogram-cipher", "pictogram-cipher~first-drawing", "reverse-chess~the-long-walk", "word-search~wound-up", "detective-scene"].includes(t.key));
     const rows = [];
@@ -634,6 +635,8 @@ if (args.includes("--panel")) {
     );
   }
   console.log(`ROWS ${results.length} (${panelTargets.length} puzzles x ${viewports.length} sizes x ${args.includes("--open-only") ? 1 : 2} states); registry types ${typeKeys.length}`);
+  const bar = Math.max(0, ...results.map((m) => m.pageScrollbar));
+  console.log(bar ? `SCROLLBARS classic (${bar}px)` : "SCROLLBARS overlay (0px): bar widths read 0 and lists wrap one line less; macOS shows classic bars with a mouse attached or with Show scroll bars set to Always");
   await browser.close();
   await pool.end();
   process.exit(0);

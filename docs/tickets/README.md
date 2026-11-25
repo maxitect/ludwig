@@ -163,8 +163,8 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T171](./done/T171-landing-one-room-per-shot.md) | Landing: fit the stage under the header, one room per shot, and end on the Mirror (fourth pass; tested against every requirement) | T167 | | | done |
 | [T172](./T172-isr-writes-per-visit.md) | ISR writes per visit: longer cache life, fewer prefetches, no site-wide purge on a settings save (high priority; T159 AC6 follow-up) | T159 | | ✔ | in-progress |
 | [T173](./T173-solve-cls-hanging-prefetch-and-site-health-audit.md) | Fix the solve-page layout shift and the hanging type-page prefetch, then audit the whole site for runtime faults | T170, T172 | | | todo |
-| [T174](./T174-desktop-solve-panel-audit.md) | Audit the desktop solve panel after T170: scrolling, spacing, what should fold away, and classic gears | T170 | | | todo |
-| [T175](./T175-desktop-solve-panel-remediation.md) | Desktop solve panel, second pass: sections that fold instead of scrollbars, even spacing, and classic gears in the layout (built from T174's audit) | T174 | | | todo |
+| [T174](./done/T174-desktop-solve-panel-audit.md) | Audit the desktop solve panel after T170: scrolling, spacing, what should fold away, and classic gears | T170 | | | done |
+| [T175](./done/T175-desktop-solve-panel-remediation.md) | Desktop solve panel, second pass: sections that fold instead of scrollbars, even spacing, and classic gears in the layout (built from T174's audit) | T174 | | | done |
 
 ## M6: Radio Times set
 

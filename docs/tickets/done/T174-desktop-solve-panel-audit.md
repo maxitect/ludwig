@@ -53,7 +53,7 @@ This ticket is the audit, like T169. It measures every type against the built la
   - the crossword's Across and Down are two exclusive sections, and the open one follows the grid's typing direction;
   - classic `gears` is a `panel` type: diagram left, controls right;
   - the spacing fix applies to every type, not only the ciphers.
-- **Write T175's per-type detail.** Update `docs/tickets/T175-desktop-solve-panel-remediation.md` where the audit contradicts it: its list of findings, its section plans, its spacing numbers and its named test puzzles. The audit is the authority.
+- **Write T175's per-type detail.** Update `docs/tickets/done/T175-desktop-solve-panel-remediation.md` where the audit contradicts it: its list of findings, its section plans, its spacing numbers and its named test puzzles. The audit is the authority.
 
 **Out**
 

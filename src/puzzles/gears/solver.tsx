@@ -23,6 +23,7 @@ import { markerOf } from "./dance";
 import { applySwaps, lcmTeeth, seeingCount } from "./engine";
 import { PanelSection } from "../_shared/panel-section";
 import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
+import { usePanelLayout } from "../_shared/use-panel-layout";
 import { Scrubber } from "./scrubber";
 import type * as schema from "./schema";
 import {
@@ -128,6 +129,15 @@ export function Solver({
   const offConvergence = !solved && !atConvergence;
 
   const solvedHidden = "panel:group-data-[solved]/solve:hidden";
+  const panel = usePanelLayout();
+  const stateTable = table.shown && (
+    <StateTable
+      id={table.tableId}
+      diagram={diagram}
+      crank={crank}
+      convergence={convergence}
+    />
+  );
   return (
     <SolveLayout className="flex flex-col gap-4">
       <PanelCell part="head">
@@ -164,16 +174,7 @@ export function Solver({
           }
         />
       </BoardCell>
-      {table.shown && (
-        <BoardCell>
-          <StateTable
-            id={table.tableId}
-            diagram={diagram}
-            crank={crank}
-            convergence={convergence}
-          />
-        </BoardCell>
-      )}
+      {panel && stateTable && <BoardCell>{stateTable}</BoardCell>}
       <PanelCell keepSolved className="flex flex-col gap-4 panel:gap-3 panel:flex panel:h-full panel:flex-col">
       <Scrubber position={position} onSettle={settle} />
       <p
@@ -198,6 +199,7 @@ export function Solver({
         tableId={table.tableId}
       />
       </div>
+      {!panel && stateTable}
       {adjustable && (
         <PanelSection
           title="Adjust the diagram"

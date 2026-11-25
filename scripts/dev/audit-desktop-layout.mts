@@ -252,7 +252,7 @@ const measurePanelInPage = () => {
         scrollHeight: el.scrollHeight,
         overflowY: el.scrollHeight - el.clientHeight,
         overflowX: el.scrollWidth - el.clientWidth,
-        scrollbarWidth: Math.round(el.offsetWidth - el.clientWidth - bw),
+        scrollbarWidth: Math.round((el as HTMLElement).offsetWidth - el.clientWidth - bw),
         scrollbarStyle: `${cs.scrollbarWidth}/${cs.scrollbarColor}`,
         gapContentToScrollbar: r2(clientRight - contentRight),
         gapToPanelEdge: r2(sectionRect.right - r.right),

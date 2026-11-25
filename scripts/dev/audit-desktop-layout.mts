@@ -530,7 +530,7 @@ if (args.includes("--panel")) {
   if (args.includes("--widths")) {
     const rem = 16;
     const widths = [24, 30, 36, 42, 48];
-    const cases = panelTargets.filter((t) => ["rota~canteen-queue", "logic-grid~cold-frame", "logic-grid~manifest", "knights-knaves~by-the-fire", "knights-knaves~night-ferry", "crossword~fine-print", "rota~the-long-shift", "book-cipher~bowerbird-nest", "caesar", "keyword", "pictogram-cipher~first-drawing", "reverse-chess~the-long-walk", "word-search~wound-up", "detective-scene~cambridge-night"].includes(t.key));
+    const cases = panelTargets.filter((t) => ["rota", "logic-grid", "logic-grid~manifest", "knights-knaves", "knights-knaves~night-ferry", "crossword", "crossword~fine-print", "rota~the-long-shift", "book-cipher", "caesar", "keyword", "pictogram-cipher", "pictogram-cipher~first-drawing", "reverse-chess~the-long-walk", "word-search~wound-up", "detective-scene"].includes(t.key));
     const rows = [];
     const ctx = await browser.newContext({ viewport: viewports[0] });
     await ctx.addInitScript("window.__name = (f) => f");
@@ -550,7 +550,7 @@ if (args.includes("--panel")) {
             const gp = (el) => { let p = el.parentElement; while (p && getComputedStyle(p).display === "contents") p = p.parentElement; return p; };
             const body = [...document.querySelectorAll("[data-testid=solver] *")].filter((el) => getComputedStyle(el).gridColumnStart === "2" && gp(el) === section && el.getBoundingClientRect().width > 0);
             const first = body[0]?.getBoundingClientRect().top ?? 0;
-            const check = [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "Check");
+            const check = [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "Check" && b.getBoundingClientRect().width > 0);
             const budget = Math.round((check?.getBoundingClientRect().top ?? 0) - first);
             const leaves = body.flatMap((el) => [...el.querySelectorAll("*")]).filter((l) => l.getBoundingClientRect().height > 0 && ![...l.children].some((c) => c.getBoundingClientRect().height > 0));
             const content = Math.round(Math.max(0, ...leaves.map((l) => l.getBoundingClientRect().bottom)) - first);

@@ -22,6 +22,25 @@ export async function hydrated(locator: Locator) {
     .toBe(true);
 }
 
+/**
+ * Opens a folded section of the desktop panel. Does nothing where the layout shows its content unfolded. A section
+ * takes its state from React once it has hydrated, so the open state is confirmed after a pause.
+ */
+export async function openSection(page: Page, title: string) {
+  const summary = page.locator("details > summary", { hasText: title });
+  await hydrated(summary);
+  if (!(await summary.isVisible())) return;
+  const isOpen = () =>
+    summary.evaluate(
+      (element) => (element.parentElement as HTMLDetailsElement).open,
+    );
+  await expect(async () => {
+    if (!(await isOpen())) await summary.click();
+    await page.waitForTimeout(250);
+    expect(await isOpen()).toBe(true);
+  }).toPass({ timeout: 10_000 });
+}
+
 export async function typeAnagram(page: Page, letters: string) {
   const board = page.getByRole("group", { name: "Anagram", exact: true });
   await expect(board).toBeVisible();

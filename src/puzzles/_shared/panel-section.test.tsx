@@ -66,6 +66,19 @@ describe("PanelSection", () => {
     expect(onOpenChange).toHaveBeenCalledWith(true);
   });
 
+  it("opens and closes by its summary, the native disclosure button", () => {
+    render(
+      <PanelSection title="Notes">
+        <p>notes</p>
+      </PanelSection>,
+    );
+    expect(summaryOf("Notes").tagName).toBe("SUMMARY");
+    fireEvent.click(summaryOf("Notes"));
+    expect(detailsOf("Notes").open).toBe(true);
+    fireEvent.click(summaryOf("Notes"));
+    expect(detailsOf("Notes").open).toBe(false);
+  });
+
   it("keeps an open section open when its own caret is pressed with keepOpen", () => {
     render(
       <PanelSection title="Down" defaultOpen keepOpen>

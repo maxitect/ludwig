@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { gearPuzzle } from "./helpers/content";
-import { openPuzzle } from "./helpers/solve";
+import { openPuzzle, openSection } from "./helpers/solve";
 
 type GearPuzzle = Awaited<ReturnType<typeof gearPuzzle>>;
 
@@ -64,6 +64,7 @@ test("fix the diagram: swap the starting slots, then crank, scrub and accuse", a
   const puzzle = await gearPuzzle(true);
   await openPuzzle(page, puzzle);
 
+  await openSection(page, "Adjust the diagram");
   const panel = page.getByTestId("swap-panel");
   await expect(async () => {
     for (const { a, b } of puzzle.swaps) {

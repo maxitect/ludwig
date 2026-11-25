@@ -16,7 +16,9 @@ import {
   excludedSolveTypes,
   panelSolveTypes,
 } from "../src/config/solve-layout";
+import { signUp, uniqueEmail } from "./helpers/auth";
 import { uncapturePuzzle } from "./helpers/content";
+import { completeAttemptFor, databaseAvailable } from "./helpers/db";
 import { clickCheck, crosswordCell, openPuzzle } from "./helpers/solve";
 
 test.skip(({ isMobile }) => isMobile, "desktop layout only");
@@ -437,6 +439,17 @@ test.describe("journeys at 1280x650", () => {
     expect(result.overflow).toBeLessThanOrEqual(PHONE_FOOTER + 2);
     expect(result.scrolls).toBe(true);
     expect(result.lastInView).toBe(true);
+    const rows = await page.evaluate(() => {
+      const scroller = document.querySelector<HTMLElement>("[data-panel-scroll]")!;
+      scroller.scrollTop = 0;
+      const s = scroller.getBoundingClientRect();
+      return [...scroller.querySelectorAll("li")]
+        .map((li) => li.getBoundingClientRect())
+        .filter((b) => b.top < s.bottom - 3)
+        .map((b) => b.bottom <= s.bottom + 0.5);
+    });
+    expect(rows.length, "whole plies in view").toBeGreaterThanOrEqual(2);
+    expect(rows.every(Boolean), "no ply is half cut").toBe(true);
   });
 
   test("AC6: the 15x15 crossword's clue lists scroll inside the panel", async ({
@@ -568,6 +581,7 @@ const LARGE_CASES: Pick<Representative, "type" | "slug" | "board">[] = [
 type PanelMeasure = {
   scrollers: { name: string; bar: number; paddingRight: number; tagged: boolean; pageText: boolean }[];
   contentToCheck: number | null;
+  clipped: string[];
   checkToStatus: number;
   statusToFooterRule: number;
   columnsEndGap: number | null;
@@ -605,15 +619,24 @@ const measurePanel = (page: Page) =>
         };
       });
     let contentBottom = -Infinity;
-    for (const element of section.querySelectorAll<HTMLElement>("*")) {
-      if (!visible(element) || check.contains(element)) continue;
+    const clipped: string[] = [];
+    for (const element of section.querySelectorAll<HTMLElement>("[data-testid=solver] *")) {
+      if (!visible(element)) continue;
       const box = element.getBoundingClientRect();
-      if (box.width < 1 || box.height < 1) continue;
-      if (box.left < checkBox.left - 1 || box.bottom > checkBox.top) continue;
+      if (box.width <= 1 || box.height <= 1) continue;
+      if (box.left < checkBox.left - 1) continue;
       const inside = element.closest("[data-panel-scroll]");
       if (inside && inside !== element) continue;
       const cast = element.classList.contains("paper-sheet") ? 3 : 0;
       contentBottom = Math.max(contentBottom, box.bottom + cast);
+      for (let parent = element.parentElement; parent && parent !== section; parent = parent.parentElement) {
+        if (getComputedStyle(parent).overflowY === "visible") continue;
+        const edge = parent.getBoundingClientRect();
+        if (edge.height > 1 && (box.bottom > edge.bottom + 1 || box.top < edge.top - 1)) {
+          clipped.push(`${element.tagName} "${(element.textContent ?? "").slice(0, 30)}"`);
+        }
+        break;
+      }
     }
     const footer = document.querySelector("footer:not([data-testid])");
     const footerTop = footer ? footer.getBoundingClientRect().top : window.innerHeight;
@@ -621,6 +644,7 @@ const measurePanel = (page: Page) =>
     return {
       scrollers,
       contentToCheck: Number.isFinite(contentBottom) ? checkBox.top - contentBottom : null,
+      clipped,
       checkToStatus: statusBox.top - checkBox.bottom,
       statusToFooterRule: footerTop - statusBox.bottom,
       columnsEndGap: boardCell ? Math.abs(boardCell.getBoundingClientRect().bottom - statusBox.bottom) : null,
@@ -642,6 +666,7 @@ for (const viewport of VIEWPORTS) {
         expect(m.statusToFooterRule, "status to the site footer's rule").toBeGreaterThanOrEqual(23);
         if (panelSolveTypes.has(rep.type)) {
           expect(m.contentToCheck, "last panel content to Check").toBeGreaterThanOrEqual(15);
+          expect(m.clipped, "panel elements cut by an ancestor's edge").toEqual([]);
           if (m.columnsEndGap !== null) {
             expect(m.columnsEndGap, "board column and panel end together").toBeLessThanOrEqual(1);
           }
@@ -676,17 +701,45 @@ test.describe("AC4: the crossword shows one clue list at a time", () => {
       return c.top >= l.top - 1 && c.bottom <= l.bottom + 1;
     });
 
-  test("the open list follows the grid's direction and the caret sets it", async ({ page }) => {
-    await openPuzzle(page, { typeKey: "crossword", slug: "stage-door" });
-    await expect.poll(() => openLists(page)).toEqual(["across"]);
-    await crosswordCell(page, crosswordStageDoor.cells[0]).click();
-    await page.keyboard.press("Space");
-    await expect.poll(() => openLists(page)).toEqual(["down"]);
-    await expect.poll(() => activeClueVisible(page)).toBe(true);
-    await page.locator("details[name=crossword-clues] > summary", { hasText: "across" }).click();
-    await expect.poll(() => openLists(page)).toEqual(["across"]);
-    expect(await page.evaluate(() => window.scrollY)).toBe(0);
-  });
+  for (const [slug, content] of [
+    ["stage-door", crosswordStageDoor],
+    ["fine-print", crosswordFinePrint],
+  ] as const) {
+    test(`${slug}: the open list follows the grid's direction and the caret sets it`, async ({ page }) => {
+      const lists = page.locator("details[name=crossword-clues]").getByRole("list");
+      const direction = () =>
+        page.locator("details[name=crossword-clues][open] button[aria-current=true]").count();
+      await openPuzzle(page, { typeKey: "crossword", slug });
+      await expect.poll(() => openLists(page)).toEqual(["across"]);
+      await expect(lists).toHaveCount(1);
+      const crossing = content.cells.find(
+        (cell) =>
+          content.cells.some((other) => other.row === cell.row && other.col === cell.col + 1) &&
+          content.cells.some((other) => other.col === cell.col && other.row === cell.row + 1),
+      )!;
+      await crosswordCell(page, crossing).click();
+      await expect.poll(() => activeClueVisible(page)).toBe(true);
+      await page.keyboard.press("Space");
+      await expect.poll(() => openLists(page)).toEqual(["down"]);
+      await expect(lists).toHaveCount(1);
+      await expect.poll(() => activeClueVisible(page)).toBe(true);
+
+      const lastDown = page.locator("details[name=crossword-clues][open] ol button").last();
+      await lastDown.click();
+      await expect(lastDown).toHaveAttribute("aria-current", "true");
+      await expect.poll(() => openLists(page)).toEqual(["down"]);
+      await expect.poll(() => activeClueVisible(page)).toBe(true);
+
+      await page.locator("details[name=crossword-clues] > summary", { hasText: "across" }).click();
+      await expect.poll(() => openLists(page)).toEqual(["across"]);
+      await expect(lists).toHaveCount(1);
+      await expect.poll(direction).toBe(1);
+      await expect.poll(() => activeClueVisible(page)).toBe(true);
+      const scrollers = (await measurePanel(page)).scrollers;
+      expect(scrollers.length, "one clue list is the only scroller").toBeLessThanOrEqual(1);
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    });
+  }
 });
 
 const inViewport = (page: Page, selector: string) =>
@@ -736,9 +789,18 @@ for (const viewport of [...VIEWPORTS, { width: 1440, height: 1000 }]) {
       });
       expect(rows.every(Boolean), "no row is half cut").toBe(true);
       const notes = page.locator("details > summary", { hasText: "Case notes" });
+      const accessibility = await page.context().newCDPSession(page);
+      const expanded = async () => {
+        const { nodes } = await accessibility.send("Accessibility.getFullAXTree");
+        return nodes
+          .find((node) => /^case notes$/i.test(node.name?.value ?? "") && node.properties?.some(({ name }) => name === "expanded"))
+          ?.properties?.find(({ name }) => name === "expanded")?.value.value;
+      };
+      expect(await expanded(), "the closed caret is exposed as collapsed").toBe(false);
       await notes.focus();
       await page.keyboard.press("Space");
       await expect(page.getByTestId("logic-grid-brief")).toBeVisible();
+      expect(await expanded(), "the open caret is exposed as expanded").toBe(true);
     });
 
     test("knights-knaves by-the-fire: the cards sit in the board cell", async ({ page }) => {
@@ -807,6 +869,13 @@ test.describe("AC6: a failed check opens the section with the wrong part", () =>
     const clues = page.locator("details", { has: page.locator("summary", { hasText: "Clues" }) });
     await expect(clues).toHaveAttribute("open", "");
     await expect.poll(() => inViewport(page, "[data-broken]")).toBe(true);
+    await page.locator("details > summary", { hasText: "Who insisted" }).click();
+    await expect(clues).not.toHaveAttribute("open", "");
+    await page.getByTestId("rota-accusation").getByRole("radio").first().check();
+    await clickCheck(page);
+    await expect(clues).toHaveAttribute("open", "");
+    await expect.poll(() => inViewport(page, "[data-broken]")).toBe(true);
+    await expect(chrome(page).status).toContainText("Not quite");
   });
 });
 
@@ -858,6 +927,16 @@ for (const viewport of VIEWPORTS) {
       expect(bottomOf(await box(chrome(page).check))).toBeLessThanOrEqual(viewport.height);
     });
 
+    test("today's daily", async ({ page }) => {
+      await page.goto("/gears");
+      const daily = page.locator('a[href^="/puzzles/gears/daily-"]').first();
+      test.skip(!(await daily.isVisible()), "no daily drawn for today");
+      await daily.click();
+      await page.waitForURL(/\/puzzles\/gears\/daily-/);
+      await page.waitForLoadState("networkidle");
+      await expectBoardAndPanel(page, false);
+    });
+
     test("a solved diagram shows its stamp and time in view, focus in the footer", async ({ page }) => {
       const { gearPuzzle } = await import("./helpers/content");
       const puzzle = await gearPuzzle(false);
@@ -894,6 +973,95 @@ for (const viewport of VIEWPORTS) {
           inFooter: !!document.activeElement?.closest("[data-testid=solved-footer]"),
         })),
       ).toEqual({ y: 0, inFooter: true });
+    });
+  });
+}
+
+/** Scroll areas and cut elements of a solved page, with the footer's parts against the viewport. */
+const measureSolved = (page: Page) =>
+  page.evaluate(() => {
+    const section = document.querySelector("section[data-solve-mode]")!;
+    const visible = (element: Element) =>
+      (element as HTMLElement).checkVisibility({ checkVisibilityCSS: true });
+    const below = (element: Element | null) =>
+      element ? Math.round(element.getBoundingClientRect().bottom - window.innerHeight) : null;
+    const footer = section.querySelector("[data-testid=solved-footer]")!;
+    const scrollers = [...section.querySelectorAll<HTMLElement>("*")]
+      .filter(
+        (element) =>
+          visible(element) &&
+          ["auto", "scroll"].includes(getComputedStyle(element).overflowY) &&
+          element.scrollHeight > element.clientHeight + 1,
+      )
+      .map((element) => element.getAttribute("data-testid") ?? element.getAttribute("aria-label") ?? element.tagName);
+    const epilogue = section.querySelector<HTMLElement>("ol[data-testid=epilogue]");
+    const area = epilogue?.getBoundingClientRect();
+    return {
+      scrollers,
+      past: {
+        stamp: below(section.querySelector("[data-testid=solved-stamp]")),
+        time: below([...footer.querySelectorAll("p")].find((p) => /Solved in/.test(p.textContent ?? "")) ?? null),
+        next: below(footer.querySelector("a")),
+      },
+      scrollY: window.scrollY,
+      halfCutLines: epilogue && area
+        ? [...epilogue.children].filter((line) => {
+            const b = line.getBoundingClientRect();
+            return b.top < area.bottom - 3 && b.bottom > area.bottom - 1.5;
+          }).length
+        : 0,
+    };
+  });
+
+for (const viewport of VIEWPORTS) {
+  test.describe(`AC9: the solved footer at ${viewport.width}x${viewport.height}`, () => {
+    test.use({ viewport });
+
+    test("every panel and board-only type shows its stamp, time and next link, and nothing scrolls", async ({ page }) => {
+      test.skip(!databaseAvailable, "needs the local database for the completion rows");
+      test.setTimeout(300_000);
+      const cases = [...REPRESENTATIVES, ...LARGE_CASES].filter(
+        ({ type }) => panelSolveTypes.has(type) || boardOnlySolveTypes.has(type),
+      );
+      const email = uniqueEmail("t175-solved");
+      await signUp(page, email);
+      for (const { type, slug } of cases) await completeAttemptFor(email, type, slug);
+      for (const { type, slug } of cases) {
+        await page.goto(`/puzzles/${type}/${slug}`);
+        await expect(page.getByTestId("solved-footer"), `${type} ${slug}`).toBeVisible();
+        await page.waitForTimeout(600);
+        const m = await measureSolved(page);
+        expect(m.past.stamp, `${type} ${slug}: stamp past the fold`).toBeLessThanOrEqual(0);
+        expect(m.past.time, `${type} ${slug}: time past the fold`).toBeLessThanOrEqual(0);
+        if (m.past.next !== null) {
+          expect(m.past.next, `${type} ${slug}: Next in volume past the fold`).toBeLessThanOrEqual(0);
+        }
+        expect(
+          m.scrollers.filter((name) => name !== "Page text"),
+          `${type} ${slug}: scroll areas when solved`,
+        ).toEqual([]);
+        expect(m.scrollY, `${type} ${slug}: page scroll`).toBe(0);
+      }
+    });
+
+    test("rota the-long-shift solved for real: the epilogue is the one scroll area, in whole lines", async ({ page }) => {
+      const { content } = await import("../content/rota/the-long-shift");
+      await openPuzzle(page, { typeKey: "rota", slug: "the-long-shift" });
+      for (const { a, b } of [...content.solution.swaps].reverse()) {
+        await page.getByTestId(`token-${a}`).click();
+        await page.getByTestId(`token-${b}`).click();
+      }
+      await page.getByTestId("rota-accusation").getByLabel(content.solution.instigatorName).check();
+      await clickCheck(page);
+      await expect(page.getByTestId("epilogue")).toBeVisible();
+      await page.waitForTimeout(1200);
+      const m = await measureSolved(page);
+      expect(m.past.stamp).toBeLessThanOrEqual(0);
+      expect(m.past.time).toBeLessThanOrEqual(0);
+      if (m.past.next !== null) expect(m.past.next).toBeLessThanOrEqual(0);
+      expect(m.scrollers).toEqual(["epilogue"]);
+      expect(m.halfCutLines, "no epilogue line is half cut").toBe(0);
+      expect(m.scrollY).toBe(0);
     });
   });
 }

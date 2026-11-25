@@ -57,7 +57,7 @@ test("a keyboard solve of the numeric answer is saved and recorded", async ({
 
   await page.keyboard.press("Enter");
   await expect(page.getByText(/Solved in/)).toBeVisible();
-  await expect(input).toBeDisabled();
+  await expect(page.getByLabel("Your answer")).toBeDisabled();
   if (databaseAvailable) {
     await expect
       .poll(async () => (await napkinMathsAttemptFor(email))?.completed)

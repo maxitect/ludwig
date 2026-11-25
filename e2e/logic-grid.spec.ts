@@ -39,7 +39,9 @@ test("a signed-in player's marks persist and the puzzle completes", async ({
   await signUp(page, email);
   await openPuzzle(page, puzzle);
   await expect(page.getByRole("grid", { name: "Logic grid" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Case notes" })).toBeVisible();
+  await expect(
+    page.getByText("Case notes", { exact: true }).filter({ visible: true }),
+  ).toHaveCount(1);
   await expect(page.getByTestId("logic-grid-brief")).toHaveText(puzzle.brief);
 
   await markYes(page, first[0], first[1]);

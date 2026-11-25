@@ -32,7 +32,7 @@ export function BoardCell({ className, ...rest }: ComponentProps<"div">) {
 
 const PART = {
   head: "panel:row-start-2",
-  body: "panel:relative panel:row-start-3 panel:min-h-0 panel:overflow-y-auto panel:px-1",
+  body: "panel:relative panel:row-start-3 panel:min-h-0",
   foot: "panel:row-start-4",
 } as const;
 
@@ -43,9 +43,8 @@ export function PanelCell({
 }: ComponentProps<"div"> & { part?: keyof typeof PART }) {
   return (
     <div
-      data-panel-scroll={part === "body" ? "" : undefined}
       className={cn(
-        "contents panel:col-start-2 panel:block panel:min-w-0 panel:pb-3",
+        "contents panel:col-start-2 panel:block panel:min-w-0",
         PART[part],
         className,
       )}

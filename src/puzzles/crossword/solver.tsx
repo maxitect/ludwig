@@ -18,6 +18,7 @@ import {
   type Direction,
 } from "../_shared/cell-grid";
 import { PuzzleKeyboard, usePadWanted } from "../_shared/puzzle-keyboard";
+import { scrollWithin } from "../_shared/scroll-within";
 import { SolveBarButton } from "../_shared/solve-bar-button";
 import { SolveSlot } from "../_shared/solve-slot";
 import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
@@ -128,18 +129,8 @@ export function Solver({
   }, [registerCheck, letters, payload.cells]);
 
   useEffect(() => {
-    const list = clueList.current;
-    const current = list?.querySelector<HTMLElement>("[aria-current=true]");
-    if (!list || !current) return;
-    if (current.offsetTop < list.scrollTop) {
-      list.scrollTop = current.offsetTop;
-    } else if (
-      current.offsetTop + current.offsetHeight >
-      list.scrollTop + list.clientHeight
-    ) {
-      list.scrollTop = current.offsetTop + current.offsetHeight - list.clientHeight;
-    }
-  }, [activeEntry]);
+    scrollWithin(clueList.current?.querySelector("[aria-current=true]"));
+  }, [activeEntry, direction]);
 
   function setLetter(row: number, col: number, value: string) {
     const next = new Map(letters);

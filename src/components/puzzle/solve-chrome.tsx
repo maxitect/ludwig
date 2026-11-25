@@ -315,8 +315,9 @@ function SolveBoard({
       <section
         ref={solveMode}
         data-solve-mode
+        data-solved={solved || undefined}
         className={cn(
-          "group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] panel:min-h-[30rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-6 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-164px),24rem)] touch:h-full touch:min-h-0 touch:gap-0",
+          "group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] panel:pb-3 panel:min-h-[30rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-6 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-176px),24rem)] touch:h-full touch:min-h-0 touch:gap-0",
           narrowPanelSolveTypes.has(typeKey)
             ? "panel:grid-cols-[minmax(0,1fr)_18rem]"
             : "panel:grid-cols-[minmax(0,1fr)_24rem]",
@@ -418,7 +419,7 @@ function SolveBoard({
 
         <div
           className={cn(
-            "flex flex-wrap gap-3 panel:col-start-2 panel:row-start-5 panel:pb-3 touch:hidden",
+            "flex flex-wrap gap-3 panel:col-start-2 panel:row-start-5 panel:pt-4 panel:pb-3 touch:hidden",
             solved && "panel:hidden",
             !ownsTouchControls.has(typeKey) &&
               "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:mx-auto touch:w-full touch:max-w-xl touch:shrink-0 touch:px-4 touch:py-1",

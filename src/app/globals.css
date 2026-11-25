@@ -269,6 +269,72 @@
   box-shadow: 3px 3px 0 var(--sheet-cast);
 }
 
+@utility panel-scroll {
+  overflow-y: auto;
+  padding-right: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--color-border);
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--color-paper-shade);
+    border-left: 2px solid var(--color-border);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-ink);
+    border: 2px solid var(--color-paper-shade);
+    border-radius: 0;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink) var(--color-paper-shade);
+  }
+}
+
+@utility panel-section {
+  &::details-content {
+    content-visibility: visible;
+    display: contents;
+  }
+
+  @variant panel {
+    &::details-content {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex: 1 1 auto;
+    }
+
+    &:not([open])::details-content {
+      content-visibility: hidden;
+    }
+
+    :where([data-solved]) &[open]::details-content {
+      content-visibility: hidden;
+    }
+  }
+}
+
+@utility panel-caret {
+  display: inline-block;
+  flex-shrink: 0;
+  border-block: 5px solid transparent;
+  border-left: 7px solid currentColor;
+
+  :where(details[open]) > summary > & {
+    rotate: 90deg;
+  }
+
+  :where([data-solved]) :where(details[open]) > summary > & {
+    rotate: 0deg;
+  }
+}
+
 @utility raking {
   background-image: repeating-linear-gradient(
     115deg,

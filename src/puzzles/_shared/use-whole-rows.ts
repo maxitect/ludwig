@@ -1,8 +1,5 @@
 import { useLayoutEffect, type RefObject } from "react";
-
-/** Matches the `panel` variant in globals.css. */
-const PANEL_QUERY =
-  "(min-width: 64rem) and (not ((pointer: coarse) and (min-height: 37.5rem)))";
+import { PANEL_QUERY } from "./use-panel-layout";
 
 const RULE = 2;
 

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 /** Matches the `panel` variant in globals.css. */
-const PANEL_QUERY =
+export const PANEL_QUERY =
   "(min-width: 64rem) and (not ((pointer: coarse) and (min-height: 37.5rem)))";
 
 const query = () =>

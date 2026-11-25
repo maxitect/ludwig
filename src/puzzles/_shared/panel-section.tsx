@@ -2,11 +2,8 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/utils/cn";
+import { PANEL_QUERY } from "./use-panel-layout";
 import { useWholeRows } from "./use-whole-rows";
-
-/** Matches the `panel` variant in globals.css. */
-const PANEL_QUERY =
-  "(min-width: 64rem) and (not ((pointer: coarse) and (min-height: 37.5rem)))";
 
 type PanelSectionProps = {
   title: ReactNode;

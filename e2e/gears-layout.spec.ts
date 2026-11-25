@@ -5,10 +5,11 @@ const LAYOUT_BUDGET = 10;
 const WINDOW_MS = 5000;
 const AFTER_PRESS_MS = 150;
 
-test.skip(
-  ({ isMobile }) => !isMobile,
-  "the layout guard measures the 390x844 viewport",
-);
+const VIEWPORTS = [
+  { width: 390, height: 844, mobile: true },
+  { width: 1440, height: 800, mobile: false },
+  { width: 1280, height: 650, mobile: false },
+] as const;
 
 /** Layouts in the 5 s that start 150 ms after pressing play; the press and hover cost 2 themselves. */
 async function layoutsWhilePlaying(page: Page) {
@@ -29,9 +30,13 @@ async function layoutsWhilePlaying(page: Page) {
   return count;
 }
 
-test("the largest curated diagram stays under the layout budget while playing", async ({
+for (const { width, height, mobile } of VIEWPORTS) {
+test(`the largest curated diagram stays under the layout budget while playing at ${width}x${height}`, async ({
   page,
+  isMobile,
 }) => {
+  test.skip(isMobile !== mobile, "each viewport runs on its own project");
+  await page.setViewportSize({ width, height });
   const puzzle = await largestGearPuzzle();
   await page.goto(`/puzzles/${puzzle.typeKey}/${puzzle.slug}`);
   const count = await layoutsWhilePlaying(page);
@@ -41,9 +46,12 @@ test("the largest curated diagram stays under the layout budget while playing", 
   expect(count).toBeLessThan(LAYOUT_BUDGET);
 });
 
-test("today's daily stays under the layout budget while playing", async ({
+test(`today's daily stays under the layout budget while playing at ${width}x${height}`, async ({
   page,
+  isMobile,
 }) => {
+  test.skip(isMobile !== mobile, "each viewport runs on its own project");
+  await page.setViewportSize({ width, height });
   await page.goto("/gears");
   const daily = page.locator('a[href^="/puzzles/gears/daily-"]').first();
   const undrawn = page.getByText("Today’s diagram hasn’t been drawn yet");
@@ -58,3 +66,4 @@ test("today's daily stays under the layout budget while playing", async ({
   console.log(`layout guard ${href}: ${count}`);
   expect(count).toBeLessThan(LAYOUT_BUDGET);
 });
+}

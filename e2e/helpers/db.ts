@@ -739,3 +739,39 @@ export async function publishedPuzzles() {
     await pool.end();
   }
 }
+
+/** Marks each puzzle as completed by the account, so its solve page loads in the solved state. */
+export async function completePuzzles(
+  email: string,
+  puzzles: { typeKey: string; slug: string }[],
+) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    for (const { typeKey, slug } of puzzles) {
+      await pool.query(
+        `insert into attempts (user_id, puzzle_id, type_key, completed_at, duration_ms)
+         select u.id, p.id, p.type_key, now(), 187000
+           from "user" u, puzzles p
+          where u.email = $1 and p.type_key = $2 and p.slug = $3
+            and not exists (select 1 from attempts a where a.user_id = u.id and a.puzzle_id = p.id)`,
+        [email, typeKey, slug],
+      );
+    }
+  } finally {
+    await pool.end();
+  }
+}
+
+/** A production build sends a link instead of verifying a new account, so the spec verifies it here. */
+export async function verifyEmail(email: string) {
+  const pool = new Pool({
+    connectionString: verifyFullSsl(process.env.DATABASE_URL!),
+  });
+  try {
+    await pool.query(`update "user" set email_verified = true where email = $1`, [email]);
+  } finally {
+    await pool.end();
+  }
+}

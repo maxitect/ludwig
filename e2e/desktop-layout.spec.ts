@@ -16,7 +16,9 @@ import {
   excludedSolveTypes,
   panelSolveTypes,
 } from "../src/config/solve-layout";
+import { PASSWORD, uniqueEmail } from "./helpers/auth";
 import { uncapturePuzzle } from "./helpers/content";
+import { completePuzzles, databaseAvailable, verifyEmail } from "./helpers/db";
 import { clickCheck, crosswordCell, openPuzzle } from "./helpers/solve";
 
 test.skip(({ isMobile }) => isMobile, "desktop layout only");
@@ -64,10 +66,11 @@ const REPRESENTATIVES: Representative[] = [
   { type: "detective-scene", slug: "cambridge-night", board: (p) => p.locator("[aria-label='The street scene']") },
   { type: "fillomino", slug: "borrowed-time", board: grid },
   { type: "futoshiki", slug: "balance-sheet", sizes: { 1440: 477 }, board: grid },
+  { type: "gears", slug: "final-curtain", board: (p) => p.getByRole("group", { name: "Gear floor" }) },
   { type: "gear-train", slug: "big-wheel", sizes: { 1440: 432 }, board: (p) => p.locator("[aria-label=Pegboard]") },
   { type: "kakuro", slug: "blind-sum", board: grid },
   { type: "keyword", slug: "blotting-paper", sheet: true, board: (p) => p.getByTestId("ciphertext").locator("..") },
-  { type: "knights-knaves", slug: "by-the-fire", sheet: true, board: (p) => solver(p).locator("p.text-lg") },
+  { type: "knights-knaves", slug: "by-the-fire", sheet: true, board: (p) => solver(p).locator("ol").first() },
   { type: "logic-grid", slug: "cold-frame", board: (p) => p.locator("[aria-label='Logic grid']") },
   { type: "napkin-maths", slug: "bar-tab", sheet: true, board: (p) => p.locator("[aria-label='Napkin workings']") },
   { type: "nonogram", slug: "blind-spot", board: grid },
@@ -397,7 +400,7 @@ test.describe("journeys at 1280x650", () => {
   async function clueInView(page: Page) {
     return page.evaluate(() => {
       const current = document.querySelector("ol button[aria-current=true]");
-      const list = current?.closest("ol");
+      const list = current?.closest("[data-panel-scroll]");
       if (!current || !list) return false;
       const c = current.getBoundingClientRect();
       const l = list.getBoundingClientRect();
@@ -448,7 +451,7 @@ test.describe("journeys at 1280x650", () => {
     const result = await page.evaluate(() => ({
       scrollY: window.scrollY,
       overflow: document.documentElement.scrollHeight - window.innerHeight,
-      listScrolls: [...document.querySelectorAll("ol")].some(
+      listScrolls: [...document.querySelectorAll("[data-panel-scroll]")].some(
         (list) => list.scrollHeight > list.clientHeight + 1 && list.clientHeight > 0,
       ),
     }));
@@ -479,8 +482,6 @@ test.describe("journeys at 1280x650", () => {
       }
     }
     await page.getByRole("radio", { name: /clue 1$/ }).check();
-    const scroller = page.locator("[data-panel-scroll]").first();
-    await scroller.evaluate((el) => (el.scrollTop = el.scrollHeight));
     await clickCheck(page);
     await expect(
       page.locator("section[data-solve-mode] > [role=status]"),
@@ -488,14 +489,12 @@ test.describe("journeys at 1280x650", () => {
     await expect
       .poll(() =>
         page.evaluate(() => {
-          const scroller = document.querySelector("[data-panel-scroll]")!;
-          const list = [...scroller.querySelectorAll("ul")].find((ul) =>
+          const list = [...document.querySelectorAll("ul")].find((ul) =>
             /is wrong/.test(ul.textContent ?? ""),
           );
           if (!list) return false;
           const l = list.getBoundingClientRect();
-          const s = scroller.getBoundingClientRect();
-          return l.top >= s.top - 1 && l.bottom <= s.bottom + 1;
+          return l.top >= 0 && l.bottom <= window.innerHeight;
         }),
       )
       .toBe(true);
@@ -555,5 +554,402 @@ test.describe("AC9: no board shifts when it hydrates", () => {
         expect(Math.abs(before[key] - after[key]), key).toBeLessThanOrEqual(1);
       }
     });
+  }
+});
+
+const LARGE_CASES: Pick<Representative, "type" | "slug" | "board">[] = [
+  { type: "logic-grid", slug: "manifest", board: (p) => p.locator("[aria-label='Logic grid']") },
+  { type: "knights-knaves", slug: "night-ferry", board: (p) => solver(p).locator("ol").first() },
+  { type: "rota", slug: "the-long-shift", board: (p) => p.getByTestId("rota-board") },
+  { type: "crossword", slug: "fine-print", board: grid },
+  { type: "reverse-chess", slug: "the-long-walk", board: (p) => p.locator("[aria-label='Chess board']") },
+  { type: "word-search", slug: "wound-up", board: grid },
+  { type: "pictogram-cipher", slug: "first-drawing", board: (p) => p.getByTestId("ciphertext").locator("..") },
+];
+
+type PanelMeasure = {
+  scrollers: { name: string; bar: number; paddingRight: number; tagged: boolean; pageText: boolean }[];
+  contentToCheck: number | null;
+  checkToStatus: number;
+  statusToFooterRule: number;
+  columnsEndGap: number | null;
+};
+
+/** Everything the panel-and-spacing rules assert, measured in the page. */
+const measurePanel = (page: Page) =>
+  page.evaluate<PanelMeasure>(() => {
+    const section = document.querySelector("section[data-solve-mode]")!;
+    const visible = (element: Element) =>
+      (element as HTMLElement).checkVisibility({ checkVisibilityCSS: true });
+    const check = [...section.querySelectorAll("button")].find(
+      (b) => b.textContent === "Check" && visible(b),
+    )!;
+    const status = section.querySelector(":scope > [role=status]")!;
+    const checkBox = check.getBoundingClientRect();
+    const statusBox = status.getBoundingClientRect();
+    const scrollers = [...section.querySelectorAll<HTMLElement>("*")]
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        return (
+          visible(element) &&
+          ["auto", "scroll"].includes(style.overflowY) &&
+          element.scrollHeight > element.clientHeight + 1
+        );
+      })
+      .map((element) => {
+        const style = getComputedStyle(element);
+        return {
+          name: element.getAttribute("aria-label") ?? element.tagName,
+          bar: parseFloat(getComputedStyle(element, "::-webkit-scrollbar").width),
+          paddingRight: parseFloat(style.paddingRight),
+          tagged: element.hasAttribute("data-panel-scroll"),
+          pageText: element.getAttribute("aria-label") === "Page text",
+        };
+      });
+    let contentBottom = -Infinity;
+    for (const element of section.querySelectorAll<HTMLElement>("*")) {
+      if (!visible(element) || check.contains(element)) continue;
+      const box = element.getBoundingClientRect();
+      if (box.width < 1 || box.height < 1) continue;
+      if (box.left < checkBox.left - 1 || box.bottom > checkBox.top) continue;
+      const inside = element.closest("[data-panel-scroll]");
+      if (inside && inside !== element) continue;
+      const cast = element.classList.contains("paper-sheet") ? 3 : 0;
+      contentBottom = Math.max(contentBottom, box.bottom + cast);
+    }
+    const footer = document.querySelector("footer:not([data-testid])");
+    const footerTop = footer ? footer.getBoundingClientRect().top : window.innerHeight;
+    const boardCell = section.querySelector<HTMLElement>("[class*='panel:col-start-1']");
+    return {
+      scrollers,
+      contentToCheck: Number.isFinite(contentBottom) ? checkBox.top - contentBottom : null,
+      checkToStatus: statusBox.top - checkBox.bottom,
+      statusToFooterRule: footerTop - statusBox.bottom,
+      columnsEndGap: boardCell ? Math.abs(boardCell.getBoundingClientRect().bottom - statusBox.bottom) : null,
+    };
+  });
+
+for (const viewport of VIEWPORTS) {
+  test.describe(`panel rules ${viewport.width}x${viewport.height}`, () => {
+    test.use({ viewport });
+
+    for (const rep of [...REPRESENTATIVES, ...LARGE_CASES]) {
+      if (!panelSolveTypes.has(rep.type) && !boardOnlySolveTypes.has(rep.type)) continue;
+      test(`${rep.type} ${rep.slug}: spacing and scroll areas`, async ({ page, browserName }) => {
+        await openPuzzle(page, { typeKey: rep.type, slug: rep.slug });
+        await expect(rep.board(page).first()).toBeVisible();
+        await page.waitForTimeout(500);
+        const m = await measurePanel(page);
+        expect(m.checkToStatus, "Check to status").toBeGreaterThanOrEqual(11);
+        expect(m.statusToFooterRule, "status to the site footer's rule").toBeGreaterThanOrEqual(23);
+        if (panelSolveTypes.has(rep.type)) {
+          expect(m.contentToCheck, "last panel content to Check").toBeGreaterThanOrEqual(15);
+          if (m.columnsEndGap !== null) {
+            expect(m.columnsEndGap, "board column and panel end together").toBeLessThanOrEqual(1);
+          }
+        }
+        const inPanel = m.scrollers.filter(({ pageText }) => !pageText);
+        expect(inPanel.length, `scroll areas in the panel: ${inPanel.map((s) => s.name)}`).toBeLessThanOrEqual(1);
+        for (const scroller of m.scrollers) {
+          expect(scroller.tagged || scroller.pageText, `${scroller.name} is a shared scroll area`).toBe(true);
+          if (browserName !== "firefox") {
+            expect(scroller.bar, `${scroller.name} bar width`).toBe(10);
+          }
+          expect(scroller.paddingRight, `${scroller.name} padding to the bar`).toBe(12);
+        }
+      });
+    }
+  });
+}
+
+test.describe("AC4: the crossword shows one clue list at a time", () => {
+  test.use({ viewport: { width: 1280, height: 650 } });
+
+  const openLists = (page: Page) =>
+    page.locator("details[name=crossword-clues][open] > summary").allTextContents();
+
+  const activeClueVisible = (page: Page) =>
+    page.evaluate(() => {
+      const current = document.querySelector("details[open] button[aria-current=true]");
+      const list = current?.closest("[data-panel-scroll]");
+      if (!current || !list) return false;
+      const c = current.getBoundingClientRect();
+      const l = list.getBoundingClientRect();
+      return c.top >= l.top - 1 && c.bottom <= l.bottom + 1;
+    });
+
+  test("the open list follows the grid's direction and the caret sets it", async ({ page }) => {
+    await openPuzzle(page, { typeKey: "crossword", slug: "stage-door" });
+    await expect.poll(() => openLists(page)).toEqual(["across"]);
+    await crosswordCell(page, crosswordStageDoor.cells[0]).click();
+    await page.keyboard.press("Space");
+    await expect.poll(() => openLists(page)).toEqual(["down"]);
+    await expect.poll(() => activeClueVisible(page)).toBe(true);
+    await page.locator("details[name=crossword-clues] > summary", { hasText: "across" }).click();
+    await expect.poll(() => openLists(page)).toEqual(["across"]);
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  });
+});
+
+const inViewport = (page: Page, selector: string) =>
+  page.evaluate((css) => {
+    const element = document.querySelector(css);
+    if (!element) return false;
+    const b = element.getBoundingClientRect();
+    return b.top >= 0 && b.bottom <= window.innerHeight && b.height > 0;
+  }, selector);
+
+for (const viewport of [...VIEWPORTS, { width: 1440, height: 1000 }]) {
+  test.describe(`AC5: blocks open at first read without scrolling at ${viewport.width}x${viewport.height}`, () => {
+    test.use({ viewport });
+
+    test("rota canteen-queue: the incident sheet and the five headers", async ({ page }) => {
+      await openPuzzle(page, { typeKey: "rota", slug: "canteen-queue" });
+      await expect(page.locator("details[name=rota-sections]")).toHaveCount(5);
+      for (const summary of await page.locator("details[name=rota-sections] > summary").all()) {
+        const b = await box(summary);
+        expect(bottomOf(b)).toBeLessThanOrEqual(viewport.height);
+      }
+      await expect.poll(() => inViewport(page, "[data-testid=rota-brief]")).toBe(true);
+      const clues = page.locator("details[name=rota-sections] > summary", { hasText: "Clues" });
+      await clues.focus();
+      await page.keyboard.press("Enter");
+      await expect(page.locator("details[name=rota-sections][open]")).toHaveCount(1);
+      await expect(page.getByTestId("clue-0")).toBeVisible();
+      await page.locator("details[name=rota-sections] > summary", { hasText: "Unswaps" }).click();
+      await expect(page.locator("details[name=rota-sections][open] > summary")).toHaveText(/Unswaps/);
+      const { check, reset, status } = chrome(page);
+      for (const target of [check, reset, status]) {
+        expect(bottomOf(await box(target))).toBeLessThanOrEqual(viewport.height);
+      }
+    });
+
+    test("logic-grid cold-frame: the open Clues list is the one scroller, in whole rows", async ({ page }) => {
+      await openPuzzle(page, { typeKey: "logic-grid", slug: "cold-frame" });
+      const clues = page.locator("details[open] [data-panel-scroll]");
+      await expect(clues).toHaveCount(1);
+      await page.waitForTimeout(500);
+      const rows = await clues.evaluate((area) => {
+        const a = area.getBoundingClientRect();
+        return [...area.querySelectorAll("ol > li")]
+          .map((li) => li.getBoundingClientRect())
+          .filter((b) => b.top < a.bottom - 1)
+          .map((b) => b.bottom <= a.bottom + 0.5);
+      });
+      expect(rows.every(Boolean), "no row is half cut").toBe(true);
+      const notes = page.locator("details > summary", { hasText: "Case notes" });
+      await notes.focus();
+      await page.keyboard.press("Space");
+      await expect(page.getByTestId("logic-grid-brief")).toBeVisible();
+    });
+
+    test("knights-knaves by-the-fire: the cards sit in the board cell", async ({ page }) => {
+      await openPuzzle(page, { typeKey: "knights-knaves", slug: "by-the-fire" });
+      const cards = page.getByTestId("solver").locator("ol > li");
+      await expect(cards).toHaveCount(4);
+      const cell = await box(page.locator("section[data-solve-mode] [class*='panel:col-start-1']").first());
+      for (const card of await cards.all()) {
+        const b = await box(card);
+        expect(b.x).toBeGreaterThanOrEqual(cell.x - 1);
+        expect(b.x + b.width).toBeLessThanOrEqual(cell.x + cell.width + 1);
+        expect(bottomOf(b)).toBeLessThanOrEqual(bottomOf(cell) + 1);
+      }
+    });
+  });
+}
+
+test.describe("AC6: a failed check opens the section with the wrong part", () => {
+  test.use({ viewport: { width: 1280, height: 650 } });
+
+  test("logic-grid manifest: Check opens Clues and the wrong pairs show", async ({ page }) => {
+    await openPuzzle(page, { typeKey: "logic-grid", slug: "manifest" });
+    const [first, second] = manifest.solution;
+    const swapped = [
+      [first[0], ...second.slice(1)],
+      [second[0], ...first.slice(1)],
+      ...manifest.solution.slice(2),
+    ];
+    const pair = (a: string, b: string) =>
+      page.getByRole("gridcell", { name: new RegExp(`^${a} × ${b}: `) });
+    for (const row of swapped) {
+      for (let a = 0; a < row.length; a++) {
+        for (let b = a + 1; b < row.length; b++) {
+          const target = pair(row[a], row[b]);
+          await target.click();
+          await target.click();
+        }
+      }
+    }
+    await page.getByRole("radio", { name: /clue 1$/ }).check();
+    const clues = page.locator("details", { has: page.locator("summary", { hasText: "Clues" }) });
+    await clues.locator("summary").click();
+    await expect(clues).not.toHaveAttribute("open", "");
+    await clickCheck(page);
+    await expect(clues).toHaveAttribute("open", "");
+    await expect(chrome(page).status).toContainText(/parts? (is|are) marked wrong/);
+    await expect.poll(() => page.evaluate(() => {
+      const list = [...document.querySelectorAll("ul")].find((ul) => /is wrong/.test(ul.textContent ?? ""));
+      const b = list?.getBoundingClientRect();
+      return !!b && b.top >= 0 && b.bottom <= window.innerHeight;
+    })).toBe(true);
+  });
+
+  test("rota canteen-queue: a restored rota that breaks a clue opens Clues with it in view", async ({ page }) => {
+    const { content } = await import("../content/rota/canteen-queue");
+    await openPuzzle(page, { typeKey: "rota", slug: "canteen-queue" });
+    const token = (name: string) => page.getByTestId(`token-${name}`);
+    const unswap = async (a: string, b: string) => {
+      await token(a).click();
+      await token(b).click();
+    };
+    const [{ a, b }] = [...content.solution.swaps].reverse();
+    await unswap(a, b);
+    await unswap(a, b);
+    for (const step of [...content.solution.swaps].reverse()) await unswap(step.a, step.b);
+    const clues = page.locator("details", { has: page.locator("summary", { hasText: "Clues" }) });
+    await expect(clues).toHaveAttribute("open", "");
+    await expect.poll(() => inViewport(page, "[data-broken]")).toBe(true);
+  });
+});
+
+for (const viewport of VIEWPORTS) {
+  test.describe(`AC7: classic gears at ${viewport.width}x${viewport.height}`, () => {
+    test.use({ viewport });
+
+    const diagramMin = viewport.width === 1440 ? 576 : 474;
+
+    async function expectBoardAndPanel(page: Page, fix: boolean) {
+      const board = await box(page.getByRole("group", { name: "Gear floor" }));
+      const { check, reset, status } = chrome(page);
+      const checkBox = await box(check);
+      expect(board.width, "diagram size").toBeGreaterThanOrEqual(diagramMin - 2);
+      expect(checkBox.x, "panel right of the diagram").toBeGreaterThan(board.x + board.width - 1);
+      const targets = [
+        page.getByRole("slider", { name: "Dance scrubber" }),
+        page.getByRole("button", { name: "Crank forward one tooth" }),
+        page.getByRole("button", { name: /as table/i }),
+        page.getByRole("button", { name: "Accuse", exact: true }),
+        check,
+        reset,
+        status,
+      ];
+      if (fix) {
+        targets.push(
+          page.locator("details > summary", { hasText: "The brief" }),
+          page.locator("details > summary", { hasText: "Adjust the diagram" }),
+        );
+      }
+      for (const target of targets) {
+        const b = await box(target);
+        expect(bottomOf(b)).toBeLessThanOrEqual(viewport.height);
+      }
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    }
+
+    test("final-curtain: the largest diagram", async ({ page }) => {
+      await openPuzzle(page, { typeKey: "gears", slug: "final-curtain" });
+      await expectBoardAndPanel(page, false);
+    });
+
+    test("crossed-wires: Fix the Diagram keeps the brief and the swap panel header in view", async ({ page }) => {
+      await openPuzzle(page, { typeKey: "gears", slug: "crossed-wires" });
+      await expectBoardAndPanel(page, true);
+      await page.locator("details > summary", { hasText: "Adjust the diagram" }).click();
+      await expect(page.getByTestId("swap-panel")).toBeVisible();
+      await expect(page.locator("details[name=gears-sections][open]")).toHaveCount(1);
+      expect(bottomOf(await box(chrome(page).check))).toBeLessThanOrEqual(viewport.height);
+    });
+
+    test("a solved diagram shows its stamp and time in view, focus in the footer", async ({ page }) => {
+      const { gearPuzzle } = await import("./helpers/content");
+      const puzzle = await gearPuzzle(false);
+      await openPuzzle(page, puzzle);
+      const driver = page.getByRole("slider", { name: /^Driver gear/ });
+      await expect(async () => {
+        await driver.focus();
+        await page.keyboard.press("Home");
+        for (let turn = 0; turn < puzzle.crank; turn += 1) await page.keyboard.press("ArrowRight");
+        await expect(page.getByTestId("crank")).toHaveText(String(puzzle.crank), { timeout: 1000 });
+      }).toPass({ timeout: 15_000 });
+      const scrubber = page.getByRole("slider", { name: "Dance scrubber" });
+      await scrubber.focus();
+      await page.keyboard.press("Home");
+      for (let step = 1; step < puzzle.convergence; step += 1) {
+        await page.keyboard.press("ArrowRight");
+        await page.keyboard.press("ArrowRight");
+      }
+      await page.getByRole("button", { name: "Accuse", exact: true }).click();
+      const dialog = page.getByRole("alertdialog");
+      await dialog.getByRole("radio", { name: puzzle.killer }).check();
+      await dialog.getByRole("button", { name: "Accuse", exact: true }).click();
+      await expect(page.getByText(/Solved in/)).toBeVisible();
+      await page.waitForTimeout(800);
+      for (const target of [page.getByTestId("solved-stamp"), page.getByText(/Solved in/)]) {
+        const b = await box(target);
+        expect(b.y).toBeGreaterThanOrEqual(0);
+        expect(bottomOf(b)).toBeLessThanOrEqual(viewport.height);
+      }
+      expect(await box(page.getByTestId("solved-hole"))).toMatchObject({ width: 216 });
+      expect(
+        await page.evaluate(() => ({
+          y: window.scrollY,
+          inFooter: !!document.activeElement?.closest("[data-testid=solved-footer]"),
+        })),
+      ).toEqual({ y: 0, inFooter: true });
+    });
+  });
+}
+
+test("AC9: the solved footer fits for every type at both sizes", async ({ page }) => {
+  test.skip(!databaseAvailable, "needs the local database to record completions");
+  test.setTimeout(600_000);
+  const email = uniqueEmail("solved");
+  await page.goto("/sign-up");
+  await page.getByLabel("Name").fill("Solved Pass");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Create account" }).click();
+  await page.waitForURL((url) => !url.pathname.startsWith("/sign-up")).catch(() => undefined);
+  if (new URL(page.url()).pathname === "/sign-up") {
+    await verifyEmail(email);
+    await page.goto("/sign-in");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill(PASSWORD);
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await page.waitForURL((url) => !url.pathname.startsWith("/sign-in"));
+  }
+  const reps = REPRESENTATIVES.filter(
+    (rep) => panelSolveTypes.has(rep.type) || boardOnlySolveTypes.has(rep.type),
+  );
+  await completePuzzles(email, reps.map(({ type, slug }) => ({ typeKey: type, slug })));
+  for (const viewport of VIEWPORTS) {
+    await page.setViewportSize(viewport);
+    for (const rep of reps) {
+      await page.goto(`/puzzles/${rep.type}/${rep.slug}`);
+      await expect(page.getByTestId("solved-footer"), rep.type).toBeVisible();
+      await page.waitForTimeout(900);
+      for (const target of [page.getByTestId("solved-stamp"), page.getByText(/Solved in/)]) {
+        const b = await box(target);
+        expect(b.y, `${rep.type} top`).toBeGreaterThanOrEqual(0);
+        expect(bottomOf(b), `${rep.type} ${viewport.height} bottom`).toBeLessThanOrEqual(viewport.height);
+      }
+      const next = page.getByRole("link", { name: "Next in volume" });
+      if (await next.count()) {
+        expect(bottomOf(await box(next)), `${rep.type} next`).toBeLessThanOrEqual(viewport.height);
+      }
+      const scrolling = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>("section[data-solve-mode] *")]
+          .filter(
+            (element) =>
+              element.checkVisibility({ checkVisibilityCSS: true }) &&
+              ["auto", "scroll"].includes(getComputedStyle(element).overflowY) &&
+              element.scrollHeight > element.clientHeight + 1 &&
+              element.getAttribute("aria-label") !== "Page text" &&
+              element.getAttribute("data-testid") !== "epilogue",
+          )
+          .map((element) => element.tagName),
+      );
+      expect(scrolling, `${rep.type} solved: nothing scrolls`).toEqual([]);
+    }
   }
 });

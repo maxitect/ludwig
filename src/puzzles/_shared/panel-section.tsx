@@ -53,11 +53,10 @@ export function PanelSection({
     const element = details.current;
     if (open === undefined) return;
     wanted.current = open;
-    const inPanel =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia(PANEL_QUERY).matches;
-    if (element && (inPanel || disclosure) && element.open !== open)
-      element.open = open;
+    if (!element || typeof window.matchMedia !== "function") return;
+    const inPanel = window.matchMedia(PANEL_QUERY).matches;
+    const next = inPanel || disclosure ? open : true;
+    if (element.open !== next) element.open = next;
   }, [open, disclosure]);
   useEffect(() => {
     const element = details.current;

@@ -187,7 +187,7 @@ describe("logic grid Solver", () => {
 
   it("shows the brief and renders a spoken clue with its speaker", () => {
     renderSolver(classic);
-    expect(screen.getByText("Case notes")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Case notes" })).toBeTruthy();
     expect(screen.getByText(classic.brief)).toBeTruthy();
     expect(screen.getAllByText("Ann:")).toHaveLength(1);
     expect(screen.getByText(/“I own the Dog\.”/)).toBeTruthy();

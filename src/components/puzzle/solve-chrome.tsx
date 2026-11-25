@@ -317,7 +317,7 @@ function SolveBoard({
         data-solve-mode
         data-solved={solved || undefined}
         className={cn(
-          "group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] panel:pb-3 panel:min-h-[30rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-6 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-176px),24rem)] touch:h-full touch:min-h-0 touch:gap-0",
+          "group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] desk:pb-3 panel:min-h-[30rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-6 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-176px),24rem)] touch:h-full touch:min-h-0 touch:gap-0",
           narrowPanelSolveTypes.has(typeKey)
             ? "panel:grid-cols-[minmax(0,1fr)_18rem]"
             : "panel:grid-cols-[minmax(0,1fr)_24rem]",
@@ -474,7 +474,11 @@ function SolveBoard({
           >
             <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] desk:[--hole-size:216px] touch:[--hole-size:216px]">
               <BulletHole data-testid="solved-hole" />
-              <SolvedStamp delay={0.3} data-testid="solved-stamp" />
+              <SolvedStamp
+                delay={0.3}
+                data-testid="solved-stamp"
+                className={cn(boardOnlySolveTypes.has(typeKey) && "desk:border-2 desk:px-2 desk:text-3xl")}
+              />
             </div>
             <p>
               Solved in{" "}

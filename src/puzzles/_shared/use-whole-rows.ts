@@ -4,6 +4,31 @@ import { useLayoutEffect, type RefObject } from "react";
 const PANEL_QUERY =
   "(min-width: 64rem) and (not ((pointer: coarse) and (min-height: 37.5rem)))";
 
+const RULE = 2;
+
+function cutAtWholeRow(
+  area: HTMLElement,
+  limit: HTMLElement,
+  rowSelector: string,
+  panel: boolean,
+) {
+  area.style.flex = "";
+  area.style.height = "";
+  if (!panel) return;
+  if (limit instanceof HTMLDetailsElement && !limit.open) return;
+  const top = area.getBoundingClientRect().top;
+  const available = limit.getBoundingClientRect().bottom - top;
+  if (area.scrollHeight <= available) return;
+  let fit = 0;
+  for (const row of area.querySelectorAll(rowSelector)) {
+    const bottom = row.getBoundingClientRect().bottom - top + area.scrollTop;
+    if (bottom <= available - RULE) fit = Math.max(fit, bottom);
+  }
+  if (fit === 0) return;
+  area.style.flex = "none";
+  area.style.height = `${Math.ceil(fit) + RULE}px`;
+}
+
 /**
  * Cuts a desktop scroll area at the bottom of its last whole row, so no row is half cut. `bound` is the box whose
  * bottom edge limits the area. A scroller whose content fits is left to its CSS.
@@ -14,38 +39,23 @@ export function useWholeRows(
   rowSelector: string | undefined,
 ) {
   useLayoutEffect(() => {
-    const element = scroller.current;
+    const area = scroller.current;
     const limit = bound.current;
-    if (!element || !limit || !rowSelector) return;
+    if (!area || !limit || !rowSelector) return;
+    if (
+      typeof window.matchMedia !== "function" ||
+      typeof ResizeObserver === "undefined"
+    )
+      return;
     const panel = window.matchMedia(PANEL_QUERY);
-    const border = 2;
-
-    function snap() {
-      if (!element || !limit) return;
-      element.style.flex = "";
-      element.style.height = "";
-      if (!panel.matches) return;
-      if (limit instanceof HTMLDetailsElement && !limit.open) return;
-      const top = element.getBoundingClientRect().top;
-      const available = limit.getBoundingClientRect().bottom - top;
-      if (element.scrollHeight <= available) return;
-      let fit = 0;
-      for (const row of element.querySelectorAll(rowSelector!)) {
-        const bottom =
-          row.getBoundingClientRect().bottom - top + element.scrollTop;
-        if (bottom <= available - border) fit = Math.max(fit, bottom);
-      }
-      if (fit === 0) return;
-      element.style.flex = "none";
-      element.style.height = `${Math.ceil(fit) + border}px`;
-    }
+    const snap = () => cutAtWholeRow(area, limit, rowSelector, panel.matches);
 
     snap();
     const observer = new ResizeObserver(snap);
     observer.observe(limit);
-    if (element.firstElementChild) observer.observe(element.firstElementChild);
+    if (area.firstElementChild) observer.observe(area.firstElementChild);
     const mutations = new MutationObserver(snap);
-    mutations.observe(element, { childList: true, subtree: true });
+    mutations.observe(area, { childList: true, subtree: true });
     limit.addEventListener("toggle", snap);
     panel.addEventListener("change", snap);
     return () => {

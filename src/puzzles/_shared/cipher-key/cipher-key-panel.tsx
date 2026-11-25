@@ -219,7 +219,7 @@ export function CipherKeyPanel({
               .join("; ")
           : ciphertext
       }`}</p>
-      <BoardCell className="panel:flex panel:flex-col panel:gap-6 panel:self-start panel:paper-sheet panel:p-4">
+      <BoardCell className="panel:flex panel:flex-col panel:gap-6 panel:paper-sheet panel:p-4">
       <div
         aria-hidden="true"
         data-testid="ciphertext"
@@ -281,7 +281,7 @@ export function CipherKeyPanel({
           )
           .join(", ")}`}
       </p>
-      <PanelCell>
+      <PanelCell className="panel:pt-3">
       <div className="touch:hidden">{clearButton}</div>
       </PanelCell>
       {touch && (

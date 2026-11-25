@@ -146,7 +146,7 @@ export function Solver({
 
   return (
     <SolveLayout className="flex flex-col gap-4">
-      <PanelCell part="head" className="panel:flex panel:flex-col panel:gap-4">
+      <PanelCell part="head" hideSolved className="panel:flex panel:flex-col panel:gap-4">
       <BriefSheet brief={payload.brief} />
       <p>
         Walk from the start to the exit without entering a camera&apos;s view.

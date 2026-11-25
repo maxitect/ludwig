@@ -143,7 +143,7 @@ export function Solver({
         grid is checked when every cell is filled.
       </p>
       <BoardCell>
-      <div className="mx-auto w-full max-w-xl p-4 panel:max-w-none panel:p-0 touch:px-0">
+      <div className="mx-auto w-full max-w-xl p-4 panel:flex panel:max-w-none panel:justify-center panel:p-0 touch:px-0">
         <CellGrid
           ref={grid}
           label="Fillomino"

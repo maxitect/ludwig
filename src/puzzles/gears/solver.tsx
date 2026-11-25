@@ -15,11 +15,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/utils/cn";
 import type { SolverProps } from "../solver-types";
 import { GearBoard } from "./board";
 import { useCrank } from "./crank";
 import { markerOf } from "./dance";
 import { applySwaps, lcmTeeth, seeingCount } from "./engine";
+import { PanelSection } from "../_shared/panel-section";
+import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { Scrubber } from "./scrubber";
 import type * as schema from "./schema";
 import {
@@ -124,31 +127,54 @@ export function Solver({
   const seeing = seeingCount(diagram, crank, convergence);
   const offConvergence = !solved && !atConvergence;
 
+  const solvedHidden = "panel:group-data-[solved]/solve:hidden";
   return (
-    <section className="flex flex-col gap-4">
-      {adjustable && (
-        <blockquote className="border-l-4 border-border pl-4">
-          &ldquo;100% solvable if we adjust a couple of the starting
-          positions.&rdquo;
-          <p className="mt-1 text-sm">
-            This diagram as printed has no solution. Swap up to{" "}
-            {payload.maxAdjustments} {payload.maxAdjustments === 1 ? "pair" : "pairs"} of starting
-            slots to fix it, then find the crank, the convergence and the
-            killer.
-          </p>
-        </blockquote>
+    <SolveLayout className="flex flex-col gap-4">
+      <PanelCell part="head">
+        {adjustable && (
+          <PanelSection
+            title="The brief"
+            name="gears-sections"
+            defaultOpen
+            className={solvedHidden}
+          >
+            <blockquote className="border-l-4 border-border pl-4">
+              &ldquo;100% solvable if we adjust a couple of the starting
+              positions.&rdquo;
+              <p className="mt-1 text-sm">
+                This diagram as printed has no solution. Swap up to{" "}
+                {payload.maxAdjustments} {payload.maxAdjustments === 1 ? "pair" : "pairs"} of starting
+                slots to fix it, then find the crank, the convergence and the
+                killer.
+              </p>
+            </blockquote>
+          </PanelSection>
+        )}
+      </PanelCell>
+      <BoardCell className={cn(table.shown && "panel:hidden")}>
+        <GearBoard
+          diagram={diagram}
+          crank={crank}
+          convergence={convergence}
+          atConvergence={atConvergence}
+          position={position}
+          crankProps={crankProps}
+          adjustments={
+            adjustable ? { swaps, selectedId, onPick: pick } : undefined
+          }
+        />
+      </BoardCell>
+      {table.shown && (
+        <BoardCell>
+          <StateTable
+            id={table.tableId}
+            diagram={diagram}
+            crank={crank}
+            convergence={convergence}
+          />
+        </BoardCell>
       )}
-      <GearBoard
-        diagram={diagram}
-        crank={crank}
-        convergence={convergence}
-        atConvergence={atConvergence}
-        position={position}
-        crankProps={crankProps}
-        adjustments={
-          adjustable ? { swaps, selectedId, onPick: pick } : undefined
-        }
-      />
+      <PanelCell keepSolved className="flex flex-col gap-4 panel:gap-3 panel:flex panel:h-full panel:flex-col">
       <Scrubber position={position} onSettle={settle} />
       <p
         aria-live="polite"
@@ -165,30 +191,32 @@ export function Solver({
           </>
         ) : null}
       </p>
+      <div className={cn("flex flex-col", solvedHidden)}>
       <StateTableToggle
         shown={table.shown}
         onToggle={table.toggle}
         tableId={table.tableId}
       />
-      {table.shown && (
-        <StateTable
-          id={table.tableId}
-          diagram={diagram}
-          crank={crank}
-          convergence={convergence}
-        />
-      )}
+      </div>
       {adjustable && (
-        <SwapPanel
-          gears={payload.gears}
-          swaps={swaps}
-          max={payload.maxAdjustments}
-          selectedId={selectedId}
-          notice={notice}
-          onPick={pick}
-          onUndo={undo}
-        />
+        <PanelSection
+          title="Adjust the diagram"
+          name="gears-sections"
+          scroll
+          className={solvedHidden}
+        >
+          <SwapPanel
+            gears={payload.gears}
+            swaps={swaps}
+            max={payload.maxAdjustments}
+            selectedId={selectedId}
+            notice={notice}
+            onPick={pick}
+            onUndo={undo}
+          />
+        </PanelSection>
       )}
+      <div className={cn("flex flex-col gap-4 panel:flex-row panel:flex-wrap panel:items-start panel:gap-3", solvedHidden)}>
       <div className="flex items-center gap-2">
         <Button
           variant="secondary"
@@ -269,6 +297,8 @@ export function Solver({
           </p>
         )}
       </div>
-    </section>
+      </div>
+      </PanelCell>
+    </SolveLayout>
   );
 }

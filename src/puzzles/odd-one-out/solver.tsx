@@ -34,7 +34,7 @@ export function Solver({
         {items.map(({ position, label }) => {
           const selected = chosen === position;
           return (
-            <li key={position}>
+            <li key={position} className={cn(solved && !selected && "desk:hidden")}>
               <label
                 className={cn(
                   "flex min-h-16 cursor-pointer items-center gap-3 border-2 border-border p-4 shadow-[3px_3px_0_var(--cast)] has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-solid has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring has-[:disabled]:cursor-default has-[:disabled]:shadow-none",

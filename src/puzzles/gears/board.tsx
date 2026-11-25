@@ -192,7 +192,7 @@ export function GearBoard({
       ref={boardRef}
       role="group"
       aria-label="Gear floor"
-      className="@container relative aspect-square w-full max-w-xl overflow-hidden border-2 border-border bg-card"
+      className="@container relative aspect-square panel:mx-auto w-full max-w-xl overflow-hidden panel:w-[min(100%,var(--board-h))] border-2 border-border bg-card"
     >
       <svg viewBox="-100 -100 200 200" className={layer} aria-hidden>
         <circle

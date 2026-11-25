@@ -32,21 +32,32 @@ export function BoardCell({ className, ...rest }: ComponentProps<"div">) {
 
 const PART = {
   head: "panel:row-start-2",
-  body: "panel:relative panel:row-start-3 panel:min-h-0 panel:overflow-y-auto panel:px-1",
+  body: "panel:relative panel:row-start-3 panel:min-h-0",
   foot: "panel:row-start-4",
 } as const;
 
+/**
+ * Solved, the panel keeps only its head (prompt and status): the body and foot are tools, so they go with the
+ * Check row (SPEC §4.5). `keepSolved` keeps a body that holds more (gears' scrubber), `hideSolved` drops a head.
+ */
 export function PanelCell({
   part = "body",
   className,
+  keepSolved,
+  hideSolved,
   ...rest
-}: ComponentProps<"div"> & { part?: keyof typeof PART }) {
+}: ComponentProps<"div"> & {
+  part?: keyof typeof PART;
+  keepSolved?: boolean;
+  hideSolved?: boolean;
+}) {
   return (
     <div
-      data-panel-scroll={part === "body" ? "" : undefined}
       className={cn(
-        "contents panel:col-start-2 panel:block panel:min-w-0 panel:pb-3",
+        "contents panel:col-start-2 panel:block panel:min-w-0",
         PART[part],
+        ((part !== "head" && !keepSolved) || hideSolved) &&
+          "panel:group-data-[solved]/solve:hidden",
         className,
       )}
       {...rest}

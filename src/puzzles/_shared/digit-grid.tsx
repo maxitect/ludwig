@@ -219,7 +219,7 @@ export function DigitGrid({
       <BoardCell>
       <div
         className={cn(
-          "mx-auto w-full max-w-xl p-4 panel:max-w-none panel:p-0 touch:px-0",
+          "mx-auto w-full max-w-xl p-4 panel:flex panel:max-w-none panel:justify-center panel:p-0 touch:px-0",
           className,
         )}
       >

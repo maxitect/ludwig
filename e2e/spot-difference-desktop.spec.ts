@@ -66,15 +66,13 @@ test("draws the scene as ink on a paper sheet in Ink", async ({ page }) => {
   expect(colours.sheet).toBe(colours.paper);
 });
 
-for (const type of ["gears"]) {
-  test(`keeps the ${type} solve page in the reading column`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(`/puzzles/${type}`);
-    await page.locator(`a[href^="/puzzles/${type}/"]`).first().click();
-    await page.waitForURL(new RegExp(`/puzzles/${type}/.+`));
-    const box = (await page.locator("main").first().boundingBox())!;
-    expect(box.width).toBeLessThanOrEqual(768);
-  });
-}
+test("lays the gears solve page out as board and panel", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/puzzles/gears");
+  await page.locator('a[href^="/puzzles/gears/"]').first().click();
+  await page.waitForURL(/\/puzzles\/gears\/.+/);
+  await expect(page.locator("main").first()).toHaveAttribute(
+    "data-solve-layout",
+    "panel",
+  );
+});

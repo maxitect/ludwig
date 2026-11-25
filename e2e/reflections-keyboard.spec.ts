@@ -24,7 +24,7 @@ const cell = (page: Page, { row, col }: Cell) =>
 const grid = (page: Page) => page.getByRole("grid", { name: "Reflections grid" });
 const answer = () => solve(content) ?? [];
 const status = (page: Page) =>
-  page.getByRole("status").filter({ hasText: "pairs joined" });
+  page.locator("[role=status]").filter({ hasText: "pairs joined" });
 
 async function tabInto(page: Page, selector: string) {
   await expect(grid(page)).toBeVisible();

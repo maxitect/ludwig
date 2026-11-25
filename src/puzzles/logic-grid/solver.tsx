@@ -5,6 +5,7 @@ import { cn } from "@/utils/cn";
 import type { SolverProps } from "../solver-types";
 import { answerFromMarks } from "./derive";
 import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
+import { PanelSection } from "../_shared/panel-section";
 import { scrollWithin } from "../_shared/scroll-within";
 import { MarkGrid, markKey } from "./mark-grid";
 import type * as schema from "./schema";
@@ -29,6 +30,12 @@ export function Solver({
   useEffect(() => {
     scrollWithin(wrongList.current);
   }, [wrongParts]);
+  const [cluesOpen, setCluesOpen] = useState(true);
+  const [seenWrong, setSeenWrong] = useState(wrongParts);
+  if (wrongParts !== seenWrong) {
+    setSeenWrong(wrongParts);
+    if (wrongParts?.length) setCluesOpen(true);
+  }
   const [marks, setMarks] = useState<Marks>(
     () =>
       new Map(
@@ -88,18 +95,20 @@ export function Solver({
         blank, no and yes, Backspace to clear it, and the arrow keys to move.
       </p>
       <PanelCell part="head">
-      <section
-        aria-labelledby="logic-grid-case-notes"
-        className="paper-sheet flex flex-col gap-1 p-3"
-      >
-        <h2
-          id="logic-grid-case-notes"
-          className="font-display text-sm font-bold tracking-[0.08em] uppercase"
+      <PanelSection title="Case notes">
+        <section
+          aria-labelledby="logic-grid-case-notes"
+          className="paper-sheet flex flex-col gap-1 p-3"
         >
-          Case notes
-        </h2>
-        <p data-testid="logic-grid-brief">{payload.brief}</p>
-      </section>
+          <h2
+            id="logic-grid-case-notes"
+            className="font-display text-sm font-bold tracking-[0.08em] uppercase panel:sr-only"
+          >
+            Case notes
+          </h2>
+          <p data-testid="logic-grid-brief">{payload.brief}</p>
+        </section>
+      </PanelSection>
       </PanelCell>
       <BoardCell>
       <MarkGrid
@@ -116,9 +125,9 @@ export function Solver({
         }}
       />
       </BoardCell>
-      <PanelCell className="panel:flex panel:flex-col panel:gap-6">
+      <PanelCell className="panel:flex panel:h-full panel:flex-col">
       {wrongParts && wrongParts.length > 0 && (
-        <ul ref={wrongList} className="flex flex-col gap-1">
+        <ul ref={wrongList} className="flex flex-col gap-1 panel:shrink-0 panel:pb-2">
           {wrongParts.map(({ first, second }) => (
             <li key={`${first}-${second}`}>
               At least one dot between{" "}
@@ -128,10 +137,17 @@ export function Solver({
           ))}
         </ul>
       )}
+      <PanelSection
+        title="Clues"
+        scroll
+        rows="ol > li"
+        open={cluesOpen}
+        onOpenChange={setCluesOpen}
+      >
       <section aria-labelledby="logic-grid-clues" className="flex flex-col gap-3">
         <h2
           id="logic-grid-clues"
-          className="font-display text-2xl font-bold uppercase"
+          className="font-display text-2xl font-bold uppercase panel:sr-only"
         >
           Clues
         </h2>
@@ -144,7 +160,7 @@ export function Solver({
               Exactly one statement is false. Name the liar.
             </p>
           )}
-          <ol className="flex flex-col gap-3">
+          <ol className="flex flex-col gap-3 panel:gap-2">
             {payload.clues.map(({ position, content, speakerItemId }) => {
               const isStruck = struck.has(position);
               const speaker = speakerOf(speakerItemId);
@@ -201,6 +217,7 @@ export function Solver({
           </ol>
         </div>
       </section>
+      </PanelSection>
       </PanelCell>
     </SolveLayout>
   );

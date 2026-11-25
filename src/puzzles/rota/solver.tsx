@@ -12,6 +12,7 @@ import type { SolverProps } from "../solver-types";
 import { RotaBoard, type Highlight } from "./board";
 import { brokenClues } from "./check";
 import { scrollWithin } from "../_shared/scroll-within";
+import { PanelSection } from "../_shared/panel-section";
 import { BoardCell, PanelCell } from "../_shared/solve-layout";
 import { hazardSquare } from "./derive";
 import { placementFor, samePlacement } from "./engine";
@@ -82,9 +83,24 @@ export function Solver({
   const restored = samePlacement(placement, intended);
   const broken = restored ? brokenClues(payload, swaps) : [];
   const clueList = useRef<HTMLOListElement>(null);
+  const [section, setSection] = useState<string | null>(
+    restored ? (broken.length ? "clues" : "accusation") : "incident",
+  );
+  const sectionKey = `${restored}:${broken.length}`;
+  const [seenKey, setSeenKey] = useState(sectionKey);
+  if (sectionKey !== seenKey) {
+    setSeenKey(sectionKey);
+    if (restored) setSection(broken.length ? "clues" : "accusation");
+  }
   useEffect(() => {
     scrollWithin(clueList.current?.querySelector("[data-broken]"));
-  }, [broken.length]);
+  }, [broken.length, section]);
+  const sectionProps = (id: string) => ({
+    name: "rota-sections",
+    open: section === id,
+    onOpenChange: (open: boolean) =>
+      setSection((current) => (open ? id : current === id ? null : current)),
+  });
   const victim = {
     id: payload.victimWorkerId,
     name: nameOf(payload.victimWorkerId),
@@ -128,12 +144,13 @@ export function Solver({
   }
 
   useEffect(() => {
-    registerCheck(() =>
-      restored && instigatorId
+    registerCheck(() => {
+      if (broken.length) setSection("clues");
+      return restored && instigatorId
         ? { swaps, instigatorWorkerId: instigatorId }
-        : null,
-    );
-  }, [registerCheck, restored, swaps, instigatorId]);
+        : null;
+    });
+  }, [registerCheck, restored, swaps, instigatorId, broken.length]);
 
   function unswap(a: string, b: string) {
     const swap = { workerAId: a, workerBId: b };
@@ -183,30 +200,30 @@ export function Solver({
     }
   }
 
+  const heading = "font-display text-sm font-bold tracking-[0.08em] uppercase panel:sr-only";
   return (
     <section
       onKeyDown={onKeyDown}
       className="flex flex-col gap-3 panel:contents touch:lg:grid touch:lg:grid-cols-[minmax(0,26rem)_minmax(15rem,1fr)] touch:lg:grid-rows-[auto_auto_1fr] touch:lg:gap-x-6"
     >
       <PanelCell part="head">
-        <section
-          aria-labelledby="rota-incident"
-          className="paper-sheet flex flex-col gap-1 p-3"
-        >
-          <h3
-            id="rota-incident"
-            className="font-display text-sm font-bold tracking-[0.08em] uppercase"
+        <PanelSection title="Incident sheet" {...sectionProps("incident")}>
+          <section
+            aria-labelledby="rota-incident"
+            className="paper-sheet flex flex-col gap-1 p-3"
           >
-            Incident sheet
-          </h3>
-          <p data-testid="rota-brief">
-            {payload.brief
-              .split("**")
-              .map((part, index) =>
-                index % 2 ? <strong key={index}>{part}</strong> : part,
-              )}
-          </p>
-        </section>
+            <h3 id="rota-incident" className={heading}>
+              Incident sheet
+            </h3>
+            <p data-testid="rota-brief">
+              {payload.brief
+                .split("**")
+                .map((part, index) =>
+                  index % 2 ? <strong key={index}>{part}</strong> : part,
+                )}
+            </p>
+          </section>
+        </PanelSection>
       </PanelCell>
       <BoardCell>
         <RotaBoard
@@ -222,168 +239,184 @@ export function Solver({
           onDropOn={(from, to) => from !== to && !solved && unswap(from, to)}
         />
       </BoardCell>
-      <PanelCell className="panel:flex panel:flex-col panel:gap-6">
-      <div className="flex flex-col gap-3">
-        <section
-          aria-labelledby="rota-pinned"
-          className="paper-sheet flex flex-col gap-1 p-3"
-        >
-          <h3
-            id="rota-pinned"
-            className="font-display text-sm font-bold tracking-[0.08em] uppercase"
+      <PanelCell className="panel:flex panel:h-full panel:flex-col">
+        <div className="flex flex-col gap-3 panel:contents">
+          <PanelSection title="The rota as pinned up" {...sectionProps("pinned")}>
+            <section
+              aria-labelledby="rota-pinned"
+              className="paper-sheet flex flex-col gap-1 p-3"
+            >
+              <h3 id="rota-pinned" className={heading}>
+                The rota as pinned up that morning
+              </h3>
+              <ul className="grid grid-cols-2 gap-x-4 text-sm sm:grid-cols-3 panel:grid-cols-2">
+                {tokens.map(({ id, name, label }) => (
+                  <li key={id}>
+                    <span className="font-bold">{label}</span> {name},{" "}
+                    <span data-testid={`now-${name}`}>
+                      {zoneName(placement[id])}
+                    </span>{" "}
+                    to {zoneName(intended[id])}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </PanelSection>
+          <PanelSection
+            title="How to play"
+            disclosure
+            className="text-sm"
+            {...sectionProps("how")}
           >
-            The rota as pinned up that morning
-          </h3>
-          <ul className="grid grid-cols-2 gap-x-4 text-sm sm:grid-cols-3">
-            {tokens.map(({ id, name, label }) => (
-              <li key={id}>
-                <span className="font-bold">{label}</span> {name},{" "}
-                <span data-testid={`now-${name}`}>
-                  {zoneName(placement[id])}
-                </span>{" "}
-                to {zoneName(intended[id])}
-              </li>
-            ))}
-          </ul>
-        </section>
-        <details className="text-sm" data-testid="rota-how-to-play">
-          <summary className="cursor-pointer font-bold">How to play</summary>
-          <p className="pt-1">
-            The board shows the final rota. Tap or select two tokens (or drag
-            one onto another) to unswap them, until every worker is back on
-            the intended rota. Press U to undo. Then name who insisted on the
-            first swap, and press Check.
-          </p>
-        </details>
-      </div>
-      <div className="mt-3 flex flex-col gap-6 panel:mt-0 touch:lg:col-start-2 touch:lg:row-span-3 touch:lg:row-start-1 touch:lg:mt-0">
-        <section aria-labelledby="rota-clues" className="flex flex-col gap-2">
-          <h3
-            id="rota-clues"
-            className="font-display text-lg font-bold tracking-[0.04em] uppercase"
-          >
-            Clues
-          </h3>
-          <ol ref={clueList} className="flex flex-col gap-1">
-            {payload.clues.map((clue) => {
-              const isBroken = broken.includes(clue);
-              const speaker = clue.speakerWorkerId
-                ? nameOf(clue.speakerWorkerId)
-                : null;
-              const source = CLUE_SOURCE[clue.kind];
-              return (
-                <li
-                  key={clue.position}
-                  data-testid={`clue-${clue.position}`}
-                  data-broken={isBroken || undefined}
-                  className={`flex items-start gap-2 ${isBroken ? "border-l-4 border-primary pl-2" : ""}`}
+            <div data-testid="rota-how-to-play">
+              <p className="pt-1 panel:pt-0">
+                The board shows the final rota. Tap or select two tokens (or
+                drag one onto another) to unswap them, until every worker is
+                back on the intended rota. Press U to undo. Then name who
+                insisted on the first swap, and press Check.
+              </p>
+            </div>
+          </PanelSection>
+        </div>
+        <div className="mt-3 flex flex-col gap-6 panel:contents touch:lg:col-start-2 touch:lg:row-span-3 touch:lg:row-start-1 touch:lg:mt-0">
+          <PanelSection title="Clues" scroll rows="li" {...sectionProps("clues")}>
+            <section aria-labelledby="rota-clues" className="flex flex-col gap-2">
+              <h3
+                id="rota-clues"
+                className="font-display text-lg font-bold tracking-[0.04em] uppercase panel:sr-only"
+              >
+                Clues
+              </h3>
+              <ol ref={clueList} className="flex flex-col gap-1">
+                {payload.clues.map((clue) => {
+                  const isBroken = broken.includes(clue);
+                  const speaker = clue.speakerWorkerId
+                    ? nameOf(clue.speakerWorkerId)
+                    : null;
+                  const source = CLUE_SOURCE[clue.kind];
+                  return (
+                    <li
+                      key={clue.position}
+                      data-testid={`clue-${clue.position}`}
+                      data-broken={isBroken || undefined}
+                      className={`flex items-start gap-2 ${isBroken ? "border-l-4 border-primary pl-2" : ""}`}
+                    >
+                      <span aria-hidden="true" className="w-5 shrink-0 text-right">
+                        {clue.position + 1}.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => highlightClue(clue)}
+                        onFocus={() => highlightClue(clue)}
+                        className="block min-w-0 flex-1 text-left focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      >
+                        {isBroken && (
+                          <strong className="block">
+                            {speaker
+                              ? `${speaker}'s statement does not hold`
+                              : source.broken}
+                          </strong>
+                        )}
+                        {speaker ? (
+                          <span>
+                            <span className="font-bold">{speaker}</span>: &ldquo;
+                            {clue.displayText}&rdquo;
+                          </span>
+                        ) : (
+                          <span>
+                            <span className="mr-1 font-display text-xs font-bold tracking-[0.08em] uppercase">
+                              {source.label}
+                            </span>{" "}
+                            {clue.displayText}
+                          </span>
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          </PanelSection>
+          <PanelSection title="Unswaps so far" {...sectionProps("stack")}>
+            <section aria-labelledby="rota-stack" className="flex flex-col gap-2">
+              <h3
+                id="rota-stack"
+                className="font-display text-lg font-bold tracking-[0.04em] uppercase panel:sr-only"
+              >
+                Unswaps so far
+              </h3>
+              {steps.length === 0 ? (
+                <p className="text-sm">Nothing unswapped yet.</p>
+              ) : (
+                <ol
+                  data-testid="rota-stack"
+                  className="flex flex-col gap-1 border-l-4 border-primary pl-4"
                 >
-                  <span aria-hidden="true" className="w-5 shrink-0 text-right">
-                    {clue.position + 1}.
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => highlightClue(clue)}
-                    onFocus={() => highlightClue(clue)}
-                    className="block min-w-0 flex-1 text-left focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ring"
-                  >
-                    {isBroken && (
-                      <strong className="block">
-                        {speaker
-                          ? `${speaker}'s statement does not hold`
-                          : source.broken}
-                      </strong>
-                    )}
-                    {speaker ? (
-                      <span>
-                        <span className="font-bold">{speaker}</span>: &ldquo;
-                        {clue.displayText}&rdquo;
-                      </span>
-                    ) : (
-                      <span>
-                        <span className="mr-1 font-display text-xs font-bold tracking-[0.08em] uppercase">
-                          {source.label}
-                        </span>{" "}
-                        {clue.displayText}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
-        <section aria-labelledby="rota-stack" className="flex flex-col gap-2">
-          <h3
-            id="rota-stack"
-            className="font-display text-lg font-bold tracking-[0.04em] uppercase"
-          >
-            Unswaps so far
-          </h3>
-          {steps.length === 0 ? (
-            <p className="text-sm">Nothing unswapped yet.</p>
-          ) : (
-            <ol
-              data-testid="rota-stack"
-              className="flex flex-col gap-1 border-l-4 border-primary pl-4"
-            >
-              {steps.map(({ step, swap, from, to }) => (
-                <li key={step}>
-                  Step {step}: {nameOf(swap.workerAId)} ({zoneName(from)}) and{" "}
-                  {nameOf(swap.workerBId)} ({zoneName(to)})
-                </li>
-              ))}
-            </ol>
-          )}
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              onClick={undo}
-              disabled={solved || !swaps.length}
-              aria-keyshortcuts="U"
-            >
-              Undo
-            </Button>
-          </div>
+                  {steps.map(({ step, swap, from, to }) => (
+                    <li key={step}>
+                      Step {step}: {nameOf(swap.workerAId)} ({zoneName(from)}) and{" "}
+                      {nameOf(swap.workerBId)} ({zoneName(to)})
+                    </li>
+                  ))}
+                </ol>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={undo}
+                  disabled={solved || !swaps.length}
+                  aria-keyshortcuts="U"
+                >
+                  Undo
+                </Button>
+              </div>
+            </section>
+          </PanelSection>
           <p
             aria-live="polite"
             data-testid="rota-status"
-            className="min-h-6 text-sm"
+            className="-mt-4 min-h-6 text-sm panel:mt-0 panel:min-h-0 panel:empty:hidden"
           >
             {announcement}
           </p>
-        </section>
-        {restored && !solved && (
-          <fieldset
-            data-testid="rota-accusation"
-            className="flex flex-col gap-2"
-          >
-            <legend className="font-display text-lg font-bold tracking-[0.04em] uppercase">
-              Who insisted on the first swap?
-            </legend>
-            <p className="text-sm">
-              Everyone is back on the intended rota. Name the one who insisted,
-              then press Check.
-            </p>
-            {gambit.map((id) => (
-              <label
-                key={id}
-                className="flex cursor-pointer items-center gap-3 border-2 border-border p-3 has-checked:border-primary has-focus-visible:outline-3 has-focus-visible:outline-solid has-focus-visible:outline-ring"
-              >
-                <input
-                  type="radio"
-                  name="rota-instigator"
-                  value={id}
-                  checked={instigatorId === id}
-                  onChange={() => accuse(id)}
-                  className="size-4 shrink-0 appearance-none border-2 border-border checked:border-primary checked:bg-primary"
-                />
-                {nameOf(id)}
-              </label>
-            ))}
-          </fieldset>
-        )}
-      </div>
+          {restored && !solved && (
+            <PanelSection
+              title="Who insisted on the first swap?"
+              {...sectionProps("accusation")}
+            >
+            <fieldset
+              data-testid="rota-accusation"
+              className="flex flex-col gap-2"
+            >
+              <legend className="font-display text-lg font-bold tracking-[0.04em] uppercase panel:sr-only">
+                Who insisted on the first swap?
+              </legend>
+              <p className="text-sm">
+                Everyone is back on the intended rota. Name the one who
+                insisted, then press Check.
+              </p>
+              <div className="flex flex-col gap-2 panel:grid panel:grid-cols-2">
+                {gambit.map((id) => (
+                  <label
+                    key={id}
+                    className="flex cursor-pointer items-center gap-3 border-2 border-border p-3 has-checked:border-primary has-focus-visible:outline-3 has-focus-visible:outline-solid has-focus-visible:outline-ring"
+                  >
+                    <input
+                      type="radio"
+                      name="rota-instigator"
+                      value={id}
+                      checked={instigatorId === id}
+                      onChange={() => accuse(id)}
+                      className="size-4 shrink-0 appearance-none border-2 border-border checked:border-primary checked:bg-primary"
+                    />
+                    {nameOf(id)}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            </PanelSection>
+          )}
+        </div>
       </PanelCell>
     </section>
   );

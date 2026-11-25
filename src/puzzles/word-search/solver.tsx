@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HighlightPathGrid } from "../_shared/highlight-path/highlight-path-grid";
+import { cn } from "@/utils/cn";
 import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import type { SolverProps } from "../solver-types";
 import { derivePlacements, matchSelection } from "./derive";
@@ -93,7 +94,12 @@ export function Solver({
           >
             Find {words.length} words
           </h2>
-          <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 panel:flex-col touch:md:flex-col">
+          <ul
+            className={cn(
+              "mt-2 flex flex-wrap gap-x-4 gap-y-1 panel:flex-col touch:md:flex-col",
+              words.length > 8 && "panel:grid panel:grid-cols-2",
+            )}
+          >
             {words.map((word) => {
               const isFound = found.includes(word);
               return (

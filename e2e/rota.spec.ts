@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../content/rota/the-building-site";
 import { signUp, uniqueEmail } from "./helpers/auth";
 import { databaseAvailable, rotaAttemptFor } from "./helpers/db";
-import { clickCheck, openPuzzle } from "./helpers/solve";
+import { clickCheck, openPuzzle, openSection } from "./helpers/solve";
 
 const puzzle = { typeKey: "rota", slug: "the-building-site" };
 const unswaps = [...content.solution.swaps].reverse();
@@ -47,6 +47,7 @@ test("signed in: the stack persists, the puzzle completes and is recorded", asyn
   await page.reload();
   await expect(stack(page)).toHaveCount(2);
 
+  await openSection(page, "Unswaps so far");
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(stack(page)).toHaveCount(1);
   await unswap(page, unswaps[1].a, unswaps[1].b);
@@ -108,6 +109,7 @@ test("the board marks the hazard zone and a tapped clue highlights its speaker",
     page.getByRole("group", { name: "D3, where Hobb was found" }),
   ).toBeVisible();
   await expect(page.getByTestId("rota-brief")).toContainText("D3");
+  await openSection(page, "Clues");
   await page.getByTestId("clue-2").getByRole("button").click();
   await expect(token(page, "Colm")).toHaveAttribute("data-highlighted", "true");
   await token(page, "Bridget").click();
@@ -125,6 +127,7 @@ test("a wrong sequence is not accepted and reveals no gambit", async ({
   await unswap(page, a, b);
   await unswap(page, a, b);
   for (const step of unswaps) await unswap(page, step.a, step.b);
+  await openSection(page, "Who insisted on the first swap?");
   await accusation(page).getByRole("radio").first().check();
   await clickCheck(page);
   await expect(page.getByText("Not quite. Keep going.")).toBeVisible();
@@ -149,6 +152,7 @@ test("keyboard: select, select, Enter to unswap, U to undo, stack announced", as
   await expect(page.getByTestId("rota-stack")).toContainText("Step 1:");
   await page.keyboard.press("u");
   await expect(page.getByTestId("rota-status")).toContainText("Undid step 1");
+  await openSection(page, "Unswaps so far");
   await expect(page.getByText("Nothing unswapped yet.")).toBeVisible();
 });
 

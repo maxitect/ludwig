@@ -48,8 +48,9 @@ test("solve by keyboard, hear Black's reply, and keep the line in the database",
   cursor = await move(page, cursor, "c6", "b7");
   await expect(page.getByTestId("line-ply")).toHaveCount(3);
   await expect(page.getByText(/Solved in/)).toBeVisible();
-  const labels = await page.getByTestId("line-ply").allInnerTexts();
-  expect(labels.map((text) => text.split("\n")[0])).toEqual(["A", "B", "C"]);
+  await expect(
+    page.getByTestId("line-ply").locator("span:first-child"),
+  ).toHaveText(["A", "B", "C"]);
   expect(cursor).toBe("b7");
 
   await expect

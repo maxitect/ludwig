@@ -15,7 +15,7 @@ import { BulletHole, Credit } from "@/components/brand";
 import { BackLink } from "@/components/shell/back-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { narrowPanelSolveTypes } from "@/config/solve-layout";
+import { boardOnlySolveTypes, narrowPanelSolveTypes } from "@/config/solve-layout";
 import { cn } from "@/utils/cn";
 import {
   checkAnswer,
@@ -29,6 +29,7 @@ import {
   useTouch,
 } from "@/puzzles/_shared/puzzle-keyboard";
 import { SolveSlotProvider } from "@/puzzles/_shared/solve-slot";
+import { useWholeRows } from "@/puzzles/_shared/use-whole-rows";
 import type { WrongPart } from "@/puzzles/registry";
 import type { RungProblem } from "@/puzzles/word-ladder/schema";
 import { getSolver, ownsTouchControls } from "@/puzzles/solvers";
@@ -99,6 +100,25 @@ export function SolveChrome(props: SolveChromeProps) {
   return <SolveBoard {...props} Solver={Solver} />;
 }
 
+/** The rota's timeline: the solved footer's one scroll area on desktop, cut at a whole line. */
+function EpilogueLines({ lines }: { lines: string[] }) {
+  const list = useRef<HTMLOListElement>(null);
+  useWholeRows(list, list, "li");
+  return (
+    <div className="contents panel:order-last panel:block panel:basis-full">
+      <ol
+        ref={list}
+        data-testid="epilogue"
+        className="flex max-w-prose list-none flex-col gap-1 panel:max-h-[calc(var(--solver-height)-368px)] panel:panel-scroll"
+      >
+        {lines.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function SolveBoard({
   puzzleId,
   typeKey,
@@ -115,6 +135,7 @@ function SolveBoard({
   signInHref,
   nextHref,
 }: SolveChromeProps & { Solver: ComponentType<SolverProps> }) {
+  const boardOnly = boardOnlySolveTypes.has(typeKey);
   const [solvedMs, setSolvedMs] = useState<number | null>(
     completion ? (completion.durationMs ?? 0) : null,
   );
@@ -315,8 +336,9 @@ function SolveBoard({
       <section
         ref={solveMode}
         data-solve-mode
+        data-solved={solved || undefined}
         className={cn(
-          "group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] panel:min-h-[30rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-6 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-164px),24rem)] touch:h-full touch:min-h-0 touch:gap-0",
+          "group/solve flex flex-col gap-6 desk:gap-3 panel:grid panel:h-[calc(100dvh-5.625rem)] desk:pb-3 panel:min-h-[30rem] panel:grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto_auto] panel:gap-x-6 panel:gap-y-0 panel:[--solver-height:max(calc(100dvh-176px),24rem)] touch:h-full touch:min-h-0 touch:gap-0",
           narrowPanelSolveTypes.has(typeKey)
             ? "panel:grid-cols-[minmax(0,1fr)_18rem]"
             : "panel:grid-cols-[minmax(0,1fr)_24rem]",
@@ -418,7 +440,7 @@ function SolveBoard({
 
         <div
           className={cn(
-            "flex flex-wrap gap-3 panel:col-start-2 panel:row-start-5 panel:pb-3 touch:hidden",
+            "flex flex-wrap gap-3 panel:col-start-2 panel:row-start-5 panel:pt-4 panel:pb-3 touch:hidden",
             solved && "panel:hidden",
             !ownsTouchControls.has(typeKey) &&
               "touch:group-has-[[data-solve-slot]:not(:empty)]/solve:flex touch:mx-auto touch:w-full touch:max-w-xl touch:shrink-0 touch:px-4 touch:py-1",
@@ -465,11 +487,20 @@ function SolveBoard({
             ref={solvedFooter}
             tabIndex={-1}
             data-testid="solved-footer"
-            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none desk:gap-x-4 desk:gap-y-6 panel:col-start-2 panel:relative panel:row-start-7 panel:max-h-[calc(var(--solver-height)-2.5rem)] panel:overflow-y-auto touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
+            className="flex flex-wrap items-center gap-x-12 gap-y-14 p-4 outline-none desk:gap-x-4 desk:gap-y-6 panel:col-start-2 panel:relative panel:row-start-7 touch:max-h-[35dvh] touch:gap-x-4 touch:shrink-0 touch:gap-y-6 touch:overflow-y-auto"
           >
-            <div className="relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] desk:[--hole-size:216px] touch:[--hole-size:216px]">
+            <div
+              className={cn(
+                "relative isolate grid size-(--hole-size) shrink-0 place-items-center [--hole-size:264px] touch:[--hole-size:216px]",
+                boardOnly ? "desk:[--hole-size:120px]" : "desk:[--hole-size:216px]",
+              )}
+            >
               <BulletHole data-testid="solved-hole" />
-              <SolvedStamp delay={0.3} data-testid="solved-stamp" />
+              <SolvedStamp
+                delay={0.3}
+                data-testid="solved-stamp"
+                className={cn(boardOnly && "desk:border-2 desk:px-2 desk:text-3xl")}
+              />
             </div>
             <p>
               Solved in{" "}
@@ -480,16 +511,7 @@ function SolveBoard({
             {typeof epilogue === "string" && (
               <p data-testid="epilogue">{epilogue}</p>
             )}
-            {Array.isArray(epilogue) && (
-              <ol
-                data-testid="epilogue"
-                className="flex max-w-prose list-none flex-col gap-1"
-              >
-                {epilogue.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ol>
-            )}
+            {Array.isArray(epilogue) && <EpilogueLines lines={epilogue} />}
             {nextHref && (
               <Button asChild variant="secondary">
                 <Link href={nextHref}>Next in volume</Link>

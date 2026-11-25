@@ -126,9 +126,12 @@ export function CipherKeyPanel({
     <div
       role="group"
       aria-label="Cipher key"
-      className="flex flex-wrap gap-x-1 gap-y-3 touch:grid touch:grid-cols-[repeat(var(--key-columns),minmax(0,1fr))] touch:gap-0.5"
+      className="flex flex-wrap gap-x-1 gap-y-3 panel:grid panel:grid-cols-[repeat(var(--panel-columns),minmax(0,1fr))] touch:grid touch:grid-cols-[repeat(var(--key-columns),minmax(0,1fr))] touch:gap-0.5"
       style={
-        { "--key-columns": Math.ceil(slotLetters.length / 2) } as CSSProperties
+        {
+          "--key-columns": Math.ceil(slotLetters.length / 2),
+          "--panel-columns": symbols ? slotLetters.length : 13,
+        } as CSSProperties
       }
     >
       {slotLetters.map((letter) => {
@@ -216,11 +219,14 @@ export function CipherKeyPanel({
               .join("; ")
           : ciphertext
       }`}</p>
-      <BoardCell className="panel:paper-sheet panel:overflow-y-auto panel:p-4">
+      <BoardCell className="panel:flex panel:flex-col panel:gap-6 panel:paper-sheet panel:p-4">
       <div
         aria-hidden="true"
         data-testid="ciphertext"
-        className="flex flex-wrap gap-x-6 gap-y-3 leading-none touch-short:gap-y-1"
+        className={cn(
+          "flex flex-wrap gap-x-6 gap-y-3 leading-none touch-short:gap-y-1",
+          symbols ? "panel:[zoom:1.1]" : "panel:[zoom:1.25]",
+        )}
       >
         {words.map((word, wordIndex) => (
           <span key={wordIndex} className="flex border-b-2 border-paper-shade">
@@ -259,6 +265,7 @@ export function CipherKeyPanel({
           </span>
         ))}
       </div>
+      {!touch && <div className="touch:hidden">{keyGroup}</div>}
       </BoardCell>
       <p className="sr-only" aria-live="polite">
         {`Decoded so far: ${words
@@ -274,8 +281,7 @@ export function CipherKeyPanel({
           )
           .join(", ")}`}
       </p>
-      <PanelCell className="panel:paper-sheet panel:flex panel:flex-col panel:gap-4 panel:p-4">
-      {!touch && <div className="touch:hidden">{keyGroup}</div>}
+      <PanelCell className="panel:pt-3">
       <div className="touch:hidden">{clearButton}</div>
       </PanelCell>
       {touch && (

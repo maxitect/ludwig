@@ -44,14 +44,14 @@ export function Solver({
 
   return (
     <SolveLayout className="flex flex-col gap-6">
-      <BoardCell className="panel:flex panel:flex-col panel:gap-6">
-      <p className="text-lg">{questionText}</p>
-      <p className="text-muted-foreground">
-        Knights always tell the truth. Knaves always lie. Everything a knave
-        says is false.
-      </p>
-      </BoardCell>
-      <PanelCell>
+      <PanelCell part="head" className="panel:flex panel:flex-col panel:gap-4">
+        <p className="text-lg">{questionText}</p>
+        <p className="text-muted-foreground">
+          Knights always tell the truth. Knaves always lie. Everything a knave
+          says is false.
+        </p>
+      </PanelCell>
+      <BoardCell>
       <StatementList
         entries={characters.map(({ position, name, statements }) => ({
           id: position,
@@ -73,7 +73,7 @@ export function Solver({
           });
         }}
       />
-      </PanelCell>
+      </BoardCell>
     </SolveLayout>
   );
 }

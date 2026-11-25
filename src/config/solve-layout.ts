@@ -33,10 +33,17 @@ export const panelSolveTypes: ReadonlySet<string> = new Set([
   "circle9",
   "railroad",
   "reflections",
+  "gears",
 ]);
 
-/** Panel types whose board needs the width: the panel is 18rem instead of 24rem (the book page keeps a 56-character line at 1024px). */
-export const narrowPanelSolveTypes: ReadonlySet<string> = new Set(["book-cipher"]);
+/** Panel types whose left cell needs the width: the panel is 18rem instead of 24rem (the book page keeps a 56-character line at 1024px; the cipher key and the statement cards sit in the left cell). */
+export const narrowPanelSolveTypes: ReadonlySet<string> = new Set([
+  "book-cipher",
+  "knights-knaves",
+  "caesar",
+  "keyword",
+  "pictogram-cipher",
+]);
 
 /** One column under the compact title bar. */
 export const boardOnlySolveTypes: ReadonlySet<string> = new Set([
@@ -46,7 +53,6 @@ export const boardOnlySolveTypes: ReadonlySet<string> = new Set([
 
 /** Keep their own layout on desktop. */
 export const excludedSolveTypes: ReadonlySet<string> = new Set([
-  "gears",
   "spot-difference",
 ]);
 

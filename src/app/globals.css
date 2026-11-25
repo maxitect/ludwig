@@ -269,6 +269,83 @@
   box-shadow: 3px 3px 0 var(--sheet-cast);
 }
 
+/* The one scroll area of the solve section. On the desk its colours follow the theme; on a paper sheet they stay ink on paper. */
+@utility panel-scroll {
+  --scroll-thumb: var(--color-foreground);
+  --scroll-track: var(--color-muted);
+  --scroll-rule: var(--color-border);
+  overflow-y: auto;
+  padding-right: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--scroll-rule);
+
+  :where(.paper-sheet) & {
+    --scroll-thumb: var(--color-ink);
+    --scroll-track: var(--color-paper-shade);
+    --scroll-rule: var(--color-ink);
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+    border-left: 2px solid var(--scroll-rule);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border: 2px solid var(--scroll-track);
+    border-radius: 0;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  }
+}
+
+@utility panel-section-flat {
+  :where(&)::details-content {
+    content-visibility: visible;
+    display: contents;
+  }
+}
+
+@utility panel-section {
+  @variant panel {
+    &::details-content {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex: 1 1 auto;
+    }
+
+    &:not([open])::details-content {
+      content-visibility: hidden;
+    }
+
+    :where([data-solved]) &[open]::details-content {
+      content-visibility: hidden;
+    }
+  }
+}
+
+@utility panel-caret {
+  flex-shrink: 0;
+  border-block: 5px solid transparent;
+  border-left: 7px solid currentColor;
+
+  :where(details[open]) > summary > & {
+    rotate: 90deg;
+  }
+
+  :where([data-solved]) :where(details[open]) > summary > & {
+    rotate: 0deg;
+  }
+}
+
 @utility raking {
   background-image: repeating-linear-gradient(
     115deg,

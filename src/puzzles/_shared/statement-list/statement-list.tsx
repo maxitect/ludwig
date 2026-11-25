@@ -34,13 +34,13 @@ export function StatementList<V extends string>({
 }: Props<V>) {
   const groupId = useId();
   return (
-    <ol className="flex flex-col gap-6">
+    <ol className="flex flex-col gap-6 panel:grid panel:grid-cols-3 panel:gap-4">
       {entries.map(({ id, name, statements }) => {
         const chosen = value.get(id);
         const radioName = `${groupId}-${id}`;
         return (
           <li key={id}>
-            <div className="border-2 border-border bg-card p-4 text-card-foreground shadow-[3px_3px_0_var(--cast)] sm:p-6">
+            <div className="border-2 border-border bg-card p-4 text-card-foreground shadow-[3px_3px_0_var(--cast)] sm:p-6 panel:h-full panel:p-4">
               <fieldset
                 disabled={disabled}
                 className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0"

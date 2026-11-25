@@ -21,6 +21,7 @@ import {
 } from "../_shared/puzzle-keyboard";
 import { SolveBarButton } from "../_shared/solve-bar-button";
 import { usePanelLayout } from "../_shared/use-panel-layout";
+import { useWholeRows } from "../_shared/use-whole-rows";
 import { PanelSection } from "../_shared/panel-section";
 import { BoardCell, PanelCell, SolveLayout } from "../_shared/solve-layout";
 import { SolveSlot } from "../_shared/solve-slot";
@@ -105,6 +106,8 @@ export function Solver({
   const [announcement, setAnnouncement] = useState("");
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
   const bookLines = useRef<HTMLOListElement | null>(null);
+  const pageText = useRef<HTMLDivElement>(null);
+  useWholeRows(pageText, pageText, "li");
 
   const pages = useMemo(() => {
     const byPage = new Map<number, typeof lines>();
@@ -208,6 +211,7 @@ export function Solver({
             <p className="font-mono text-sm text-ink-soft">{author}</p>
           </header>
           <div
+            ref={pageText}
             role="region"
             aria-label="Page text"
             tabIndex={(touch && !reader) || panel ? 0 : undefined}

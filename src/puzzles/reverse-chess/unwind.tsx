@@ -153,7 +153,7 @@ export function Unwind({
       </BoardCell>
 
       <PanelCell className="panel:h-full">
-      <div ref={chainArea} className="flex flex-col gap-3 panel:grid panel:h-full panel:grid-cols-[1fr_auto] panel:grid-rows-[auto_minmax(0,1fr)] panel:items-center panel:gap-x-3 panel:gap-y-2">
+      <div ref={chainArea} className="flex flex-col gap-3 panel:grid panel:h-full panel:grid-cols-[1fr_auto] panel:grid-rows-[auto_minmax(0,1fr)] panel:items-center panel:gap-x-3 panel:gap-y-1">
         <p className="font-display text-sm uppercase">
           Moves taken back ({plies.length} of {payload.plyCount})
         </p>
@@ -210,7 +210,7 @@ export function Unwind({
 
       <PanelCell
         part="foot"
-        className={cn("panel:flex panel:flex-col panel:gap-3 panel:pt-3", solved && "panel:hidden")}
+        className={cn("panel:flex panel:flex-col panel:gap-2 panel:pt-2", solved && "panel:hidden")}
       >
       <PlyChoices
         colour={fromFen(lastBase ?? fen).sideToMove}

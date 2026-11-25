@@ -212,7 +212,7 @@ export function Solver({
             aria-label="Page text"
             tabIndex={(touch && !reader) || panel ? 0 : undefined}
             className={cn(
-              "@container/book-page panel:min-h-0 panel:panel-scroll touch:min-h-0 touch:overflow-y-auto",
+              "@container/book-page panel:-mr-2 panel:min-h-0 panel:panel-scroll touch:min-h-0 touch:overflow-y-auto",
               reader && "touch:min-h-auto touch:overflow-visible",
             )}
           >

@@ -13,7 +13,7 @@ type PlyChoicesProps = {
 /** What the last retro move captured, and whether it undoes a promotion or an en passant capture. */
 export function PlyChoices({ colour, draft, onChange }: PlyChoicesProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 panel:gap-2">
       <p className="font-display text-sm uppercase">Piece the move captured</p>
       <UncaptureTray
         colour={colour}

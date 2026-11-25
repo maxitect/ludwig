@@ -318,7 +318,7 @@ export function Solver({
         >
         <section
           aria-label="References"
-          className="paper-sheet flex flex-col gap-3 p-4 sm:p-6 panel:border-0 panel:bg-transparent panel:p-0 panel:shadow-none touch:lg:p-4"
+          className="paper-sheet flex flex-col gap-3 p-4 sm:p-6 panel:border-0 panel:p-2 panel:shadow-none touch:lg:p-4"
         >
           <h2 className={cn(panelTitle, "panel:sr-only")}>References</h2>
           <ol className="grid grid-cols-1 gap-3 min-[30rem]:grid-cols-2 panel:grid-cols-1 panel:gap-2 touch:lg:grid-cols-1">

@@ -4,6 +4,10 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/utils/cn";
 import { useWholeRows } from "./use-whole-rows";
 
+/** Matches the `panel` variant in globals.css. */
+const PANEL_QUERY =
+  "(min-width: 64rem) and (not ((pointer: coarse) and (min-height: 37.5rem)))";
+
 type PanelSectionProps = {
   title: ReactNode;
   /** Sections sharing a `name` are exclusive: opening one closes the others. */
@@ -27,7 +31,8 @@ type PanelSectionProps = {
 
 /**
  * A native `<details>` section of the desktop panel (SPEC §4.5). Below `lg` and under `touch` the summary is
- * hidden and the content always shows, so the stacked layout is the solver's own.
+ * hidden and the content always shows: `::details-content` renders it, and the sections are opened after
+ * hydration so the accessibility tree holds it too (nothing moves, the content was already drawn).
  */
 export function PanelSection({
   title,
@@ -45,21 +50,50 @@ export function PanelSection({
 }: PanelSectionProps) {
   const details = useRef<HTMLDetailsElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const wanted = useRef(open ?? defaultOpen ?? false);
   useWholeRows(scroller, details, scroll ? rows : undefined);
   useEffect(() => {
     const element = details.current;
-    if (element && open !== undefined && element.open !== open) {
+    if (open === undefined) return;
+    wanted.current = open;
+    const inPanel =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia(PANEL_QUERY).matches;
+    if (element && (inPanel || disclosure) && element.open !== open)
       element.open = open;
-    }
-  }, [open]);
+  }, [open, disclosure]);
+  useEffect(() => {
+    const element = details.current;
+    if (!element || disclosure || typeof window.matchMedia !== "function")
+      return;
+    const panel = window.matchMedia(PANEL_QUERY);
+    const sync = () => {
+      if (panel.matches) {
+        if (name) element.setAttribute("name", name);
+        element.open = wanted.current;
+        return;
+      }
+      element.removeAttribute("name");
+      element.open = true;
+    };
+    sync();
+    panel.addEventListener("change", sync);
+    return () => panel.removeEventListener("change", sync);
+  }, [disclosure, name]);
   return (
     <details
       ref={details}
       name={name}
       open={open ?? defaultOpen}
-      onToggle={(event) => onOpenChange?.(event.currentTarget.open)}
+      onToggle={(event) => {
+        const inPanel =
+          typeof window.matchMedia !== "function" ||
+          window.matchMedia(PANEL_QUERY).matches;
+        if (inPanel || disclosure) onOpenChange?.(event.currentTarget.open);
+      }}
       className={cn(
-        "panel-section contents panel:flex panel:min-h-0 panel:flex-col",
+        "panel-section panel:flex panel:min-h-0 panel:flex-col",
+        disclosure ? "block" : "contents",
         !disclosure && "panel-section-flat",
         scroll ? "panel:shrink-0 panel:open:shrink panel:open:flex-1" : "panel:shrink-0",
         className,

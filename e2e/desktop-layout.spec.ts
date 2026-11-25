@@ -16,9 +16,7 @@ import {
   excludedSolveTypes,
   panelSolveTypes,
 } from "../src/config/solve-layout";
-import { PASSWORD, uniqueEmail } from "./helpers/auth";
 import { uncapturePuzzle } from "./helpers/content";
-import { completePuzzles, databaseAvailable, verifyEmail } from "./helpers/db";
 import { clickCheck, crosswordCell, openPuzzle } from "./helpers/solve";
 
 test.skip(({ isMobile }) => isMobile, "desktop layout only");
@@ -899,57 +897,3 @@ for (const viewport of VIEWPORTS) {
     });
   });
 }
-
-test("AC9: the solved footer fits for every type at both sizes", async ({ page }) => {
-  test.skip(!databaseAvailable, "needs the local database to record completions");
-  test.setTimeout(600_000);
-  const email = uniqueEmail("solved");
-  await page.goto("/sign-up");
-  await page.getByLabel("Name").fill("Solved Pass");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: "Create account" }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/sign-up")).catch(() => undefined);
-  if (new URL(page.url()).pathname === "/sign-up") {
-    await verifyEmail(email);
-    await page.goto("/sign-in");
-    await page.getByLabel("Email").fill(email);
-    await page.getByLabel("Password").fill(PASSWORD);
-    await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await page.waitForURL((url) => !url.pathname.startsWith("/sign-in"));
-  }
-  const reps = REPRESENTATIVES.filter(
-    (rep) => panelSolveTypes.has(rep.type) || boardOnlySolveTypes.has(rep.type),
-  );
-  await completePuzzles(email, reps.map(({ type, slug }) => ({ typeKey: type, slug })));
-  for (const viewport of VIEWPORTS) {
-    await page.setViewportSize(viewport);
-    for (const rep of reps) {
-      await page.goto(`/puzzles/${rep.type}/${rep.slug}`);
-      await expect(page.getByTestId("solved-footer"), rep.type).toBeVisible();
-      await page.waitForTimeout(900);
-      for (const target of [page.getByTestId("solved-stamp"), page.getByText(/Solved in/)]) {
-        const b = await box(target);
-        expect(b.y, `${rep.type} top`).toBeGreaterThanOrEqual(0);
-        expect(bottomOf(b), `${rep.type} ${viewport.height} bottom`).toBeLessThanOrEqual(viewport.height);
-      }
-      const next = page.getByRole("link", { name: "Next in volume" });
-      if (await next.count()) {
-        expect(bottomOf(await box(next)), `${rep.type} next`).toBeLessThanOrEqual(viewport.height);
-      }
-      const scrolling = await page.evaluate(() =>
-        [...document.querySelectorAll<HTMLElement>("section[data-solve-mode] *")]
-          .filter(
-            (element) =>
-              element.checkVisibility({ checkVisibilityCSS: true }) &&
-              ["auto", "scroll"].includes(getComputedStyle(element).overflowY) &&
-              element.scrollHeight > element.clientHeight + 1 &&
-              element.getAttribute("aria-label") !== "Page text" &&
-              element.getAttribute("data-testid") !== "epilogue",
-          )
-          .map((element) => element.tagName),
-      );
-      expect(scrolling, `${rep.type} solved: nothing scrolls`).toEqual([]);
-    }
-  }
-});

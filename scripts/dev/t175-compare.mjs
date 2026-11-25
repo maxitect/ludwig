@@ -12,13 +12,19 @@ const reps = [
     /\{ type: "([a-z0-9-]+)", slug: "([a-z0-9-]+)"/g,
   ),
 ].map((m) => ({ type: m[1], slug: m[2] }));
-const unique = [...new Map(reps.map((r) => [`${r.type}/${r.slug}`, r])).values()];
+const only = process.argv[5];
+const unique = [...new Map(reps.map((r) => [`${r.type}/${r.slug}`, r])).values()].filter(
+  (r) => !only || `${r.type}/${r.slug}`.includes(only),
+);
 
-const profiles = [
+const all = [
   { name: "iPhone 390x844", ...devices["iPhone 13"], viewport: { width: 390, height: 844 } },
   { name: "iPad portrait", ...devices["iPad (gen 7)"] },
   { name: "iPad landscape", ...devices["iPad (gen 7) landscape"] },
 ];
+
+// A fourth argument picks one profile (0 to 2), so the three can run side by side.
+const profiles = process.argv[4] === undefined ? all : [all[Number(process.argv[4])]];
 
 const measure = (page) =>
   page.evaluate(() => {

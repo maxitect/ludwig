@@ -77,10 +77,14 @@ export function Unwind({
   }, [registerCheck, plies, invalid, payload.plyCount]);
 
   useEffect(() => {
-    scrollWithin(
-      chain.current?.querySelector("[data-flagged]") ??
-        chain.current?.lastElementChild,
-    );
+    const reveal = () =>
+      scrollWithin(
+        chain.current?.querySelector("[data-flagged]") ??
+          chain.current?.lastElementChild,
+      );
+    reveal();
+    const frame = requestAnimationFrame(reveal);
+    return () => cancelAnimationFrame(frame);
   }, [plies.length, checked]);
 
   function update(next: Ply[]) {
@@ -206,7 +210,7 @@ export function Unwind({
 
       <PanelCell
         part="foot"
-        className={cn("panel:flex panel:flex-col panel:gap-3", solved && "panel:hidden")}
+        className={cn("panel:flex panel:flex-col panel:gap-3 panel:pt-3", solved && "panel:hidden")}
       >
       <PlyChoices
         colour={fromFen(lastBase ?? fen).sideToMove}

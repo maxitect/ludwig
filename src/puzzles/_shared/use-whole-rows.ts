@@ -12,6 +12,7 @@ function cutAtWholeRow(
   rowSelector: string,
   panel: boolean,
 ) {
+  const atEnd = area.scrollTop + area.clientHeight >= area.scrollHeight - 2;
   area.style.flex = "";
   area.style.height = "";
   if (!panel) return;
@@ -27,6 +28,7 @@ function cutAtWholeRow(
   if (fit === 0) return;
   area.style.flex = "none";
   area.style.height = `${Math.ceil(fit) + RULE}px`;
+  if (atEnd) area.scrollTop = area.scrollHeight;
 }
 
 /**

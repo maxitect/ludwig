@@ -374,7 +374,7 @@ export function Solver({
           <p
             aria-live="polite"
             data-testid="rota-status"
-            className="min-h-6 text-sm panel:min-h-0 panel:empty:hidden"
+            className="-mt-4 min-h-6 text-sm panel:mt-0 panel:min-h-0 panel:empty:hidden"
           >
             {announcement}
           </p>

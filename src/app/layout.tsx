@@ -1,7 +1,10 @@
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { InitScript } from "@/components/shell/init-script";
 import { ServiceWorkerRegistration } from "@/components/shell/service-worker-registration";
 import { themeColors } from "@/config/theme-colors";
+import { env } from "@/env";
 import { reduceMotionInitScript } from "@/utils/reduce-motion";
 import { themeInitScript } from "@/utils/theme";
 import { fontVariables } from "./fonts";
@@ -52,6 +55,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="group/body flex min-h-dvh flex-col">
         {children}
         {process.env.NODE_ENV === "production" && <ServiceWorkerRegistration />}
+        {env.VERCEL_ENV === "production" && (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        )}
       </body>
     </html>
   );

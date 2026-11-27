@@ -166,7 +166,7 @@ The orchestrator updates the status column below: `todo` → `in-progress` → `
 | [T174](./done/T174-desktop-solve-panel-audit.md) | Audit the desktop solve panel after T170: scrolling, spacing, what should fold away, and classic gears | T170 | | | done |
 | [T175](./done/T175-desktop-solve-panel-remediation.md) | Desktop solve panel, second pass: sections that fold instead of scrollbars, even spacing, and classic gears in the layout (built from T174's audit) | T174 | | | done |
 | [T176](./done/T176-vercel-web-analytics-and-speed-insights.md) | Vercel Web Analytics and Speed Insights on production | — | | ✔ | done |
-| [T177](./T177-campaign-links-and-funnel-events.md) | Campaign links and funnel events: which outreach brought a visit, and what the visitor did | T176 | | ✔ | todo |
+| [T177](./T177-campaign-links-and-funnel-events.md) | Campaign links and funnel events: which outreach brought a visit, and what the visitor did | T176 | | ✔ | blocked |
 
 ## M6: Radio Times set
 

@@ -116,6 +116,15 @@ export default function AboutPage() {
             .
           </p>
         </section>
+        <section className="flex flex-col gap-3">
+          <h2 className={headingClass}>Counting visits</h2>
+          <p>
+            The site counts visits with Vercel Web Analytics and times page
+            loads with Vercel Speed Insights: which pages are opened, roughly
+            where from, and how fast they load. Neither sets cookies or
+            identifies you.
+          </p>
+        </section>
         <section className="flex flex-col gap-3 text-sm">
           <h2 className={headingClass}>Credits</h2>
           <p>
